@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="900" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="#f8f9fa"/>
+  
+  <!-- Title -->
+  <text x="400" y="40" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="#2c3e50">M1 - Arranque y Configuración</text>
+  <text x="400" y="65" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#7f8c8d">ValidadorRem System Flow</text>
+  
+  <!-- Boxes and connections -->
+  <g font-family="Arial, sans-serif" font-size="14" fill="#2c3e50">
+    <!-- Start -->
+    <rect x="300" y="90" width="200" height="50" rx="8" fill="#3498db" stroke="#2980b9" stroke-width="2"/>
+    <text x="400" y="115" text-anchor="middle">🚀 Inicio (STAThread)</text>
+    
+    <!-- Loading -->
+    <rect x="300" y="160" width="200" height="50" rx="8" fill="#f39c12" stroke="#e67e22" stroke-width="2"/>
+    <text x="400" y="185" text-anchor="middle">🔄 Splash: Cargando...</text>
+    
+    <!-- Check update file -->
+    <rect x="300" y="230" width="200" height="60" rx="8" fill="#27ae60" stroke="#2ecc71" stroke-width="2"/>
+    <text x="400" y="255" text-anchor="middle">📄 Verificar Actualizado.txt</text>
+    <text x="400" y="275" text-anchor="middle">exists?</text>
+    
+    <!-- Decision -->
+    <defs>
+      <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#34495e"/>
+      </marker>
+    </defs>
+    
+    <!-- Flow lines -->
+    <line x1="400" y1="140" x2="400" y2="160" stroke="#34495e" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <line x1="400" y1="210" x2="400" y2="230" stroke="#34495e" stroke-width="2" marker-end="url(#arrowhead)"/>
+    
+    <!-- Yes branch (update file exists) -->
+    <line x1="400" y1="290" x2="400" y2="310" stroke="#27ae60" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <rect x="300" y="320" width="200" height="50" rx="8" fill="#e74c3c" stroke="#c0392b" stroke-width="2"/>
+    <text x="400" y="345" text-anchor="middle">🔄 Actualización desde archivo</text>
+    
+    <!-- No branch -->
+    <line x1="500" y1="290" x2="500" y2="310" stroke="#e74c3c" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <rect x="300" y="400" width="200" height="50" rx="8" fill="#9b59b6" stroke="#8e44ad" stroke-width="2"/>
+    <text x="400" y="425" text-anchor="middle">🌐 Verificar conectividad WS</text>
+    
+    <!-- Web services parallel -->
+    <line x1="400" y1="450" x2="200" y2="470" stroke="#34495e" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <line x1="400" y1="450" x2="600" y2="470" stroke="#34495e" stroke-width="2" marker-end="url(#arrowhead)"/>
+    
+    <rect x="100" y="480" width="200" height="60" rx="8" fill="#1abc9c" stroke="#16a085" stroke-width="2"/>
+    <text x="200" y="505" text-anchor="middle" font-weight="bold">🌐 WebSocket 1</text>
+    <text x="200" y="525" text-anchor="middle">WebService1.version()</text>
+    <text x="200" y="535" text-anchor="middle">→ string version</text>
+    
+    <rect x="500" y="480" width="200" height="60" rx="8" fill="#1abc9c" stroke="#16a085" stroke-width="2"/>
+    <text x="600" y="505" text-anchor="middle" font-weight="bold">🖥️ WebSocket 2</text>
+    <text x="600" y="525" text-anchor="middle">VersionEjecutable.VersionEjec()</text>
+    <text x="600" y="535" text-anchor="middle">→ DataSet</text>
+    
+    <!-- Merge back -->
+    <line x1="200" y1="540" x2="400" y2="560" stroke="#34495e" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <line x1="600" y1="540" x2="400" y2="560" stroke="#34495e" stroke-width="2" marker-end="url(#arrowhead)"/>
+    
+    <!-- Compare -->
+    <rect x="300" y="580" width="200" height="60" rx="8" fill="#e67e22" stroke="#d35400" stroke-width="2"/>
+    <text x="400" y="605" text-anchor="middle">⚖️ Comparar versiones</text>
+    <text x="400" y="620" text-anchor="middle">(Web vs Local)</text>
+    
+    <!-- Decision -->
+    <rect x="300" y="660" width="200" height="60" rx="8" fill="#27ae60" stroke="#2ecc71" stroke-width="2"/>
+    <text x="400" y="685" text-anchor="middle">❓ ¿Versión diferente?</text>
+    
+    <!-- Yes - update needed -->
+    <line x1="500" y1="720" x2="500" y2="740" stroke="#27ae60" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <rect x="400" y="750" width="200" height="50" rx="8" fill="#f39c12" stroke="#e67e22" stroke-width="2"/>
+    <text x="500" y="775" text-anchor="middle">⚠️ Mensaje: Actualizaciones disponibles</text>
+    
+    <!-- No - up to date -->
+    <line x1="300" y1="720" x2="300" y2="740" stroke="#27ae60" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <rect x="200" y="750" width="200" height="50" rx="8" fill="#3498db" stroke="#2980b9" stroke-width="2"/>
+    <text x="300" y="775" text-anchor="middle">📋 Mostrar Principal</text>
+    
+    <!-- Main form with SS check -->
+    <rect x="250" y="820" width="300" height="70" rx="8" fill="#2c3e50" stroke="#34495e" stroke-width="2"/>
+    <text x="400" y="845" text-anchor="middle" fill="white" font-weight="bold">📋 Principal.Form</text>
+    <text x="400" y="860" text-anchor="middle" fill="white">¿SS seleccionado?</text>
+    
+    <!-- SS decision -->
+    <line x1="400" y1="890" x2="400" y2="920" stroke="#34495e" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <text x="600" y="880" font-size="12" fill="#7f8c8d">YES</text>
+    <text x="200" y="880" font-size="12" fill="#7f8c8d">NO</text>
+    
+    <!-- SS not selected -->
+    <rect x="100" y="920" width="200" height="50" rx="8" fill="#c0392b" stroke="#a93226" stroke-width="2"/>
+    <text x="200" y="945" text-anchor="middle" fill="white">🔒 Módulos M2-M6 BLOQUEADOS</text>
+    <text x="200" y="958" text-anchor="middle" fill="white" font-size="11">RN-G1: SS Requerido</text>
+    
+    <!-- SS selected -->
+    <rect x="500" y="920" width="200" height="50" rx="8" fill="#27ae60" stroke="#2ecc71" stroke-width="2"/>
+    <text x="600" y="945" text-anchor="middle" fill="white">🔓 Módulos M2-M6 ACTIVOS</text>
+  </g>
+  
+  <!-- Side note about databases -->
+  <rect x="50" y="670" width="150" height="100" rx="8" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="1"/>
+  <text x="125" y="690" text-anchor="middle" font-size="12" font-weight="bold">📁 Bases de Datos</text>
+  <text x="125" y="710" text-anchor="middle" font-size="11">Global.mdb (422MB)</text>
+  <text x="125" y="725" text-anchor="middle" font-size="11">Trans.mdb</text>
+  <text x="125" y="740" text-anchor="middle" font-size="11">DatosSERIE.mdb</text>
+  
+  <!-- Side note about URLs -->
+  <rect x="600" y="670" width="150" height="80" rx="8" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="1"/>
+  <text x="675" y="690" text-anchor="middle" font-size="12" font-weight="bold">🌐 URLs WS</text>
+  <text x="675" y="710" text-anchor="middle" font-size="10">cargasrem.minsal.cl</text>
+  <text x="675" y="725" text-anchor="middle" font-size="10">/webservice/</text>
+</svg>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="900" xmlns="http://www.w3.org/2000/svg">
+  <rect width="100%" height="100%" fill="#f8f9fa"/>
+  <text x="400" y="40" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="#2c3e50">M2 - Carga de Datos</text>
+  <text x="400" y="65" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#7f8c8d">Data Loading Module Flow</text>
+  
+  <g font-family="Arial, sans-serif" font-size="14" fill="#2c3e50">
+    <defs>
+      <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#34495e"/>
+      </marker>
+    </defs>
+    
+    <!-- Usuario Entrada -->
+    <rect x="300" y="40" width="200" height="50" rx="8" fill="#3498db" stroke="#2980b9" stroke-width="2"/>
+    <text x="400" y="65" text-anchor="middle">👤 Usuario: Archivo Excel</text>
+    
+    <!-- CargaDatos -->
+    <line x1="400" y1="90" x2="400" y2="110" stroke="#34495e" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <rect x="300" y="110" width="200" height="60" rx="8" fill="#9b59b6" stroke="#8e44ad" stroke-width="2"/>
+    <text x="400" y="135" text-anchor="middle" font-weight="bold">📊 CargaDatos<br/>Carga Individual</text>
+    <text x="400" y="155" text-anchor="middle">Wizard: Serie/Año/Mes</text>
+    
+    <!-- CargaDatosMultiple -->
+    <line x1="400" y1="170" x2="400" y2="190" stroke="#34495e" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <rect x="300" y="190" width="200" height="60" rx="8" fill="#9b59b6" stroke="#8e44ad" stroke-width="2"/>
+    <text x="400" y="215" text-anchor="middle" font-weight="bold">📁 CargaDatosMultiple<br/>Carga por Carpeta</text>
+    <text x="400" y="235" text-anchor="middle">Progreso: Archivo/Procesados</text>
+    
+    <!-- Motor CargaExcel -->
+    <line x1="400" y1="250" x2="400" y2="270" stroke="#34495e" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <rect x="200" y="280" width="200" height="80" rx="8" fill="#1abc9c" stroke="#16a085" stroke-width="2"/>
+    <text x="300" y="305" text-anchor="middle" font-weight="bold">⚙️ CargaExcel<br/>Motor Validación</text>
+    <text x="300" y="320" text-anchor="middle">verifica_version, comprueba_estab</text>
+    <text x="300" y="330" text-anchor="middle">Busca_Hoja, Busca_Dato</text>
+    
+    <rect x="400" y="280" width="200" height="80" rx="8" fill="#1abc9c" stroke="#16a085" stroke-width="2"/>
+    <text x="500" y="305" text-anchor="middle" font-weight="bold">✓ datos tabla</text>
+    <text x="500" y="320" text-anchor="middle">Registros válidos</text>
+    <text x="500" y="335" text-anchor="middle">col01-col50 + fechacarga</text>
+    
+    <line x1="200" y1="360" x2="400" y2="360" stroke="#34495e" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <line x1="600" y1="360" x2="400" y2="360" stroke="#34495e" stroke-width="2" marker-end="url(#arrowhead)"/>
+    
+    <rect x="300" y="380" width="200" height="70" rx="8" fill="#e67e22" stroke="#d35400" stroke-width="2"/>
+    <text x="400" y="405" text-anchor="middle" font-weight="bold">📋 HistCarga tabla</text>
+    <text x="400" y="420" text-anchor="middle">Histórico cargas</text>
+    <text x="400" y="430" text-anchor="middle">IdEstablecimiento, Mes, Ano, Serie</text>
+    
+    <!-- Conexiones a otros módulos -->
+    <line x1="400" y1="450" x2="400" y2="470" stroke="#34495e" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <text x="600" y="460" font-size="12" fill="#7f8c8d">→ M3 Errores</text>
+    <text x="200" y="460" font-size="12" fill="#7f8c8d">→ M4 Consultas</text>
+  </g>
+  
+  <rect x="50" y="640" width="150" height="80" rx="8" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="1"/>
+  <text x="125" y="660" text-anchor="middle" font-size="12" font-weight="bold">📁 Bases</text>
+  <text x="125" y="680" text-anchor="middle" font-size="11">DatosSERIE{serie}{año}.mdb</text>
+  <text x="125" y="695" text-anchor="middle" font-size="11">~15K registros</text>
+  
+  <rect x="600" y="640" width="150" height="80" rx="8" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="1"/>
+  <text x="675" y="660" text-anchor="middle" font-size="12" font-weight="bold">📊 Volumen</text>
+  <text x="675" y="680" text-anchor="middle" font-size="11">15,000+ filas</text>
+  <text x="675" y="695" text-anchor="middle" font-size="11">por archivo</text>
+</svg>

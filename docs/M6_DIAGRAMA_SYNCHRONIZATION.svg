@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="900" xmlns="http://www.w3.org/2000/svg">
+  <rect width="100%" height="100%" fill="#f8f9fa"/>
+  <text x="400" y="40" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="#2c3e50">M6 - Sincronización</text>
+  <text x="400" y="65" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#7f8c8d">Synchronization Module</text>
+  
+  <g font-family="Arial, sans-serif" font-size="13" fill="#2c3e50">
+    <defs>
+      <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#34495e"/>
+      </marker>
+    </defs>
+    
+    <!-- Start -->
+    <rect x="300" y="40" width="200" height="50" rx="8" fill="#3498db" stroke="#2980b9" stroke-width="2"/>
+    <text x="400" y="65" text-anchor="middle">🔄 Actualizador</text>
+    
+    <!-- Web services grid -->
+    <line x1="400" y1="90" x2="400" y2="110" stroke="#34495e" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <rect x="200" y="130" width="120" height="80" rx="8" fill="#9b59b6" stroke="#8e44ad" stroke-width="2"/>
+    <text x="260" y="150" text-anchor="middle" font-weight="bold">🌐 WS1</text>
+    <text x="260" y="165" text-anchor="middle">version()</text>
+    <text x="260" y="178" text-anchor="middle">v. servicio</text>
+    
+    <rect x="340" y="130" width="120" height="80" rx="8" fill="#1abc9c" stroke="#16a085" stroke-width="2"/>
+    <text x="400" y="150" text-anchor="middle" font-weight="bold">🖥️ WS2</text>
+    <text x="400" y="165" text-anchor="middle">VersionEjec()</text>
+    <text x="400" y="178" text-anchor="middle">v. ejecutable</text>
+    
+    <rect x="480" y="130" width="120" height="80" rx="8" fill="#e67e22" stroke="#d35400" stroke-width="2"/>
+    <text x="540" y="150" text-anchor="middle" font-weight="bold">📦 WSDB</text>
+    <text x="540" y="165" text-anchor="middle">datos(), diccionario()</text>
+    <text x="540" y="178" text-anchor="middle">Catálogos</text>
+    
+    <rect x="200" y="240" width="120" height="80" rx="8" fill="#f39c12" stroke="#e67e22" stroke-width="2"/>
+    <text x="260" y="260" text-anchor="middle" font-weight="bold">📊 Serie</text>
+    <text x="260" y="275" text-anchor="middle">serieA(), BS(), BM()</text>
+    <text x="260" y="288" text-anchor="middle">Descarga datos</text>
+    
+    <rect x="340" y="240" width="120" height="80" rx="8" fill="#3498db" stroke="#2980b9" stroke-width="2"/>
+    <text x="400" y="260" text-anchor="middle" font-weight="bold">📥 Serv</text>
+    <text x="400" y="275" text-anchor="middle">DatosSerie()</text>
+    <text x="400" y="288" text-anchor="middle">Por SS/año/mes</text>
+    
+    <rect x="480" y="240" width="120" height="80" rx="8" fill="#1abc9c" stroke="#16a085" stroke-width="2"/>
+    <text x="540" y="260" text-anchor="middle" font-weight="bold">⚡ Up</text>
+    <text x="540" y="275">Datos_Up()</text>
+    <text x="540" y="288">Optimización remota</text>
+    
+    <!-- Flow from Actualizador -->
+    <line x1="400" y1="310" x2="200" y2="330" stroke="#34495e" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <line x1="400" y1="310" x2="400" y2="330" stroke="#34495e" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <line x1="400" y1="310" x2="600" y2="330" stroke="#34495e" stroke-width="2" marker-end="url(#arrowhead)"/>
+    
+    <!-- Update process -->
+    <rect x="300" y="370" width="200" height="60" rx="8" fill="#27ae60" stroke="#2ecc71" stroke-width="2"/>
+    <text x="400" y="395" text-anchor="middle" font-weight="bold">📥 Descarga Catálogos</text>
+    
+    <line x1="400" y1="430" x2="400" y2="450" stroke="#34495e" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <rect x="200" y="480" width="150" height="40" rx="8" fill="#3498db" stroke="#2980b9" stroke-width="2"/>
+    <text x="275" y="505" text-anchor="middle">✅ VERSION ACTUALIZADA</text>
+    <text x="275" y="493" text-anchor="middle" font-size="11">Software.Version</text>
+  </g>
+  
+  <rect x="50" y="550" width="150" height="80" rx="8" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="1"/>
+  <text x="125" y="570" text-anchor="middle" font-size="12" font-weight="bold">🌐 URLs</text>
+  <text x="125" y="590" text-anchor="middle" font-size="11">cargasrem.minsal.cl</text>
+  <text x="125" y="605" text-anchor="middle" font-size="11">/webservice/</text>
+  
+  <rect x="600" y="550" width="150" height="80" rx="8" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="1"/>
+  <text x="675" y="570" text-anchor="middle" font-size="12" font-weight="bold">⚠️ Riesgo</text>
+  <text x="675" y="590" text-anchor="middle" font-size="11">Prueba HTTP sin TLS</text>
+  <text x="675" y="605" text-anchor="middle" font-size="11">Validar antes producción</text>
+</svg>

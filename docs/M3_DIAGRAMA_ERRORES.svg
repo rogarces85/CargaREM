@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="800" xmlns="http://www.w3.org/2000/svg">
+  <rect width="100%" height="100%" fill="#f8f9fa"/>
+  <text x="400" y="40" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="#2c3e50">M3 - Errores y Control</text>
+  <text x="400" y="65" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#7f8c8d">Error Management Flow</text>
+  
+  <g font-family="Arial, sans-serif" font-size="14" fill="#2c3e50">
+    <defs>
+      <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <polygon points="0 0, 10 3.5, 0 7" fill="#34495e"/>
+      </marker>
+    </defs>
+    
+    <!-- M2 generates errors -->
+    <rect x="300" y="40" width="200" height="50" rx="8" fill="#3498db" stroke="#2980b9" stroke-width="2"/>
+    <text x="400" y="65" text-anchor="middle">📊 M2 Genera Errores</text>
+    
+    <line x1="400" y1="90" x2="400" y2="110" stroke="#34495e" stroke-width="2" marker-end="url(#arrowhead)"/>
+    
+    <!-- Error decision -->
+    <rect x="300" y="110" width="200" height="60" rx="8" fill="#e67e22" stroke="#d35400" stroke-width="2"/>
+    <text x="400" y="135" text-anchor="middle" font-weight="bold">⚠️ ¿Error encontrado?</text>
+    <line x1="400" y1="170" x2="200" y2="190" stroke="#e74c3c" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <line x1="400" y1="170" x2="600" y2="190" stroke="#27ae60" stroke-width="2" marker-end="url(#arrowhead)"/>
+    
+    <!-- Error handling paths -->
+    <rect x="150" y="210" width="150" height="60" rx="8" fill="#e74c3c" stroke="#c0392b" stroke-width="2"/>
+    <text x="225" y="235" text-anchor="middle" font-weight="bold">❌ Ruta Error</text>
+    <text x="225" y="250" text-anchor="middle">INSERT LogError</text>
+    <text x="225" y="262" text-anchor="middle">Trans.mdb</text>
+    
+    <rect x="500" y="210" width="150" height="60" rx="8" fill="#27ae60" stroke="#2ecc71" stroke-width="2"/>
+    <text x="575" y="235" text-anchor="middle" font-weight="bold">✅ Ruta Correcto</text>
+    <text x="575" y="250" text-anchor="middle">INSERT datos</text>
+    
+    <!-- LogError table -->
+    <line x1="200" y1="270" x2="400" y2="290" stroke="#34495e" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <rect x="300" y="310" width="200" height="90" rx="8" fill="#9b59b6" stroke="#8e44ad" stroke-width="2"/>
+    <text x="400" y="335" text-anchor="middle" font-weight="bold">📋 LogError (Trans.mdb)</text>
+    <text x="400" y="350" text-anchor="middle">archivo, establecimiento, mes, año</text>
+    <text x="400" y="362" text-anchor="middle">linea, hoja, dato, mensaje_error</text>
+    <text x="400" y="374" text-anchor="middle">fecharegistro</text>
+    
+    <!-- Review interfaces -->
+    <line x1="400" y1="400" x2="400" y2="420" stroke="#34495e" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <rect x="300" y="430" width="200" height="50" rx="8" fill="#1abc9c" stroke="#16a085" stroke-width="2"/>
+    <text x="400" y="455" text-anchor="middle" font-weight="bold">🔍 LogErrorCargados</text>
+    <text x="400" y="475" text-anchor="middle">UI: filtro año/serie/establecimiento</text>
+    
+    <line x1="400" y1="480" x2="400" y2="500" stroke="#34495e" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <rect x="300" y="510" width="200" height="50" rx="8" fill="#3498db" stroke="#2980b9" stroke-width="2"/>
+    <text x="400" y="535" text-anchor="middle" font-weight="bold">📂 LogErrorMultiples</text>
+    <text x="400" y="555" text-anchor="middle">UI: filtro por archivo</text>
+    
+    <!-- Export options -->
+    <line x1="400" y1="560" x2="400" y2="580" stroke="#34495e" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <text x="600" y="585" font-size="12" fill="#7f8c8d">→ Exportar Excel</text>
+    <text x="200" y="585" font-size="12" fill="#7f8c8d">→ Exportar Excel</text>
+    
+    <!-- InformeControl -->
+    <line x1="400" y1="570" x2="400" y2="590" stroke="#34495e" stroke-width="2" marker-end="url(#arrowhead)"/>
+    <rect x="300" y="620" width="200" height="40" rx="8" fill="#f39c12" stroke="#e67e22" stroke-width="2"/>
+    <text x="400" y="645" text-anchor="middle" font-weight="bold">📊 InformeControl</text>
+    <text x="400" y="608" text-anchor="middle">Calcular puntos calidad</text>
+  </g>
+  
+  <rect x="50" y="660" width="150" height="80" rx="8" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="1"/>
+  <text x="125" y="680" text-anchor="middle" font-size="12" font-weight="bold">📁 Tablas</text>
+  <text x="125" y="700" text-anchor="middle" font-size="11">LogError: Variable (0-N)</text>
+  <text x="125" y="715" text-anchor="middle" font-size="11">Trans.mdb</text>
+  
+  <rect x="600" y="660" width="150" height="80" rx="8" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="1"/>
+  <text x="675" y="680" text-anchor="middle" font-size="12" font-weight="bold">❓ Pendiente</text>
+  <text x="675" y="700" text-anchor="middle" font-size="11">Cálculo puntos</text>
+  <text x="675" y="715" text-anchor="middle" font-size="11">Validación requerida</text>
+</svg>
