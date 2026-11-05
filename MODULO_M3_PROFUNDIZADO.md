@@ -420,4 +420,183 @@ WHERE idestablecimiento LIKE '%-%'
 
 ---
 
+## 18. Flujo de Datos Detallado
+
+### D3.1: Flujo de Registro de Errores
+
+```mermaid
+flowchart TB
+    subgraph "Origen error"
+        A1[CargaDatos.Button4_Click]
+        A2[CargaDatosMultiple.procesarArchivo]
+        A3[ActDBServ - datos del servidor]
+    end
+    
+    subgraph "Motor validación"
+        B1[CargaExcel.validar]
+        B2[verifica_version → ERROR]
+        B3[comprueba_estab → ERROR]
+        B4[Busca_Dato → ERROR]
+        B5[VeriExcep → ERROR]
+    end
+    
+    subgraph "Captura error"
+        C1[Crear LogError]
+        C2[Estructura: archivo, hoja, línea, dato, mensaje]
+        C3[INSERT INTO LogError]
+    end
+    
+    subgraph "Datos inválidos"
+        D1[Crear registro INCORRECTO]
+        D2[Datos fallidos con motivo]
+        D3[INSERT INCORRECTO]
+    end
+    
+    subgraph "Persistencia temporal"
+        E1[TemporalIncorrectos.mdb]
+        E2[Trans.mdb - LogError]
+    end
+    
+    A1 --> B1
+    A2 --> B1
+    A3 --> B1
+    B1 --> C1 & D1
+    C1 --> C3 --> E2
+    D1 --> D3 --> E1
+```
+
+### D3.2: Flujo de Revisión LogErrorCargados
+
+```mermaid
+flowchart LR
+    subgraph "Entrada UI"
+        A1[Usuario: cbAno (año)]
+        A2[Usuario: cbSerie (serie)]
+        A3[Usuario: cbEstablecimiento (código)]
+    end
+    
+    subgraph "Consulta"
+        B1[SELECT archivo, hoja, línea, error...]
+        B2[FROM LogError WHERE ano= & serie= & establecimiento=]
+        B3[ORDER BY archivo, línea, hoja]
+    end
+    
+    subgraph "Visualización"
+        C1[dgvErrores: tabla resultados]
+        C2[Columnas: Archivo, Hoja, Línea, Dato, Error]
+    end
+    
+    subgraph "Acciones"
+        D1[btnExportarExcel]
+        D2[txtBuscar (libre)]
+    end
+    
+    subgraph "Salida"
+        E1[Archivo Excel exportado]
+        E2["Mensaje: 'No hay Datos'"]
+    end
+    
+    A1 --> B1
+    A2 --> B1
+    A3 --> B1
+    B1 --> B2 --> B3 --> C1
+    C1 --> D1 & D2
+    D1 --> E1
+    C1 -->|Sin resultados| E2
+```
+
+### D3.3: Flujo de Hoja de Control (InformeControl)
+
+```mermaid
+flowchart TB
+    A[Generar Informe] --> B[Crear TemporalControl.mdb]
+    B --> C[Consultar LogError]
+    C --> D[Agrupar por tipo_error]
+    D --> E[Calcular cant_errores]
+    E --> F[Asignar puntos_penalizacion]
+    F --> G[INSERT INTO Error tabla]
+    G --> H{Calcular puntuación}
+    H --> I[Puntuación 0-100]
+    I --> J[Clasificar: Excelente/Bueno/Regular/Malo]
+    J --> K[Mostrar porcentaje en UI]
+    K --> L[Exportar a Excel]
+```
+
+### D3.4: Diagrama entidad-relación errores
+
+```mermaid
+erDiagram
+    LOGE {
+        Text archivo PK
+        Text idestablecimiento PK,FK
+        Long mes PK,FK
+        Long ano PK,FK
+        Text serie PK,FK
+        Long linea PK
+        Text hoja PK
+        Text dato
+        MEMO mensaje_error
+        DateTime fecharegistro
+    }
+    
+    INCORRECTO {
+        Long ano PK,FK
+        Long mes PK,FK
+        Long idservicio PK,FK
+        Text idestablecimiento PK
+        Text codigoprestacion PK
+        Double col01 ... col50
+        DateTime fechacarga
+        MEMO motivo_error
+    }
+    
+    ERROR_CONTROL {
+        Long ano PK
+        Long mes PK
+        Text serie PK
+        Text idestablecimiento PK
+        Text tipo_error
+        Long cant_errores
+        Long puntos_penalizacion
+        DateTime fechareporte
+    }
+    
+    DATOS_SERIE_MDB ||--o{ LOGE : "genera"
+    DATOS_SERIE_MDB ||--o{ INCORRECTO : "puede generar"
+    LOGE ||--o{ ERROR_CONTROL : "se suma"
+```
+
+### D3.5: Flujo de datos con Módulo M2
+
+```mermaid
+flowchart TB
+    subgraph "M2 - Carga"
+        A1[CargaDatos] --> B1[CargaExcel]
+        B1 --> C1[validaCeldas]
+        C1 --> D1{¿Error?}
+    end
+    
+    subgraph "Salida errores"
+        D1 -- Sí --> E1[INSERT LogError]
+        D1 -- Sí --> F1[INSERT INCORRECTO]
+        D1 -- No --> G1[INSERT datos]
+    end
+    
+    subgraph "M3 - Revisión"
+        E1 --> H1[LogErrorCargados UI]
+        E1 --> I1[LogErrorMultiples UI]
+        F1 --> J1[InformeControl]
+        H1 --> K1[Exportar Excel]
+        I1 --> K1
+        J1 --> L1[Calcular Puntos]
+    end
+    
+    subgraph "Salidas finales"
+        G1 --> M1[datos tabla]
+        L1 --> M2["Clasificación calidad"]
+    end
+```
+
+---
+
 **Documento generado:** Basado en análisis estático del sistema ValidadorRem. Requiere validación del cálculo de puntos y criterios de clasificación de errores.

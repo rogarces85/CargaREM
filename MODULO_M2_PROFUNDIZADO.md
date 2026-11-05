@@ -302,12 +302,222 @@ CREATE TABLE datos (
 
 ---
 
-## 14. Métricas
+## 14. Flujo de Datos Detallado
 
-- **CargaDatos:** Rutina principal ~6,717 bytes IL
-- **Métodos CargaExcel:** verifica_version, comprueba_estab, Busca_Hoja, Busca_Dato, VeriExcep
-- **Consultas SQL:** Multiple SELECT, INSERT, DELETE
-- **Componentes:** 5 (3 formularios, 2 clases)
+### D2.1: Flujo de Dato Carga Individual (CargaDatos)
+
+```mermaid
+flowchart TB
+    subgraph "Entrada Usuario"
+        A1[Usuario: Serie, Año, Mes (comboboxes)]
+        A2[Usuario: Archivo Excel (browse)]
+        A3[Usuario: Confirmar sobrescritura]
+    end
+    
+    subgraph "Validaciones Pre-carga"
+        B1[RN-G1: Verificar SS seleccionado]
+        B2[RN-M2-1: Validar extensión (.xls/.xlsx/.xlsm)]
+        B3[RN-M2-2: Validar cabecera (serie/año/mes)]
+    end
+    
+    subgraph "Motor CargaExcel"
+        C1[verifica_version: Tabla version]
+        C2[comprueba_estab: mpEstablecimiento]
+        C3[Busca_Hoja: Thojas + Diccionario]
+        C4[Busca_Dato: lectura celdas + tipoDato]
+        C5[VeriExcep: Excepciones columnas]
+    end
+    
+    subgraph "Persistencia"
+        D1[RN-M2-5: DELETE existentes]
+        D2[INSERT datos validados]
+        D3[INSERT LogError errores]
+        D4[INSERT INCORRECTO datos fallidos]
+        D5[INSERT HistCarga registro]
+    end
+    
+    subgraph "Salida"
+        E1[Mensaje: "Proceso Finalizado con Éxito"]
+        E2[Mensaje: "Ejecutado con error"]
+        E3[Mensaje: "No hay Datos a Ingresar"]
+    end
+    
+    A1 --> B1
+    A2 --> B2
+    B1 --> C1 & C2 & C3 & C4 & C5
+    C5 --> D1 & D2 & D3 & D4 & D5
+    D1 & D2 & D3 & D4 & D5 --> E1 & E2 & E3
+```
+
+### D2.2: Flujo de Dato Carga Múltiple
+
+```mermaid
+flowchart LR
+    subgraph "Entrada"
+        A1[Usuario: Selecciona carpeta]
+        A2[Lista archivos Excel]
+    end
+    
+    subgraph "Procesamiento por archivo"
+        B1[Para cada archivo]
+        B2[ProcesaArchivo → CargaExcel]
+        B3[Verifica versión, establecimiento]
+        B4[Valida hojas y datos]
+    end
+    
+    subgraph "Tracking"
+        C1[ProgressBar: progreso]
+        C2[Etiquetas: archivo actual/procesados/total]
+        C3[Temporal: registros correctos/incorrectos]
+    end
+    
+    subgraph "Salida"
+        D1["Resumen: 'Se han terminado...'"]
+        D2["Resumen: 'Carga Visual Completada'"]
+    end
+    
+    A1 --> B1
+    B1 --> B2
+    B2 --> B3
+    B3 --> B4
+    B4 --> C1 & C2 & C3
+    C3 --> D1 & D2
+```
+
+### D2.3: Flujo de Dato desde Servidor (ActDBServ)
+
+```mermaid
+flowchart TB
+    subgraph "Entrada"
+        A1[Usuario: Click "Datos desde Servidor"]
+        A2[Usuario: Confirmar borrador datos]
+    end
+    
+    subgraph "Consumo WebService"
+        B1[CargaSerieServ.DatosSerie(códigoSS, año, mes)]
+        B2[CargaControlServ.DatosControl(...)]
+    end
+    
+    subgraph "Persistencia"
+        C1[crea_base() → DatosSERIE.mdb]
+        C2[INSERT datos desde DataSet]
+    end
+    
+    subgraph "Salida"
+        D1[Mensaje: "Carga desde servidor completada"]
+        D2[Mensaje: "Error de conexión"]
+    end
+    
+    A1 --> |"Se borrarán todos los datos...>| A2
+    A2 --> B1 & B2
+    B1 --> C1
+    B2 --> C1
+    C1 --> C2
+    C2 --> D1
+    B1 -.-> D2
+```
+
+### D2.4: Diagrama de flujo de datos entre bases
+
+```mermaid
+erDiagram
+    GLOBAL_MDB {
+        Long ano PK,FK
+        Long mes PK,FK
+        Text Serie PK,FK
+        Text SerieExcel
+        Text version
+    }
+    
+    THOJAS {
+        Long ano PK,FK
+        Long mes PK,FK
+        Text Serie PK,FK
+        Text Hoja
+        Text Rango
+    }
+    
+    DICTIONARY {
+        Text CodigoPrestacion PK
+        Text Hoja PK
+        Long linea PK
+        Text Inicio
+        Text Fin
+        Long Posicion
+        Text tipoDato
+    }
+    
+    VERSION ||--o{ THOJAS : "define"
+    THOJAS ||--o{ DICTIONARY : "mapea"
+    
+    DATOS_SERIE_MDB {
+        Long ano PK
+        Long mes PK
+        Text idestablecimiento PK
+        Text codigoprestacion PK
+        Double col01 ... col50
+        DateTime fechacarga
+    }
+    
+    TEMPORAL_MDB {
+        Text idestablecimiento PK
+        Long mes PK
+        Boolean tiene_datos
+    }
+    
+    DATASET_EXCEL ||..|| THOJAS : "filtra por"
+    THOJAS ||..|| DICTIONARY : "usa para mapear"
+    DATOS_SERIE_MDB ||--o{ TEMPORAL_MDB : "genera"
+```
+
+### D2.5: Flujo de datos de errores integrado
+
+```mermaid
+flowchart TB
+    subgraph "Origen error"
+        A1[CargaDatos.Button4_Click]
+        A2[CargaDatosMultiple]
+        A3[ActDBServ]
+    end
+    
+    subgraph "Motor validación"
+        B1[CargaExcel]
+        B2[verifica_version]
+        B3[comprueba_estab]
+        B4[Busca_Dato]
+        B5[VeriExcep]
+    end
+    
+    subgraph "Registro error"
+        C1[LogError (Trans.mdb)]
+        C2[INCORRECTO (TemporalIncorrectos.mdb)]
+    end
+    
+    subgraph "Revisión error"
+        D1[LogErrorCargados UI]
+        D2[LogErrorMultiples UI]
+        D3[InformeControl]
+    end
+    
+    A1 --> B1
+    A2 --> B1
+    B1 --> C1 & C2
+    C1 --> D1 & D2 & D3
+    C2 --> D3
+```
+
+---
+
+## 15. Métricas de Flujo
+
+| Métrica | Valor | Unidad |
+|---------|-------|--------|
+| Tiempo carga archivo mediano | 10-30 segundos | - |
+| Archivos procesados múltiple | 1-encontrados | - |
+| Registros por archivo | ~2,500 | - |
+| Errores típicos archivo | 5-50 | - |
+| Base datos por carga | 1-15 MB | - |
+| Consultas SQL por archivo | ~50 | - |
 
 ---
 

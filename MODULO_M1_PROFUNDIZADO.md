@@ -257,16 +257,164 @@ stateDiagram-v2
 
 ---
 
-## 13. Próximos Pasos
+## 14. Flujo de Datos Detallado
 
-### Módulos a profundizar:
-1. **M2 - Carga de Datos** (objetivo actual)
-2. M3 - Errores y Control
-3. M4 - Consulta e Informes
-4. M5 - Mantenimiento y Exportación
-5. M6 - Sincronización
+### D1.1: Flujo de Dato Arranque → Verificación Versión
 
-### Al finalizar:
-- [ ] Crear documento único de Flujo de Datos integral del sistema
-- [ ] Mapear dependencias entre módulos
-- [ ] Documentar APIs/Web Services restantes
+```mermaid
+flowchart TB
+    subgraph "Entrada"
+        A1[Archivo ejecutable ValidadorRem.exe]
+        A2[Archivo Actualizado.txt (opcional)]
+        A3[Archivo: ValidadorRem.exe.config]
+        A4[Base Global.mdb]
+    end
+    
+    subgraph "Procesamiento Arranque"
+        B1[STAThread entry point]
+        B2[Splash: Cargando...]
+        B3[buscaActualizacion: Buscando...]
+        B4[Principal.Form1_Load]
+    end
+    
+    subgraph "Verificación Versión"
+        C1[¿Actualizado.txt existe?]
+        C2[WebService1.version() → VERSION_WEB]
+        C3[VersionEjecutable.VersionEjec() → VERSION_LOCAL]
+        C4[SELECT version FROM Software]
+        C5[Comparar VERSION_WEB vs VERSION_LOCAL]
+    end
+    
+    subgraph "Salida"
+        D1[Mensaje: Actualizaciones disponibles]
+        D2[Mostrar Principal]
+        D3[Operaciones habilitadas/bloqueadas]
+    end
+    
+    A1 --> B1
+    A2 --> C1
+    A3 --> B4
+    A4 --> B4
+    
+    B1 --> B2
+    B2 --> B3
+    B3 --> B4
+    B4 --> C1
+    
+    C1 -- Sí --> D1
+    C1 -- No --> C2 & C3
+    C2 --> C5
+    C3 --> C5
+    C4 --> C5
+    C5 --> D2 --> D3
+```
+
+### D1.2: Flujo de Dato Selección de Servicio de Salud
+
+```mermaid
+flowchart TB
+    subgraph "Entrada"
+        A1[Usuario selecciona: Servicio de Salud → Seleccionar S.S.]
+        A2[Base Global.mdb - tabla mpservicio]
+        A3[Base Trans.mdb - tabla SetServicio]
+    end
+    
+    subgraph "Procesamiento selección"
+        B1[Seteo constructor]
+        B2[SELECT COUNT(Nservicio) FROM SetServicio]
+        B3[¿Resultado > 0?]
+        B4[SELECT idservicio & ' - ' & nservicio...]
+        B5[Mostrar lista de servicios]
+        B6[Usuario selecciona servicio]
+        B7[INSERT INTO SetServicio]
+    end
+    
+    subgraph "Salida"
+        C1[Mensaje: "Disculpe, YaSelecciono..."]
+        C2[Mensaje: "Los Datos Fueron Ingresados..."]
+        C3[Contexto SS listo para M2-M6]
+    end
+    
+    A1 --> B1
+    A2 --> B4
+    A3 --> B2
+    
+    B1 --> B2
+    B2 --> B3
+    B3 -- Sí --> C1
+    B3 -- No --> B4
+    B4 --> B5
+    B5 --> B6
+    B6 --> B7
+    B7 --> C2 --> C3
+```
+
+### D1.3: Diagrama de datos transversales
+
+```mermaid
+erDiagram
+    SETSERVICIO {
+        Long Idservicio PK
+        WChar Nservicio
+    }
+    
+    MP_SERVICIO {
+        Long idservicio PK
+        WChar nservicio
+        Long idregion
+        Long orden
+    }
+    
+    SOFTWARE {
+        WChar nombre PK
+        WChar version
+    }
+    
+    MP_ESTABLECIMIENTO {
+        WChar idestablecimiento PK
+        WChar nestablecimiento
+        Long idservicio FK
+    }
+    
+    SETSERVICIO ||--o{ MP_ESTABLECIMIENTO : "pertenece a"
+    MP_SERVICIO ||--o{ SETSERVICIO : "selecciona"
+    MP_SERVICIO ||--o{ MP_ESTABLECIMIENTO : "incluye"
+```
+
+### D1.4: Flujo de datos con Web Services
+
+```mermaid
+sequenceDiagram
+    participant Local as App Local
+    participant WS as WebService MINSAL
+    participant Config as ValidadorRem.exe.config
+    participant DB as Global.mdb
+    
+    Local->>Config: Leer WebServiceURL
+    Config->>Local: Retornar URL
+    Local->>WS: GET /webservice/WebService1.asmx?op=version
+    WS->>Local: Retornar VERSION_WEB (string)
+    Local->>DB: SELECT version FROM Software
+    DB->>Local: Retornar VERSION_LOCAL (string)
+    Local->>Local: Comparar VERSION_WEB vs VERSION_LOCAL
+    alt Version diferente
+        Local->>Local: Mostrar mensaje actualización
+    end
+```
+
+---
+
+## 15. Métricas de Flujo
+
+| Métrica | Valor | Unidad |
+|---------|-------|--------|
+| Tiempo arranque estimado | 2-5 segundos | - |
+| Llamadas WS por arranque | 2 | - |
+| Consultas SQL arranque | 3 | - |
+| Tamaño configuración | ~200 bytes | - |
+| Base Global.mdb | 422 MB | - |
+| Tabla mpservicio | ~30 filas | - |
+
+---
+
+**Documento generado:** Basado en análisis estático del binario `ValidadorRem.exe`. Flujos actualizados con diagramas de datos transversales.
