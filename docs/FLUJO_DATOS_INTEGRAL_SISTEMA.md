@@ -346,81 +346,139 @@ erDiagram
 
 ---
 
-## 10. API Endpoints Propuestos
+## 11. Diagramas Visuales por Módulo
 
-### Módulo M1 - Configuración
+### M1 - Arquitectura Visual
 
-```http
-GET /api/servicio/seleccionado
-GET /api/servicio/disponibles
-POST /api/servicio/seleccionar
+```mermaid
+graph TD
+    A[🖥️ ValidadorRem.exe] --> B[🎯 Principal<br/>Shell 13 botones]
+    B --> C{👤 SS Seleccionado?}
+    C -->|Sí| D[🔓 Módulos M2-M6 activos]
+    C -->|No| E[🔒 Módulos bloqueados<br/>RN-G1]
+    
+    A --> F[🔄 M1 - Arranque]
+    F --> G[🆕 Seteo - Selección SS]
+    F --> H[🌐 WS - Verificación version]
+    F --> I[📁 Archivos - Global.mdb, Trans.mdb]
+    F --> J[📡 WebSocket - 2 consultas paralelas]
 ```
 
-### Módulo M2 - Carga
+### M2 - Arquitectura Visual
 
-```http
-POST /api/carga/individual
-POST /api/carga/multiple
-POST /api/carga/servidor
+```mermaid
+graph TD
+    A[📁 Usuario - Excel] --> B[📊 CargaDatos<br/>Wizard individual]
+    A --> C[📁 CargaDatosMultiple<br/>Carpeta completa]
+    
+    B --> D[⚙️ CargaExcel Motor]
+    C --> D
+    
+    D --> E[✅ datos tabla<br/>Registros validos]
+    D --> F[❌ LogError tabla<br/>Errores capturados]
+    D --> G[📊 HistCarga<br/>Histórico cargas]
+    
+    E --> H[📈 M4 - Consultas]
+    F --> I[🔍 M3 - Revisión errores]
+    G --> H
 ```
 
-### Módulo M3 - Errores
+### M3 - Arquitectura Visual
 
-```http
-GET /api/errores
-GET /api/errores/{archivo}
-GET /api/control/puntos
-POST /api/errores/exportar
+```mermaid
+graph LR
+    A[M2 - Errores] --> B[📋 LogErrorCargados<br/>UI filtros]
+    A --> C[📋 LogErrorMultiples<br/>UI archivo]
+    A --> D[📊 InformeControl<br/>Puntos calidad]
+    
+    B --> E[📥 Exportar Excel]
+    C --> E
+    D --> F[📈 Cálculo puntos]
+    D --> G[📤 Exportar reporte]
+    
+    B -.-> H[❓ Puntos pendiente<br/>Validación requerida]
 ```
 
-### Módulo M4 - Consultas
+### M4 - Arquitectura Visual
 
-```http
-GET /api/establecimientos/cargados
-GET /api/duplicidad
-GET /api/prestaciones
-POST /api/informes
+```mermaid
+graph TD
+    A[📊 Consultas] --> B[🏢 EstabCargados<br/>Matriz mensual]
+    A --> C[🔍 Duplicidad<br/>Grupo por clave]
+    A --> D[💊 Prestacion<br/>Búsqueda código]
+    A --> E[📈 Comparativos<br/>Por año/mes]
+    A --> F[📄 Informe1<br/>Report INF1]
+    
+    B --> G[📋 dgvMatriz]
+    C --> H[📋 dgvDuplicados]
+    D --> I[📋 dgvResultados]
+    E --> J[📊 ColumnChart]
+    F --> K[📤 Export Excel]
+    
+    G --> L[💾 BASE datos.mdb]
+    H --> L
+    I --> L
+    J --> L
+    K --> L
 ```
 
-### Módulo M5 - Mantenimiento
+### M5 - Arquitectura Visual
 
-```http
-DELETE /api/datos
-POST /api/mantenimiento/optimizar
-POST /api/exportar/dbf
-POST /api/exportar/minsal
+```mermaid
+graph TD
+    A[🗑️ Eliminar] --> B[⚠️ Confirmar borrado]
+    B --> C[🧹 Borrado cascada<br/>Base + Hist + LogError]
+    
+    D[⚡ Optimiza] --> E[🔄 Compactar .mdb]
+    D --> F[Spectrum 422MB → Optimizado]
+    
+    G[📤 Export DBF] --> H[✅ Validar datos]
+    G --> I[📁 Seleccionar meses]
+    H --> J[📥 Generar .dbf]
+    
+    K[📦 MINSAL] --> L[📋 Consolidar datos]
+    K --> M[🗜️ GZip]
+    L --> N[📤 Archivo minsal.zip]
 ```
 
-### Módulo M6 - Sincronización
+### M6 - Arquitectura Visual
 
-```http
-GET /api/version/servicio
-GET /api/version/ejecutable
-POST /api/sincronizacion
-POST /api/sincronizacion/categorias
+```mermaid
+graph TD
+    A[🔄 Actualizador] --> B[🔍 Verificar versión]
+    A --> C[📥 Descargar catálogos]
+    
+    B --> D[🌐 WebService1.version]
+    B --> E[🖥️ VersionEjecutable]
+    D --> F[⚖️ Comparar versiones]
+    E --> F
+    
+    C --> G[1️⃣ Establecimientos]
+    C --> H[2️⃣ Servicios]
+    C --> I[3️⃣ Diccionario]
+    C --> J[4️⃣ Excepciones]
+    C --> K[5️⃣ Hojas]
+    C --> L[6️⃣ Versiones]
+    
+    G & H & I & J & K & L --> M[💾 Global.mdb actualizado]
 ```
 
 ---
 
-## 📝 Notas importantes
+## 12. Tablas Principales del Sistema
 
-### Archivos de referencia originales (conservar)
-- MODULO_M1_ARRANQUE_CONFIGURACION.md
-- MODULO_M2_CARGA_DATOS.md
-- MODULO_M3_ERRORES_CONTROL.md
-- MODULO_M4_CONSULTA_INFORMES.md
-- MODULO_M5_MANTENIMIENTO_EXPORTACION.md
-- MODULO_M6_SYNCHRONIZATION.md
-
-### Archivos descartables (pueden borrarse)
-- MODULO_M1_PROFUNDIZADO.md
-- MODULO_M2_PROFUNDIZADO.md
-- MODULO_M3_PROFUNDIZADO.md
-- MODULO_M4_PROFUNDIZADO.md
-- MODULO_M5_PROFUNDIZADO.md
-- MODULO_M6_PROFUNDIZADO.md
-- FLUJO_DATOS_MODULO_CARGA.md
+| Tabla | Ubicación | Filas | Uso Principal |
+|-------|-----------|-------|---------------|
+| **datos** | DatosSERIE{serie}{año}.mdb | ~15,060 | Datos validados cargados |
+| **LogError** | Trans.mdb | Variable | Registro de errores |
+| **mpEstablecimiento** | Global.mdb | 3,207 | Validación establecimientos |
+| **Diccionario** | Global.mdb | 185,526 | Mapeo celdas a prestaciones |
+| **version** | Global.mdb | 939 | Versiones plantilla |
+| **Thojas** | Global.mdb | 1,129 | Estructura hojas Excel |
+| **HistCarga** | Trans.mdb | ~4,000 | Histórico cargas |
+| **cargados** | Temporal.mdb | 602 | Matriz cobertura mensual |
+| **Software** | Global.mdb | 1 | Versión instalación |
 
 ---
 
-**Documento generado:** Basado en análisis estático del sistema ValidadorRem. Para migración web, requiere captura de tráfico SOAP y validación de formatos específicos.
+**Documento generado:** 2026-11-05 - Análisis estático ValidadorRem v3.12.000
