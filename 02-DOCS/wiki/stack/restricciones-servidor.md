@@ -3,99 +3,77 @@ type: stack
 title: Restricciones del servidor (evidencia)
 description: Qué permite hoy el servidor de destino, separando lo confirmado de lo observado, lo contradicho y lo pendiente.
 tags: [stack, servidor, restricciones, php, mysql, apache]
-timestamp: 2026-11-06T19:00:00Z
+timestamp: 2026-11-06T20:30:00Z
 topic: stack
 ---
 
 # Restricciones del servidor
 
-> **Esto es evidencia, no una elección de stack.** La elección ya está tomada en
-> [`decision-stack.md`](decision-stack.md). Este artículo registra qué se sabe, qué se corrigió y
-> qué falta confirmar.
+> **Esto es evidencia, no una elección de stack.** La elección está abierta en
+> [`decision-stack.md`](decision-stack.md) (D-STACK reabierta). Este artículo registra qué se sabe,
+> qué se corrigió y qué falta confirmar.
 
-## 1. Confirmado por verificación directa
+## 1. Confirmado por diagnóstico directo
 
-Verificado contra `https://estadisticas.ssosorno.cl/sist_observaciones/` el 2026-11-06.
+Ejecutado en `https://estadisticas.ssosorno.cl/sist_envios/diagnostico.php` el 2026-11-06.
 
 | Ámbito | Dato | Consecuencia |
 |---|---|---|
-| Dominio | `estadisticas.ssosorno.cl` por HTTPS | Acceso público |
-| Servidor web | Apache, versión oculta (`ServerTokens Prod`) | Buena práctica; no se filtra la versión |
-| `X-Powered-By` | ausente | La versión de PHP no se puede leer desde HTTP |
-| Cookies | `secure; HttpOnly; SameSite=Lax` | Configuración endurecida en uso |
-| `.htaccess` | `X-Frame-Options: DENY` aplicado | `AllowOverride` está activo: los límites de PHP son configurables |
-| Estructura | Aplicación en subdirectorio `/sist_observaciones/` | Se pueden alojar varios sistemas sin tocar la raíz |
-| Raíz `/` | Sitio DEIS en Bootstrap 4 | Convive un sistema legado con uno moderno |
-| MySQL | `10.8.152.199`, `observaciones_rem`, `utf8mb4` | Mismo motor que usará el portal |
-| Subidas | Import de Excel de hasta 10 MB documentado | El límite de 2 MB no es estructural |
-| Cron | Worker cada minuto, timer systemd y `cron.daily` | Hay cron disponible |
-| Despliegue | `git`, `composer`, `systemctl` en la documentación de ese sistema | Probablemente hay SSH; confirmar con TI |
+| PHP | **7.4.3-4ubuntu2.29** (EOL 28-nov-2022) | **Solo corre código PHP 7.4**; un stack PHP 8 exige actualizar el servidor o PHP-FPM |
+| SAPI | `apache2handler` | `mod_php` prefork: **una sola versión de PHP por instancia Apache** |
+| Ubuntu | **20.04.6 LTS** (soporte estándar terminó 31-may-2025) | ESM hasta 2030 con Ubuntu Pro; PPA `ondrej/php` ya no construye para 20.04 |
+| Kernel | 5.15.0-97-generic | HWE kernel de 20.04 |
+| MySQL | 8.0.42 (confirmado por `sist_observaciones`) | Motor concurrente disponible; `utf8mb4` explícito |
+| `upload_max_filesize` | **2M** | Un archivo por petición; mes completo (~11 MB) no cabe |
+| `post_max_size` | 8M | Coherente con el límite de subida |
+| `memory_limit` | 1024M | Validación síncrona posible; concurrencia limitada por RAM |
+| `max_execution_time` | 1000s | Límite generoso para validación |
+| `display_errors` | **1 (debería ser 0 en producción)** | Riesgo de fuga de información; corregir en `php.ini` |
+| Extensiones cargadas | `pdo_mysql`, `mbstring`, `intl`, `zip`, `gd`, `xml`, `fileinfo`, `openssl`, `curl` | **Faltan**: `pdo_sqlite`, `opcache`, `bcmath` — requeridas por Laravel 13 |
 
-## 2. Observado y pendiente de confirmar
+## 2. Observado en otro vhost del mismo dominio
 
-| Dato | Estado | Cómo se cierra |
+En `https://estadisticas.ssosorno.cl/sist_observaciones/` corre un sistema con:
+
+| Señal | Valor | Lectura |
 |---|---|---|
-| Versión exacta de PHP del vhost de Cargas | **Se asume 8.3** | Diagnóstico temporal (ver §4) |
-| Existencia de SSH para el usuario del proyecto | Probable | Respuesta de TI |
-| `upload_max_filesize` real de ese vhost | Configurable | El mismo diagnóstico |
-| Cuota y ruta de respaldos | Pendiente | Respuesta de TI |
-| Antivirus disponible (ClamAV) | Pendiente | Respuesta de TI |
-| Versión de Ubuntu del host | Probable 22.04 | El mismo diagnóstico (`/etc/os-release`) |
+| PHP documentado | 8.2 | `deploy/setup-server.sh` instala `php8.2` y `libapache2-mod-php8.2` |
+| Despliegue | `git`, `composer`, `systemctl` | Probablemente **PHP-FPM** o un **Apache distinto** |
+| Cron | Worker/minuto + timer systemd | Cron disponible en ese entorno |
 
-## 3. Corrección importante respecto de la versión anterior
+**Inferencia:** el Apache principal (este vhost) sirve PHP 7.4 vía `mod_php`. El sistema de Observaciones usa **PHP-FPM 8.2** o un contenedor aparte. No son el mismo runtime.
 
-La versión previa de este artículo afirmaba como *confirmado* que el servidor tenía **PHP 7.4.3** y
-un techo de **2 MB** por subida. Ambos datos quedaron contradichos:
+## 3. Corrección histórica
 
-- En el mismo dominio corre un sistema con **PHP 8.2** documentado y desplegado.
-- Apache con `mod_php` solo admite **una versión de PHP por instancia**: si ese sistema corre en
-  8.2, el Apache sirve 8.2 (salvo PHP-FPM por vhost, que también deja 8.2 disponible).
-- El límite de subida es configuración de `php.ini`/`.htaccess`, no una propiedad del servidor.
+La versión inicial de este artículo y `stack_modulo_envio.md` reportaban PHP 7.4.3 como dato único.
+La investigación previa asumió PHP 8.3 basándose en el sistema de Observaciones. **Esa asunción era incorrecta para este vhost.** El diagnóstico lo confirma: **PHP 7.4.3 es la realidad del Apache que servirá el portal M7**.
 
-El dato de «7.4.3» proviene de un `phpinfo` antiguo o de otro host. **No debe usarse como
-restricción de diseño.**
+## 4. Sin confirmar (bloquea decisiones)
 
-## 4. Cómo confirmar la versión de PHP sin SSH
+| Dato | Por qué importa | Cómo se cierra |
+|---|---|---|
+| ¿Se puede actualizar Ubuntu/PHP? | Define si el stack puede ser PHP 8 / framework moderno | Respuesta de TI del SS Osorno |
+| ¿Se puede instalar PHP-FPM 8.3 para este vhost? | Permitiría Laravel 13 sin tocar el Apache principal | Respuesta de TI |
+| ¿Existe SSH para el usuario del proyecto? | Requerido para `composer`, `artisan`, migraciones | Respuesta de TI |
+| ¿Se puede habilitar `opcache` y `pdo_sqlite`? | Requeridas por Laravel 13 | `apt install php7.4-opcache php7.4-sqlite3` si se queda en 7.4 |
+| Cuota y ruta de respaldos | Define retención y operación | Respuesta de TI |
+| Antivirus disponible (ClamAV) | Control de archivos maliciosos | Respuesta de TI |
 
-Subir un archivo temporal a la carpeta del proyecto y abrirlo con un token:
+## 5. Cómo confirmar si hay PHP-FPM disponible
 
-```php
-<?php
-// diagnostico.php — borrar inmediatamente después de leerlo.
-$token = 'PON-AQUI-32-CARACTERES-ALEATORIOS';
-if (!hash_equals($token, (string)($_GET['k'] ?? ''))) { http_response_code(404); exit; }
-header('Content-Type: application/json; charset=UTF-8');
+Si TI dice que no se puede tocar el Apache principal, preguntar:
 
-$ext = ['pdo_mysql','pdo_sqlite','mbstring','intl','zip','gd','xml',
-        'fileinfo','openssl','curl','opcache','bcmath'];
-$out = [
-  'PHP_VERSION' => PHP_VERSION,
-  'PHP_SAPI' => PHP_SAPI,
-  'PHP_OS' => PHP_OS,
-  'KERNEL' => php_uname('r'),
-  'OS_RELEASE' => @file_get_contents('/etc/os-release'),
-  'upload_max_filesize' => ini_get('upload_max_filesize'),
-  'post_max_size' => ini_get('post_max_size'),
-  'memory_limit' => ini_get('memory_limit'),
-  'max_execution_time' => ini_get('max_execution_time'),
-  'display_errors' => ini_get('display_errors'),
-  'extensiones' => [],
-];
-foreach ($ext as $e) { $out['extensiones'][$e] = extension_loaded($e); }
-echo json_encode($out, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-```
+1. ¿Hay un pool PHP-FPM 8.2/8.3 corriendo en el servidor?
+2. ¿Se puede crear uno nuevo para `sist_envios` en el puerto 9000/9001?
+3. ¿El vhost puede usar `ProxyPassMatch` a ese pool?
 
-Reglas de uso:
+Si la respuesta es sí, la Opción A (Laravel 13) vuelve a ser viable sin actualizar Ubuntu.
 
-1. Nombre de archivo aleatorio o token largo; nunca `phpinfo.php`.
-2. Abrirlo una vez, guardar el JSON y **borrarlo en la misma sesión**.
-3. No commitearlo. La constitución prohíbe páginas de diagnóstico en producción (principio 20).
-4. Si el resultado no es 8.3 o superior, revisar el escenario de respaldo en `decision-stack.md`.
+## 6. Lo que ninguna propuesta puede asumir
 
-## 5. Lo que ninguna propuesta puede asumir
-
+- Que el servidor se actualizará «mientras tanto».
 - Que habrá SSH, Composer o Artisan en producción (probable, no confirmado).
 - Que una cola o un worker resolverá el tiempo de validación.
 - Que se puede subir un mes completo en una petición.
 - Que Access (`Global.mdb`) es el almacén del portal: es fuente histórica, no destino concurrente.
-- Que el servidor se actualizará «mientras tanto».
+- Que `pdo_sqlite`, `opcache` y `bcmath` están disponibles (hoy **no** lo están).
