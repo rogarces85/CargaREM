@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="1200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="100%" height="100%" fill="#f8f9fa"/>
+  <text x="400" y="38" font-family="Arial, sans-serif" font-size="24" font-weight="bold" text-anchor="middle" fill="#2c3e50">M7 - Envío de Estadísticas por Establecimiento</text>
+  <text x="400" y="62" font-family="Arial, sans-serif" font-size="13" text-anchor="middle" fill="#7f8c8d">Portal de carga, validación, revisión y aprobación (propuesto)</text>
+
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#34495e"/>
+    </marker>
+    <marker id="arrow-red" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#c0392b"/>
+    </marker>
+  </defs>
+
+  <!-- Panel de estados -->
+  <rect x="20" y="100" width="190" height="270" rx="8" fill="#ffffff" stroke="#bdc3c7"/>
+  <text x="115" y="125" font-family="Arial, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#2c3e50">Estados del envío</text>
+  <g font-family="Arial, sans-serif" font-size="11" fill="#34495e">
+    <circle cx="38" cy="150" r="4" fill="#3498db"/><text x="52" y="154">recibido</text>
+    <circle cx="38" cy="174" r="4" fill="#27ae60"/><text x="52" y="178">validado</text>
+    <circle cx="38" cy="198" r="4" fill="#e74c3c"/><text x="52" y="202">con_errores</text>
+    <circle cx="38" cy="222" r="4" fill="#e67e22"/><text x="52" y="226">en_revision</text>
+    <circle cx="38" cy="246" r="4" fill="#f39c12"/><text x="52" y="250">observado</text>
+    <circle cx="38" cy="270" r="4" fill="#27ae60"/><text x="52" y="274">aprobado</text>
+    <circle cx="38" cy="294" r="4" fill="#2c3e50"/><text x="52" y="298">cargado</text>
+    <circle cx="38" cy="318" r="4" fill="#95a5a6"/><text x="52" y="322">anulado</text>
+  </g>
+  <text x="115" y="350" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#7f8c8d">Un envío = establecimiento + año + mes</text>
+
+  <!-- Panel de reglas -->
+  <rect x="590" y="100" width="190" height="270" rx="8" fill="#ffffff" stroke="#bdc3c7"/>
+  <text x="685" y="125" font-family="Arial, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#2c3e50">Reglas clave</text>
+  <g font-family="Arial, sans-serif" font-size="11" fill="#34495e">
+    <text x="605" y="152">• 1 archivo por petición</text>
+    <text x="605" y="174">• Sin sobrescritura:</text>
+    <text x="617" y="190">versiones</text>
+    <text x="605" y="214">• Aislamiento por</text>
+    <text x="617" y="230">establecimiento</text>
+    <text x="605" y="254">• Auditoría de cada</text>
+    <text x="617" y="270">transición</text>
+    <text x="605" y="294">• Catálogo congelado</text>
+    <text x="617" y="310">por archivo</text>
+    <text x="605" y="334">• Aprobado = inmutable</text>
+  </g>
+
+  <!-- 1. Encargado -->
+  <rect x="230" y="95" width="280" height="55" rx="8" fill="#3498db" stroke="#2980b9" stroke-width="2"/>
+  <text x="370" y="118" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#ffffff">Encargado del establecimiento</text>
+  <text x="370" y="137" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#eaf4fc">Selecciona período (año, mes)</text>
+
+  <line x1="370" y1="150" x2="370" y2="176" stroke="#34495e" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 2. Subida -->
+  <rect x="230" y="180" width="280" height="65" rx="8" fill="#9b59b6" stroke="#8e44ad" stroke-width="2"/>
+  <text x="370" y="204" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#ffffff">Sube 1 archivo por serie</text>
+  <text x="370" y="222" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#f4ecf7">.xls / .xlsx / .xlsm · máx. 2 MB</text>
+  <text x="370" y="237" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#f4ecf7">nombre: código + serie + mes</text>
+
+  <line x1="370" y1="245" x2="370" y2="271" stroke="#34495e" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 3. Validación -->
+  <rect x="230" y="275" width="280" height="105" rx="8" fill="#1abc9c" stroke="#16a085" stroke-width="2"/>
+  <text x="370" y="299" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#ffffff">Validación automática V0–V11</text>
+  <text x="370" y="318" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#e8f8f5">tipo real · nombre · cabecera</text>
+  <text x="370" y="334" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#e8f8f5">versión de plantilla · hojas</text>
+  <text x="370" y="350" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#e8f8f5">datos · excepciones · completitud</text>
+  <text x="370" y="368" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#d1f2eb">bloqueantes vs. advertencias</text>
+
+  <line x1="370" y1="380" x2="370" y2="407" stroke="#34495e" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 4. Decisión errores -->
+  <polygon points="370,410 500,455 370,500 240,455" fill="#fef9e7" stroke="#f1c40f" stroke-width="2"/>
+  <text x="370" y="450" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#7d6608">¿Errores</text>
+  <text x="370" y="466" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#7d6608">bloqueantes?</text>
+
+  <!-- Rama con errores -->
+  <line x1="500" y1="455" x2="556" y2="455" stroke="#c0392b" stroke-width="2" marker-end="url(#arrow-red)"/>
+  <rect x="560" y="420" width="220" height="70" rx="8" fill="#e74c3c" stroke="#c0392b" stroke-width="2"/>
+  <text x="670" y="444" font-family="Arial, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#ffffff">Con errores</text>
+  <text x="670" y="462" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#fdecea">reporte descargable</text>
+  <text x="670" y="478" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#fdecea">corrige y vuelve a subir</text>
+
+  <!-- Retorno de con errores: el texto del cuadro indica que se vuelve a subir -->
+
+  <!-- 5. Validado -->
+  <line x1="370" y1="500" x2="370" y2="527" stroke="#34495e" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="230" y="530" width="280" height="60" rx="8" fill="#27ae60" stroke="#1e8449" stroke-width="2"/>
+  <text x="370" y="555" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#ffffff">Validado</text>
+  <text x="370" y="573" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#eafaf1">0 bloqueantes · series completas</text>
+
+  <line x1="370" y1="590" x2="370" y2="616" stroke="#34495e" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 6. Enviar a revisión -->
+  <rect x="230" y="620" width="280" height="60" rx="8" fill="#8e44ad" stroke="#6c3483" stroke-width="2"/>
+  <text x="370" y="645" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#ffffff">Envía a revisión</text>
+  <text x="370" y="663" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#f4ecf7">acción explícita del encargado</text>
+
+  <line x1="370" y1="680" x2="370" y2="706" stroke="#34495e" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 7. Bandeja revisor -->
+  <rect x="230" y="710" width="280" height="70" rx="8" fill="#e67e22" stroke="#ca6f1e" stroke-width="2"/>
+  <text x="370" y="735" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#ffffff">Bandeja del revisor</text>
+  <text x="370" y="753" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#fdf2e9">Unidad de Estadísticas del SS</text>
+  <text x="370" y="769" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#fdf2e9">filtros por SS, establecimiento y estado</text>
+
+  <line x1="370" y1="780" x2="370" y2="806" stroke="#34495e" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 8. Decisión revisión -->
+  <polygon points="370,810 490,852 370,894 250,852" fill="#fef9e7" stroke="#f1c40f" stroke-width="2"/>
+  <text x="370" y="847" font-family="Arial, sans-serif" font-size="12" font-weight="bold" text-anchor="middle" fill="#7d6608">¿Conforme?</text>
+  <text x="370" y="863" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#7d6608">revisión humana</text>
+
+  <!-- Rama observado -->
+  <line x1="490" y1="852" x2="556" y2="852" stroke="#c0392b" stroke-width="2" marker-end="url(#arrow-red)"/>
+  <rect x="560" y="817" width="220" height="70" rx="8" fill="#f39c12" stroke="#d68910" stroke-width="2"/>
+  <text x="670" y="841" font-family="Arial, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" fill="#ffffff">Observado</text>
+  <text x="670" y="859" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#fef5e7">observación por serie</text>
+  <text x="670" y="875" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#fef5e7">el encargado corrige</text>
+
+  <!-- Retorno de observado a subida -->
+  <path d="M 560 852 L 522 852 L 522 212 L 516 212" fill="none" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arrow-red)"/>
+  <text x="536" y="540" font-family="Arial, sans-serif" font-size="10" fill="#c0392b" transform="rotate(-90 536 540)">corrige y reenvía</text>
+
+  <!-- 9. Aprobado -->
+  <line x1="370" y1="894" x2="370" y2="917" stroke="#34495e" stroke-width="2" marker-end="url(#arrow)"/>
+  <rect x="230" y="920" width="280" height="60" rx="8" fill="#27ae60" stroke="#1e8449" stroke-width="2"/>
+  <text x="370" y="945" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#ffffff">Aprobado</text>
+  <text x="370" y="963" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#eafaf1">advertencias revisadas · archivos inmutables</text>
+
+  <line x1="370" y1="980" x2="370" y2="1006" stroke="#34495e" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 10. Paquete -->
+  <rect x="230" y="1010" width="280" height="70" rx="8" fill="#34495e" stroke="#2c3e50" stroke-width="2"/>
+  <text x="370" y="1034" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#ffffff">Paquete de carga</text>
+  <text x="370" y="1052" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#d5dbdb">ZIP + manifiesto.json</text>
+  <text x="370" y="1068" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#d5dbdb">SHA-256 + HMAC</text>
+
+  <line x1="370" y1="1080" x2="370" y2="1106" stroke="#34495e" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- 11. CARGAS REM -->
+  <rect x="230" y="1110" width="280" height="60" rx="8" fill="#2c3e50" stroke="#1b2631" stroke-width="2"/>
+  <text x="370" y="1135" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="#ffffff">CARGAS REM</text>
+  <text x="370" y="1153" font-family="Arial, sans-serif" font-size="11" text-anchor="middle" fill="#d5dbdb">carga confirmada · fin del ciclo</text>
+
+  <!-- Nota de alcance -->
+  <text x="400" y="1188" font-family="Arial, sans-serif" font-size="10" text-anchor="middle" fill="#7f8c8d">El portal no reemplaza a ValidadorRem en el MVP: valida, revisa y entrega un paquete aprobado.</text>
+</svg>
