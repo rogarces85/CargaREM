@@ -22,6 +22,7 @@ topic: sdd
 | 2026-11-06 | C-003 | Barra de tests: obligatorios para cada regla V0–V11, transición y permiso; **sin umbral de cobertura** | TDD + 80% · tests obligatorios sin umbral · sin exigencia | El usuario eligió tests obligatorios sin umbral |
 | 2026-11-06 | C-004 | Commits con `gitmoji + Conventional Commits` | Conventional · gitmoji + Conventional · libre | El usuario eligió gitmoji + Conventional. En OpenCode no hay hook: se verifica en `review` |
 | 2026-11-06 | C-005 | Idioma: base de datos, estados y UI en español; clases, métodos y variables en inglés | BD/UI español + código inglés · todo español · todo inglés salvo UI | El usuario eligió la separación; el dominio REM ya está nombrado en español |
+| 2026-11-06 | C-006 | El usuario ratificó explícitamente la constitución v1.0.0 sin cambios | Ratificar tal cual · enmendar algún principio | Cierre formal de la fase `constitution`; la versión queda vigente y solo cambia por enmienda |
 
 ## Decisiones abiertas
 

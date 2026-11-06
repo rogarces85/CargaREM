@@ -20,3 +20,4 @@ topic: log
 | 2026-11-06 | D-STACK documentada con opciones A/B/C y criterios de cierre | `stack/decision-stack.md` |
 | 2026-11-06 | Pipeline V0–V11 y paridad con *golden files* sintetizados | `dominio/validacion-rem.md` |
 | 2026-11-06 | `REVIEW.md` ratificado: fallos graves, rutas a omitir, tope de nits y rutas que exigen persona | `REVIEW.md` |
+| 2026-11-06 | Ratificación explícita del usuario a la constitución v1.0.0, sin enmiendas | `sdd/constitution.md` · `sdd/decisions.md` (C-006) |
