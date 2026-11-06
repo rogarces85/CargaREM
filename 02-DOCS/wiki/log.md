@@ -27,3 +27,7 @@ topic: log
 | 2026-11-06 | Entorno local documentado: XAMPP trae PHP 8.2.12 y MariaDB 10.4; se exige PHP 8.3 y MySQL 8 para paridad | `stack/entorno-local.md` |
 | 2026-11-06 | Constitución enmendada a v2.0.0 (MAJOR): canon de stack, principios 1–3, 19 y 20, Definition of Done | `sdd/constitution.md` |
 | 2026-11-06 | Decisión de MVP: L1 local con SQLite y archivos reales anonimizados desde L2 | `sdd/decisions.md` (C-008) |
+| 2026-11-06 | **Diagnóstico directo**: PHP 7.4.3 confirmado en vhost principal; asunción de 8.3 era incorrecta | `stack/restricciones-servidor.md` |
+| 2026-11-06 | **D-STACK reabierta** (C-009): C-007 invalidada; opciones viables A1/A2/B/C/D/E | `stack/decision-stack.md` · `sdd/decisions.md` |
+| 2026-11-06 | Constitución enmendada a **v3.0.0 (MAJOR)**: elimina canon de stack, restaura principios 1–3 restrictivos | `sdd/constitution.md` |
+| 2026-11-06 | Índice y decisiones actualizados a v3.0.0 / D-STACK reabierta | `index.md` · `sdd/decisions.md` |

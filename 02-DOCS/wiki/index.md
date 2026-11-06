@@ -27,16 +27,16 @@ topic: index
 
 | Artículo | Qué contiene |
 |---|---|
-| [`sdd/constitution.md`](sdd/constitution.md) | Constitución **v2.0.0**: canon de stack (D-STACK cerrada), 28 principios y la Definition of Done |
-| [`sdd/decisions.md`](sdd/decisions.md) | Registro append-only de decisiones, incluidas D-STACK y D1–D14 |
+| [`sdd/constitution.md`](sdd/constitution.md) | Constitución **v3.0.0**: D-STACK reabierta (PHP 7.4.3 confirmado), 28 principios y Definition of Done |
+| [`sdd/decisions.md`](sdd/decisions.md) | Registro append-only de decisiones, incluidas D-STACK reabierta (C-009) y D1–D14 |
 
 ## stack/ — entorno y decisión pendiente
 
 | Artículo | Qué contiene |
 |---|---|
-| [`stack/opciones-stack.md`](stack/opciones-stack.md) | Investigación de 5 opciones, matriz ponderada, evidencia del servidor y decisión razonada |
-| [`stack/decision-stack.md`](stack/decision-stack.md) | **D-STACK cerrada**: canon ratificado, descartes y condiciones de la elección |
-| [`stack/restricciones-servidor.md`](stack/restricciones-servidor.md) | Evidencia del servidor, corrección del dato de PHP 7.4 y diagnóstico sin SSH |
+| [`stack/opciones-stack.md`](stack/opciones-stack.md) | Investigación de 5 opciones (con nota: Opción A requería PHP 8.3, hoy inválida) |
+| [`stack/decision-stack.md`](stack/decision-stack.md) | **D-STACK reabierta**: diagnóstico confirmó PHP 7.4.3; opciones A1/A2/B/C/D/E |
+| [`stack/restricciones-servidor.md`](stack/restricciones-servidor.md) | Evidencia confirmada: PHP 7.4.3, sin pdo_sqlite/opcache/bcmath, diagnóstico directo |
 | [`stack/entorno-local.md`](stack/entorno-local.md) | Qué hay en XAMPP, requisito de PHP 8.3 y por qué SQLite no reemplaza a MySQL |
 
 ## dominio/ — reglas del negocio REM

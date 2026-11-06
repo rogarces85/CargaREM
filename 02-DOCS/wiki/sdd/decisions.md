@@ -25,13 +25,14 @@ topic: sdd
 | 2026-11-06 | C-006 | El usuario ratificó explícitamente la constitución v1.0.0 sin cambios | Ratificar tal cual · enmendar algún principio | Cierre formal de la fase `constitution`; la versión queda vigente y solo cambia por enmienda |
 | 2026-11-06 | C-007 | **D-STACK cerrada**: Laravel 13 + PHP 8.3 (objetivo 8.5) + MySQL 8 + AdminLTE 4 | A · B · C · D · E · Node/Next | Investigación de 5 opciones y evidencia de campo en `estadisticas.ssosorno.cl`. Se ratifica la idea original del usuario con versiones soportadas. Ver `stack/opciones-stack.md` |
 | 2026-11-06 | C-008 | El MVP se construye primero en local con SQLite (L1: modelo y esqueleto); los archivos reales anonimizados entran en L2 | Todo en el servidor · L1 en local · solo archivos sintéticos | Prueba el modelo y el flujo antes de tocar producción. La paridad se valida en MySQL, no en SQLite |
+| 2026-11-06 | C-009 | **D-STACK reabierta**: diagnóstico confirmó PHP 7.4.3 en el vhost principal; la asunción de 8.3 era incorrecta | Mantener C-007 · Reabrir D-STACK | El cierre anterior se basó en evidencia de otro vhost (`sist_observaciones` con PHP-FPM 8.2). El Apache principal sirve 7.4. Ver `stack/decision-stack.md` |
 
 ## Decisiones abiertas
 
 Tomadas de `MODULO_M7_PROFUNDIZADO.md` §18. Ninguna se cierra por inferencia: las cierra negocio o TI.
 
-> **Actualización 2026-11-06:** **D-STACK** y **D11** quedan cerradas por C-007. Sus filas se
-> conservan como registro histórico; el estado vigente está en `stack/decision-stack.md`.
+> **Actualización 2026-11-06:** **D-STACK** y **D11** quedan **reabiertas** por C-009.
+> El estado vigente está en `stack/decision-stack.md`.
 
 | ID | Decisión | Opciones | Recomendación del diseño | Bloquea |
 |---|---|---|---|---|

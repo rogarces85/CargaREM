@@ -1,50 +1,61 @@
 ---
 type: constitution
 title: Cargas — Constitution
-description: Los principios no negociables que toda fase rsc-sdd obedece. Stack canon: Laravel 13 / PHP 8.3+ / MySQL 8 / AdminLTE 4.
+description: Los principios no negociables que toda fase rsc-sdd obedece. Stack canon: ABIERTO (D-STACK reabierta). PHP 7.4.3 confirmado en vhost principal.
 tags: [sdd, constitution, cargas, rem]
-timestamp: 2026-11-06T19:00:00Z
+timestamp: 2026-11-06T20:30:00Z
 topic: sdd
-version: v2.0.0
+version: v3.0.0
 ---
 
 # Cargas — Constitution
 
-> Version: v2.0.0 · Ratified: 2026-11-06 · Last amended: 2026-11-06
+> Version: v3.0.0 · Ratified: 2026-11-06 · Last amended: 2026-11-06
 > Principios no negociables que toda fase rsc-sdd obedece. El detalle técnico vive en
 > `02-DOCS/wiki/stack/` y `02-DOCS/wiki/dominio/`; este archivo ratifica el principio y enlaza el detalle.
 >
 > **Alcance.** Rige el portal M7 de envío REM por establecimiento y la documentación técnica de
 > ValidadorRem. No rige el ejecutable WinForms existente, que se documenta pero no se modifica aquí.
 
-## 0. Stack canon (D-STACK cerrada)
+## 0. Decisión de stack — ABIERTA (D-STACK reabierta)
 
-La decisión de stack **está tomada** el 2026-11-06 (C-007). Investigación completa en
-[`stack/opciones-stack.md`](../stack/opciones-stack.md); cierre en
-[`stack/decision-stack.md`](../stack/decision-stack.md).
+La decisión de stack **no está tomada**. El diagnóstico del servidor confirmó **PHP 7.4.3** en el vhost
+principal (Apache `mod_php`). El cierre anterior (C-007, v2.0.0) se basaba en la asunción de PHP 8.3,
+derivada del sistema de Observaciones que corre en **otro vhost con PHP-FPM 8.2**. Esa asunción era
+incorrecta para este proyecto.
 
-| # | Regla | Cómo se verifica |
+| # | Hecho confirmado | Consecuencia |
 |---|---|---|
-| C1 | **PHP 8.3 o superior.** Producción: la versión que confirme el diagnóstico del servidor; objetivo 8.5. Local: 8.3/8.4. | `PHP_VERSION` en el diagnóstico y `php -v` local |
-| C2 | **Laravel 13.x** como único framework de aplicación. | `composer.json` con `laravel/framework ^13.0` |
-| C3 | **MySQL 8 en producción** (8.0 hoy, objetivo 8.4 LTS). SQLite solo para desarrollo local y suite rápida. | `DB_CONNECTION` y `migrate:fresh` en ambos motores |
-| C4 | **La paridad numérica y la concurrencia se validan en MySQL real**, nunca solo en SQLite ni MariaDB. | Suite de paridad contra `mysql:8.0` y `mysql:8.4` |
-| C5 | **AdminLTE 4.x con `dist/` precompilado.** Sin Node ni pipeline de build en producción. | No existe `node_modules/` ni `vite` en el artefacto de despliegue |
-| C6 | **Dependencias estructurales:** Fortify para auth, `spatie/laravel-permission` v8, PhpSpreadsheet 5.x. Cualquier otra se justifica en el PR. | Revisión del diff de `composer.json` |
+| S1 | PHP 7.4.3 (EOL 28-nov-2022) en Apache `mod_php` | **Laravel 13/12 no corren**; exigen PHP 8.3+/8.2+ |
+| S2 | `pdo_sqlite`, `opcache`, `bcmath` **no instalados** | Requeridas por Laravel moderno |
+| S3 | `upload_max_filesize=2M`, `display_errors=1` | Configuración de producción incompleta |
+| S4 | Sistema Observaciones usa PHP 8.2 en **otro vhost/PHP-FPM** | No compartimos runtime |
 
-**Supuesto pendiente de confirmar:** la versión de PHP del servidor se asume 8.3. Si el diagnóstico
-devuelve 8.2, se cae a Laravel 12 y se registra la caducidad; si devuelve 7.4, **se reabre
-D-STACK**. Procedimiento: [`stack/restricciones-servidor.md`](../stack/restricciones-servidor.md).
+Mientras D-STACK esté abierta se aplican los principios 1 a 5. Al cerrarla, la enmienda debe ser
+**MAJOR** (agrega/quita el canon y puede invalidar trabajo previo) y se registra en
+`02-DOCS/wiki/sdd/decisions.md`.
+
+**Opciones viables hoy** (ver [`stack/decision-stack.md`](../stack/decision-stack.md)):
+
+| Opción | Stack | Requisito previo |
+|---|---|---|
+| A1 | Laravel 13 + PHP 8.3/8.5 | Actualizar servidor a Ubuntu 22.04/24.04 |
+| A2 | Laravel 13 + PHP-FPM 8.3 | Instalar pool FPM dedicado para este vhost |
+| B | Laravel 8 + PHP 7.4 + AdminLTE 3 | **Corre hoy**; 4 componentes EOL |
+| C | Symfony 6.4 LTS + PHP 7.4 | LTS hasta nov-2027; más configuración |
+| D | CodeIgniter 4.6 + PHP 7.4 | Sin LTS; auth/RBAC a mano |
+| E | Slim 4 / PHP plano + AdminLTE 4 | Como Observaciones; construyes el framework |
 
 ## 1. Stack y restricciones del entorno
 
-1. **El stack es el canon de §0.** Ningún PR introduce otro framework, runtime, versión de lenguaje
-   o dependencia estructural sin enmienda de la constitución. Se permite documentación, diagramas y
-   prototipos descartables que no entren a `main`.
-2. **Todo cambio corre dentro de las restricciones registradas** en
-   `02-DOCS/wiki/stack/restricciones-servidor.md` (Apache, PHP ≥ 8.3 asumido, MySQL 8 `utf8mb4`,
-   despliegue en subdirectorio). Si exige otra condición, primero se cambia la restricción con TI y
-   se registra la decisión; no se asume que "el servidor se actualizará".
+1. **Ningún PR introduce un framework, runtime o dependencia de lenguaje mientras D-STACK esté
+   abierta.** Se permite documentación, diagramas y prototipos descartables que no entren a
+   `main`. Evidencia de la restricción: `02-DOCS/wiki/stack/restricciones-servidor.md`.
+2. **Todo candidato de stack debe correr dentro de las restricciones confirmadas** del servidor
+   (Ubuntu 20.04, Apache 2.4 `mod_php`, **PHP 7.4.3**, MySQL 8.0.42 `utf8mb4`, acceso solo FTP,
+   sin SSH confirmado, `upload_max_filesize=2M`, `post_max_size=8M`). Si un candidato no cabe,
+   primero se cambia la restricción con TI y se registra la decisión; no se asume que "el servidor
+   se actualizará".
 3. **El camino crítico de validación no depende de cron, cola persistente, worker ni shell remoto.**
    La validación ocurre dentro de la petición. Las tareas opcionales —reportes, recordatorios,
    limpieza— pueden usar cron, y el sistema debe funcionar si cron no está disponible. Si se
@@ -146,8 +157,8 @@ D-STACK**. Procedimiento: [`stack/restricciones-servidor.md`](../stack/restricci
 
 Un cambio se entrega solo si TODO se cumple:
 
-- [ ] Respeta el canon de stack (§0 y principio 1).
-- [ ] Corre dentro de las restricciones registradas o la restricción cambió por decisión (2–5).
+- [ ] No introduce stack mientras D-STACK esté abierta (principio 1).
+- [ ] Corre dentro de las restricciones confirmadas o la restricción cambió por decisión (2–5).
 - [ ] Las migraciones corren en SQLite; si toca lectura de celdas o prepara producción, también en MySQL (10, 25).
 - [ ] Cada regla, transición o permiso tocado tiene su test en verde (6–9).
 - [ ] Si tocó lectura de celdas, hay comparación contra *golden files* (10).
@@ -164,4 +175,5 @@ Un cambio se entrega solo si TODO se cumple:
 | 2026-11-06 | draft | Borrador generado por `rsc onboard`. | El piso SDD necesita constitución. |
 | 2026-11-06 | v1.0.0 | Ratificada la constitución inicial con 28 principios. El stack queda explícitamente abierto (D-STACK). | Cierre de la fase `constitution`; el usuario aún no decide stack y pidió dejarlo pendiente. |
 | 2026-11-06 | v1.0.0 (ratificación) | El usuario ratificó la v1.0.0 sin cambios (C-006). | Cierre formal de la fase `constitution`. |
-| 2026-11-06 | **v2.0.0** | **MAJOR.** Cierra D-STACK y agrega el canon de stack (§0). Actualiza los principios 1–3: se permite código de aplicación, se relaja la prohibición de cron a «solo tareas opcionales», y el despliegue admite SSH. Refuerza 19 y 20 con el incidente de credenciales del sistema de Observaciones. Actualiza la Definition of Done. Reemplaza v1.0.0. | Investigación de 5 opciones, evidencia de campo en `estadisticas.ssosorno.cl` y decisión explícita del usuario (C-007). |
+| 2026-11-06 | v2.0.0 | **MAJOR.** Cierra D-STACK y agrega el canon de stack (§0). Actualiza los principios 1–3: se permite código de aplicación, se relaja la prohibición de cron a «solo tareas opcionales», y el despliegue admite SSH. Refuerza 19 y 20 con el incidente de credenciales del sistema de Observaciones. Actualiza la Definition of Done. Reemplaza v1.0.0. | Investigación de 5 opciones, evidencia de campo en `estadisticas.ssosorno.cl` y decisión explícita del usuario (C-007). |
+| 2026-11-06 | **v3.0.0** | **MAJOR.** **Reabre D-STACK** y elimina el canon de stack (§0). La confirmación de PHP 7.4.3 invalida la decisión C-007. Los principios 1–3 vuelven a su forma restrictiva. Se registra C-009. Reemplaza v2.0.0. | Diagnóstico directo en `sist_envios` devuelve PHP 7.4.3. La evidencia de PHP 8.2 pertenecía a otro vhost. |

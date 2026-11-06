@@ -1,77 +1,86 @@
 ---
 type: stack
-title: D-STACK — decisión de stack del portal (cerrada)
-description: Decisión ratificada sobre el stack del portal M7, con las opciones descartadas y las condiciones de la elección.
-tags: [stack, decision, cerrada, laravel, php, mysql, adminlte]
-timestamp: 2026-11-06T19:00:00Z
+title: D-STACK — decisión de stack del portal (reabierta)
+description: Registro de la decisión pendiente sobre el stack del portal M7. La confirmación de PHP 7.4.3 invalida el cierre anterior.
+tags: [stack, decision, abierta, laravel, php, reabierta]
+timestamp: 2026-11-06T20:30:00Z
 topic: stack
-status: closed
+status: open
 ---
 
 # D-STACK — decisión de stack del portal
 
-> **Estado: CERRADA el 2026-11-06.**
-> Decisión: **Opción A — Laravel 13 + PHP 8.3 (objetivo 8.5) + MySQL 8 + AdminLTE 4.**
-> Registro: `02-DOCS/wiki/sdd/decisions.md` (C-007) y constitución v2.0.0.
-> Comparación completa: [`opciones-stack.md`](opciones-stack.md).
+> **Estado: REABIERTA el 2026-11-06.**
+> El diagnóstico del servidor confirmó **PHP 7.4.3** en el vhost principal (`mod_php`).
+> El cierre anterior (C-007, Opción A) se basaba en la asunción incorrecta de PHP 8.3.
+> Ver reversión en `02-DOCS/wiki/sdd/decisions.md` (C-009).
+> Comparación actualizada: [`opciones-stack.md`](opciones-stack.md).
 
-## 1. Canon ratificado
+## 1. Por qué se reabre
 
-| Capa | Decisión | Nota |
+| Fecha | Hecho |
+|---|---|
+| 2026-11-06 19:00 | C-007 cierra D-STACK asumiendo PHP 8.3 (basado en `sist_observaciones`) |
+| 2026-11-06 20:15 | Diagnóstico directo en `sist_envios` devuelve **PHP 7.4.3** |
+| 2026-11-06 20:30 | **D-STACK reabierta**: la decisión anterior no se sostiene |
+
+La evidencia del sistema de Observaciones (PHP 8.2) corresponde a **otro vhost o PHP-FPM**, no al Apache principal que sirve este proyecto.
+
+## 2. Canon anterior (ya no vigente)
+
+| Capa | Decisión anterior | Estado |
 |---|---|---|
-| Lenguaje | PHP 8.3 mínimo; 8.5 cuando el servidor se actualice | Laravel 13 admite 8.3–8.5 |
-| Framework | Laravel 13.x | Actualización mayor anual, barata |
-| Base de datos (producción) | MySQL 8 | 8.0 hoy (EOL), objetivo 8.4 LTS |
-| Base de datos (desarrollo) | SQLite | Solo local y suite rápida |
-| Base de datos (paridad) | MySQL 8 real en Docker | No MariaDB, no SQLite |
-| Interfaz | AdminLTE 4.x, `dist/` precompilado | Sin Node en producción |
-| Autenticación | Laravel Fortify | Deja abierta la puerta al 2FA |
-| Roles y permisos | `spatie/laravel-permission` v8 | Tests positivos y negativos por permiso |
-| Excel | PhpSpreadsheet 5.x | Paridad obligatoria con *golden files* |
-| Tests | PHPUnit o Pest | Sin umbral de cobertura |
-| Despliegue | Subdirectorio `/sist_envios/` | Igual que el sistema de Observaciones |
+| Lenguaje | PHP 8.3 mínimo; 8.5 objetivo | **Inválido** |
+| Framework | Laravel 13.x | **Inválido** (requiere PHP 8.3+) |
+| Base de datos | MySQL 8 | Se mantiene |
+| UI | AdminLTE 4.x | Se mantiene |
 
-## 2. Por qué A y no otra
+## 3. Opciones honestas ahora
 
-1. **Es la idea original del usuario** —PHP + AdminLTE + MySQL— sin las versiones muertas.
-2. **El diseño M7 ya está escrito para Laravel.** Se traslada cambiando versiones, no arquitectura.
-3. **Es la más rápida de construir** con un desarrollador: 14–20 semanas.
-4. **El ecosistema cubre** RBAC, 2FA, Excel, tablas y auditoría sin inventar nada.
-5. **Queda soportada hasta 2029** sin migraciones de plataforma.
+| # | Opción | Ventaja | Costo / riesgo | Viable hoy |
+|---|---|---|---|---|
+| **A1** | **Actualizar servidor** a Ubuntu 22.04/24.04 + PHP 8.3/8.4 | Laravel 13, soporte hasta 2029 | Requiere TI, ventana de mantenimiento, pruebas | ❓ Preguntar a TI |
+| **A2** | **PHP-FPM 8.3** solo para este vhost | Laravel 13 sin tocar Apache principal | Requiere TI, configuración de proxy | ❓ Preguntar a TI |
+| **B** | **Laravel 8.83 + PHP 7.4.3 + MySQL 8 + AdminLTE 3** | Corre **hoy** sin cambios de TI | 4 componentes EOL; CVEs 2026; Bootstrap 4 muerto; migración futura 6–10 sem | ✅ Sí |
+| **C** | **Symfony 6.4 LTS + PHP 7.4 + MySQL 8 + AdminLTE 4** | LTS hasta nov-2027 (último con PHP 7.4) | Reescribe §11; más config; menos «baterías incluidas» | ✅ Sí |
+| **D** | **CodeIgniter 4.6 + PHP 7.4 + MySQL 8 + AdminLTE 4** | Huella pequeña, curva baja | Sin LTS oficial; auth/RBAC a mano; 4.7+ exige PHP 8.2+ | ✅ Sí |
+| **E** | **Slim 4 / PHP plano + AdminLTE 4** (como Observaciones) | Control total, corre en 7.4 | Construyes el framework: auth, RBAC, migraciones, tests | ✅ Sí |
 
-## 3. Opciones descartadas
+**Fuera de concurso:** Laravel 13, Laravel 12, CodeIgniter 4.7, Symfony 7.4 — **exigen PHP 8.2+**.
 
-| Opción | Por qué no |
+## 4. Criterios para elegir (actualizados)
+
+1. **¿TI permite actualizar el servidor o instalar PHP-FPM 8.3?** Si sí → A1/A2. Si no → B–E.
+2. **Soporte de seguridad** durante la vida del portal (mínimo 3 años).
+3. **Despliegue por FTP sin SSH**: ¿el stack produce artefacto subible?
+4. **Lectura de Excel legado** (`.xls`, `.xlsx`, `.xlsm`) sin ejecutar macros.
+5. **Roles, permisos, 2FA** disponibles sin servidor de aplicaciones.
+6. **Conocimiento del equipo**: quién mantiene esto en 12 meses.
+7. **Costo de migración futura** si se elige B, C, D o E.
+
+## 5. Qué cierra D-STACK (ahora)
+
+1. **TI responde** si se puede: (a) actualizar Ubuntu/PHP, (b) instalar PHP-FPM 8.3, (c) habilitar `opcache`/`pdo_sqlite`/`bcmath` en 7.4, (d) dar SSH.
+2. **El responsable elige** con los criterios de arriba.
+3. Se registra en `02-DOCS/wiki/sdd/decisions.md` con fecha, opciones y motivo.
+4. Se enmienda la constitución: **MAJOR** (agrega/quita canon de stack).
+5. Se actualiza `stack_modulo_envio.md` §2 y, si cambia el framework, §11 del diseño M7.
+
+## 6. Mientras esté abierta
+
+- No entra código de aplicación a `main` (constitución, principio 1).
+- Sí se puede: documentar, diagramar, preparar *fixtures*, escribir el catálogo de errores, definir la máquina de estados y los contratos del puente.
+- Los prototipos van en una rama descartable y no se fusionan.
+
+## 7. Preguntas concretas para TI (bloquean la decisión)
+
+| Pregunta | Si SÍ abre… |
 |---|---|
-| **B. Laravel 8 + PHP 7.4 + MySQL 8.0 + AdminLTE 3** | Cuatro componentes EOL. Su único argumento —«es lo único que corre en el servidor»— quedó contradicho: el servidor ejecuta PHP 8.2 para otro sistema. Migración futura de 6–10 semanas |
-| **C. Symfony 7.4 LTS** | Técnicamente correcta y con mejor LTS, pero exige reescribir §11 del diseño y suma 3–4 semanas sin beneficio proporcional |
-| **D. CodeIgniter 4.7** | Viable, pero auth, RBAC y auditoría se construyen a mano; sin LTS |
-| **E. Slim 4 + Twig** | Se construye el framework. 20–30 semanas para un alcance que Laravel resuelve en 14–20 |
-| **Node / Next.js** | No hay runtime Node en el servidor y el despliegue es por FTP |
+| ¿Actualizar Ubuntu 20.04 → 22.04/24.04? | A1 (Laravel 13) |
+| ¿Instalar PHP-FPM 8.3 para `sist_envios`? | A2 (Laravel 13) |
+| ¿Habilitar `opcache`, `pdo_sqlite`, `bcmath` en PHP 7.4? | Laravel 10/11 en 7.4 (aún EOL) |
+| ¿Acceso SSH para el usuario del proyecto? | Despliegue estándar con `artisan` |
+| ¿Cron disponible? | Tareas programadas nativas |
+| ¿MySQL → 8.4 LTS? | Fin de deuda de 8.0 EOL |
 
-## 4. Condiciones de la decisión
-
-La elección se sostiene solo si se cumplen estas condiciones. Si alguna falla, se reabre D-STACK:
-
-1. **PHP del servidor ≥ 8.3.** Si el diagnóstico devuelve 8.2, se cae a **Laravel 12** (soporte hasta feb-2027) y se registra la caducidad. Si devuelve 7.4, se reabre la decisión.
-2. **Existe una vía de despliegue.** Con SSH: `git` + `composer` + `artisan`. Sin SSH: artefacto completo por FTP y una ruta de migración protegida de un solo uso.
-3. **MySQL sube a 8.4 antes de la salida a producción.** 8.0 está EOL desde abril 2026.
-4. **La paridad se valida en MySQL**, nunca solo en SQLite.
-
-## 5. Qué queda abierto
-
-| Tema | Dónde se decide |
-|---|---|
-| Fuente de identidad, 2FA, política de contraseñas | D1, D10 |
-| Plazo mensual, series obligatorias, tratamiento de SAX | D4, D5, D6 |
-| Puente con CARGAS REM | D7 |
-| Retención, respaldos, antivirus | D9, D12, D13 |
-| Migración histórica | D14 |
-
-D11 (PHP/Laravel: quedarse o actualizar) **queda resuelta** por esta decisión.
-
-## 6. Consecuencias documentales
-
-- `stack_modulo_envio.md` §2 queda superado: proponía Laravel 8 / PHP 7.4.
-- `backup_documentacion/MODULO_M7_PROFUNDIZADO.md` §11.7 requiere actualización de versiones.
-- La constitución pasa a v2.0.0 con el canon de stack.
+Con las respuestas a las tres primeras se define si A1/A2 son posibles. Si todas son NO, la elección es entre B, C, D, E.
