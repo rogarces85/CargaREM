@@ -32,7 +32,6 @@ Cargas/
 | `backup_documentacion/` | Documentación profundizada por módulo, con índice en [`backup_documentacion/README.md`](backup_documentacion/README.md). |
 | `docs/` | Diagramas SVG por módulo y [`FLUJO_DATOS_INTEGRAL_SISTEMA.md`](docs/FLUJO_DATOS_INTEGRAL_SISTEMA.md). |
 | `Flujos/` | Diagramas PNG de los flujos principales. |
-| `Informe_Tecnico_Cargas_REM.rar` | Versión comprimida de la documentación técnica previa. |
 
 ---
 
