@@ -27,15 +27,17 @@ topic: index
 
 | Artículo | Qué contiene |
 |---|---|
-| [`sdd/constitution.md`](sdd/constitution.md) | Constitución v1.0.0: 28 principios no negociables y la Definition of Done |
+| [`sdd/constitution.md`](sdd/constitution.md) | Constitución **v2.0.0**: canon de stack (D-STACK cerrada), 28 principios y la Definition of Done |
 | [`sdd/decisions.md`](sdd/decisions.md) | Registro append-only de decisiones, incluidas D-STACK y D1–D14 |
 
 ## stack/ — entorno y decisión pendiente
 
 | Artículo | Qué contiene |
 |---|---|
-| [`stack/restricciones-servidor.md`](stack/restricciones-servidor.md) | Lo que el servidor permite hoy: PHP 7.4.3, MySQL 8, FTP sin SSH, 2 MB por subida |
-| [`stack/decision-stack.md`](stack/decision-stack.md) | **D-STACK abierta**: opciones A/B/C, criterios y qué falta para cerrarla |
+| [`stack/opciones-stack.md`](stack/opciones-stack.md) | Investigación de 5 opciones, matriz ponderada, evidencia del servidor y decisión razonada |
+| [`stack/decision-stack.md`](stack/decision-stack.md) | **D-STACK cerrada**: canon ratificado, descartes y condiciones de la elección |
+| [`stack/restricciones-servidor.md`](stack/restricciones-servidor.md) | Evidencia del servidor, corrección del dato de PHP 7.4 y diagnóstico sin SSH |
+| [`stack/entorno-local.md`](stack/entorno-local.md) | Qué hay en XAMPP, requisito de PHP 8.3 y por qué SQLite no reemplaza a MySQL |
 
 ## dominio/ — reglas del negocio REM
 

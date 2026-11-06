@@ -21,3 +21,9 @@ topic: log
 | 2026-11-06 | Pipeline V0–V11 y paridad con *golden files* sintetizados | `dominio/validacion-rem.md` |
 | 2026-11-06 | `REVIEW.md` ratificado: fallos graves, rutas a omitir, tope de nits y rutas que exigen persona | `REVIEW.md` |
 | 2026-11-06 | Ratificación explícita del usuario a la constitución v1.0.0, sin enmiendas | `sdd/constitution.md` · `sdd/decisions.md` (C-006) |
+| 2026-11-06 | Investigación de 5 opciones de stack con relojes de soporte verificados y evidencia HTTP del servidor | `stack/opciones-stack.md` |
+| 2026-11-06 | D-STACK cerrada con la Opción A (Laravel 13 / PHP 8.3 / MySQL 8 / AdminLTE 4) | `stack/decision-stack.md` · `sdd/decisions.md` (C-007) |
+| 2026-11-06 | Corrección de restricciones del servidor: PHP 7.4.3 y 2 MB dejan de ser «confirmados»; se documenta el diagnóstico sin SSH | `stack/restricciones-servidor.md` |
+| 2026-11-06 | Entorno local documentado: XAMPP trae PHP 8.2.12 y MariaDB 10.4; se exige PHP 8.3 y MySQL 8 para paridad | `stack/entorno-local.md` |
+| 2026-11-06 | Constitución enmendada a v2.0.0 (MAJOR): canon de stack, principios 1–3, 19 y 20, Definition of Done | `sdd/constitution.md` |
+| 2026-11-06 | Decisión de MVP: L1 local con SQLite y archivos reales anonimizados desde L2 | `sdd/decisions.md` (C-008) |
