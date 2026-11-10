@@ -27,15 +27,15 @@ topic: index
 
 | Artículo | Qué contiene |
 |---|---|
-| [`sdd/constitution.md`](sdd/constitution.md) | Constitución **v3.0.0**: D-STACK reabierta (PHP 7.4.3 confirmado), 28 principios y Definition of Done |
-| [`sdd/decisions.md`](sdd/decisions.md) | Registro append-only de decisiones, incluidas D-STACK reabierta (C-009) y D1–D14 |
+| [`sdd/constitution.md`](sdd/constitution.md) | Constitución **v3.1.0**: D-STACK cerrada (C-010), canon Laravel 8.83 + PHP 7.4.3 + AdminLTE 3.2, 28 principios y Definition of Done |
+| [`sdd/decisions.md`](sdd/decisions.md) | Registro append-only de decisiones, incluidas D-STACK cerrada (C-010) y D1/D4/D5/D6/D10 pendientes |
 
-## stack/ — entorno y decisión pendiente
+## stack/ — entorno y decisión **cerrada (C-010)**
 
 | Artículo | Qué contiene |
 |---|---|
-| [`stack/opciones-stack.md`](stack/opciones-stack.md) | Investigación de 5 opciones (con nota: Opción A requería PHP 8.3, hoy inválida) |
-| [`stack/decision-stack.md`](stack/decision-stack.md) | **D-STACK reabierta**: diagnóstico confirmó PHP 7.4.3; opciones A1/A2/B/C/D/E |
+| [`stack/opciones-stack.md`](stack/opciones-stack.md) | Investigación de 5 opciones (Opción A requería PHP 8.3, hoy inválida) |
+| [`stack/decision-stack.md`](stack/decision-stack.md) | **D-STACK cerrada (C-010)**: canon Laravel 8.83 + PHP 7.4.3 + AdminLTE 3.2 |
 | [`stack/restricciones-servidor.md`](stack/restricciones-servidor.md) | Evidencia confirmada: PHP 7.4.3, sin pdo_sqlite/opcache/bcmath, diagnóstico directo |
 | [`stack/entorno-local.md`](stack/entorno-local.md) | Qué hay en XAMPP, requisito de PHP 8.3 y por qué SQLite no reemplaza a MySQL |
 

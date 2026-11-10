@@ -31,3 +31,8 @@ topic: log
 | 2026-11-06 | **D-STACK reabierta** (C-009): C-007 invalidada; opciones viables A1/A2/B/C/D/E | `stack/decision-stack.md` · `sdd/decisions.md` |
 | 2026-11-06 | Constitución enmendada a **v3.0.0 (MAJOR)**: elimina canon de stack, restaura principios 1–3 restrictivos | `sdd/constitution.md` |
 | 2026-11-06 | Índice y decisiones actualizados a v3.0.0 / D-STACK reabierta | `index.md` · `sdd/decisions.md` |
+| 2026-11-10 | **D-STACK cerrada definitivamente (C-010)**: Laravel 8.83 + PHP 7.4.3 + AdminLTE 3.2 canon | `stack/decision-stack.md` · `sdd/decisions.md` (C-010) |
+| 2026-11-10 | Constitución enmendada a **v3.1.0 (MAJOR)**: D-STACK cerrada, canon Option B, Principio 1 habilita código | `sdd/constitution.md` |
+| 2026-11-10 | Nomenclatura unificada: sistema legacy = "Cargas REM"; ejecutable = `ValidadorRem.exe` | `specs/AGENT.md` · `specs/SPECS.md` · `specs/TASK.md` |
+| 2026-11-10 | Estrategia de ramas Git documentada: `main` protegida, `docs/constitucion-y-stack` base, `feature/*` por fase | `specs/AGENT.md` |
+| 2026-11-10 | `specs/TASK.md` creado: 112 tareas atómicas F0–F6 con dependencias, verificación, DoD | `specs/TASK.md` |

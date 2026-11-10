@@ -58,3 +58,7 @@
 
 # Perfil local del harness: no se commitea (ver 02-DOCS/wiki/index.md)
 02-DOCS/wiki/harness/user-profile.md
+
+# rsc local state (hooks, seals, logs) and managed skill links — machine-local
+.opencode/rsc/security-audit
+.opencode/commands/security-audit.md

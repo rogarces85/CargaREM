@@ -26,17 +26,17 @@ topic: sdd
 | 2026-11-06 | C-007 | **D-STACK cerrada**: Laravel 13 + PHP 8.3 (objetivo 8.5) + MySQL 8 + AdminLTE 4 | A · B · C · D · E · Node/Next | Investigación de 5 opciones y evidencia de campo en `estadisticas.ssosorno.cl`. Se ratifica la idea original del usuario con versiones soportadas. Ver `stack/opciones-stack.md` |
 | 2026-11-06 | C-008 | El MVP se construye primero en local con SQLite (L1: modelo y esqueleto); los archivos reales anonimizados entran en L2 | Todo en el servidor · L1 en local · solo archivos sintéticos | Prueba el modelo y el flujo antes de tocar producción. La paridad se valida en MySQL, no en SQLite |
 | 2026-11-06 | C-009 | **D-STACK reabierta**: diagnóstico confirmó PHP 7.4.3 en el vhost principal; la asunción de 8.3 era incorrecta | Mantener C-007 · Reabrir D-STACK | El cierre anterior se basó en evidencia de otro vhost (`sist_observaciones` con PHP-FPM 8.2). El Apache principal sirve 7.4. Ver `stack/decision-stack.md` |
+| 2026-11-10 | C-010 | **D-STACK cerrada (definitiva)**: Laravel 8.83 + PHP 7.4.3 + MySQL 8.0.42 + AdminLTE 3.2 (Bootstrap 4) | A1/A2 (Laravel 13/PHP 8.3) / B (Laravel 8/PHP 7.4) / C/D/E | TI confirmó que NO hay PHP-FPM 8.3 ni actualización de servidor; PHP 7.4.3 es la realidad del vhost principal. Se adopta Opción B como canon. Se enmienda Constitución a v3.1.0 (MAJOR). |
 
 ## Decisiones abiertas
 
 Tomadas de `MODULO_M7_PROFUNDIZADO.md` §18. Ninguna se cierra por inferencia: las cierra negocio o TI.
 
-> **Actualización 2026-11-06:** **D-STACK** y **D11** quedan **reabiertas** por C-009.
+> **Actualización 2026-11-10:** **D-STACK cerrada (C-010)**. Opción B canon. **D1, D4, D5, D6, D10** pendientes con negocio. **D11** resuelta (quedarse en PHP 7.4 / Laravel 8).
 > El estado vigente está en `stack/decision-stack.md`.
 
 | ID | Decisión | Opciones | Recomendación del diseño | Bloquea |
 |---|---|---|---|---|
-| **D-STACK** | Lenguaje, framework y versión | A / B / C — ver [`stack/decision-stack.md`](../stack/decision-stack.md) | Depende de si TI permite actualizar PHP | Todo el código de aplicación |
 | **D1** | Fuente de identidad | Cuentas locales / correo institucional / directorio del SS | Correo institucional con respaldo local | Alta de encargados |
 | **D2** | Unidad de aprobación | Por envío / por archivo | Por envío, con observaciones por archivo | Flujo de revisión |
 | **D3** | Corrección tras aprobado | Bloqueada / reapertura admin / versión automática | Reapertura admin con motivo | Integridad de datos aprobados |
@@ -47,7 +47,7 @@ Tomadas de `MODULO_M7_PROFUNDIZADO.md` §18. Ninguna se cierra por inferencia: l
 | **D8** | Notificaciones | Solo portal / portal + correo | Portal + correo | Aviso a encargados |
 | **D9** | Retención de archivos | 1 / 3 / 5 años / indefinido | 5 años, revisar con jurídico | Legal y almacenamiento |
 | **D10** | 2FA | Nadie / admins / revisores+admins / todos | Revisores y admins | Seguridad de acceso |
-| **D11** | PHP/Laravel | Quedarse / actualizar | Plan de actualización con TI; WAF mientras tanto | Ver D-STACK |
+| **D11** | PHP/Laravel | Quedarse / actualizar | **Quedarse en PHP 7.4 / Laravel 8** (canon C-010) | Resuelta |
 | **D12** | Antivirus | Sin / ClamAV / servicio de TI | ClamAV si TI lo provee | Archivos maliciosos |
 | **D13** | Respaldos | TI / manual / sin respaldo | `mysqldump` programado + copia de `storage/` | Continuidad |
 | **D14** | Migración histórica | No / parcial / total | Proyecto aparte tras el MVP | Reportes históricos |

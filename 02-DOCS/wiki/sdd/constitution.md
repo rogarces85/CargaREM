@@ -1,50 +1,44 @@
 ---
 type: constitution
 title: Cargas — Constitution
-description: Los principios no negociables que toda fase rsc-sdd obedece. Stack canon: ABIERTO (D-STACK reabierta). PHP 7.4.3 confirmado en vhost principal.
+description: Los principios no negociables que toda fase rsc-sdd obedece. Stack canon: Laravel 8.83 + PHP 7.4.3 + MySQL 8 + AdminLTE 3.2 (D-STACK cerrada C-010).
 tags: [sdd, constitution, cargas, rem]
-timestamp: 2026-11-06T20:30:00Z
+timestamp: 2026-11-10T12:30:00Z
 topic: sdd
-version: v3.0.0
+version: v3.1.0
 ---
 
 # Cargas — Constitution
 
-> Version: v3.0.0 · Ratified: 2026-11-06 · Last amended: 2026-11-06
+> Version: v3.1.0 · Ratified: 2026-11-06 · Last amended: 2026-11-10
 > Principios no negociables que toda fase rsc-sdd obedece. El detalle técnico vive en
 > `02-DOCS/wiki/stack/` y `02-DOCS/wiki/dominio/`; este archivo ratifica el principio y enlaza el detalle.
 >
 > **Alcance.** Rige el portal M7 de envío REM por establecimiento y la documentación técnica de
-> ValidadorRem. No rige el ejecutable WinForms existente, que se documenta pero no se modifica aquí.
+> Cargas REM. No rige el ejecutable WinForms existente, que se documenta pero no se modifica aquí.
 
-## 0. Decisión de stack — ABIERTA (D-STACK reabierta)
+## 0. Decisión de stack — CERRADA (C-010: Laravel 8.83 + PHP 7.4.3 + MySQL 8 + AdminLTE 3.2)
 
-La decisión de stack **no está tomada**. El diagnóstico del servidor confirmó **PHP 7.4.3** en el vhost
-principal (Apache `mod_php`). El cierre anterior (C-007, v2.0.0) se basaba en la asunción de PHP 8.3,
-derivada del sistema de Observaciones que corre en **otro vhost con PHP-FPM 8.2**. Esa asunción era
-incorrecta para este proyecto.
+La decisión de stack **está tomada y registrada en C-010**. El diagnóstico del servidor confirmó **PHP 7.4.3** en el vhost principal (Apache `mod_php`). TI confirmó que no hay PHP-FPM 8.3 ni actualización de servidor prevista.
 
 | # | Hecho confirmado | Consecuencia |
 |---|---|---|
-| S1 | PHP 7.4.3 (EOL 28-nov-2022) en Apache `mod_php` | **Laravel 13/12 no corren**; exigen PHP 8.3+/8.2+ |
-| S2 | `pdo_sqlite`, `opcache`, `bcmath` **no instalados** | Requeridas por Laravel moderno |
-| S3 | `upload_max_filesize=2M`, `display_errors=1` | Configuración de producción incompleta |
+| S1 | PHP 7.4.3 (EOL 28-nov-2022) en Apache `mod_php` | **Canon: Laravel 8.83**; Laravel 13/12 no corren |
+| S2 | `pdo_sqlite`, `opcache`, `bcmath` **no instalados** | Solo afecta SQLite local; prod usa MySQL |
+| S3 | `upload_max_filesize=2M`, `display_errors=1` | Configuración de producción a corregir |
 | S4 | Sistema Observaciones usa PHP 8.2 en **otro vhost/PHP-FPM** | No compartimos runtime |
 
-Mientras D-STACK esté abierta se aplican los principios 1 a 5. Al cerrarla, la enmienda debe ser
-**MAJOR** (agrega/quita el canon y puede invalidar trabajo previo) y se registra en
-`02-DOCS/wiki/sdd/decisions.md`.
+D-STACK **cerrada**. Principio 1 ya no bloquea código de aplicación.
 
-**Opciones viables hoy** (ver [`stack/decision-stack.md`](../stack/decision-stack.md)):
+**Stack canon (Opción B):**
 
-| Opción | Stack | Requisito previo |
+| Capa | Tecnología | Versión |
 |---|---|---|
-| A1 | Laravel 13 + PHP 8.3/8.5 | Actualizar servidor a Ubuntu 22.04/24.04 |
-| A2 | Laravel 13 + PHP-FPM 8.3 | Instalar pool FPM dedicado para este vhost |
-| B | Laravel 8 + PHP 7.4 + AdminLTE 3 | **Corre hoy**; 4 componentes EOL |
-| C | Symfony 6.4 LTS + PHP 7.4 | LTS hasta nov-2027; más configuración |
-| D | CodeIgniter 4.6 + PHP 7.4 | Sin LTS; auth/RBAC a mano |
-| E | Slim 4 / PHP plano + AdminLTE 4 | Como Observaciones; construyes el framework |
+| Lenguaje | PHP | 7.4.3 |
+| Framework | Laravel | 8.83 |
+| Base de datos | MySQL | 8.0.42 → 8.4 LTS |
+| UI | AdminLTE | 3.2 (Bootstrap 4) |
+| JS | Vanilla | Sin Node en producción |
 
 ## 1. Stack y restricciones del entorno
 
@@ -177,3 +171,4 @@ Un cambio se entrega solo si TODO se cumple:
 | 2026-11-06 | v1.0.0 (ratificación) | El usuario ratificó la v1.0.0 sin cambios (C-006). | Cierre formal de la fase `constitution`. |
 | 2026-11-06 | v2.0.0 | **MAJOR.** Cierra D-STACK y agrega el canon de stack (§0). Actualiza los principios 1–3: se permite código de aplicación, se relaja la prohibición de cron a «solo tareas opcionales», y el despliegue admite SSH. Refuerza 19 y 20 con el incidente de credenciales del sistema de Observaciones. Actualiza la Definition of Done. Reemplaza v1.0.0. | Investigación de 5 opciones, evidencia de campo en `estadisticas.ssosorno.cl` y decisión explícita del usuario (C-007). |
 | 2026-11-06 | **v3.0.0** | **MAJOR.** **Reabre D-STACK** y elimina el canon de stack (§0). La confirmación de PHP 7.4.3 invalida la decisión C-007. Los principios 1–3 vuelven a su forma restrictiva. Se registra C-009. Reemplaza v2.0.0. | Diagnóstico directo en `sist_envios` devuelve PHP 7.4.3. La evidencia de PHP 8.2 pertenecía a otro vhost. |
+| 2026-11-10 | **v3.1.0** | **MAJOR.** **Cierra D-STACK (C-010)** con canon: Laravel 8.83 + PHP 7.4.3 + MySQL 8 + AdminLTE 3.2. Principio 1 ya no bloquea código de aplicación. Se registra C-010 en `decisions.md`. Reemplaza v3.0.0. | TI confirmó que no hay PHP-FPM 8.3 ni actualización de servidor; PHP 7.4.3 es la realidad del vhost principal. |
