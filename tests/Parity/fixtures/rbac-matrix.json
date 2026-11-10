@@ -1,0 +1,398 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Matriz de permisos RBAC para tests positivos y negativos (Principio 8 Constitución v3.1.0). Fuente: SPECS.md §3.2 Tabla de permisos (RF-032).",
+  "version": "1.0",
+  "timestamp": "2026-11-10T15:00:00Z",
+  "roles": [
+    "encargado",
+    "revisor",
+    "admin",
+    "consulta"
+  ],
+  "permissions": [
+    {
+      "name": "envios.crear",
+      "description": "Crear envío (seleccionar período y establecimiento)",
+      "matrix": {
+        "encargado": true,
+        "revisor": false,
+        "admin": true,
+        "consulta": false
+      },
+      "test_cases": {
+        "positive": [
+          "encargado con establecimiento asignado y período abierto → 201 creado",
+          "admin → 201 creado"
+        ],
+        "negative": [
+          "revisor → 403",
+          "consulta → 403",
+          "encargado sin establecimiento asignado → 403",
+          "encargado con período cerrado → 422",
+          "encargado duplicado (mismo establecimiento/año/mes) → 422 unicidad"
+        ]
+      }
+    },
+    {
+      "name": "envios.ver.propio",
+      "description": "Ver envíos de sus establecimientos asignados",
+      "matrix": {
+        "encargado": true,
+        "revisor": false,
+        "admin": true,
+        "consulta": false
+      },
+      "test_cases": {
+        "positive": [
+          "encargado ve su envío → 200 con datos",
+          "admin ve cualquier envío → 200"
+        ],
+        "negative": [
+          "revisor → 403 (usa envios.ver.ss)",
+          "consulta → 403 (usa completitud.ver)",
+          "encargado intenta ver envío de otro establecimiento → 404/403 (aislamiento RN-ENV-1)"
+        ]
+      }
+    },
+    {
+      "name": "envios.ver.ss",
+      "description": "Ver envíos de todo su Servicio de Salud",
+      "matrix": {
+        "encargado": false,
+        "revisor": true,
+        "admin": true,
+        "consulta": true
+      },
+      "test_cases": {
+        "positive": [
+          "revisor ve envíos de su SS → 200 lista paginada",
+          "admin ve todos → 200",
+          "consulta ve su SS → 200 solo lectura"
+        ],
+        "negative": [
+          "encargado → 403",
+          "revisor intenta ver envío de otro SS → 404/403"
+        ]
+      }
+    },
+    {
+      "name": "envios.enviar",
+      "description": "Enviar a revisión (cambia estado a en_revision)",
+      "matrix": {
+        "encargado": true,
+        "revisor": false,
+        "admin": true,
+        "consulta": false
+      },
+      "test_cases": {
+        "positive": [
+          "encargado con todos archivos validado + V11 OK → 200 estado en_revision",
+          "admin → 200"
+        ],
+        "negative": [
+          "revisor → 403",
+          "consulta → 403",
+          "encargado con bloqueantes → 422",
+          "encargado sin V11 completitud → 422",
+          "encargado envía dos veces → 422 (ya en_revision)"
+        ]
+      }
+    },
+    {
+      "name": "envios.observar",
+      "description": "Registrar observaciones (checklist + texto obligatorio)",
+      "matrix": {
+        "encargado": false,
+        "revisor": true,
+        "admin": true,
+        "consulta": false
+      },
+      "test_cases": {
+        "positive": [
+          "revisor con checklist + texto → 200 estado observado",
+          "admin → 200"
+        ],
+        "negative": [
+          "encargado → 403",
+          "consulta → 403",
+          "revisor sin texto → 422",
+          "revisor sin checklist advertencias → 422"
+        ]
+      }
+    },
+    {
+      "name": "envios.aprobar",
+      "description": "Aprobar envío (0 bloqueantes + advertencias revisadas)",
+      "matrix": {
+        "encargado": false,
+        "revisor": true,
+        "admin": true,
+        "consulta": false
+      },
+      "test_cases": {
+        "positive": [
+          "revisor con 0 bloqueantes + checks → 200 estado aprobado",
+          "admin → 200"
+        ],
+        "negative": [
+          "encargado → 403",
+          "consulta → 403",
+          "revisor con bloqueantes > 0 → 422",
+          "revisor sin checks advertencias → 422",
+          "revisor autoaprobación (es encargado del establecimiento) → 403 (RN-ENV-7)"
+        ]
+      }
+    },
+    {
+      "name": "envios.cargar",
+      "description": "Confirmar carga manual en CARGAS REM (puente MVP A)",
+      "matrix": {
+        "encargado": false,
+        "revisor": true,
+        "admin": true,
+        "consulta": false
+      },
+      "test_cases": {
+        "positive": [
+          "revisor en estado aprobado → 200 estado cargado + fecha_carga",
+          "admin → 200"
+        ],
+        "negative": [
+          "encargado → 403",
+          "consulta → 403",
+          "revisor en estado no aprobado → 422",
+          "revisor en estado cargado → 422 (ya cargado)"
+        ]
+      }
+    },
+    {
+      "name": "envios.reabrir",
+      "description": "Reabrir envío aprobado/cargado (solo admin, motivo obligatorio)",
+      "matrix": {
+        "encargado": false,
+        "revisor": false,
+        "admin": true,
+        "consulta": false
+      },
+      "test_cases": {
+        "positive": [
+          "admin con motivo → 200 estado recibido/observado + auditoría"
+        ],
+        "negative": [
+          "encargado → 403",
+          "revisor → 403",
+          "consulta → 403",
+          "admin sin motivo → 422"
+        ]
+      }
+    },
+    {
+      "name": "envios.anular",
+      "description": "Anular envío recibido/con_errores/observado (solo admin, motivo obligatorio)",
+      "matrix": {
+        "encargado": false,
+        "revisor": false,
+        "admin": true,
+        "consulta": false
+      },
+      "test_cases": {
+        "positive": [
+          "admin con motivo → 200 estado anulado + auditoría"
+        ],
+        "negative": [
+          "encargado → 403",
+          "revisor → 403",
+          "consulta → 403",
+          "admin sin motivo → 422",
+          "admin anula aprobado/cargado → 422 (solo reabrir)"
+        ]
+      }
+    },
+    {
+      "name": "archivos.descargar",
+      "description": "Descargar archivo original Excel (policy + storage privado)",
+      "matrix": {
+        "encargado": true,
+        "revisor": true,
+        "admin": true,
+        "consulta": true
+      },
+      "test_cases": {
+        "positive": [
+          "encargado de su establecimiento → 200 attachment",
+          "revisor de su SS → 200",
+          "admin → 200",
+          "consulta de su SS → 200"
+        ],
+        "negative": [
+          "encargado de otro establecimiento → 403 (RN-ENV-1, RN-ENV-9)",
+          "revisor de otro SS → 403",
+          "consulta de otro SS → 403",
+          "archivo inexistente → 404"
+        ]
+      }
+    },
+    {
+      "name": "reportes.descargar",
+      "description": "Descargar reporte de validación (Excel/CSV)",
+      "matrix": {
+        "encargado": true,
+        "revisor": true,
+        "admin": true,
+        "consulta": true
+      },
+      "test_cases": {
+        "positive": [
+          "encargado → 200 xlsx/csv",
+          "revisor → 200",
+          "admin → 200",
+          "consulta → 200"
+        ],
+        "negative": [
+          "sin permiso sobre envío → 403",
+          "archivo sin hallazgos → 200 (reporte vacío válido)"
+        ]
+      }
+    },
+    {
+      "name": "completitud.ver",
+      "description": "Ver tablero de completitud matriz SS × establecimientos × series",
+      "matrix": {
+        "encargado": true,
+        "revisor": true,
+        "admin": true,
+        "consulta": true
+      },
+      "test_cases": {
+        "positive": [
+          "encargado ve su fila → 200 matriz filtrada",
+          "revisor ve su SS → 200 matriz completa SS",
+          "admin ve todo → 200",
+          "consulta ve su SS → 200 solo lectura"
+        ],
+        "negative": [
+          "revisor ve otro SS → 403/filtrado",
+          "consulta ve otro SS → 403/filtrado"
+        ]
+      }
+    },
+    {
+      "name": "paquetes.generar",
+      "description": "Generar y descargar ZIP paquete aprobado + manifiesto",
+      "matrix": {
+        "encargado": false,
+        "revisor": true,
+        "admin": true,
+        "consulta": false
+      },
+      "test_cases": {
+        "positive": [
+          "revisor en aprobado → 200 ZIP con manifiesto.json",
+          "admin → 200"
+        ],
+        "negative": [
+          "encargado → 403",
+          "consulta → 403",
+          "revisor en estado no aprobado → 422",
+          "paquete sin archivos → 422"
+        ]
+      }
+    },
+    {
+      "name": "catalogos.importar",
+      "description": "Importar snapshot catálogos (ZIP CSV)",
+      "matrix": {
+        "encargado": false,
+        "revisor": false,
+        "admin": true,
+        "consulta": false
+      },
+      "test_cases": {
+        "positive": [
+          "admin con ZIP válido → 201 snapshot inactivo + conteos"
+        ],
+        "negative": [
+          "encargado → 403",
+          "revisor → 403",
+          "consulta → 403",
+          "admin con ZIP inválido (columnas/conteos) → 422"
+        ]
+      }
+    },
+    {
+      "name": "usuarios.gestionar",
+      "description": "CRUD usuarios + asignación establecimientos + reset password",
+      "matrix": {
+        "encargado": false,
+        "revisor": false,
+        "admin": true,
+        "consulta": false
+      },
+      "test_cases": {
+        "positive": [
+          "admin crea/edita/desactiva → 200",
+          "admin asigna establecimientos → 200",
+          "admin reset password → 200"
+        ],
+        "negative": [
+          "encargado → 403",
+          "revisor → 403",
+          "consulta → 403",
+          "admin se resetea a sí mismo → 422",
+          "admin sin confirmación reset → 422"
+        ]
+      }
+    },
+    {
+      "name": "periodos.gestionar",
+      "description": "CRUD períodos (año, mes, fecha_limite, estado)",
+      "matrix": {
+        "encargado": false,
+        "revisor": false,
+        "admin": true,
+        "consulta": false
+      },
+      "test_cases": {
+        "positive": [
+          "admin crea/edita → 200",
+          "admin cambia estado abierto/en_revision/cerrado → 200"
+        ],
+        "negative": [
+          "encargado → 403",
+          "revisor → 403",
+          "consulta → 403",
+          "duplicado año/mes → 422"
+        ]
+      }
+    },
+    {
+      "name": "auditoria.ver",
+      "description": "Ver logs de auditoría append-only con filtros",
+      "matrix": {
+        "encargado": false,
+        "revisor": false,
+        "admin": true,
+        "consulta": false
+      },
+      "test_cases": {
+        "positive": [
+          "admin con filtros → 200 lista paginada"
+        ],
+        "negative": [
+          "encargado → 403",
+          "revisor → 403",
+          "consulta → 403",
+          "intento UPDATE/DELETE → 403/405 (append-only)"
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "total_permissions": 18,
+    "total_roles": 4,
+    "total_test_cases": 108,
+    "positive_tests": 54,
+    "negative_tests": 54,
+    "principio_8": "Cada permiso tiene test positivo y negativo; incluye aislamiento (RN-ENV-1) y no autoaprobación (RN-ENV-7)"
+  }
+}

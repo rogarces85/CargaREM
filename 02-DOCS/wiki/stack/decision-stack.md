@@ -72,6 +72,23 @@ D-STACK **cerrada** → el Principio 1 de la Constitución (no introducir stack 
 | ¿Cron disponible? | **NO confirmado** | Sin workers/colas |
 | ¿MySQL → 8.4 LTS? | Planificado | Objetivo antes abril 2026 |
 
+## 7. Decisiones de negocio resueltas (2026-11-10)
+
+| ID | Decisión | Resolución | Referencia |
+|---|---|---|---|
+| **D1** | Fuente de identidad | **Cuentas locales** — Admin crea usuario + password en portal | D-001 en `decisions.md` |
+| **D2** | Unidad de aprobación | **Mixto: envío con veto por serie** — Se aprueba envío completo; serie con bloqueante veta | D-002 en `decisions.md` |
+| **D3** | Corrección tras aprobado | **Versión automática nueva** — Encargado sube versión; sistema versiona sin reapertura admin | D-003 en `decisions.md` |
+| **D4** | Plazo mensual | **Día 10 configurable** — en `periodos.fecha_limite` | D-004 en `decisions.md` |
+| **D5** | Series obligatorias | **Histórico + override manual** — `establecimiento_serie` con vigencia | D-005 en `decisions.md` |
+| **D6** | Tratamiento SAX | **Fuera del MVP** — fase posterior | D-006 en `decisions.md` |
+| **D7** | Puente CARGAS REM | **Opción A: descarga manual ZIP** — Revisor descarga ZIP + manifiesto; carga manual | D-007 en `decisions.md` |
+| **D8** | Notificaciones | **Solo portal (BD)** — Tabla `notifications`; sin correo por ausencia de colas | D-008 en `decisions.md` |
+| **D9** | Retención | **5 años** — Cumple Ley 21.719; backup anual | D-009 en `decisions.md` |
+| **D10** | 2FA | **Revisores y admins** — Roles con mayor privilegio; encargados solo password robusto | D-010 en `decisions.md` |
+
+> **Todas las decisiones de negocio (D1–D10) están resueltas**. Desbloquean F1–F5 completamente.
+
 ---
 
-**D-STACK cerrada. Stack canon confirmado. Código de aplicación autorizado en ramas feature.**
+**D-STACK cerrada. Stack canon confirmado. Decisiones de negocio D1–D10 resueltas. Código de aplicación autorizado en ramas feature.**

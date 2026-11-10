@@ -501,16 +501,20 @@
 | ID | Decisión | Opciones | Bloquea | Estado |
 |---|---|---|---|---|
 | **PEND-001 (D-STACK)** | Stack final | A1/A2 (Laravel 13) / **B (Laravel 8 / PHP 7.4)** / C/D/E | Todo código app | **Asumida B para MVP**; revisar cuando TI responda |
-| **PEND-002 (D1)** | Fuente de identidad | Cuentas locales / correo institucional / directorio SS | Alta de usuarios (RF-013) | Pendiente |
-| **PEND-003 (D4)** | Plazo mensual | Día 5 / 10 / 15 / variable (configurable por período) | Cierre período (RF-010) | Pendiente |
-| **PEND-004 (D5)** | Series obligatorias | Todas / por tipo / histórico + override | Completitud (RF-011, RF-033) | Pendiente |
-| **PEND-005 (D6)** | Tratamiento SAX | Serie normal / especial | Plantillas + validación | Pendiente |
-| **PEND-006 (D7)** | Puente CARGAS REM | A (descarga manual) / B (paquete+importador) / C (reemplazo) | RF-039 | **MVP = A**; B en siguiente fase |
-| **PEND-007 (D10)** | 2FA | Nadie / admins / revisores+admins / todos | Auth (RF-001) | Pendiente |
-| **PEND-008 (TI-1)** | Actualizar Ubuntu/PHP | Sí / No | D-STACK → A1 | Pregunta a TI |
-| **PEND-009 (TI-2)** | PHP-FPM 8.3 para vhost | Sí / No | D-STACK → A2 | Pregunta a TI |
-| **PEND-010 (TI-3)** | Extensiones en PHP 7.4 | `pdo_sqlite`, `opcache`, `bcmath` | Laravel moderno en 7.4 | Pregunta a TI |
-| **PEND-011 (TI-4)** | Acceso SSH | Sí / No | Despliegue estándar | Pregunta a TI |
+| **PEND-002 (D1)** | Fuente de identidad | Cuentas locales / correo institucional / directorio SS | Alta de usuarios (RF-013) | ✅ **Resuelta: Cuentas locales** (D-001) |
+| **PEND-003 (D4)** | Plazo mensual | Día 5 / 10 / 15 / variable (configurable por período) | Cierre período (RF-010) | ✅ **Resuelta: Día 10 configurable** (D-004) |
+| **PEND-004 (D5)** | Series obligatorias | Todas / por tipo / histórico + override | Completitud (RF-011, RF-033) | ✅ **Resuelta: Histórico + override manual** (D-005) |
+| **PEND-005 (D6)** | Tratamiento SAX | Serie normal / especial | Plantillas + validación | ✅ **Resuelta: Fuera del MVP** (D-006) |
+| **PEND-006 (D7)** | Puente CARGAS REM | A (descarga manual) / B (paquete+importador) / C (reemplazo) | RF-039 | ✅ **Resuelta: MVP = A** (D-007) |
+| **PEND-007 (D2)** | Unidad de aprobación | Por envío / por archivo / mixto | Flujo revisión (RF-025, RF-027) | ✅ **Resuelta: Mixto (envío con veto por serie)** (D-002) |
+| **PEND-008 (D3)** | Corrección tras aprobado | Reapertura admin / versión automática / bloqueada | Integridad datos (RF-028, RF-030) | ✅ **Resuelta: Versión automática nueva** (D-003) |
+| **PEND-009 (D8)** | Notificaciones | Portal + correo / solo portal / solo correo | Aviso usuarios (RF-038) | ✅ **Resuelta: Solo portal (BD)** (D-008) |
+| **PEND-010 (D9)** | Retención | 1 / 3 / 5 años / indefinido | Legal/almacenamiento (RF-037) | ✅ **Resuelta: 5 años** (D-009) |
+| **PEND-011 (D10)** | 2FA | Nadie / admins / revisores+admins / todos | Auth (RF-001) | ✅ **Resuelta: Revisores y admins** (D-010) |
+| **PEND-012 (TI-1)** | Actualizar Ubuntu/PHP | Sí / No | D-STACK → A1 | Pregunta a TI |
+| **PEND-013 (TI-2)** | PHP-FPM 8.3 para vhost | Sí / No | D-STACK → A2 | Pregunta a TI |
+| **PEND-014 (TI-3)** | Extensiones en PHP 7.4 | `pdo_sqlite`, `opcache`, `bcmath` | Laravel moderno en 7.4 | Pregunta a TI |
+| **PEND-015 (TI-4)** | Acceso SSH | Sí / No | Despliegue estándar | Pregunta a TI |
 
 ---
 
@@ -520,12 +524,12 @@
 - [x] Flujos principales (6.1, 6.2, 6.3) cubren el ciclo completo encargado→revisor→carga
 - [x] Reglas de negocio (V0–V11, RN-ENV, versionado, períodos) no se contradicen
 - [x] Casos límite importantes (10.1, 10.2) tienen comportamiento definido con códigos ENV-###
-- [x] Requisitos no contradicen `specs/AGENT.md` (stack B asumido, D-STACK abierta, Constitución v3.0.0)
+- [x] Requisitos no contradicen `specs/AGENT.md` (stack B canon C-010, D-STACK cerrada, Constitución v3.1.0)
 - [x] Funcionalidades fuera de alcance identificadas explícitamente (4.2)
 - [x] No hay detalles de implementación prematuros (arquitectura, endpoints, clases solo como referencia en §5.5/§11 de fuente)
 - [x] Cada RF tiene al menos un CA verificable
 - [x] Identificadores únicos y estables (RF-, RN-, CA-, PEND-)
-- [x] Referencia UX al Zenith Dashboard documentada para L2/L3 (AdminLTE 4 en L1)
+- [x] Referencia UX al Zenith Dashboard documentada para L2/L3 (AdminLTE 3.2 en L1)
 
 ---
 
@@ -536,7 +540,7 @@
 | **Requisitos funcionales (RF-)** | 39 |
 | **Reglas de negocio (RN-)** | 11 (V0–V11 + RN-ENV + versionado + períodos) |
 | **Criterios de aceptación (CA-)** | 39 (1 por RF + 7 por fase) |
-| **Decisiones pendientes (PEND-)** | 11 |
+| **Decisiones pendientes (PEND-)** | 5 |
 | **Objetivos (OBJ-)** | 8 |
 | **Roles** | 4 (encargado, revisor, admin, consulta) |
 | **Permisos** | 18 |

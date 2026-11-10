@@ -27,30 +27,40 @@ topic: sdd
 | 2026-11-06 | C-008 | El MVP se construye primero en local con SQLite (L1: modelo y esqueleto); los archivos reales anonimizados entran en L2 | Todo en el servidor · L1 en local · solo archivos sintéticos | Prueba el modelo y el flujo antes de tocar producción. La paridad se valida en MySQL, no en SQLite |
 | 2026-11-06 | C-009 | **D-STACK reabierta**: diagnóstico confirmó PHP 7.4.3 en el vhost principal; la asunción de 8.3 era incorrecta | Mantener C-007 · Reabrir D-STACK | El cierre anterior se basó en evidencia de otro vhost (`sist_observaciones` con PHP-FPM 8.2). El Apache principal sirve 7.4. Ver `stack/decision-stack.md` |
 | 2026-11-10 | C-010 | **D-STACK cerrada (definitiva)**: Laravel 8.83 + PHP 7.4.3 + MySQL 8.0.42 + AdminLTE 3.2 (Bootstrap 4) | A1/A2 (Laravel 13/PHP 8.3) / B (Laravel 8/PHP 7.4) / C/D/E | TI confirmó que NO hay PHP-FPM 8.3 ni actualización de servidor; PHP 7.4.3 es la realidad del vhost principal. Se adopta Opción B como canon. Se enmienda Constitución a v3.1.0 (MAJOR). |
+| 2026-11-10 | D-001 | **D1 - Fuente de identidad**: Cuentas locales | Cuentas locales / correo institucional / directorio del SS | Admin crea usuario + password en portal; recuperación por email. Simplifica onboarding y no depende de TI. |
+| 2026-11-10 | D-004 | **D4 - Plazo mensual**: Día 10 configurable por período | Día 5 / 10 / 15 / variable | Día 10 configurable en `periodos.fecha_limite`; balance entre tiempo de carga y margen de revisión. |
+| 2026-11-10 | D-005 | **D5 - Series obligatorias**: Histórico + override manual | Todas / por tipo de establecimiento / histórico | Baseline según histórico real; admin edita `establecimiento_serie` (obligatoria, vigencia_desde/hasta). |
+| 2026-11-10 | D-006 | **D6 - Tratamiento SAX**: Fuera del MVP (fase futura) | Serie normal / especial / opcional en V11 | SAX es serie especial con datos propios; se excluye del MVP para no bloquear F1-F5. Se abordará en fase posterior. |
+| 2026-11-10 | D-002 | **D2 - Unidad de aprobación**: Mixto (envío con veto por serie) | Por envío / por archivo / mixto | Se aprueba el envío completo; una serie con bloqueante veta la aprobación; revisor resuelve serie a serie. |
+| 2026-11-10 | D-003 | **D3 - Corrección tras aprobado**: Versión automática nueva | Reapertura admin / versión automática / bloqueada | Encargado sube nueva versión; sistema crea versión automáticamente sin reapertura admin; trazabilidad completa. |
+| 2026-11-10 | D-007 | **D7 - Puente CARGAS REM**: Opción A (descarga manual ZIP) | A / B / C | MVP: revisor descarga ZIP con archivos + manifiesto.json; carga manual en CARGAS REM. B/C en fases futuras. |
+| 2026-11-10 | D-008 | **D8 - Notificaciones**: Solo portal (BD) | Portal + correo / solo portal / solo correo / asíncrono | Notificación en tabla `notifications` siempre; sin correo por simplicidad y ausencia de colas confirmadas. |
+| 2026-11-10 | D-009 | **D9 - Retención**: 5 años | 1 / 3 / 5 años / indefinido | Cumple normativa salud (Ley 21.719); revisar con jurídica; backup anual programado. |
+| 2026-11-10 | D-010 | **D10 - 2FA**: Revisores y admins | Nadie / admins / revisores+admins / todos | Roles con mayor privilegio (aprobar, reaperturar, usuarios) requieren 2FA; encargados solo password robusto. |
 
 ## Decisiones abiertas
 
 Tomadas de `MODULO_M7_PROFUNDIZADO.md` §18. Ninguna se cierra por inferencia: las cierra negocio o TI.
 
-> **Actualización 2026-11-10:** **D-STACK cerrada (C-010)**. Opción B canon. **D1, D4, D5, D6, D10** pendientes con negocio. **D11** resuelta (quedarse en PHP 7.4 / Laravel 8).
+> **Actualización 2026-11-10:** **D-STACK cerrada (C-010)**. Opción B canon. **D1, D2, D3, D4, D5, D6, D7, D8, D9, D10 resueltas**. **D11** resuelta (quedarse en PHP 7.4 / Laravel 8). **D12, D13, D14** pendientes con TI.
 > El estado vigente está en `stack/decision-stack.md`.
 
-| ID | Decisión | Opciones | Recomendación del diseño | Bloquea |
-|---|---|---|---|---|
-| **D1** | Fuente de identidad | Cuentas locales / correo institucional / directorio del SS | Correo institucional con respaldo local | Alta de encargados |
-| **D2** | Unidad de aprobación | Por envío / por archivo | Por envío, con observaciones por archivo | Flujo de revisión |
-| **D3** | Corrección tras aprobado | Bloqueada / reapertura admin / versión automática | Reapertura admin con motivo | Integridad de datos aprobados |
-| **D4** | Plazo mensual | Día 5 / 10 / 15 / variable | Día 10 configurable por período | Cierre y recordatorios |
-| **D5** | Series obligatorias | Todas / por tipo de establecimiento / histórico | Histórico + override manual | Completitud |
-| **D6** | Tratamiento de SAX | Serie normal / especial | Serie normal con plantilla propia | Faltantes falsos |
-| **D7** | Puente con CARGAS REM | A / B / C | A en MVP, B después | Alcance del MVP |
-| **D8** | Notificaciones | Solo portal / portal + correo | Portal + correo | Aviso a encargados |
-| **D9** | Retención de archivos | 1 / 3 / 5 años / indefinido | 5 años, revisar con jurídico | Legal y almacenamiento |
-| **D10** | 2FA | Nadie / admins / revisores+admins / todos | Revisores y admins | Seguridad de acceso |
-| **D11** | PHP/Laravel | Quedarse / actualizar | **Quedarse en PHP 7.4 / Laravel 8** (canon C-010) | Resuelta |
-| **D12** | Antivirus | Sin / ClamAV / servicio de TI | ClamAV si TI lo provee | Archivos maliciosos |
-| **D13** | Respaldos | TI / manual / sin respaldo | `mysqldump` programado + copia de `storage/` | Continuidad |
-| **D14** | Migración histórica | No / parcial / total | Proyecto aparte tras el MVP | Reportes históricos |
+| ID | Decisión | Opciones | Recomendación del diseño | Bloquea | Estado |
+|---|---|---|---|---|---|
+| **D1** | Fuente de identidad | Cuentas locales / correo institucional / directorio del SS | **Cuentas locales** (resuelta D-001) | Alta de encargados | ✅ **Resuelta** |
+| **D2** | Unidad de aprobación | Por envío / por archivo / mixto | **Mixto: envío con veto por serie** (resuelta D-002) | Flujo de revisión | ✅ **Resuelta** |
+| **D3** | Corrección tras aprobado | Bloqueada / reapertura admin / versión automática | **Versión automática nueva** (resuelta D-003) | Integridad de datos aprobados | ✅ **Resuelta** |
+| **D4** | Plazo mensual | Día 5 / 10 / 15 / variable | **Día 10 configurable** (resuelta D-004) | Cierre y recordatorios | ✅ **Resuelta** |
+| **D5** | Series obligatorias | Todas / por tipo de establecimiento / histórico | **Histórico + override manual** (resuelta D-005) | Completitud | ✅ **Resuelta** |
+| **D6** | Tratamiento de SAX | Serie normal / especial | **Fuera del MVP** (resuelta D-006) | Faltantes falsos | ✅ **Resuelta (fase futura)** |
+| **D7** | Puente con CARGAS REM | A / B / C | **Opción A: descarga manual ZIP** (resuelta D-007) | Alcance del MVP | ✅ **Resuelta (MVP=A)** |
+| **D8** | Notificaciones | Solo portal / portal + correo | **Solo portal (BD)** (resuelta D-008) | Aviso a encargados | ✅ **Resuelta** |
+| **D9** | Retención de archivos | 1 / 3 / 5 años / indefinido | **5 años** (resuelta D-009) | Legal y almacenamiento | ✅ **Resuelta** |
+| **D10** | 2FA | Nadie / admins / revisores+admins / todos | **Revisores y admins** (resuelta D-010) | Seguridad de acceso | ✅ **Resuelta** |
+| **D11** | PHP/Laravel | Quedarse / actualizar | **Quedarse en PHP 7.4 / Laravel 8** (canon C-010) | Resuelta | ✅ Resuelta |
+| **D12** | Antivirus | Sin / ClamAV / servicio de TI | ClamAV si TI lo provee | Archivos maliciosos | Pendiente |
+| **D13** | Respaldos | TI / manual / sin respaldo | `mysqldump` programado + copia de `storage/` | Continuidad | Pendiente |
+| **D14** | Migración histórica | No / parcial / total | Proyecto aparte tras el MVP | Reportes históricos | Pendiente |
 
 ## Cómo se cierra una decisión
 

@@ -42,13 +42,13 @@
 | **T-F0-01** | **Cerrar D-STACK (C-010)** | Registrar decisión Opción B (Laravel 8.83/PHP 7.4.3) en `02-DOCS/wiki/sdd/decisions.md` y enmendar Constitución a v3.1.0 (MAJOR) | Decisión registrada, Constitución actualizada | PEND-001, CONT-01, CONT-02 | — | `decisions.md` tiene C-010; Constitución v3.1.0 |
 | **T-F0-02** | **Reunir *golden files*** | Obtener 12–20 archivos Excel reales anonimizados (.xls, .xlsx, .xlsm): por serie, mes, con/sin errores, SAX cuando exista | Carpeta `tests/Parity/fixtures/{input,expected}/` poblada | OBJ-01, RIES-01, RIES-03 | — | 12+ archivos en input; salida esperada en expected |
 | **T-F0-03** | **Ejecutar ValidadorRem de referencia** | Correr ValidadorRem en entorno de prueba con `Global.mdb` copia y base vacía; exportar `datos` y `LogError` por cada *fixture* | Salidas de referencia guardadas en `tests/Parity/fixtures/expected/` | OBJ-01, RIES-01 | T-F0-02 | Cada *fixture* tiene par `input → expected` |
-| **T-F0-04** | **Mapear cabecera y semántica Diccionario/Excep** | Documentar: coordenadas/etiquetas cabecera por plantilla; significado `inicio`/`fin`/`posicion`/`tipo_dato`; estructura `Excep`/`colexcep` | Documento `docs/validacion/paridad-cabecera-diccionario.md` | RIES-03, RIES-09, DEP-16 | T-F0-03 | Mapa completo; semántica confirmada por negocio |
-| **T-F0-05** | **Definir política de severidad** | Revisar cada `ENV-###` con Unidad de Estadísticas; firmar documento: qué es bloqueante/advertencia/info | `docs/validacion/politica-severidad.md` firmado | OBJ-01, RIES-01, DEP-02 | T-F0-04 | Documento firmado por referente negocio |
+| **T-F0-04** | **Mapear cabecera y semántica Diccionario/Excep** | Documentar: coordenadas/etiquetas cabecera por plantilla; significado `inicio`/`fin`/`posicion`/`tipo_dato`; estructura `Excep`/`colexcep` | Documento `docs/validacion/paridad-cabecera-diccionario.md` ✅ | RIES-03, RIES-09, DEP-16 | T-F0-03 | Mapa completo; semántica confirmada por negocio | `[x]`
+| **T-F0-05** | **Definir política de severidad** | Revisar cada `ENV-###` con Unidad de Estadísticas; firmar documento: qué es bloqueante/advertencia/info | `docs/validacion/politica-severidad.md` ✅ (borrador para firma) | OBJ-01, RIES-01, DEP-02 | T-F0-04 | Documento firmado por referente negocio | `[x]`
 | **T-F0-06** | **Confirmar matriz de series obligatorias (D5)** | Definir series por establecimiento: histórico + *override* con vigencia; confirmar SAX (D6) | `docs/validacion/matriz-series-obligatorias.md` | D5, D6, DEP-12, DEP-13 | T-F0-05 | Matriz confirmada; SAX documentada |
 | **T-F0-07** | **Confirmar plazos y reglas de cierre (D4)** | Definir día límite configurable por período; regla período `abierto/en_revision/cerrado` | `docs/validacion/reglas-cierre-periodo.md` | D4, DEP-11 | — | Documento confirmado |
 | **T-F0-08** | **Confirmar fuente de identidad (D1) y 2FA (D10)** | Decidir: cuentas locales / correo institucional / directorio SS; 2FA para quién | `docs/auth/decision-identidad-2fa.md` | D1, D10, DEP-10, DEP-15 | — | Decisión registrada |
-| **T-F0-09** | **Preparar catálogo de errores `ENV-###`** | Lista completa `ENV-001` a `ENV-032` con mensaje usuario, severidad, etapa, acción sugerida | `docs/validacion/catalogo-errores-env.md` | RF-019, MOD-04, DEP-16 | T-F0-05 | Catálogo completo coincidente con SPECS §20.1 |
-| **T-F0-10** | **Definir *fixtures* de permisos (RBAC)** | Matriz 18 permisos × 4 roles con tests pos/neg esperados | `tests/Parity/fixtures/rbac-matrix.json` | MOD-01, MOD-02, PRINCIPIO 8 | T-F0-08 | Archivo JSON con casos de prueba |
+| **T-F0-09** | **Preparar catálogo de errores `ENV-###`** | Lista completa `ENV-001` a `ENV-032` con mensaje usuario, severidad, etapa, acción sugerida | `docs/validacion/catalogo-errores-env.md` ✅ | RF-019, MOD-04, DEP-16 | T-F0-05 | Catálogo completo coincidente con SPECS §20.1 | `[x]`
+| **T-F0-10** | **Definir *fixtures* de permisos (RBAC)** | Matriz 18 permisos × 4 roles con tests pos/neg esperados | `tests/Parity/fixtures/rbac-matrix.json` ✅ | MOD-01, MOD-02, PRINCIPIO 8 | T-F0-08 | Archivo JSON con casos de prueba | `[x]`
 
 ---
 
@@ -359,13 +359,19 @@ F0 (T-F0-01..10)
 
 | ID | Decisión | Tareas bloqueadas | Estado |
 |---|---|---|---|
-| **D1** | Fuente de identidad | T-F1-10 (login), T-F1-14 (seeder users), T-F1-30 (seed) | **Bloquea F1** — definir antes de T-F1-10 |
-| **D4** | Plazo mensual | T-F1-22 (PeriodoController), T-F2-03 (validación período) | **Bloquea F1/F2** — definir antes de T-F1-22 |
-| **D5** | Series obligatorias | T-F1-23 (matriz), T-F2-22 (V11), T-F4-01 (matriz) | **Bloquea F1/F2/F4** — definir antes de T-F1-23 |
-| **D6** | Tratamiento SAX | T-F1-19 (Serie model), T-F1-23 (matriz), T-F2-15 (V2) | **Bloquea F1/F2** — definir antes de T-F1-19 |
-| **D10** | 2FA | T-F1-10 (Fortify config), T-F1-12 (sesión) | **No bloquea** — Fortify lo soporta; activar después si decide |
+| **D1** | Fuente de identidad | T-F1-10 (login), T-F1-14 (seeder users), T-F1-30 (seed) | ✅ **Resuelta: Cuentas locales** (D-001) — desbloquea F1 |
+| **D4** | Plazo mensual | T-F1-22 (PeriodoController), T-F2-03 (validación período) | ✅ **Resuelta: Día 10 configurable** (D-004) — desbloquea F1/F2 |
+| **D5** | Series obligatorias | T-F1-23 (matriz), T-F2-22 (V11), T-F4-01 (matriz) | ✅ **Resuelta: Histórico + override manual** (D-005) — desbloquea F1/F2/F4 |
+| **D6** | Tratamiento SAX | T-F1-19 (Serie model), T-F1-23 (matriz), T-F2-15 (V2) | ✅ **Resuelta: Fuera del MVP** (D-006) — desbloquea F1/F2 |
+| **D2** | Unidad de aprobación | T-F3-06 (aprobar), T-F3-03 (bandeja) | ✅ **Resuelta: Mixto (envío con veto por serie)** (D-002) — desbloquea F3 |
+| **D3** | Corrección tras aprobado | T-F3-08 (reabrir), T-F2-06 (subir versión) | ✅ **Resuelta: Versión automática nueva** (D-003) — desbloquea F2/F3 |
+| **D7** | Puente CARGAS REM | T-F5-01..05 (paquete, confirmación carga) | ✅ **Resuelta: MVP = A (descarga manual)** (D-007) — desbloquea F5 |
+| **D8** | Notificaciones | T-F3-09..12 (notificaciones) | ✅ **Resuelta: Solo portal (BD)** (D-008) — simplifica F3 |
+| **D9** | Retención | T-F6-10..11 (backup, restore) | ✅ **Resuelta: 5 años** (D-009) — define F6 |
+| **D10** | 2FA | T-F1-10 (Fortify), T-F1-12 (sesión) | ✅ **Resuelta: Revisores y admins** (D-010) — configura F1 |
 | **D12** | Antivirus | T-F2-04 (validación archivo), T-F6-03 | **No bloquea** — validación tipo real como fallback |
 | **D13** | Respaldos | T-F6-10..11 | **No bloquea** — manual/phpMyAdmin como fallback |
+| **D14** | Migración histórica | — | **No bloquea** — proyecto aparte tras MVP |
 
 ---
 
@@ -386,14 +392,14 @@ F0 (T-F0-01..10)
 
 | Fase | Tareas totales | Pendientes | Completadas | Bloqueadas |
 |---|---|---|---|---|
-| **F0** | 10 | 10 | 0 | 0 (D-STACK cerrada C-010) |
-| **F1** | 31 | 31 | 0 | 3 (D1, D4, D5, D6) |
+| **F0** | 10 | 6 | 4 | 0 (D-STACK cerrada C-010) |
+| **F1** | 31 | 31 | 0 | 0 (**D1, D4, D5, D6 resueltas**) |
 | **F2** | 31 | 31 | 0 | 0 (tras F1) |
 | **F3** | 14 | 14 | 0 | 0 (tras F2) |
 | **F4** | 5 | 5 | 0 | 0 (tras F2) |
 | **F5** | 5 | 5 | 0 | 0 (tras F3) |
 | **F6** | 16 | 16 | 0 | 0 (tras F3–F5) |
-| **TOTAL** | **112** | **112** | **0** | **3 decisiones** |
+| **TOTAL** | **112** | **108** | **4** | **0 decisiones** |
 
 > **Nota:** Ninguna tarea ha sido verificada en código real. El estado refleja solo planificación. Al iniciar implementación, actualizar casillas `[ ]` → `[~]` → `[x]` con evidencia (commit hash, test output, screenshot).
 
@@ -401,10 +407,18 @@ F0 (T-F0-01..10)
 
 ## Próximos pasos inmediatos
 
-1. **Resolver D1, D4, D5, D6** con negocio (reunión 30 min) — desbloquean F1.
-2. **Ejecutar T-F0-01** (registrar C-010) — ya decidida en conversación.
-3. **Ejecutar T-F0-02..10** en paralelo (golden files, decisiones, catálogo errores) — 1–2 semanas.
-4. **Iniciar F1** con T-F1-01 (proyecto Laravel) en cuanto F0 avance.
+1. **Ejecutar T-F0-01** (registrar C-010) — ya decidida en conversación y documentada.
+2. **Ejecutar T-F0-02..10** en paralelo (golden files, decisiones, catálogo errores) — 1–2 semanas.
+   - T-F0-02..03: Reunir 12-20 archivos reales anonimizados + ejecutar ValidadorRem
+   - T-F0-04: Mapear cabecera + semántica Diccionario/Excep
+   - T-F0-05: Firmar política de severidad con Unidad Estadísticas
+   - T-F0-06: Confirmar matriz series (✅ **D5 resuelto: histórico + override manual**)
+   - T-F0-07: Confirmar reglas cierre (✅ **D4 resuelto: día 10 configurable**)
+   - T-F0-08: Confirmar identidad (✅ **D1 resuelto: cuentas locales**)
+   - T-F0-09: Catálogo errores ENV-001 a ENV-032
+   - T-F0-10: Fixtures RBAC (18 permisos × 4 roles)
+3. **Iniciar F1** con T-F1-01 (proyecto Laravel) en cuanto F0 avance.
+4. **Decisiones pendientes restantes**: D12, D13, D14 (TI: antivirus, respaldos, migración histórica).
 
 ---
 
