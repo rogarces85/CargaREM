@@ -153,7 +153,7 @@
 | **T-F2-04** | **FormRequest: CrearEnvioRequest + SubirArchivoRequest** | Validación: auth, período abierto, archivo required, mimes `xls,xlsx,xlsm`, max 2048 KB, tipo real `finfo` | Entrada validada | RF-017, RF-018, ENV-001 a ENV-004 | T-F2-03 | Request rechaza >2MB, ext inválida, tipo falso |
 | **T-F2-05** | **Almacenamiento privado + naming** | `storage/app/private/envios/{anio}/{mes}/{codigo}/{envio}/v{version}/{serie}.{ext}`; nombre generado SHA-256; `nombre_original` guardado | Archivos fuera de `public/` | TEC-08, RN-ENV-9, RN-ENV-12, RN-ENV-13 | T-F2-02 | Archivo físico en ruta esperada; `public/` sin archivos | `[x]` |
 | **T-F2-06** | **EnvioService::subirVersion() (OP-02)** | Transacción: `lockForUpdate(envio)` → `version=MAX+1` → `UPDATE es_vigente=0` → guarda archivo → `EnvioArchivo` `subido` → dispara validación → actualiza archivo + hallazgos → `EstadoEnvioService::recalcular` → auditoría | Subida atómica + versionado | RF-018, RF-020, OP-02, RN-ENV-8, RN-ENV-11, RN-ENV-13 | T-F2-03, T-F2-05, T-F2-14 | Reenvío crea v2, v1 `es_vigente=0`, hash único, auditoría | `[x]` |
-| **T-F2-07** | **EnvioService::revalidar() (OP-03)** | Borra `validaciones` del archivo → re-ejecuta `ValidadorArchivo::validar` con `snapshot_id` del archivo → actualiza conteos/estado | Idempotente | RF-021, OP-03 | T-F2-06, T-F2-14 | 2 llamadas consecutivas = mismo resultado |
+| **T-F2-07** | **EnvioService::revalidar() (OP-03)** | Borra `validaciones` del archivo → re-ejecuta `ValidadorArchivo::validar` con `snapshot_id` del archivo → actualiza conteos/estado | Idempotente | RF-021, OP-03 | T-F2-06, T-F2-14 | 2 llamadas consecutivas = mismo resultado | `[x]` |
 | **T-F2-08** | **ArchivoService::descargar() (OP-04)** | Verifica policy → `response()->file($ruta, ['Content-Disposition'=>'attachment'])` + headers `nosniff` | Descarga autenticada | RF-022, OP-04, RN-ENV-9, TEC-08 | T-F2-05, T-F1-15 | Usuario sin permiso → 403; con permiso → descarga binaria |
 | **T-F2-09** | **ReporteService::descargar() (OP-05)** | Genera `.xlsx` (PhpSpreadsheet) o `.csv` desde `validaciones`: hojas Resumen/Bloqueantes/Advertencias/Info; nombre `Validacion_{codigo}_{serie}_{anio}{mes}_v{version}.xlsx` | Reporte descargable | RF-023, OP-05, MOD-04 | T-F2-14, T-F2-15 | Reporte coincide con hallazgos BD; formato correcto |
 | **T-F2-10** | **Controller: EnvioController + ArchivoController** | Rutas: `envios.index`, `envios.show`, `envios.store`, `envios.archivos.store`, `envios.archivos.destroy` (solo si no enviado), `archivos.descargar`, `archivos.reporte` | Endpoints funcionales | RF-017 a RF-023 | T-F2-03 a T-F2-09 | POST `/envios/{id}/archivos` → 201 resumen |
@@ -163,9 +163,9 @@
 
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
-| **T-F2-12** | **Estructura ValidadorArchivo + ReglaValidacion interface** | `ValidadorArchivo` (cadena reglas), `ReglaValidacion` (interface `etapa()`, `aplicar()`), `ContextoValidacion`, `ResultadoValidacion` (hallazgos, conteos, `tieneBloqueantes()`) | Framework validación | MOD-04, PLAN §11.3 | T-F2-02 | `new ValidadorArchivo([...])->validar($ctx)` retorna resultado |
-| **T-F2-13** | **Implementar reglas V0: Archivo (ENV-001 a ENV-004, ENV-027, ENV-028)** | `V0Archivo`: existencia, tamaño ≤2MB, extensión, tipo real (`finfo` + firma ZIP/OLE2), no corrupto/cifrado, macros→advertencia ENV-028 | V0 completa | RF-019, ENV-001 a ENV-004, ENV-027, ENV-028 | T-F2-12, T-F0-09 | Unit test por cada ENV; bloqueantes detienen cadena |
-| **T-F2-14** | **Implementar regla V1: Nombre (ENV-005 a ENV-008)** | `V1Nombre`: regex `^(\d{4,10})([A-Z]{1,3})(\d{2})(?:[ _.-].*)?\.(xls|xlsx|xlsm)$`; valida código existe, serie en catálogo, mes coincide período, código = establecimiento envío | V1 completa | RF-019, ENV-005 a ENV-008, RN-ENV-12 | T-F2-12, T-F1-19 | Test: nombre inválido → ENV-005; serie inexistente → ENV-006 |
+| **T-F2-12** | **Estructura ValidadorArchivo + ReglaValidacion interface** | `ValidadorArchivo` (cadena reglas), `ReglaValidacion` (interface `etapa()`, `aplicar()`), `ContextoValidacion`, `ResultadoValidacion` (hallazgos, conteos, `tieneBloqueantes()`) | Framework validación | MOD-04, PLAN §11.3 | T-F2-02 | `new ValidadorArchivo([...])->validar($ctx)` retorna resultado | `[x]` |
+| **T-F2-13** | **Implementar reglas V0: Archivo (ENV-001 a ENV-004, ENV-027, ENV-028)** | `V0Archivo`: existencia, tamaño ≤2MB, extensión, tipo real (`finfo` + firma ZIP/OLE2), no corrupto/cifrado, macros→advertencia ENV-028 | V0 completa | RF-019, ENV-001 a ENV-004, ENV-027, ENV-028 | T-F2-12, T-F0-09 | Unit test por cada ENV; bloqueantes detienen cadena | `[x]` |
+| **T-F2-14** | **Implementar regla V1: Nombre (ENV-005 a ENV-008)** | `V1Nombre`: regex `^(\d{4,10})([A-Z]{1,3})(\d{2})(?:[ _.-].*)?\.(xls|xlsx|xlsm)$`; valida código existe, serie en catálogo, mes coincide período, código = establecimiento envío | V1 completa | RF-019, ENV-005 a ENV-008, RN-ENV-12 | T-F2-12, T-F1-19 | Test: nombre inválido → ENV-005; serie inexistente → ENV-006 | `[x]` |
 | **T-F2-15** | **Implementar regla V2: Cabecera (ENV-009 a ENV-013)** | `V2Cabecera`: detección por etiquetas `SERIE`/`AÑO`/`MES`/`VERSIÓN`/`ESTABLECIMIENTO` (primeras 25 filas × 15 cols); fallback `plantilla_cabecera`; valida coincidencias | V2 completa | RF-019, ENV-009 a ENV-013, DEP-04 | T-F2-12, T-F1-19, T-F0-04 | Test: cabecera no detectable → ENV-009 con etiquetas buscadas |
 | **T-F2-16** | **Implementar regla V3: Versión plantilla (ENV-014)** | `V3VersionPlantilla`: compara versión detectada vs `plantillas(anio,mes,serie)` activo | V3 completa | RF-019, ENV-014, DEP-04 | T-F2-15, T-F1-19 | Versión distinta → ENV-014 bloqueante |
 | **T-F2-17** | **Implementar regla V4: Pertenencia (ENV-015)** | `V4Pertenencia`: establecimiento en SS del user + pivot `usuario_establecimiento` | V4 completa | RF-019, ENV-015, RN-ENV-1, RN-ENV-4 | T-F2-12, T-F1-16 | User sin establecimiento → ENV-015 bloqueante |
@@ -415,12 +415,12 @@ F0 (T-F0-01..10)
 |---|---|---|---|---|
 | **F0** | 10 | 7 | 3 | 0 |
 | **F1** | 31 | 31 | 0 | 0 |
-| **F2** | 31 | 5 | 0 | 26 |
+| **F2** | 31 | 9 | 0 | 22 |
 | **F3** | 14 | 0 | 0 | 14 |
 | **F4** | 5 | 0 | 0 | 5 |
 | **F5** | 5 | 0 | 0 | 5 |
 | **F6** | 16 | 0 | 0 | 16 |
-| **TOTAL** | **112** | **43** | **3** | **66** |
+| **TOTAL** | **112** | **47** | **3** | **62** |
 
 **F0 — las 7 completadas:** T-F0-01 (C-010), 04, 06, 07, 08, 09, 10.
 **F0 — las 3 en progreso, todas esperando a personas:**

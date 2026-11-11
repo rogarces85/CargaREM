@@ -11,6 +11,7 @@ use App\Models\Establecimiento;
 use App\Models\Periodo;
 use App\Models\Serie;
 use App\Models\User;
+use App\Validacion\ValidadorArchivo;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 
@@ -22,8 +23,10 @@ use Illuminate\Support\Facades\DB;
  */
 class EnvioService
 {
-    public function __construct(private readonly ArchivoService $archivos)
-    {
+    public function __construct(
+        private readonly ArchivoService $archivos,
+        private readonly ValidadorArchivo $validador,
+    ) {
     }
 
     /**
@@ -148,5 +151,24 @@ class EnvioService
 
             return $registro;
         });
+    }
+/**
+     * Revalida todos los archivos vigentes del envío (OP-03).
+     *
+     * @return array<int, \App\Validacion\ResultadoValidacion> clave: id del archivo
+     */
+    public function revalidar(Envio $envio): array
+    {
+        $resultados = [];
+
+        foreach ($envio->archivosVigentes()->get() as $archivo) {
+            $resultados[$archivo->id] = $this->validador->validar($archivo);
+        }
+
+        AuditoriaService::registrarSobre('envio.revalidado', $envio, [
+            'archivos' => count($resultados),
+        ]);
+
+        return $resultados;
     }
 }
