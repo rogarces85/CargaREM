@@ -154,7 +154,7 @@
 | **T-F2-05** | **Almacenamiento privado + naming** | `storage/app/private/envios/{anio}/{mes}/{codigo}/{envio}/v{version}/{serie}.{ext}`; nombre generado SHA-256; `nombre_original` guardado | Archivos fuera de `public/` | TEC-08, RN-ENV-9, RN-ENV-12, RN-ENV-13 | T-F2-02 | Archivo físico en ruta esperada; `public/` sin archivos | `[x]` |
 | **T-F2-06** | **EnvioService::subirVersion() (OP-02)** | Transacción: `lockForUpdate(envio)` → `version=MAX+1` → `UPDATE es_vigente=0` → guarda archivo → `EnvioArchivo` `subido` → dispara validación → actualiza archivo + hallazgos → `EstadoEnvioService::recalcular` → auditoría | Subida atómica + versionado | RF-018, RF-020, OP-02, RN-ENV-8, RN-ENV-11, RN-ENV-13 | T-F2-03, T-F2-05, T-F2-14 | Reenvío crea v2, v1 `es_vigente=0`, hash único, auditoría | `[x]` |
 | **T-F2-07** | **EnvioService::revalidar() (OP-03)** | Borra `validaciones` del archivo → re-ejecuta `ValidadorArchivo::validar` con `snapshot_id` del archivo → actualiza conteos/estado | Idempotente | RF-021, OP-03 | T-F2-06, T-F2-14 | 2 llamadas consecutivas = mismo resultado | `[x]` |
-| **T-F2-08** | **ArchivoService::descargar() (OP-04)** | Verifica policy → `response()->file($ruta, ['Content-Disposition'=>'attachment'])` + headers `nosniff` | Descarga autenticada | RF-022, OP-04, RN-ENV-9, TEC-08 | T-F2-05, T-F1-15 | Usuario sin permiso → 403; con permiso → descarga binaria |
+| **T-F2-08** | **ArchivoService::descargar() (OP-04)** | Verifica policy → `response()->file($ruta, ['Content-Disposition'=>'attachment'])` + headers `nosniff` | Descarga autenticada | RF-022, OP-04, RN-ENV-9, TEC-08 | T-F2-05, T-F1-15 | Usuario sin permiso → 403; con permiso → descarga binaria | `[x]` |
 | **T-F2-09** | **ReporteService::descargar() (OP-05)** | Genera `.xlsx` (PhpSpreadsheet) o `.csv` desde `validaciones`: hojas Resumen/Bloqueantes/Advertencias/Info; nombre `Validacion_{codigo}_{serie}_{anio}{mes}_v{version}.xlsx` | Reporte descargable | RF-023, OP-05, MOD-04 | T-F2-14, T-F2-15 | Reporte coincide con hallazgos BD; formato correcto | `[x]` |
 | **T-F2-10** | **Controller: EnvioController + ArchivoController** | Rutas: `envios.index`, `envios.show`, `envios.store`, `envios.archivos.store`, `envios.archivos.destroy` (solo si no enviado), `archivos.descargar`, `archivos.reporte` | Endpoints funcionales | RF-017 a RF-023 | T-F2-03 a T-F2-09 | POST `/envios/{id}/archivos` → 201 resumen | `[x]` |
 | **T-F2-11** | **Vistas Blade: dashboard encargado, detalle envío, modal subir, resultado validación** | `envios/index.blade.php`, `envios/show.blade.php`, `components/DropzoneArchivo`, `envios/validacion/show.blade.php` con AdminLTE 3.2 + componentes reutilizables §9.2 | UI completa | SPECS §7.1, PLAN §9.1, §9.2 | T-F1-11, T-F2-10 | Pantallas renderizan; dropzone valida cliente | `[x]` |
@@ -174,7 +174,7 @@
 | **T-F2-20** | **Implementar regla V9: Duplicados internos (ENV-023)** | `V9Duplicados`: mismo `codigo_prestacion` 2+ veces en mismo archivo → advertencia | V9 completa | RF-019, ENV-023 | T-F2-12 | Duplicado → ENV-023 advertencia | `[x]` |
 | **T-F2-21** | **Implementar regla V10: Al menos 1 registro válido (ENV-024)** | `V10Registros`: `filas_validas > 0` tras V6–V9 | V10 completa | RF-019, ENV-024 | T-F2-19 | 0 filas válidas → ENV-024 bloqueante | `[x]` |
 | **T-F2-22** | **Implementar regla V11: Completitud por envío (ENV-025)** | `V11Completitud` (nivel envío): `EstablecimientoSerie` obligatorias vs archivos vigentes `validado`; faltantes → ENV-025 bloqueante para "Enviar a revisión" | V11 completa | RF-025, RF-033, ENV-025, OP-15, DEP-12 | T-F2-12, T-F1-23, T-F2-26 | Envío sin serie obligatoria → V11 bloquea "Enviar" | `[x]` |
-| **T-F2-23** | **Severidad y parada de cadena** | `ValidadorArchivo::validar()`: itera reglas ordenadas; si `resultado->tieneBloqueantes()` y regla != V11 → `break` | Política severidad | RF-019, PLAN §7.5, DEP-02 | T-F2-12 | Bloqueante en V0–V10 detiene; V11 siempre corre |
+| **T-F2-23** | **Severidad y parada de cadena** | `ValidadorArchivo::validar()`: itera reglas ordenadas; si `resultado->tieneBloqueantes()` y regla != V11 → `break` | Política severidad | RF-019, PLAN §7.5, DEP-02 | T-F2-12 | Bloqueante en V0–V10 detiene; V11 siempre corre | `[x]` |
 | **T-F2-24** | **Tests unitarios por regla (PRINCIPIO 6)** | 1 test mínimo por `ENV-###` con `ContextoValidacion` mockeado; fixtures para V6–V8 | Cobertura reglas | PRINCIPIO 6, CA-019 | T-F2-13 a T-F2-22 | `php artisan test --filter=ValidacionRegla` pasa |
 | **T-F2-25** | **Tests de paridad (golden files) — PRINCIPIO 10** | Script `tests/Parity/run_parity.php`: itera fixtures F0, sube archivo, compara `validaciones` (códigos, severidad, conteos) vs expected; tolerancia 0 numéricos | Paridad 100% | OBJ-01, PRINCIPIO 10, DEP-02, DEP-16 | T-F2-13 a T-F2-22, T-F0-03 | Reporte: `OK 20/20` o lista diffs |
 
@@ -415,12 +415,12 @@ F0 (T-F0-01..10)
 |---|---|---|---|---|
 | **F0** | 10 | 7 | 3 | 0 |
 | **F1** | 31 | 31 | 0 | 0 |
-| **F2** | 31 | 23 | 0 | 8 |
+| **F2** | 31 | 25 | 0 | 6 |
 | **F3** | 14 | 0 | 0 | 14 |
 | **F4** | 5 | 0 | 0 | 5 |
 | **F5** | 5 | 0 | 0 | 5 |
 | **F6** | 16 | 0 | 0 | 16 |
-| **TOTAL** | **112** | **61** | **3** | **48** |
+| **TOTAL** | **112** | **63** | **3** | **46** |
 
 **F0 — las 7 completadas:** T-F0-01 (C-010), 04, 06, 07, 08, 09, 10.
 **F0 — las 3 en progreso, todas esperando a personas:**
