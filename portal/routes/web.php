@@ -1,5 +1,12 @@
 <?php
 
+use App\Http\Controllers\Admin\CatalogoSnapshotController;
+use App\Http\Controllers\Admin\EstablecimientoController;
+use App\Http\Controllers\Admin\MatrizController;
+use App\Http\Controllers\Admin\PeriodoController;
+use App\Http\Controllers\Admin\PlantillaController;
+use App\Http\Controllers\Admin\SerieController;
+use App\Http\Controllers\Admin\ServicioController;
 use App\Http\Controllers\HealthController;
 use Illuminate\Support\Facades\Route;
 
@@ -9,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 |
 | El portal M7 se sirve desde aquí. Las rutas de autenticación las registra
-| Fortify; las del dominio (envíos, catálogos, revisión) llegan en F2 y F3.
+| Fortify; las del dominio (envíos, revisión) llegan en F2 y F3.
 |
 */
 
@@ -22,3 +29,29 @@ Route::get('/health', HealthController::class)->name('health');
 Route::middleware('auth')->group(function () {
     Route::get('/panel', fn () => view('panel'))->name('panel');
 });
+
+/*
+ * Administración de catálogos (T-F1-22, T-F1-23).
+ *
+ * El permiso `catalogos.gestionar` es solo de admin y se comprueba en el
+ * servidor, no en la vista (Constitución, principio 18).
+ */
+Route::middleware(['auth', 'permission:catalogos.gestionar'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::resource('servicios', ServicioController::class)->except(['show', 'destroy']);
+        Route::resource('establecimientos', EstablecimientoController::class)->except(['show', 'destroy']);
+        Route::resource('series', SerieController::class)->except(['show', 'destroy']);
+        Route::resource('periodos', PeriodoController::class)->except(['show', 'destroy']);
+
+        Route::get('plantillas', [PlantillaController::class, 'index'])->name('plantillas.index');
+
+        Route::get('matriz', [MatrizController::class, 'index'])->name('matriz.index');
+        Route::get('matriz/{establecimiento}/edit', [MatrizController::class, 'edit'])->name('matriz.edit');
+        Route::put('matriz/{establecimiento}', [MatrizController::class, 'update'])->name('matriz.update');
+
+        Route::get('snapshots', [CatalogoSnapshotController::class, 'index'])->name('snapshots.index');
+        Route::post('snapshots/importar', [CatalogoSnapshotController::class, 'importar'])->name('snapshots.importar');
+        Route::post('snapshots/{snapshot}/activar', [CatalogoSnapshotController::class, 'activar'])->name('snapshots.activar');
+    });

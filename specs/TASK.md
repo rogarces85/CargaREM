@@ -92,9 +92,9 @@
 | **T-F1-19** | **Modelos Eloquent catálogos** | Clases `Servicio`, `Establecimiento`, `Serie`, `Periodo`, `EstablecimientoSerie`, `CatalogoSnapshot`, `Plantilla`, `PlantillaHoja`, `PlantillaCabecera`, `Diccionario`, `Excepcion` con `$fillable`, relaciones, casts, scopes | Modelos listos | DAT-01 a DAT-16 | T-F1-18 | `Servicio::first()->establecimientos` carga relación | `[x]` |
 | **T-F1-20** | **Importador CSV/ZIP (CatalogoService::importarSnapshot)** | Servicio que: valida ZIP (columnas, encoding, conteos referencia, duplicados), carga tablas espejo en transacción, crea `CatalogoSnapshot` `activo=0` | Importación robusta | RF-005, RF-006, MOD-02, DEP-03 | T-F1-19 | ZIP válido → snapshot inactivo con conteos correctos | `[x]` |
 | **T-F1-21** | **Activar snapshot (único activo)** | `CatalogoService::activarSnapshot($id)`: transacción desactiva anterior + activa nuevo; evento auditoría | Un solo activo | RF-006, MOD-02 | T-F1-20 | Solo 1 fila `activo=1`; auditoría registra cambio | `[x]` |
-| **T-F1-22** | **CRUD Admin catálogos (UI Blade)** | Controladores `Admin\ServicioController`, `EstablecimientoController`, `SerieController`, `PeriodoController`, `PlantillaController`, `CatalogoSnapshotController` + vistas `admin/catalogos/*` con AdminLTE 3.2 | UI admin completa | RF-007 a RF-012, CA-007 a CA-012 | T-F1-19, T-F1-11 | Admin crea/edita/activa; validaciones server-side |
-| **T-F1-23** | **Matriz establecimiento-serie (CRUD + vigencia)** | UI para `establecimiento_serie`: obligatoria, `vigente_desde/hasta`, *override* manual | Reglas D5 configurables | RF-011, DEP-12 | T-F1-22 | Matriz editable; vigencia respetada en consultas |
-| **T-F1-24** | **Tests catálogos (feature + unit)** | Tests: importar snapshot válido/inválido (CA-005, CA-006); activar único (CA-006); CRUD cada entidad; conteos referencia | Suite verde | CA-005 a CA-012, PRINCIPIO 6 | T-F1-20, T-F1-22 | `php artisan test --filter=Catalogo` pasa |
+| **T-F1-22** | **CRUD Admin catálogos (UI Blade)** | Controladores `Admin\ServicioController`, `EstablecimientoController`, `SerieController`, `PeriodoController`, `PlantillaController`, `CatalogoSnapshotController` + vistas `admin/catalogos/*` con AdminLTE 3.2 | UI admin completa | RF-007 a RF-012, CA-007 a CA-012 | T-F1-19, T-F1-11 | Admin crea/edita/activa; validaciones server-side | `[x]` |
+| **T-F1-23** | **Matriz establecimiento-serie (CRUD + vigencia)** | UI para `establecimiento_serie`: obligatoria, `vigente_desde/hasta`, *override* manual | Reglas D5 configurables | RF-011, DEP-12 | T-F1-22 | Matriz editable; vigencia respetada en consultas | `[x]` |
+| **T-F1-24** | **Tests catálogos (feature + unit)** | Tests: importar snapshot válido/inválido (CA-005, CA-006); activar único (CA-006); CRUD cada entidad; conteos referencia | Suite verde | CA-005 a CA-012, PRINCIPIO 6 | T-F1-20, T-F1-22 | `php artisan test --filter=Catalogo` pasa | `[x]` |
 
 ### F1.4 — Auditoría transversal (MOD-08)
 
@@ -392,13 +392,13 @@ F0 (T-F0-01..10)
 | Fase | Tareas | Completadas | En progreso | Pendientes |
 |---|---|---|---|---|
 | **F0** | 10 | 7 | 3 | 0 |
-| **F1** | 31 | 18 | 2 | 11 |
+| **F1** | 31 | 21 | 2 | 8 |
 | **F2** | 31 | 0 | 0 | 31 |
 | **F3** | 14 | 0 | 0 | 14 |
 | **F4** | 5 | 0 | 0 | 5 |
 | **F5** | 5 | 0 | 0 | 5 |
 | **F6** | 16 | 0 | 0 | 16 |
-| **TOTAL** | **112** | **25** | **5** | **82** |
+| **TOTAL** | **112** | **28** | **5** | **79** |
 
 **F0 — las 7 completadas:** T-F0-01 (C-010), 04, 06, 07, 08, 09, 10.
 **F0 — las 3 en progreso, todas esperando a personas:**

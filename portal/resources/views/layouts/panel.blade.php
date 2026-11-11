@@ -50,6 +50,52 @@
                             <p>Panel</p>
                         </a>
                     </li>
+
+                    @can('catalogos.gestionar')
+                        <li class="nav-header">ADMINISTRACIÓN</li>
+                        <li class="nav-item">
+                            <a href="{{ route('admin.snapshots.index') }}" class="nav-link">
+                                <i class="nav-icon fas fa-database"></i>
+                                <p>Catálogos</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('admin.servicios.index') }}" class="nav-link">
+                                <i class="nav-icon fas fa-hospital"></i>
+                                <p>Servicios</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('admin.establecimientos.index') }}" class="nav-link">
+                                <i class="nav-icon fas fa-building"></i>
+                                <p>Establecimientos</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('admin.series.index') }}" class="nav-link">
+                                <i class="nav-icon fas fa-list-ol"></i>
+                                <p>Series</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('admin.matriz.index') }}" class="nav-link">
+                                <i class="nav-icon fas fa-table"></i>
+                                <p>Matriz de series</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('admin.periodos.index') }}" class="nav-link">
+                                <i class="nav-icon fas fa-calendar-alt"></i>
+                                <p>Períodos</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('admin.plantillas.index') }}" class="nav-link">
+                                <i class="nav-icon fas fa-file-excel"></i>
+                                <p>Plantillas</p>
+                            </a>
+                        </li>
+                    @endcan
                 </ul>
             </nav>
         </div>
