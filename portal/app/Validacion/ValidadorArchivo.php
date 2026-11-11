@@ -15,6 +15,7 @@ use App\Validacion\Reglas\ReglaV7TipoDato;
 use App\Validacion\Reglas\ReglaV8Excepciones;
 use App\Validacion\Reglas\ReglaV9Duplicados;
 use App\Validacion\Reglas\ReglaV10RegistroValido;
+use App\Validacion\Reglas\ReglaV11Completitud;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -42,6 +43,7 @@ class ValidadorArchivo
         ReglaV8Excepciones::class,
         ReglaV9Duplicados::class,
         ReglaV10RegistroValido::class,
+        ReglaV11Completitud::class,
     ];
 
     /** Permite a los tests inyectar un conjunto propio de reglas. */
@@ -111,26 +113,50 @@ class ValidadorArchivo
         return $resultado;
     }
 
-    /** @param list<Hallazgo> $hallazgos */
+    /**
+     * Estado del archivo: solo cuenta lo que le pasa AL ARCHIVO.
+     *
+     * Los hallazgos de V11 son del envío —«falta la serie BS»— y no deben
+     * marcar como defectuoso el archivo de la serie A. Sin esta separación,
+     * un envío incompleto marcaba todos sus archivos como con errores y V11
+     * volvía a quejarse de ellos: un círculo.
+     *
+     * @param list<Hallazgo> $hallazgos
+     */
     private function estadoDe(EnvioArchivo $archivo, array $hallazgos): string
     {
-        $bloqueantes = count(array_filter($hallazgos, fn (Hallazgo $h) => $h->esBloqueante()));
+        $propios = array_filter($hallazgos, fn (Hallazgo $h) => $h->etapa !== 'V11');
+        $bloqueantes = count(array_filter($propios, fn (Hallazgo $h) => $h->esBloqueante()));
 
         return $bloqueantes === 0 ? EnvioArchivo::VALIDO : EnvioArchivo::CON_ERRORES;
     }
 
-    /** @param list<Hallazgo> $hallazgos */
+    /**
+     * Persiste los hallazgos.
+     *
+     * Los de V11 son del envío, no del archivo: se guardan con `envio_id` y sin
+     * archivo, y se reemplazan enteros en cada pasada para no acumular copias
+     * una por cada archivo validado.
+     *
+     * @param list<Hallazgo> $hallazgos
+     */
     private function persistir(EnvioArchivo $archivo, array $hallazgos): void
     {
         DB::transaction(function () use ($archivo, $hallazgos) {
             // Revalidar regenera el reporte: los hallazgos anteriores dejan de
             // valer porque describían otra ejecución.
             $archivo->validaciones()->delete();
+            DB::table('validaciones')->where('envio_id', $archivo->envio_id)->where('etapa', 'V11')->delete();
 
             foreach ($hallazgos as $hallazgo) {
-                DB::table('validaciones')->insert($hallazgo->aFila($archivo->id) + [
-                    'created_at' => now(),
-                ]);
+                $fila = $hallazgo->aFila($archivo->id);
+
+                if ($hallazgo->etapa === 'V11') {
+                    $fila['envio_archivo_id'] = null;
+                    $fila['envio_id'] = $archivo->envio_id;
+                }
+
+                DB::table('validaciones')->insert($fila + ['created_at' => now()]);
             }
         });
     }

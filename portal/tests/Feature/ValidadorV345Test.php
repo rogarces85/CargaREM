@@ -54,6 +54,10 @@ class ValidadorV345Test extends TestCase
 
         $this->serie = Serie::create(['codigo' => 'A', 'nombre' => 'SERIE A']);
         $this->envio = app(EnvioService::class)->crear($this->establecimiento, 2026, 9, $this->usuario);
+
+        // Matriz: la serie del archivo es la única exigida, así V11 no
+        // añade avisos de completitud que no son el objeto de esta prueba.
+        $this->envio->establecimiento->series()->attach($this->serie->id, ['obligatoria' => true]);
     }
 
     private function plantilla(string $version = '1.2', string $serieInterna = 'SERIE A1'): Plantilla

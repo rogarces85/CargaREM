@@ -66,6 +66,10 @@ class ValidadorV2Test extends TestCase
             'anio' => 2026, 'serie_interna' => 'SERIE A1', 'hoja' => 'NOMBRE', 'obligatoria' => true,
         ]);
         $this->envio = app(EnvioService::class)->crear($establecimiento, 2026, 9, $usuario);
+
+        // Matriz: la serie del archivo es la única exigida, así V11 no
+        // añade avisos de completitud que no son el objeto de esta prueba.
+        $this->envio->establecimiento->series()->attach($this->serie->id, ['obligatoria' => true]);
     }
 
     /**

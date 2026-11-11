@@ -56,6 +56,10 @@ class ValidadorV610Test extends TestCase
         $this->serie = Serie::create(['codigo' => 'A', 'nombre' => 'SERIE A']);
         $this->envio = app(EnvioService::class)->crear($establecimiento, 2026, 9, $this->usuario);
 
+        // Matriz: la serie del archivo es la única exigida, así V11 no
+        // añade avisos de completitud que no son el objeto de esta prueba.
+        $this->envio->establecimiento->series()->attach($this->serie->id, ['obligatoria' => true]);
+
         Plantilla::create([
             'anio' => 2026, 'mes' => 9, 'serie_id' => $this->serie->id,
             'serie_excel' => 'SERIE A', 'serie_interna' => 'SERIE A1',

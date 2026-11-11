@@ -68,6 +68,10 @@ class ValidadorTest extends TestCase
             'anio' => 2026, 'serie_interna' => 'SERIE A1', 'hoja' => 'NOMBRE', 'obligatoria' => true,
         ]);
         $this->envio = app(EnvioService::class)->crear($this->establecimiento, 2026, 9, $usuario);
+
+        // Matriz: la serie del archivo es la única exigida, así V11 no
+        // añade avisos de completitud que no son el objeto de esta prueba.
+        $this->envio->establecimiento->series()->attach($this->serie->id, ['obligatoria' => true]);
     }
 
     /** .xlsx real con cabecera válida, para que V2 tenga algo que leer. */

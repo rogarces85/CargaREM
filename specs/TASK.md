@@ -173,7 +173,7 @@
 | **T-F2-19** | **Implementar reglas V6–V8: Datos (ENV-018 a ENV-022)** | `V6MapecoCeldas`: lectura según `diccionario` (línea, inicio, fin, posicion, tipo_dato); `V7TipoDato`: numérico/decimales; `V8Excepciones`: columnas no aplicables | V6–V8 base | RF-019, ENV-018 a ENV-022, DEP-04, RIES-03 | T-F2-12, T-F1-19, T-F0-04 | **Paridad con golden files F0** (PRINCIPIO 10) | `[x]` |
 | **T-F2-20** | **Implementar regla V9: Duplicados internos (ENV-023)** | `V9Duplicados`: mismo `codigo_prestacion` 2+ veces en mismo archivo → advertencia | V9 completa | RF-019, ENV-023 | T-F2-12 | Duplicado → ENV-023 advertencia | `[x]` |
 | **T-F2-21** | **Implementar regla V10: Al menos 1 registro válido (ENV-024)** | `V10Registros`: `filas_validas > 0` tras V6–V9 | V10 completa | RF-019, ENV-024 | T-F2-19 | 0 filas válidas → ENV-024 bloqueante | `[x]` |
-| **T-F2-22** | **Implementar regla V11: Completitud por envío (ENV-025)** | `V11Completitud` (nivel envío): `EstablecimientoSerie` obligatorias vs archivos vigentes `validado`; faltantes → ENV-025 bloqueante para "Enviar a revisión" | V11 completa | RF-025, RF-033, ENV-025, OP-15, DEP-12 | T-F2-12, T-F1-23, T-F2-26 | Envío sin serie obligatoria → V11 bloquea "Enviar" |
+| **T-F2-22** | **Implementar regla V11: Completitud por envío (ENV-025)** | `V11Completitud` (nivel envío): `EstablecimientoSerie` obligatorias vs archivos vigentes `validado`; faltantes → ENV-025 bloqueante para "Enviar a revisión" | V11 completa | RF-025, RF-033, ENV-025, OP-15, DEP-12 | T-F2-12, T-F1-23, T-F2-26 | Envío sin serie obligatoria → V11 bloquea "Enviar" | `[x]` |
 | **T-F2-23** | **Severidad y parada de cadena** | `ValidadorArchivo::validar()`: itera reglas ordenadas; si `resultado->tieneBloqueantes()` y regla != V11 → `break` | Política severidad | RF-019, PLAN §7.5, DEP-02 | T-F2-12 | Bloqueante en V0–V10 detiene; V11 siempre corre |
 | **T-F2-24** | **Tests unitarios por regla (PRINCIPIO 6)** | 1 test mínimo por `ENV-###` con `ContextoValidacion` mockeado; fixtures para V6–V8 | Cobertura reglas | PRINCIPIO 6, CA-019 | T-F2-13 a T-F2-22 | `php artisan test --filter=ValidacionRegla` pasa |
 | **T-F2-25** | **Tests de paridad (golden files) — PRINCIPIO 10** | Script `tests/Parity/run_parity.php`: itera fixtures F0, sube archivo, compara `validaciones` (códigos, severidad, conteos) vs expected; tolerancia 0 numéricos | Paridad 100% | OBJ-01, PRINCIPIO 10, DEP-02, DEP-16 | T-F2-13 a T-F2-22, T-F0-03 | Reporte: `OK 20/20` o lista diffs |
@@ -415,12 +415,12 @@ F0 (T-F0-01..10)
 |---|---|---|---|---|
 | **F0** | 10 | 7 | 3 | 0 |
 | **F1** | 31 | 31 | 0 | 0 |
-| **F2** | 31 | 16 | 0 | 15 |
+| **F2** | 31 | 17 | 0 | 14 |
 | **F3** | 14 | 0 | 0 | 14 |
 | **F4** | 5 | 0 | 0 | 5 |
 | **F5** | 5 | 0 | 0 | 5 |
 | **F6** | 16 | 0 | 0 | 16 |
-| **TOTAL** | **112** | **54** | **3** | **55** |
+| **TOTAL** | **112** | **55** | **3** | **54** |
 
 **F0 — las 7 completadas:** T-F0-01 (C-010), 04, 06, 07, 08, 09, 10.
 **F0 — las 3 en progreso, todas esperando a personas:**
