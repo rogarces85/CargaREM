@@ -10,7 +10,7 @@ status: verificado
 
 # Prototipo Laravel 12
 
-> Rama `prototype/laravel-10` (nombre heredado; se probó **Laravel 12**, porque 10 y 11 siguen afectados por avisos). Carpeta `portal-l12/`. **Descartable: no se fusiona.**
+> Rama `prototype/laravel-12`. Carpeta `portal-l12/`. **Descartable: no se fusiona.**
 
 ---
 
@@ -132,4 +132,5 @@ Que el prototipo haya tropezado con lo mismo confirma que no era un accidente: e
 | Suite | 1 test falla por el `APP_URL` conocido; se corrige igual que en L8 |
 
 El prototipo **no se fusiona**. Existe para que, si TI responde que sí, la decisión se ejecute en días y no en semanas.
+
 
