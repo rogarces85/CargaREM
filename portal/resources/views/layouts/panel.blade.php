@@ -97,6 +97,15 @@
                         </li>
                     @endcan
 
+                    @can('usuarios.gestionar')
+                        <li class="nav-item">
+                            <a href="{{ route('admin.usuarios.index') }}" class="nav-link">
+                                <i class="nav-icon fas fa-users"></i>
+                                <p>Usuarios</p>
+                            </a>
+                        </li>
+                    @endcan
+
                     @can('auditoria.ver')
                         <li class="nav-header">CONTROL</li>
                         <li class="nav-item">

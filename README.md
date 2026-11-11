@@ -73,7 +73,7 @@ El plan son **112 tareas atómicas** en 7 fases. Estado real hoy:
 | Fase | Alcance | Marcadas como hechas |
 |---|---|---|
 | **F0** Descubrimiento y paridad | *Golden files*, decisiones, catálogo `ENV-###` | **7 de 10** (3 esperan personas) |
-| **F1** Base L1 | Laravel, auth, RBAC, catálogos, auditoría, seed | **4 de 31** |
+| **F1** Base L1 | Laravel, auth, RBAC, catálogos, auditoría, seed | **29 de 31** (2 pasan a F2 por dependencia de modelos) |
 | **F2** Carga y validación L2 | Subida, versionado, V0–V11, reporte, estados | 0 de 31 |
 | **F3** Revisión L3 | Observaciones, aprobación, bandeja, notificaciones | 0 de 14 |
 | **F4** Completitud y tablero | Matriz semáforo, totales, exportación | 0 de 5 |

@@ -46,6 +46,15 @@ class User extends Authenticatable
     }
 
     /**
+     * Establecimientos que este usuario puede ver y operar (RN-ENV-1).
+     */
+    public function establecimientos(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Establecimiento::class, 'usuario_establecimiento', 'usuario_id', 'establecimiento_id')
+            ->withTimestamps();
+    }
+
+    /**
      * Un usuario desactivado no puede autenticarse (R-ID-04).
      */
     public function puedeEntrar(): bool

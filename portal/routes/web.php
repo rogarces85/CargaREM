@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\MatrizController;
 use App\Http\Controllers\Admin\PeriodoController;
 use App\Http\Controllers\Admin\PlantillaController;
 use App\Http\Controllers\Admin\SerieController;
+use App\Http\Controllers\Admin\UsuarioController;
 use App\Http\Controllers\Admin\ServicioController;
 use App\Http\Controllers\HealthController;
 use Illuminate\Support\Facades\Route;
@@ -63,3 +64,12 @@ Route::middleware(['auth', 'permission:catalogos.gestionar'])
 Route::middleware(['auth', 'permission:auditoria.ver'])
     ->get('admin/auditoria', [AuditoriaController::class, 'index'])
     ->name('admin.auditoria.index');
+/*
+ * Usuarios: permiso propio usuarios.gestionar.
+ */
+Route::middleware(['auth', 'permission:usuarios.gestionar'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::resource('usuarios', UsuarioController::class)->except(['show', 'destroy']);
+    });

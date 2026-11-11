@@ -65,6 +65,35 @@ class AuthHardeningTest extends TestCase
         );
     }
 
+    /**
+     * Principio 8: cada permiso de la matriz tiene su comprobación positiva y
+     * negativa. Se recorre la matriz completa (18 permisos × 4 roles = 72
+     * comprobaciones) contra el fixture, que es la fuente declarada.
+     */
+    public function test_cada_permiso_de_la_matriz_se_comporta_como_declara_el_fixture(): void
+    {
+        $this->seed(RolePermissionSeeder::class);
+
+        $fixture = json_decode(file_get_contents(base_path('../tests/Parity/fixtures/rbac-matrix.json')), true);
+
+        $roles = [];
+        foreach ($fixture['roles'] as $nombre) {
+            $roles[$nombre] = \Spatie\Permission\Models\Role::findByName($nombre);
+        }
+
+        foreach ($fixture['permissions'] as $permiso) {
+            foreach ($fixture['roles'] as $rol) {
+                $esperado = (bool) $permiso['matrix'][$rol];
+
+                $this->assertSame(
+                    $esperado,
+                    $roles[$rol]->hasPermissionTo($permiso['name']),
+                    "El rol {$rol} debería ".($esperado ? 'tener' : 'no tener')." {$permiso['name']}"
+                );
+            }
+        }
+    }
+
     public function test_la_matriz_sembrada_coincide_con_el_fixture(): void
     {
         $this->seed(RolePermissionSeeder::class);

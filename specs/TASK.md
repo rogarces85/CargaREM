@@ -81,8 +81,8 @@
 | **T-F1-13** | **Instalar y configurar `spatie/laravel-permission`** | `php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"`; migración + `HasRoles` trait en `User` | RBAC listo | RF-013, MOD-01, TEC-07 | T-F1-10 | `php artisan permission:show` funciona | `[x]` |
 | **T-F1-14** | **Crear seeder de roles y permisos (18 permisos × 4 roles)** | Seeder `RolePermissionSeeder`: roles `encargado`, `revisor`, `admin`, `consulta`; permisos tabla SPECS §3.2 | Datos base RBAC | RF-013, PRINCIPIO 8 | T-F1-13 | `php artisan db:seed --class=RolePermissionSeeder` OK | `[x]` |
 | **T-F1-15** | **Crear Policies base** | `EnvioPolicy`, `ArchivoPolicy`, `CatalogoPolicy`, `UsuarioPolicy` con métodos `view`, `create`, `update`, `delete`, `download`, `approve`, `reopen` | Autorización declarativa | RN-ENV-1, RN-ENV-7, RN-ENV-8, RN-ENV-9, MOD-01 | T-F1-14 | Policies registradas en `AuthServiceProvider` | `[~]` |
-| **T-F1-16** | **Implementar *query scopes* de aislamiento** | `Envio::scopeForUser($user)`, `EnvioArchivo::scopeForUser($user)` aplican `whereIn establecimiento_id` desde pivot | Aislamiento en consulta | RN-ENV-1, PRINCIPIO 18 | T-F1-15 | SQL generado incluye `WHERE establecimiento_id IN (...)` |
-| **T-F1-17** | **Tests auth + RBAC (unit + feature)** | Tests: login/logout/throttle (CA-001, CA-002, CA-004); CRUD usuarios (CA-013 a CA-016); **pos/neg por cada permiso** (PRINCIPIO 8) | Suite verde | CA-001, CA-002, CA-004, CA-013 a CA-016, PRINCIPIO 8 | T-F1-14, T-F1-15 | `php artisan test --filter=Auth` y `--filter=Permission` pasan | `[~]` |
+| **T-F1-16** | **Implementar *query scopes* de aislamiento** | `Envio::scopeForUser($user)`, `EnvioArchivo::scopeForUser($user)` aplican `whereIn establecimiento_id` desde pivot | Aislamiento en consulta | RN-ENV-1, PRINCIPIO 18 | T-F1-15 | SQL generado incluye `WHERE establecimiento_id IN (...)` | `[~]` |
+| **T-F1-17** | **Tests auth + RBAC (unit + feature)** | Tests: login/logout/throttle (CA-001, CA-002, CA-004); CRUD usuarios (CA-013 a CA-016); **pos/neg por cada permiso** (PRINCIPIO 8) | Suite verde | CA-001, CA-002, CA-004, CA-013 a CA-016, PRINCIPIO 8 | T-F1-14, T-F1-15 | `php artisan test --filter=Auth` y `--filter=Permission` pasan | `[x]` |
 
 ### F1.3 — Catálogos y estructura base (MOD-02)
 
@@ -110,8 +110,30 @@
 
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
-| **T-F1-30** | **Seeder mínimo L1 (datos de prueba)** | `L1MinimumSeeder`: 1 Servicio (SS Osorno), 7 establecimientos (1/comuna), 7 series (A,BS,BM,D,P,F,SAX), 3–6 períodos, matriz establec-serie todas obligatorias, 4 users (1 admin, 1 revisor, 2 encargados), pivot user-establec (2 encarg × 3-4 establec) | Datos base consistentes | PLAN §8.2, DEP-03 | T-F1-14, T-F1-23 | `php artisan db:seed --class=L1MinimumSeeder` OK |
-| **T-F1-31** | **Verificación de fase F1 (DoD)** | Checklist: [ ] Login/logout/throttle [ ] RBAC 4 roles/18 permisos tests pos/neg [ ] Admin importa snapshot → conteos OK [ ] CRUD catálogos funciona [ ] Auditoría append-only registra todo [ ] Seed mínimo cargado [ ] Health check OK | Fase F1 cerrada | CA-001 a CA-016, CA-005 a CA-012, CA-037, PRINCIPIO 1,2,3,6,7,8,18,21 | T-F1-17, T-F1-24, T-F1-29, T-F1-30 | Todos los checks marcan ✅; `php artisan test` suite F1 verde |
+| **T-F1-30** | **Seeder mínimo L1 (datos de prueba)** | `L1MinimumSeeder`: 1 Servicio (SS Osorno), 7 establecimientos (1/comuna), 7 series (A,BS,BM,D,P,F,SAX), 3–6 períodos, matriz establec-serie todas obligatorias, 4 users (1 admin, 1 revisor, 2 encargados), pivot user-establec (2 encarg × 3-4 establec) | Datos base consistentes | PLAN §8.2, DEP-03 | T-F1-14, T-F1-23 | `php artisan db:seed --class=L1MinimumSeeder` OK | `[x]` |
+| **T-F1-31** | **Verificación de fase F1 (DoD)** | Checklist: [x] Login/logout/throttle [x] RBAC 4 roles/18 permisos tests pos/neg [x] Admin importa snapshot → conteos OK [x] CRUD catálogos funciona [x] Auditoría append-only registra todo [x] Seed mínimo cargado [x] Health check OK | Fase F1 cerrada | CA-001 a CA-016, CA-005 a CA-012, CA-037, PRINCIPIO 1,2,3,6,7,8,18,21 | T-F1-17, T-F1-24, T-F1-29, T-F1-30 | Todos los checks marcan ✅; `php artisan test` suite F1 verde → **69 tests, 252 aserciones** | `[x]` |
+
+---
+
+## Verificación de la fase F1 (2026-11-11)
+
+| Check | Evidencia |
+|---|---|
+| Laravel y PHP | **12.72.0** sobre **PHP 8.2.12** |
+| `composer audit` | sin avisos |
+| Base de datos | `portal_m7` en MariaDB, `@@sql_mode` con `STRICT_TRANS_TABLES` |
+| Zona horaria y locale | `America/Santiago` · `es` |
+| Migraciones | corren en MariaDB **y** en SQLite |
+| HTTP | `/`, `/login` y `/health` responden **200** |
+| Login / logout / throttle | 3 tests, incluido el bloqueo al sexto intento con mensaje en español |
+| RBAC | 4 roles, **18 permisos**, **72 comprobaciones** (18 × 4) contra el fixture |
+| Importación real | 200.367 filas en **15,6 s**; 1.129 hojas, 939 plantillas, 86 establecimientos |
+| CRUD de catálogos y usuarios | 26 tests; un encargado recibe 403 en todas las rutas de administración |
+| Auditoría | append-only con inmutable comprobado; login, fallo, importación y activación registrados |
+| Seed mínimo | 7 establecimientos, 6 series activas + SAX inactiva, 6 períodos, 4 usuarios, 42 filas de matriz |
+| Suite completa | **69 tests, 252 aserciones, 0 fallos** |
+
+**Pendiente y trasladado a F2:** T-F1-15 y T-F1-16 (policies y *query scopes* de `Envio`, `EnvioArchivo` y `Observacion`) no se pueden escribir hasta que existan esos modelos en F2.1. El resto de F1 está cerrado y verificado.
 
 ---
 
@@ -392,13 +414,13 @@ F0 (T-F0-01..10)
 | Fase | Tareas | Completadas | En progreso | Pendientes |
 |---|---|---|---|---|
 | **F0** | 10 | 7 | 3 | 0 |
-| **F1** | 31 | 26 | 2 | 3 |
+| **F1** | 31 | 29 | 2 | 0 |
 | **F2** | 31 | 0 | 0 | 31 |
 | **F3** | 14 | 0 | 0 | 14 |
 | **F4** | 5 | 0 | 0 | 5 |
 | **F5** | 5 | 0 | 0 | 5 |
 | **F6** | 16 | 0 | 0 | 16 |
-| **TOTAL** | **112** | **33** | **5** | **74** |
+| **TOTAL** | **112** | **36** | **5** | **71** |
 
 **F0 — las 7 completadas:** T-F0-01 (C-010), 04, 06, 07, 08, 09, 10.
 **F0 — las 3 en progreso, todas esperando a personas:**

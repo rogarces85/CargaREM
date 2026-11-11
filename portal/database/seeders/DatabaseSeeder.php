@@ -2,22 +2,19 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
     /**
-     * Seed the application's database.
+     * Orden obligatorio: los permisos existen antes que los usuarios que los
+     * reciben, y las series antes que la matriz que las referencia.
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        $this->call([
+            RolePermissionSeeder::class,
+            L1MinimumSeeder::class,
         ]);
     }
 }
