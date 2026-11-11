@@ -1,0 +1,5 @@
+{
+  "_nota": "Registro de procedencia de los golden files. Una entrada por fixture. Se llena al agregar el archivo; sin entrada, el fixture no se usa en la suite. Ver README.md.",
+  "tolerancia": 0,
+  "fixtures": []
+}

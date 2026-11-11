@@ -1,0 +1,53 @@
+{
+  "_nota": "EJEMPLO SINTÉTICO. No es un golden file: los datos son inventados y este archivo se excluye de la comparación por empezar con guion bajo. Sirve solo para fijar la forma del JSON.",
+  "_sintetico": true,
+  "fixture": "999999-A-2026-09",
+  "archivo": "999999A09.xlsx",
+  "serie": "A",
+  "anio": 2026,
+  "mes": 9,
+  "procedencia": {
+    "validador": "ValidadorRem.exe (versión por registrar)",
+    "mdb": "Global.mdb — copia de prueba",
+    "generado_por": "—",
+    "sha256_input": "—"
+  },
+  "datos": [
+    {
+      "ano": 2026,
+      "mes": 9,
+      "idservicio": 1,
+      "idestablecimiento": "999999",
+      "codigoprestacion": "01010100",
+      "col01": 4.0,
+      "col02": 0.0,
+      "col50": 0.0,
+      "fechacarga": "2026-10-03T10:15:00"
+    },
+    {
+      "ano": 2026,
+      "mes": 9,
+      "idservicio": 1,
+      "idestablecimiento": "999999",
+      "codigoprestacion": "01010200",
+      "col01": 12.0,
+      "col02": 3.0,
+      "col50": 0.0,
+      "fechacarga": "2026-10-03T10:15:00"
+    }
+  ],
+  "log_error": [
+    {
+      "archivo": "999999A09.xlsx",
+      "idestablecimiento": "999999",
+      "mes": 9,
+      "ano": 2026,
+      "serie": "A",
+      "linea": 14,
+      "hoja": "A",
+      "dato": "N/A",
+      "mensaje_error": "Valor no numérico en columna de actividad",
+      "fecharegistro": "2026-10-03T10:15:02"
+    }
+  ]
+}
