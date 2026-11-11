@@ -13,7 +13,7 @@ class Establecimiento extends Model
 
     protected $table = 'establecimientos';
 
-    protected $fillable = ['codigo', 'nombre', 'servicio_id', 'comuna', 'dependencia', 'tipo', 'activo'];
+    protected $fillable = ['codigo', 'nombre', 'servicio_id', 'comuna', 'dependencia', 'id_comuna', 'id_dependencia', 'tipo', 'activo'];
 
     protected function casts(): array
     {

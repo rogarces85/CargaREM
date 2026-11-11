@@ -30,10 +30,6 @@ class Plantilla extends Model
         return $this->belongsTo(CatalogoSnapshot::class, 'snapshot_id');
     }
 
-    public function hojas(): HasMany
-    {
-        return $this->hasMany(PlantillaHoja::class);
-    }
 
     public function cabecera(): HasMany
     {

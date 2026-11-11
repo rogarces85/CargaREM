@@ -64,11 +64,11 @@
 |---|---|---|---|---|---|---|
 | **T-F1-01** | **Crear proyecto Laravel 12.72** | `composer create-project "laravel/laravel:^12" portal --prefer-dist` en `Cargas/portal/`. El esqueleto 12.x instala `laravel/framework` 12.72 | Proyecto base instalado | TEC-01 | F0 | `portal/artisan --version` = 12.72.0 → **verificado** | `[x]` |
 | **T-F1-02** | **Fijar el PHP de plataforma** | `composer.json` exige `php ^8.2`. Sin `platform` override: el PHP local y el del servidor objetivo coinciden en 8.2 | `vendor/` compatible con prod | TEC-01, TEC-14 | T-F1-01 | `composer check-platform-reqs` en verde | `[x]` |
-| **T-F1-03** | **Instalar dependencias base** | `spatie/laravel-permission ^6.25`, `laravel/fortify ^1.42`, `yajra/laravel-datatables-oracle ^12.7`, `phpoffice/phpspreadsheet ^5.11` (la 5.x exige PHP 8.1+). **`composer audit` sin avisos** | Paquetes instalados | TEC-04, TEC-06, TEC-07, TEC-10, TEC-11 | T-F1-02 | `composer show` lista paquetes correctos → **verificado** | `[~]` |
+| **T-F1-03** | **Instalar dependencias base** | `spatie/laravel-permission ^6.25`, `laravel/fortify ^1.42`, `yajra/laravel-datatables-oracle ^12.7`, `phpoffice/phpspreadsheet ^5.11` (la 5.x exige PHP 8.1+). **`composer audit` sin avisos** | Paquetes instalados | TEC-04, TEC-06, TEC-07, TEC-10, TEC-11 | T-F1-02 | `composer show` lista paquetes correctos → **verificado** | `[x]` |
 | **T-F1-04** | **Configurar `.env.example` y `.env` local** | `.env.example` con MariaDB `portal_m7`, `America/Santiago`, `es`, sesión 480 min y `MAIL_MAILER=log` | Variables listas | TEC-02, TEC-03 | T-F1-03 | `php artisan migrate` corre contra `portal_m7` | `[x]` |
-| **T-F1-05** | **Configurar base de datos dual** | `config/database.php`: MySQL/MariaDB para desarrollo y paridad; SQLite solo para la suite rápida. `sql_mode` estricto explícito para igualar producción | Dual DB configurada | C-008, C-011, TEC-03 | T-F1-04 | `@@sql_mode` incluye `STRICT_TRANS_TABLES` → **verificado** | `[~]` |
+| **T-F1-05** | **Configurar base de datos dual** | `config/database.php`: MySQL/MariaDB para desarrollo y paridad; SQLite solo para la suite rápida. `sql_mode` estricto explícito para igualar producción | Dual DB configurada | C-008, C-011, TEC-03 | T-F1-04 | `@@sql_mode` incluye `STRICT_TRANS_TABLES` → **verificado** | `[x]` |
 | **T-F1-06** | **Publicar assets AdminLTE 3.2** | AdminLTE 3.2.0 desde el tag `v3.2.0`: `dist/` minificado + 20 plugins (jQuery, Bootstrap 4, FontAwesome, Chart.js, DataTables + bs4/buttons/responsive, Select2 + tema, SweetAlert2 + tema, OverlayScrollbars, Toastr, Inputmask, jQuery-Validation, Pace, Popper, Moment, Tempusdominus) en `public/assets/adminlte/` | Assets servibles sin Node | TEC-05 | T-F1-03 | CSS y JS responden 200 → **verificado** (18,8 MB, 610 archivos) | `[x]` |
-| **T-F1-07** | **Configurar `config/rem.php`** | Crear archivo con claves: `archivos`, `validacion`, `series`, `paquete` (ver PLAN §11.4) | Config centralizada | TEC-01, MOD-02, MOD-03, MOD-04 | T-F1-03 | `config('rem.archivos.max_kb')` = 2048 |
+| **T-F1-07** | **Configurar `config/rem.php`** | Crear archivo con claves: `archivos`, `validacion`, `series`, `paquete` (ver PLAN §11.4) | Config centralizada | TEC-01, MOD-02, MOD-03, MOD-04 | T-F1-03 | `config('rem.archivos.max_kb')` = 2048 | `[x]` |
 | **T-F1-08** | **Configurar zona horaria y locale** | `config/app.php`: `timezone = env('APP_TIMEZONE', 'America/Santiago')`, `locale = 'es'`, `fallback_locale = 'es'`, `faker_locale = 'es_CL'` | App en español CL | C-005, RNF-016 | T-F1-01 | `now()->timezoneName` = America/Santiago → **verificado** | `[x]` |
 | **T-F1-09** | **Configurar logging y health check** | `config/logging.php`: canales `validacion`, `seguridad`, `correo` (daily, 90 días). `GET /health` con `HealthController`: comprueba DB y escritura+lectura en `storage`, devuelve 503 y no filtra el mensaje de la excepción | Logs estructurados + health | RNF-016, MOD-11 | T-F1-03 | `GET /health` → 200 JSON → **verificado**, con 2 tests que cubren también el 503 | `[x]` |
 ### F1.2 — Autenticación y RBAC (MOD-01)
@@ -90,8 +90,8 @@
 |---|---|---|---|---|---|---|
 | **T-F1-18** | **Migraciones catálogos (DAT-01 a DAT-06, DAT-11 a DAT-16)** | Migraciones para: `servicios`, `establecimientos`, `series`, `periodos`, `establecimiento_serie`, `catalogo_snapshots`, `plantillas`, `plantilla_hojas`, `plantilla_cabecera`, `diccionario`, `excepciones`, `usuario_establecimiento` | Esquema completo | DAT-01 a DAT-16, MOD-02 | T-F1-05 | `php artisan migrate` crea todas las tablas con FK/UK/índices | `[x]` |
 | **T-F1-19** | **Modelos Eloquent catálogos** | Clases `Servicio`, `Establecimiento`, `Serie`, `Periodo`, `EstablecimientoSerie`, `CatalogoSnapshot`, `Plantilla`, `PlantillaHoja`, `PlantillaCabecera`, `Diccionario`, `Excepcion` con `$fillable`, relaciones, casts, scopes | Modelos listos | DAT-01 a DAT-16 | T-F1-18 | `Servicio::first()->establecimientos` carga relación | `[x]` |
-| **T-F1-20** | **Importador CSV/ZIP (CatalogoService::importarSnapshot)** | Servicio que: valida ZIP (columnas, encoding, conteos referencia, duplicados), carga tablas espejo en transacción, crea `CatalogoSnapshot` `activo=0` | Importación robusta | RF-005, RF-006, MOD-02, DEP-03 | T-F1-19 | ZIP válido → snapshot inactivo con conteos correctos |
-| **T-F1-21** | **Activar snapshot (único activo)** | `CatalogoService::activarSnapshot($id)`: transacción desactiva anterior + activa nuevo; evento auditoría | Un solo activo | RF-006, MOD-02 | T-F1-20 | Solo 1 fila `activo=1`; auditoría registra cambio |
+| **T-F1-20** | **Importador CSV/ZIP (CatalogoService::importarSnapshot)** | Servicio que: valida ZIP (columnas, encoding, conteos referencia, duplicados), carga tablas espejo en transacción, crea `CatalogoSnapshot` `activo=0` | Importación robusta | RF-005, RF-006, MOD-02, DEP-03 | T-F1-19 | ZIP válido → snapshot inactivo con conteos correctos | `[x]` |
+| **T-F1-21** | **Activar snapshot (único activo)** | `CatalogoService::activarSnapshot($id)`: transacción desactiva anterior + activa nuevo; evento auditoría | Un solo activo | RF-006, MOD-02 | T-F1-20 | Solo 1 fila `activo=1`; auditoría registra cambio | `[x]` |
 | **T-F1-22** | **CRUD Admin catálogos (UI Blade)** | Controladores `Admin\ServicioController`, `EstablecimientoController`, `SerieController`, `PeriodoController`, `PlantillaController`, `CatalogoSnapshotController` + vistas `admin/catalogos/*` con AdminLTE 3.2 | UI admin completa | RF-007 a RF-012, CA-007 a CA-012 | T-F1-19, T-F1-11 | Admin crea/edita/activa; validaciones server-side |
 | **T-F1-23** | **Matriz establecimiento-serie (CRUD + vigencia)** | UI para `establecimiento_serie`: obligatoria, `vigente_desde/hasta`, *override* manual | Reglas D5 configurables | RF-011, DEP-12 | T-F1-22 | Matriz editable; vigencia respetada en consultas |
 | **T-F1-24** | **Tests catálogos (feature + unit)** | Tests: importar snapshot válido/inválido (CA-005, CA-006); activar único (CA-006); CRUD cada entidad; conteos referencia | Suite verde | CA-005 a CA-012, PRINCIPIO 6 | T-F1-20, T-F1-22 | `php artisan test --filter=Catalogo` pasa |
@@ -392,13 +392,13 @@ F0 (T-F0-01..10)
 | Fase | Tareas | Completadas | En progreso | Pendientes |
 |---|---|---|---|---|
 | **F0** | 10 | 7 | 3 | 0 |
-| **F1** | 31 | 13 | 3 | 15 |
+| **F1** | 31 | 18 | 2 | 11 |
 | **F2** | 31 | 0 | 0 | 31 |
 | **F3** | 14 | 0 | 0 | 14 |
 | **F4** | 5 | 0 | 0 | 5 |
 | **F5** | 5 | 0 | 0 | 5 |
 | **F6** | 16 | 0 | 0 | 16 |
-| **TOTAL** | **112** | **20** | **6** | **86** |
+| **TOTAL** | **112** | **25** | **5** | **82** |
 
 **F0 — las 7 completadas:** T-F0-01 (C-010), 04, 06, 07, 08, 09, 10.
 **F0 — las 3 en progreso, todas esperando a personas:**

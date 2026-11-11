@@ -1,0 +1,3 @@
+CodigoPrestacion,Mes,Year,TextoPrestacion,Hoja,Serie,Posicion,tipoDato,linea,Inicio,Fin
+01010100,1,2026,Consulta medica,A01,SERIE A1,1,N,5,A,L
+01010101,1,2026,"Control con texto, con coma",A01,SERIE A1,2,N,6,A,L
