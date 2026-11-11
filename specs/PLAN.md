@@ -1,9 +1,9 @@
 # PLAN.md — Plan técnico del MVP (Portal M7)
 
 > **Ubicación canónica:** `specs/PLAN.md`
-> **Fuentes:** `specs/AGENT.md`, `specs/SPECS.md`, `backup_documentacion/MODULO_M7_PROFUNDIZADO.md`, `02-DOCS/wiki/sdd/constitution.md` v3.0.0, `02-DOCS/wiki/sdd/decisions.md`, `02-DOCS/wiki/dominio/validacion-rem.md`, `02-DOCS/wiki/stack/*`, `REVIEW.md`.
-> **Estado:** propuesta técnica para revisión. No sustituye la decisión de stack (D-STACK abierta).
-> **Fecha:** 2026-11-09
+> **Fuentes:** `specs/AGENT.md`, `specs/SPECS.md`, `backup_documentacion/MODULO_M7_PROFUNDIZADO.md`, `02-DOCS/wiki/sdd/constitution.md` v3.1.0, `02-DOCS/wiki/sdd/decisions.md`, `02-DOCS/wiki/dominio/validacion-rem.md`, `02-DOCS/wiki/stack/*`, `REVIEW.md`.
+> **Estado:** base técnica de la implementación. Stack canon cerrado en C-010 (Laravel 8.83 / PHP 7.4.3 / MySQL 8.0.42 / AdminLTE 3.2).
+> **Fecha:** 2026-11-09 · actualizado 2026-11-11 (CONT-01 y CONT-02 resueltos)
 
 ---
 
@@ -838,7 +838,7 @@ Trabajo que puede avanzar en paralelo sin esperar resultados inexistentes:
 | ID | Riesgo | Prob. | Impacto | Mitigación |
 |---|---|:--:|:--:|---|
 | **RIES-01** | Paridad de validación incompleta | Alta | Alto | F0 con *golden files*; no avanzar a F3 sin paridad firmada |
-| **RIES-02** | D-STACK abierta y componentes EOL (PHP 7.4, Laravel 8, MySQL 8.0) | Alta | Alto | Cierre F0 con TI; plan condicional; WAF/proxy mientras tanto; migración a 8.4 |
+| **RIES-02** | Componentes EOL (PHP 7.4, Laravel 8, MySQL 8.0), con D-STACK cerrada (C-010) | Media | Alto | Deuda aceptada y registrada; plan de migración futura; WAF/proxy mientras tanto; objetivo MySQL 8.4 |
 | **RIES-03** | Semántica de `Diccionario`/`Excep`/`colexcep` no confirmada | Alta | Alto | F0 produce *golden output*; no implementar por intuición |
 | **RIES-04** | Catálogos no importables en Linux | Media | Alto | Exportación CSV desde Windows + importador con validación de conteos |
 | **RIES-05** | Archivo cerca del límite de 2 MB (SAX y series grandes) | Media | Medio | Medir con archivos reales; `.htaccess` con `php_value`; rechazo claro |
@@ -884,8 +884,8 @@ Trabajo que puede avanzar en paralelo sin esperar resultados inexistentes:
 
 | ID | Contradicción | Detalle | Acción requerida |
 |---|---|---|---|
-| **CONT-01** | **Stack** | `AGENT.md` §8 presenta Laravel 13 / PHP 8.3 / AdminLTE 4 como "stack elegido (pendiente D-STACK)". `SPECS.md` asume la Opción B (Laravel 8.83 / PHP 7.4.3 / AdminLTE 3.2). La Constitución v3.0.0 reabrió D-STACK con PHP 7.4.3 confirmado. | Confirmar si la línea base de trabajo es B (asumida en SPECS) o si se espera A1/A2. No se resuelve en silencio. |
-| **CONT-02** | **Versión de AdminLTE** | `SPECS.md` encabezado dice 3.2; `SPECS.md` §7.2 y `AGENT.md` dicen 4.x. | Alinear a la versión del stack elegido. |
+| **CONT-01** | **Stack** | `AGENT.md` §8 presenta Laravel 13 / PHP 8.3 / AdminLTE 4 como "stack elegido (pendiente D-STACK)". `SPECS.md` asume la Opción B (Laravel 8.83 / PHP 7.4.3 / AdminLTE 3.2). La Constitución v3.0.0 reabrió D-STACK con PHP 7.4.3 confirmado. | ✅ **Resuelto (2026-11-11):** `AGENT.md` alineado a la Opción B / C-010. La línea base es B. |
+| **CONT-02** | **Versión de AdminLTE** | `SPECS.md` encabezado dice 3.2; `SPECS.md` §7.2 y `AGENT.md` dicen 4.x. | ✅ **Resuelto (2026-11-11):** todo el repo declara AdminLTE 3.2 (Bootstrap 4), canon C-010. |
 | **CONT-03** | **Estados del envío** | `SPECS.md` RF-024 omite `con_errores`; M7 §5.1 y RF-029 lo incluyen. | Confirmar el conjunto completo de estados. |
 | **CONT-04** | **Identificadores RF** | `SPECS.md` §3.2 etiqueta la matriz de permisos como "(RF-032)", pero RF-032 es "Ver observaciones". Además RF-034 no existe y el resumen dice 39 RF cuando hay 38. | Corregir la etiqueta y el conteo; confirmar si falta un RF-034. |
 | **CONT-05** | **Snapshot al revalidar** | RN-ENV-11 se lee como "snapshot activo al subir"; P6 como "snapshot guardado al revalidar". | Confirmar la lectura reproducible (propuesta del plan). |
@@ -957,7 +957,7 @@ Trabajo que puede avanzar en paralelo sin esperar resultados inexistentes:
 ### 17.3 Checklist de la auditoría
 
 - [x] Cada requisito relevante tiene una solución técnica prevista (§17.1; RF-034 ausente documentado).
-- [x] Las decisiones respetan `specs/AGENT.md` y la Constitución v3.0.0, salvo las contradicciones explícitas (CONT-01 a CONT-08).
+- [x] Las decisiones respetan `specs/AGENT.md` y la Constitución v3.1.0; CONT-01 y CONT-02 resueltos el 2026-11-11.
 - [x] La arquitectura satisface `specs/SPECS.md` (39 RF consideradas; 38 existentes + 1 hueco).
 - [x] No hay tecnologías sin justificación (§2; cada `TEC-` tiene propósito y restricción).
 - [x] Los riesgos principales están documentados (RIES-01 a RIES-18).

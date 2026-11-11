@@ -4,7 +4,7 @@
 > **Fuentes:** `specs/AGENT.md`, `specs/SPECS.md`, `specs/PLAN.md`, `02-DOCS/wiki/sdd/constitution.md` v3.1.0
 > **Stack confirmado (C-010):** Laravel 8.83 + PHP 7.4.3 + MySQL 8.0.42 + AdminLTE 3.2 (Bootstrap 4) + vanilla JS
 > **Fecha:** 2026-11-10
-> **Estado:** pendiente de ejecución — ninguna tarea verificada en código
+> **Estado (2026-11-11):** F0 redactado — 7 de 10 tareas; las 3 restantes esperan personas (archivos reales y firmas). F1–F6 sin empezar. Ninguna tarea verificada en código.
 
 ---
 
@@ -40,13 +40,13 @@
 | ID | Tarea | Descripción | Resultado esperado | Requisito/CA | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
 | **T-F0-01** | **Cerrar D-STACK (C-010)** | Registrar decisión Opción B (Laravel 8.83/PHP 7.4.3) en `02-DOCS/wiki/sdd/decisions.md` y enmendar Constitución a v3.1.0 (MAJOR) | Decisión registrada, Constitución actualizada | PEND-001, CONT-01, CONT-02 | — | `decisions.md` tiene C-010; Constitución v3.1.0 |
-| **T-F0-02** | **Reunir *golden files*** | Obtener 12–20 archivos Excel reales anonimizados (.xls, .xlsx, .xlsm): por serie, mes, con/sin errores, SAX cuando exista | Carpeta `tests/Parity/fixtures/{input,expected}/` poblada | OBJ-01, RIES-01, RIES-03 | — | 12+ archivos en input; salida esperada en expected |
-| **T-F0-03** | **Ejecutar ValidadorRem de referencia** | Correr ValidadorRem en entorno de prueba con `Global.mdb` copia y base vacía; exportar `datos` y `LogError` por cada *fixture* | Salidas de referencia guardadas en `tests/Parity/fixtures/expected/` | OBJ-01, RIES-01 | T-F0-02 | Cada *fixture* tiene par `input → expected` |
+| **T-F0-02** | **Reunir *golden files*** | Obtener 12–20 archivos Excel reales anonimizados (.xls, .xlsx, .xlsm): por serie, mes, con/sin errores, SAX cuando exista | Estructura y `manifest.json` creados ✅; falta poblarla con archivos reales | OBJ-01, RIES-01, RIES-03 | — | 12+ archivos en input; salida esperada en expected | `[~]` |
+| **T-F0-03** | **Ejecutar ValidadorRem de referencia** | Correr ValidadorRem en entorno de prueba con `Global.mdb` copia y base vacía; exportar `datos` y `LogError` por cada *fixture* | Formato de salida definido en `expected/README.md` ✅; faltan las salidas reales | OBJ-01, RIES-01 | T-F0-02 | Cada *fixture* tiene par `input → expected` | `[~]` |
 | **T-F0-04** | **Mapear cabecera y semántica Diccionario/Excep** | Documentar: coordenadas/etiquetas cabecera por plantilla; significado `inicio`/`fin`/`posicion`/`tipo_dato`; estructura `Excep`/`colexcep` | Documento `docs/validacion/paridad-cabecera-diccionario.md` ✅ | RIES-03, RIES-09, DEP-16 | T-F0-03 | Mapa completo; semántica confirmada por negocio | `[x]`
-| **T-F0-05** | **Definir política de severidad** | Revisar cada `ENV-###` con Unidad de Estadísticas; firmar documento: qué es bloqueante/advertencia/info | `docs/validacion/politica-severidad.md` ✅ (borrador para firma) | OBJ-01, RIES-01, DEP-02 | T-F0-04 | Documento firmado por referente negocio | `[x]`
-| **T-F0-06** | **Confirmar matriz de series obligatorias (D5)** | Definir series por establecimiento: histórico + *override* con vigencia; confirmar SAX (D6) | `docs/validacion/matriz-series-obligatorias.md` | D5, D6, DEP-12, DEP-13 | T-F0-05 | Matriz confirmada; SAX documentada |
-| **T-F0-07** | **Confirmar plazos y reglas de cierre (D4)** | Definir día límite configurable por período; regla período `abierto/en_revision/cerrado` | `docs/validacion/reglas-cierre-periodo.md` | D4, DEP-11 | — | Documento confirmado |
-| **T-F0-08** | **Confirmar fuente de identidad (D1) y 2FA (D10)** | Decidir: cuentas locales / correo institucional / directorio SS; 2FA para quién | `docs/auth/decision-identidad-2fa.md` | D1, D10, DEP-10, DEP-15 | — | Decisión registrada |
+| **T-F0-05** | **Definir política de severidad** | Revisar cada `ENV-###` con Unidad de Estadísticas; firmar documento: qué es bloqueante/advertencia/info | `docs/validacion/politica-severidad.md` ✅ (borrador para firma) | OBJ-01, RIES-01, DEP-02 | T-F0-04 | Documento redactado; falta firma del referente de negocio | `[~]` |
+| **T-F0-06** | **Confirmar matriz de series obligatorias (D5)** | Definir series por establecimiento: histórico + *override* con vigencia; confirmar SAX (D6) | `docs/validacion/matriz-series-obligatorias.md` ✅ (borrador para firma) | D5, D6, DEP-12, DEP-13 | T-F0-05 | Matriz redactada; falta confirmación de negocio | `[~]` |
+| **T-F0-07** | **Confirmar plazos y reglas de cierre (D4)** | Definir día límite configurable por período; regla período `abierto/en_revision/cerrado` | `docs/validacion/reglas-cierre-periodo.md` ✅ (borrador para firma) | D4, DEP-11 | — | Documento redactado; falta confirmación de negocio | `[~]` |
+| **T-F0-08** | **Confirmar fuente de identidad (D1) y 2FA (D10)** | Decidir: cuentas locales / correo institucional / directorio SS; 2FA para quién | `docs/auth/decision-identidad-2fa.md` ✅ (borrador para firma) | D1, D10, DEP-10, DEP-15 | — | Documento redactado; falta confirmación de negocio | `[~]` |
 | **T-F0-09** | **Preparar catálogo de errores `ENV-###`** | Lista completa `ENV-001` a `ENV-032` con mensaje usuario, severidad, etapa, acción sugerida | `docs/validacion/catalogo-errores-env.md` ✅ | RF-019, MOD-04, DEP-16 | T-F0-05 | Catálogo completo coincidente con SPECS §20.1 | `[x]`
 | **T-F0-10** | **Definir *fixtures* de permisos (RBAC)** | Matriz 18 permisos × 4 roles con tests pos/neg esperados | `tests/Parity/fixtures/rbac-matrix.json` ✅ | MOD-01, MOD-02, PRINCIPIO 8 | T-F0-08 | Archivo JSON con casos de prueba | `[x]`
 
@@ -388,37 +388,40 @@ F0 (T-F0-01..10)
 
 ---
 
-## Estado actual del proyecto (a 2026-11-10)
+## Estado actual del proyecto (a 2026-11-11)
 
-| Fase | Tareas totales | Pendientes | Completadas | Bloqueadas |
+| Fase | Tareas | Completadas | En progreso | Pendientes |
 |---|---|---|---|---|
-| **F0** | 10 | 6 | 4 | 0 (D-STACK cerrada C-010) |
-| **F1** | 31 | 31 | 0 | 0 (**D1, D4, D5, D6 resueltas**) |
-| **F2** | 31 | 31 | 0 | 0 (tras F1) |
-| **F3** | 14 | 14 | 0 | 0 (tras F2) |
-| **F4** | 5 | 5 | 0 | 0 (tras F2) |
-| **F5** | 5 | 5 | 0 | 0 (tras F3) |
-| **F6** | 16 | 16 | 0 | 0 (tras F3–F5) |
-| **TOTAL** | **112** | **108** | **4** | **0 decisiones** |
+| **F0** | 10 | 7 | 3 | 0 |
+| **F1** | 31 | 0 | 0 | 31 |
+| **F2** | 31 | 0 | 0 | 31 |
+| **F3** | 14 | 0 | 0 | 14 |
+| **F4** | 5 | 0 | 0 | 5 |
+| **F5** | 5 | 0 | 0 | 5 |
+| **F6** | 16 | 0 | 0 | 16 |
+| **TOTAL** | **112** | **7** | **3** | **102** |
 
-> **Nota:** Ninguna tarea ha sido verificada en código real. El estado refleja solo planificación. Al iniciar implementación, actualizar casillas `[ ]` → `[~]` → `[x]` con evidencia (commit hash, test output, screenshot).
+**F0 — las 7 completadas:** T-F0-01 (C-010), 04, 06, 07, 08, 09, 10.
+**F0 — las 3 en progreso, todas esperando a personas:**
+
+| Tarea | Qué falta | Quién |
+|---|---|---|
+| T-F0-02 | Poblar `tests/Parity/fixtures/input/` con 12–20 archivos reales anonimizados | Unidad de Estadísticas |
+| T-F0-03 | Ejecutar el ValidadorRem sobre cada uno y exportar `datos` + `LogError` | TI / referente técnico |
+| T-F0-05 | Firmar `docs/validacion/politica-severidad.md` | Referente de negocio |
+
+> **Nota:** nada de esto ha sido verificado en código real. El estado refleja documentos y planificación. Al implementar, actualizar `[ ]` → `[~]` → `[x]` con evidencia (commit, salida de test, captura).
 
 ---
 
 ## Próximos pasos inmediatos
 
-1. **Ejecutar T-F0-01** (registrar C-010) — ya decidida en conversación y documentada.
-2. **Ejecutar T-F0-02..10** en paralelo (golden files, decisiones, catálogo errores) — 1–2 semanas.
-   - T-F0-02..03: Reunir 12-20 archivos reales anonimizados + ejecutar ValidadorRem
-   - T-F0-04: Mapear cabecera + semántica Diccionario/Excep
-   - T-F0-05: Firmar política de severidad con Unidad Estadísticas
-   - T-F0-06: Confirmar matriz series (✅ **D5 resuelto: histórico + override manual**)
-   - T-F0-07: Confirmar reglas cierre (✅ **D4 resuelto: día 10 configurable**)
-   - T-F0-08: Confirmar identidad (✅ **D1 resuelto: cuentas locales**)
-   - T-F0-09: Catálogo errores ENV-001 a ENV-032
-   - T-F0-10: Fixtures RBAC (18 permisos × 4 roles)
-3. **Iniciar F1** con T-F1-01 (proyecto Laravel) en cuanto F0 avance.
-4. **Decisiones pendientes restantes**: D12, D13, D14 (TI: antivirus, respaldos, migración histórica).
+1. **Arrancar F1 con T-F1-01** (`composer create-project laravel/laravel:^8.83`). Ninguna decisión lo bloquea: C-010 está cerrada y D1, D4, D5, D6 y D10 están resueltas.
+2. **Las 3 tareas de F0 que quedan son humanas**, no de código, y corren en paralelo:
+   - T-F0-02/03 — reunir los archivos y generar los *expected* (bloquea F2, no F1).
+   - T-F0-05 — firmar la política de severidad (bloquea F2, no F1).
+   - T-F0-06/07/08 — los documentos ya están redactados; solo falta que negocio los confirme.
+3. **Decisiones abiertas:** D12, D13 y D14. Ninguna bloquea el MVP y todas tienen *fallback*. Se cierran con TI cuando toque F6.
 
 ---
 

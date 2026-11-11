@@ -23,6 +23,15 @@ topic: index
 | [`docs/FLUJO_DATOS_INTEGRAL_SISTEMA.md`](../../docs/FLUJO_DATOS_INTEGRAL_SISTEMA.md) | Flujo de datos de punta a punta |
 | [`REVIEW.md`](../../REVIEW.md) | Qué mira el revisor y qué exige una persona antes de fusionar |
 
+## specs/ — especificación operativa del MVP
+
+| Documento | Qué contiene |
+|---|---|
+| [`AGENT.md`](../../specs/AGENT.md) | Contexto, alcance, actores y stack canon (C-010) |
+| [`SPECS.md`](../../specs/SPECS.md) | Requisitos funcionales, reglas de negocio y criterios de aceptación |
+| [`PLAN.md`](../../specs/PLAN.md) | Arquitectura, módulos técnicos MOD-01 a MOD-11, modelo de datos y flujos |
+| [`TASK.md`](../../specs/TASK.md) | **112 tareas atómicas** en 7 fases, cada una con verificación y DoD |
+
 ## sdd/ — reglas y decisiones
 
 | Artículo | Qué contiene |
@@ -37,13 +46,19 @@ topic: index
 | [`stack/opciones-stack.md`](stack/opciones-stack.md) | Investigación de 5 opciones (Opción A requería PHP 8.3, hoy inválida) |
 | [`stack/decision-stack.md`](stack/decision-stack.md) | **D-STACK cerrada (C-010)**: canon Laravel 8.83 + PHP 7.4.3 + AdminLTE 3.2 |
 | [`stack/restricciones-servidor.md`](stack/restricciones-servidor.md) | Evidencia confirmada: PHP 7.4.3, sin pdo_sqlite/opcache/bcmath, diagnóstico directo |
-| [`stack/entorno-local.md`](stack/entorno-local.md) | Qué hay en XAMPP, requisito de PHP 8.3 y por qué SQLite no reemplaza a MySQL |
+| [`stack/entorno-local.md`](stack/entorno-local.md) | **Entorno local verificado (2026-11-11):** XAMPP 8.2.12, PHP 8.2.12, MariaDB 10.4.32, límites reales, estrategia en dos fases y las diferencias que rompen en producción |
 
 ## dominio/ — reglas del negocio REM
 
 | Artículo | Qué contiene |
 |---|---|
 | [`dominio/validacion-rem.md`](dominio/validacion-rem.md) | Pipeline V0–V11, severidad, códigos `ENV-###`, paridad con *golden files* y presupuesto de ejecución |
+
+## datos/ — fuentes maestras
+
+| Artículo | Qué contiene |
+|---|---|
+| [`docs/datos/fuentes-datos-mdb.md`](../../docs/datos/fuentes-datos-mdb.md) | **Inventario verificado** de `Global.mdb` (402,9 MB), `Trans.mdb` y las 9 bases `DatosSERIE` con datos (393.053 filas), el mapeo a tablas del portal y el camino `.mdb → CSV → MySQL` |
 
 ## harness/ — cómo trabaja el agente
 
@@ -55,7 +70,9 @@ topic: index
 
 ## Cómo crece esta wiki
 
-1. Lo que llega sin clasificar entra a `02-DOCS/inbox/`.
-2. Se consolida como artículo con frontmatter (`type`, `title`, `description`, `tags`, `timestamp`, `topic`).
-3. Toda página nueva se enlaza desde este índice; toda decisión relevante se agrega a `sdd/decisions.md`.
-4. Las fuentes originales no se borran: quedan en `02-DOCS/raw/` o en su ruta canónica.
+1. **Lo operativo va a [`specs/`](../../specs/), no a la wiki.** Especificación, plan y tareas son la fuente del trabajo.
+2. **Lo nuevo de conocimiento entra aquí** como artículo con frontmatter (`type`, `title`, `description`, `tags`, `timestamp`, `topic`).
+3. Toda página nueva se enlaza desde este índice.
+4. Toda decisión relevante se agrega a [`sdd/decisions.md`](sdd/decisions.md). Es append-only: no se reescribe una entrada, se agrega la que la reemplaza.
+5. Todo cambio de la wiki se anota con una línea en [`log.md`](log.md).
+6. **Las fuentes originales no se copian aquí:** se enlazan desde su ruta canónica. La wiki sintetiza, no duplica (Constitución, principio 27).
