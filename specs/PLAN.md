@@ -1,9 +1,9 @@
 # PLAN.md — Plan técnico del MVP (Portal M7)
 
 > **Ubicación canónica:** `specs/PLAN.md`
-> **Fuentes:** `specs/AGENT.md`, `specs/SPECS.md`, `backup_documentacion/MODULO_M7_PROFUNDIZADO.md`, `02-DOCS/wiki/sdd/constitution.md` v3.0.0, `02-DOCS/wiki/sdd/decisions.md`, `02-DOCS/wiki/dominio/validacion-rem.md`, `02-DOCS/wiki/stack/*`, `REVIEW.md`.
-> **Estado:** propuesta técnica para revisión. No sustituye la decisión de stack (D-STACK abierta).
-> **Fecha:** 2026-11-09
+> **Fuentes:** `specs/AGENT.md`, `specs/SPECS.md`, `backup_documentacion/MODULO_M7_PROFUNDIZADO.md`, `02-DOCS/wiki/sdd/constitution.md` v3.1.0, `02-DOCS/wiki/sdd/decisions.md`, `02-DOCS/wiki/dominio/validacion-rem.md`, `02-DOCS/wiki/stack/*`, `REVIEW.md`.
+> **Estado:** base técnica de la implementación. **D-STACK cerrada (C-015):** Laravel **12.72** + PHP **8.2** + MySQL 8.0.42 + AdminLTE 3.2.
+> **Fecha:** 2026-11-09 · actualizado 2026-11-11 (CONT-01 y CONT-02 resueltos)
 
 ---
 
@@ -30,10 +30,10 @@
 | Modelo de lectura separado (CQRS) | El volumen (30 establecimientos × 7 series) no lo justifica; una sola fuente de verdad evita inconsistencias. |
 | Escribir en Access / CARGAS REM | Incompatible con Linux, riesgoso por bloqueos y fuera del alcance del MVP (D7 = A). |
 
-**Portabilidad entre ramas de stack.** El plan es válido para las dos ramas abiertas por D-STACK:
+**Portabilidad de stack.** El plan no depende de la versión del framework:
 
-- **Rama B (baseline asumido en `SPECS.md`):** Laravel 8.83 + PHP 7.4.3 + MySQL 8 + AdminLTE 3.2. Corre hoy; carga con deuda de soporte.
-- **Rama A1/A2 (condicional):** Laravel 13 + PHP 8.3+ + MySQL 8 + AdminLTE 4. Requiere que TI habilite PHP 8.3.
+- **Canon (C-015):** Laravel 12.72 + PHP 8.2 + MySQL 8 + AdminLTE 3.2. Laravel 8 se descartó por sus avisos sin parche; 10 y 11 por seguir afectados.
+- **Escalada futura:** Laravel 13 + PHP 8.3+ + AdminLTE 4, solo si TI habilita PHP 8.3. El plan no cambia: las decisiones de arquitectura son las mismas.
 
 Las capas, los contratos, el modelo de datos y el orden de fases no cambian entre ramas. Cambian versiones de dependencias y mecánicas (ver `TEC-01` a `TEC-14`).
 
@@ -61,7 +61,7 @@ Las capas, los contratos, el modelo de datos y el orden de fases no cambian entr
 
 | ID | Tecnología | Propósito | Justificación | Restricciones relevantes | Estado |
 |---|---|---|---|---|---|
-| **TEC-01** | Framework PHP | Base del portal | El diseño M7 §11 está escrito para Laravel; ecosistema completo para auth, RBAC, Excel y tablas | **D-STACK abierta**: rama B (Laravel 8.83 / PHP 7.4.3) o rama A (Laravel 13 / PHP 8.3+) | **Pendiente** (PEND-001) |
+| **TEC-01** | Framework PHP | Base del portal | El diseño M7 §11 está escrito para Laravel; ecosistema completo para auth, RBAC, Excel y tablas | **Laravel 12.72 + PHP 8.2** | ✅ Resuelto (C-015) |
 | **TEC-02** | MySQL 8.0.42 `utf8mb4` | Almacén de producción | Concurrencia, InnoDB, transacciones, claves foráneas; confirmado en el servidor | Objetivo 8.4 LTS antes del EOL de 8.0 (abril 2026) | **Confirmada** |
 | **TEC-03** | SQLite local + MySQL 8 en Docker | Desarrollo y pruebas | SQLite para suite rápida y navegación; MySQL 8 para paridad numérica y concurrencia | SQLite no reemplaza a MySQL en paridad ni en locks (`lockForUpdate` es no-op); el servidor no tiene `pdo_sqlite`, pero es local | **Confirmada** (C-008) |
 | **TEC-04** | PhpSpreadsheet | Leer `.xls`, `.xlsx`, `.xlsm` sin ejecutar macros | Única vía viable de lectura fiel; paridad con *golden files* | Versión condicionada al stack: 1.29.x (B) o 5.x (A); la lectura puede diferir y se detecta con paridad | **Confirmada en propósito; versión pendiente** |
@@ -211,7 +211,7 @@ Cargas/
     │   └── api.php               # solo si se adopta el puente B
     ├── storage/app/private/envios/{anio}/{mes}/{codigo}/{envio}/v{version}/
     ├── tests/                    # Unit, Feature, Parity
-    ├── composer.json             # platform php 7.4.3 si se elige B
+    ├── composer.json             # exige php ^8.2
     ├── .env                      # ignorado; fuera de public/
     └── public/                   # document root en despliegue (index.php + assets)
 ```
@@ -838,7 +838,7 @@ Trabajo que puede avanzar en paralelo sin esperar resultados inexistentes:
 | ID | Riesgo | Prob. | Impacto | Mitigación |
 |---|---|:--:|:--:|---|
 | **RIES-01** | Paridad de validación incompleta | Alta | Alto | F0 con *golden files*; no avanzar a F3 sin paridad firmada |
-| **RIES-02** | D-STACK abierta y componentes EOL (PHP 7.4, Laravel 8, MySQL 8.0) | Alta | Alto | Cierre F0 con TI; plan condicional; WAF/proxy mientras tanto; migración a 8.4 |
+| **RIES-02** | Componentes EOL (PHP 7.4, Laravel 8, MySQL 8.0) y **5 avisos de seguridad sin parche** | **Alta** | Alto | **D-STACK reabierta (C-014):** se pide PHP 8.2 a TI para subir a Laravel 12, la primera rama sin avisos. Ver `docs/infra/solicitud-php-82-ti.md` |
 | **RIES-03** | Semántica de `Diccionario`/`Excep`/`colexcep` no confirmada | Alta | Alto | F0 produce *golden output*; no implementar por intuición |
 | **RIES-04** | Catálogos no importables en Linux | Media | Alto | Exportación CSV desde Windows + importador con validación de conteos |
 | **RIES-05** | Archivo cerca del límite de 2 MB (SAX y series grandes) | Media | Medio | Medir con archivos reales; `.htaccess` con `php_value`; rechazo claro |
@@ -884,8 +884,8 @@ Trabajo que puede avanzar en paralelo sin esperar resultados inexistentes:
 
 | ID | Contradicción | Detalle | Acción requerida |
 |---|---|---|---|
-| **CONT-01** | **Stack** | `AGENT.md` §8 presenta Laravel 13 / PHP 8.3 / AdminLTE 4 como "stack elegido (pendiente D-STACK)". `SPECS.md` asume la Opción B (Laravel 8.83 / PHP 7.4.3 / AdminLTE 3.2). La Constitución v3.0.0 reabrió D-STACK con PHP 7.4.3 confirmado. | Confirmar si la línea base de trabajo es B (asumida en SPECS) o si se espera A1/A2. No se resuelve en silencio. |
-| **CONT-02** | **Versión de AdminLTE** | `SPECS.md` encabezado dice 3.2; `SPECS.md` §7.2 y `AGENT.md` dicen 4.x. | Alinear a la versión del stack elegido. |
+| **CONT-01** | **Stack** | `AGENT.md` §8 presenta Laravel 13 / PHP 8.3 / AdminLTE 4 como "stack elegido (pendiente D-STACK)". `SPECS.md` asume la Opción B (Laravel 8.83 / PHP 7.4.3 / AdminLTE 3.2). La Constitución v3.0.0 reabrió D-STACK con PHP 7.4.3 confirmado. | ✅ **Resuelto (2026-11-11):** `AGENT.md` alineado a la Opción B / C-010. La línea base es B. |
+| **CONT-02** | **Versión de AdminLTE** | `SPECS.md` encabezado dice 3.2; `SPECS.md` §7.2 y `AGENT.md` dicen 4.x. | ✅ **Resuelto (2026-11-11):** todo el repo declara AdminLTE 3.2 (Bootstrap 4), canon C-010. |
 | **CONT-03** | **Estados del envío** | `SPECS.md` RF-024 omite `con_errores`; M7 §5.1 y RF-029 lo incluyen. | Confirmar el conjunto completo de estados. |
 | **CONT-04** | **Identificadores RF** | `SPECS.md` §3.2 etiqueta la matriz de permisos como "(RF-032)", pero RF-032 es "Ver observaciones". Además RF-034 no existe y el resumen dice 39 RF cuando hay 38. | Corregir la etiqueta y el conteo; confirmar si falta un RF-034. |
 | **CONT-05** | **Snapshot al revalidar** | RN-ENV-11 se lee como "snapshot activo al subir"; P6 como "snapshot guardado al revalidar". | Confirmar la lectura reproducible (propuesta del plan). |
@@ -957,7 +957,7 @@ Trabajo que puede avanzar en paralelo sin esperar resultados inexistentes:
 ### 17.3 Checklist de la auditoría
 
 - [x] Cada requisito relevante tiene una solución técnica prevista (§17.1; RF-034 ausente documentado).
-- [x] Las decisiones respetan `specs/AGENT.md` y la Constitución v3.0.0, salvo las contradicciones explícitas (CONT-01 a CONT-08).
+- [x] Las decisiones respetan `specs/AGENT.md` y la Constitución v3.1.0; CONT-01 y CONT-02 resueltos el 2026-11-11.
 - [x] La arquitectura satisface `specs/SPECS.md` (39 RF consideradas; 38 existentes + 1 hueco).
 - [x] No hay tecnologías sin justificación (§2; cada `TEC-` tiene propósito y restricción).
 - [x] Los riesgos principales están documentados (RIES-01 a RIES-18).
@@ -993,3 +993,7 @@ Trabajo que puede avanzar en paralelo sin esperar resultados inexistentes:
 ---
 
 **Archivo guardado en:** `C:\xampp\htdocs\www\Cargas\specs\PLAN.md`
+
+
+
+

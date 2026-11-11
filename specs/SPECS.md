@@ -1,9 +1,9 @@
 # SPECS.md — Especificaciones Funcionales del MVP (Portal M7)
 
 > **Ubicación canónica:** `specs/SPECS.md`
-> **Fuente:** `specs/AGENT.md` + `backup_documentacion/MODULO_M7_PROFUNDIZADO.md` + Constitución v3.0.0
-> **Stack asumido para MVP:** Laravel 8.83 + PHP 7.4.3 + MySQL 8 + AdminLTE 3.2 (Opción B — D-STACK abierta)
-> **Referencia UX:** Zenith Dashboard (shadcn/ui) para L2/L3; L1 usa AdminLTE 4
+> **Fuente:** `specs/AGENT.md` + `backup_documentacion/MODULO_M7_PROFUNDIZADO.md` + Constitución v3.1.0
+> **Stack canon (C-015):** Laravel 12.72 + PHP 8.2 + MySQL 8.0.42 + AdminLTE 3.2 (Bootstrap 4). Ver §0 de la Constitución.
+> **Referencia UX:** Zenith Dashboard (shadcn/ui) como guía visual de L2/L3, no como dependencia. Toda la UI usa AdminLTE 3.2.
 
 ---
 
@@ -32,7 +32,7 @@
 | **OBJ-05** | Flujo completo: Encargado → sube → valida → envía → Revisor → observa/aprueba | E2E test con 3 roles |
 | **OBJ-06** | Auditoría append-only de todas las acciones críticas | Test de inmutabilidad de auditoría |
 | **OBJ-07** | Tablero de completitud mensual por SS con exportación | Consulta SQL + vista funcional |
-| **OBJ-08** | Despliegue reproducible por FTP en servidor con PHP 7.4.3 | Artefacto completo + migraciones SQL |
+| **OBJ-08** | Despliegue reproducible por FTP en servidor con PHP 8.2 | Artefacto completo + migraciones SQL |
 
 ---
 
@@ -67,6 +67,7 @@
 | `completitud.ver` | ✅ | ✅ | ✅ | ✅ |
 | `paquetes.generar` | — | ✅ | ✅ | — |
 | `catalogos.importar` | — | — | ✅ | — |
+| `catalogos.gestionar` | — | — | ✅ | — |
 | `usuarios.gestionar` | — | — | ✅ | — |
 | `periodos.gestionar` | — | — | ✅ | — |
 | `auditoria.ver` | — | — | ✅ | — |
@@ -114,7 +115,7 @@
 | Portal pacientes / app móvil | — | No solicitado |
 | Reemplazo total de CARGAS REM | — | Estratégico, no MVP |
 | Colas / workers obligatorios | — | Servidor sin cron confirmado |
-| 2FA obligatorio | D10 | Pendiente de decisión |
+| 2FA para encargados y consulta | D10 | Solo se exige a revisores y administradores (D-010) |
 
 ---
 
@@ -146,7 +147,7 @@
 
 | ID | Requisito | Descripción | Actor | Entrada | Resultado | Reglas | CA |
 |---|---|---|---|---|---|---|---|
-| **RF-013** | CRUD Usuarios | Admin crea/edita/desactiva usuarios | Admin | Nombre, email, password (8+ chars, mayúscula, número), rol | Usuario creado/actualizado | Password: min 12 chars, sin reutilización (D1); roles: `encargado`/`revisor`/`admin`/`consulta` | CA-013 |
+| **RF-013** | CRUD Usuarios | Admin crea/edita/desactiva usuarios | Admin | Nombre, email, password (12+ chars, mayúscula, número), rol | Usuario creado/actualizado | Password: min 12 chars, sin reutilización (D1); roles: `encargado`/`revisor`/`admin`/`consulta` | CA-013 |
 | **RF-014** | Asignar establecimientos a encargado | Admin vincula usuario-encargado con establecimientos | Admin | Usuario + establecimientos | Filas en `usuario_establecimiento` | Un usuario puede tener varios establecimientos; un establecimiento puede tener varios encargados | CA-014 |
 | **RF-015** | Reset de contraseña por admin | Admin genera password aleatorio 12 chars (mayús, minús, dígito, símbolo) | Admin | Usuario objetivo | Password reseteado + email opcional | Admin no puede resetearse a sí mismo; requiere confirmación explícita | CA-015 |
 | **RF-016** | Perfil de usuario | Usuario ve/edita su nombre, email, password | Usuario autenticado | Datos de perfil | Perfil actualizado | Password actual requerido para cambio | CA-016 |
@@ -287,7 +288,7 @@
 - Accesibilidad básica: foco visible, etiquetas asociadas, contraste, navegación por teclado
 - Sin `target="_blank"` en descargas
 - **Referencia visual L2/L3:** Zenith Dashboard (shadcn/ui) — sidebar colapsable, cards de métricas, tablas con filtros/paginación/acciones, formularios con validación inline, modales de confirmación, tema claro/oscuro con CSS variables
-- **L1:** AdminLTE 4 (Bootstrap 5.3) `dist/` precompilado — sin Node en producción
+- **UI en L1–L3:** AdminLTE 3.2 (Bootstrap 4) `dist/` precompilado — sin Node en producción
 
 ---
 
@@ -496,11 +497,13 @@
 
 ---
 
-## 14. Decisiones pendientes
+## 14. Decisiones y su estado
+
+> Todas las decisiones de diseño están cerradas. Las preguntas a TI quedaron respondidas por C-010; solo TI-3 y TI-4 siguen sin confirmación y **no bloquean** el MVP.
 
 | ID | Decisión | Opciones | Bloquea | Estado |
 |---|---|---|---|---|
-| **PEND-001 (D-STACK)** | Stack final | A1/A2 (Laravel 13) / **B (Laravel 8 / PHP 7.4)** / C/D/E | Todo código app | **Asumida B para MVP**; revisar cuando TI responda |
+| **PEND-001 (D-STACK)** | Stack final | A1/A2 (Laravel 13) / **B (Laravel 8 / PHP 7.4)** / C/D/E | Todo código app | ✅ **Cerrada (C-010): Opción B** |
 | **PEND-002 (D1)** | Fuente de identidad | Cuentas locales / correo institucional / directorio SS | Alta de usuarios (RF-013) | ✅ **Resuelta: Cuentas locales** (D-001) |
 | **PEND-003 (D4)** | Plazo mensual | Día 5 / 10 / 15 / variable (configurable por período) | Cierre período (RF-010) | ✅ **Resuelta: Día 10 configurable** (D-004) |
 | **PEND-004 (D5)** | Series obligatorias | Todas / por tipo / histórico + override | Completitud (RF-011, RF-033) | ✅ **Resuelta: Histórico + override manual** (D-005) |
@@ -511,10 +514,10 @@
 | **PEND-009 (D8)** | Notificaciones | Portal + correo / solo portal / solo correo | Aviso usuarios (RF-038) | ✅ **Resuelta: Solo portal (BD)** (D-008) |
 | **PEND-010 (D9)** | Retención | 1 / 3 / 5 años / indefinido | Legal/almacenamiento (RF-037) | ✅ **Resuelta: 5 años** (D-009) |
 | **PEND-011 (D10)** | 2FA | Nadie / admins / revisores+admins / todos | Auth (RF-001) | ✅ **Resuelta: Revisores y admins** (D-010) |
-| **PEND-012 (TI-1)** | Actualizar Ubuntu/PHP | Sí / No | D-STACK → A1 | Pregunta a TI |
-| **PEND-013 (TI-2)** | PHP-FPM 8.3 para vhost | Sí / No | D-STACK → A2 | Pregunta a TI |
-| **PEND-014 (TI-3)** | Extensiones en PHP 7.4 | `pdo_sqlite`, `opcache`, `bcmath` | Laravel moderno en 7.4 | Pregunta a TI |
-| **PEND-015 (TI-4)** | Acceso SSH | Sí / No | Despliegue estándar | Pregunta a TI |
+| **PEND-012 (TI-1)** | Actualizar Ubuntu/PHP | Sí / No | D-STACK → A1 | ✅ **Respondida: No** (C-010) |
+| **PEND-013 (TI-2)** | PHP-FPM 8.3 para vhost | Sí / No | D-STACK → A2 | ✅ **Respondida: No** (C-010) |
+| **PEND-014 (TI-3)** | Extensiones en PHP 7.4 | `pdo_sqlite`, `opcache`, `bcmath` | Solo SQLite local y opcache | 🟡 **Sin confirmar — no bloquea** |
+| **PEND-015 (TI-4)** | Acceso SSH | Sí / No | Despliegue estándar | 🟡 **No confirmado — despliegue por FTP** |
 
 ---
 
@@ -529,7 +532,7 @@
 - [x] No hay detalles de implementación prematuros (arquitectura, endpoints, clases solo como referencia en §5.5/§11 de fuente)
 - [x] Cada RF tiene al menos un CA verificable
 - [x] Identificadores únicos y estables (RF-, RN-, CA-, PEND-)
-- [x] Referencia UX al Zenith Dashboard documentada para L2/L3 (AdminLTE 3.2 en L1)
+- [x] Referencia UX al Zenith Dashboard documentada para L2/L3 (UI en AdminLTE 3.2, canon C-010)
 
 ---
 
@@ -540,7 +543,7 @@
 | **Requisitos funcionales (RF-)** | 39 |
 | **Reglas de negocio (RN-)** | 11 (V0–V11 + RN-ENV + versionado + períodos) |
 | **Criterios de aceptación (CA-)** | 39 (1 por RF + 7 por fase) |
-| **Decisiones pendientes (PEND-)** | 5 |
+| **Decisiones registradas (PEND-)** | 15 · **0 bloquean F1** |
 | **Objetivos (OBJ-)** | 8 |
 | **Roles** | 4 (encargado, revisor, admin, consulta) |
 | **Permisos** | 18 |
@@ -551,4 +554,5 @@
 
 ---
 
-> **Nota sobre D-STACK:** Este documento asume **Opción B (Laravel 8.83 + PHP 7.4.3 + MySQL 8 + AdminLTE 3.2)** como baseline para el MVP, coherente con las restricciones confirmadas del servidor (PHP 7.4.3 en vhost principal). Si TI habilita PHP 8.3 (A1/A2), el stack se actualiza a Laravel 13 y AdminLTE 4 mediante enmienda MAJOR de la Constitución y actualización de este SPECS.md.
+> **Nota sobre D-STACK:** Este documento fija el canon **C-015 (Laravel 12.72 + PHP 8.2 + MySQL 8.0.42 + AdminLTE 3.2)**. Laravel 10 y 11 quedaron descartados por seguir afectados por avisos de seguridad. El despliegue espera a que TI habilite PHP 8.2; la solicitud está en `docs/infra/solicitud-php-82-ti.md`.
+

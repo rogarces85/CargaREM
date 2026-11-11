@@ -36,3 +36,23 @@ topic: log
 | 2026-11-10 | Nomenclatura unificada: sistema legacy = "Cargas REM"; ejecutable = `ValidadorRem.exe` | `specs/AGENT.md` · `specs/SPECS.md` · `specs/TASK.md` |
 | 2026-11-10 | Estrategia de ramas Git documentada: `main` protegida, `docs/constitucion-y-stack` base, `feature/*` por fase | `specs/AGENT.md` |
 | 2026-11-10 | `specs/TASK.md` creado: 112 tareas atómicas F0–F6 con dependencias, verificación, DoD | `specs/TASK.md` |
+| 2026-11-11 | `specs/AGENT.md` alineado al canon C-010 (Laravel 8.83 / PHP 7.4.3 / AdminLTE 3.2) y a la Constitución v3.1.0; cierra CONT-01 | `specs/AGENT.md` · `specs/PLAN.md` |
+| 2026-11-11 | `specs/SPECS.md` alineado al canon C-010: stack, AdminLTE 3.2, decisiones cerradas; cierra CONT-02 | `specs/SPECS.md` · `specs/PLAN.md` |
+| 2026-11-11 | `README.md` reescrito como puerta de entrada: mapa real del repo, canon C-010, estado 4/112 y próximos pasos | `README.md` |
+| 2026-11-11 | Wiki: índice corregido al flujo real (sin `inbox/` ni `raw/`) y sección de `specs/` agregada | `02-DOCS/wiki/index.md` |
+| 2026-11-11 | F0 completo en el papel: matriz de series, reglas de cierre e identidad/2FA redactados; andamiaje de *golden files* con `manifest.json` | `docs/validacion/` · `docs/auth/` · `tests/Parity/fixtures/` · `specs/TASK.md` |
+| 2026-11-11 | Hoja de firma de una página para la severidad de los 32 `ENV-###` (24 bloqueantes, 8 advertencias) | `docs/validacion/hoja-firma-severidad.md` |
+| 2026-11-11 | Harness: target `deepseek` agregado junto a `opencode`; 34 skills en `.dsh/skills/` | `.rsc.json` · `.dsh/` · `02-DOCS/wiki/harness/installation-plan.md` |
+| 2026-11-11 | Entorno local verificado en la máquina: XAMPP 8.2.12 / PHP 8.2.12 / MariaDB 10.4.32, límites reales, diferencias contra producción y estrategia en dos fases (C-011) | `02-DOCS/wiki/stack/entorno-local.md` · `sdd/decisions.md` · `README.md` |
+| 2026-11-11 | **Se parte de cero (C-012):** bases `cargasrem` y `cargasrem_test` respaldadas y eliminadas; catálogos a reimportar desde las Access del sistema | `docs/datos/fuentes-datos-mdb.md` · `sdd/decisions.md` · `stack/entorno-local.md` |
+| 2026-11-11 | Inventario verificado de las bases Access: `Global.mdb` 185.526 prestaciones, 3.207 establecimientos (86 de Osorno), 393.053 filas de datos en 9 bases `DatosSERIE` | `docs/datos/fuentes-datos-mdb.md` |
+| 2026-11-11 | **Fuente oficial de datos declarada (C-013):** `C:\Program Files (x86)\Minsal\Cargas Rem 2016`, solo lectura; las demás copias no son válidas | `docs/datos/fuentes-datos-mdb.md` · `sdd/decisions.md` |
+| 2026-11-11 | Exportador `.mdb → CSV` construido y probado: 200.367 filas en 26 s desde la instalación oficial, con `manifest.json` y hashes | `01-TOOLS/rem-export/` |
+| 2026-11-11 | **F1 iniciada:** Laravel 8.83.29 en `portal/`, platform PHP 7.4.3, base `cargas_rem`, `sql_mode` estricto, `America/Santiago`, locale `es`. Responde 200 por Apache | `portal/` · `specs/TASK.md` |
+| 2026-11-11 | Dependencias base instaladas: spatie/permission 5.11.1, Fortify 1.19.1, DataTables 9.21.2, Sanctum 2.15.1. AdminLTE 3.2.0 en `public/assets/adminlte/`. `/health` con 2 tests | `portal/` |
+| 2026-11-11 | **Riesgo de dependencias documentado:** Laravel 8.83 tiene 5 avisos abiertos (1 crítico) y PhpSpreadsheet 1.29.12 tiene 13. Se registran D15 y D16 | `docs/seguridad/dependencias-eol.md` · `sdd/decisions.md` |
+| 2026-11-11 | **D16 resuelto:** PhpSpreadsheet **1.30.8** no tiene avisos (el bloqueo era de `zipstream`). Regla: ruta generada por el servidor | `docs/seguridad/dependencias-eol.md` · `portal/composer.json` |
+| 2026-11-11 | **D-STACK reabierta (C-014):** no se acepta el riesgo de Laravel 8. Constitución a **v3.2.0**, F1 congelada y solicitud de PHP 8.2 a TI | `sdd/constitution.md` · `docs/infra/solicitud-php-82-ti.md` · `README.md` |
+| 2026-11-11 | **Prototipo Laravel 12.72.0 sobre PHP 8.2: cero avisos.** Laravel 10 y 11 también están afectados; la primera rama limpia es 12.68+. Dependencias modernas verificadas | `docs/stack/prototipo-laravel-12.md` · `portal-l12/` · `portal-l12` en rama `prototype/laravel-12` |
+| 2026-11-11 | **D-STACK cerrada con Laravel 12.72 + PHP 8.2 (C-015).** Constitución a **v4.0.0**. El portal se rehace sobre Laravel 12: AdminLTE, `/health`, `sql_mode` y canales de log reinstalados y verificados. 4 tests en verde | `portal/` · `sdd/constitution.md` · `sdd/decisions.md` |
+| 2026-11-11 | **Base renombrada a `cargas_rem` (C-016):** datos migrados sin pérdida, `.env`, `phpunit.xml` y documentación actualizados | `cargas_rem` · `.env.example` · `specs/TASK.md` |

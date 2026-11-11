@@ -1,0 +1,3 @@
+IdEstablecimiento,NEstablecimiento,Direccion,Telefono,Fax,IdServicio,IdComuna,IdDependencia,IdTipo,ElimID,Propiedad
+123100,Hospital Base,,, ,23,10301,1,Hospital,0,Publico
+123101,Posta Rural,,, ,23,10302,1,Posta de Salud Rural,0,Publico

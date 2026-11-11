@@ -3,6 +3,7 @@
 > Ubicación canónica: `specs/AGENT.md`
 > Fuente de verdad para agentes de IA y desarrolladores.
 > No contiene especificaciones funcionales detalladas ni decisiones técnicas prematuras.
+> **Actualizado 2026-11-11:** Constitución **v4.0.0** (C-015). Stack canon: **Laravel 12.72 + PHP 8.2**. Ver §0 de la Constitución y `docs/stack/prototipo-laravel-12.md` para el camino hasta acá.
 
 ---
 
@@ -16,7 +17,7 @@
 | **Repositorio** | `https://github.com/rogarces85/CargaREM.git` |
 | **Rama de trabajo** | `docs/constitucion-y-stack` (rama base de documentación; `main` cerrada por Constitución) |
 | **Estrategia de ramas** | Flujo `branches`: `main` protegida; todo código entra por PR desde `feature/*` → `docs/constitucion-y-stack`. Sin código en `main` directo. |
-| **Harness** | rsc 4.0.5 — target OpenCode, flujo `branches` |
+| **Harness** | rsc 4.1.2 — target OpenCode, flujo `branches` |
 
 ---
 
@@ -45,7 +46,7 @@ El sistema actual (**Cargas REM**) es una aplicación de escritorio WinForms que
 
 ## 4. Idea general de la solución
 
-Portal web **Laravel + MySQL** (stack por confirmar — ver D-STACK) con:
+Portal web **Laravel 12.72 + PHP 8.2 + MySQL 8** (C-015) con:
 
 - **Validación V0–V11** replicada fielmente, probada contra *golden files* del ValidadorRem
 - **Máquina de estados** del envío (recibido → validado → en_revisión → observado/aprobado → cargado/anulado)
@@ -96,19 +97,19 @@ Portal web **Laravel + MySQL** (stack por confirmar — ver D-STACK) con:
 
 ## 8. Tecnologías y restricciones generales
 
-### Stack elegido (pendiente D-STACK)
+### Stack canon (C-015)
 
 | Capa | Decisión | Condición |
 |---|---|---|
-| **Lenguaje** | PHP 8.3 mínimo (objetivo 8.5) | Requiere TI: actualizar servidor o PHP-FPM 8.3 |
-| **Framework** | Laravel 13.x | Idem |
-| **Base de datos producción** | MySQL 8.0 → 8.4 LTS | 8.0 EOL abril 2026 |
-| **Base de datos desarrollo** | SQLite (local) + MySQL 8 (Docker, paridad) | Paridad numérica solo en MySQL |
-| **UI** | AdminLTE 4.x (Bootstrap 5.3) `dist/` precompilado | Sin Node en producción |
-| **Auth** | Laravel Fortify | Deja abierta puerta a 2FA |
-| **Roles/Permisos** | `spatie/laravel-permission` v8 | Tests positivos y negativos |
-| **Excel** | PhpSpreadsheet 5.x | Paridad obligatoria con golden files |
-| **Tests** | PHPUnit / Pest | Sin umbral de cobertura |
+| **Lenguaje** | PHP 8.2 | Requisito de Laravel 12; el servidor ya lo usa en el vhost de Observaciones |
+| **Framework** | Laravel 12.72 | Primera rama con `composer audit` sin avisos |
+| **Base de datos producción** | MySQL 8.0.42, `utf8mb4` | Compartido con `sist_observaciones` |
+| **Base de datos desarrollo** | SQLite (local, L1 — C-008) + MySQL 8 (paridad) | La paridad numérica se valida en MySQL, no en SQLite |
+| **UI** | AdminLTE 3.2 (Bootstrap 4) `dist/` precompilado | Sin Node en producción |
+| **Auth** | Laravel Fortify ^1.10 | Deja abierta la puerta a 2FA (D10) |
+| **Roles/Permisos** | `spatie/laravel-permission` ^5.11 | Tests positivos y negativos |
+| **Excel** | PhpSpreadsheet ^1.29 | Paridad obligatoria con golden files |
+| **Tests** | PHPUnit | Sin umbral de cobertura |
 
 ### Restricciones del servidor confirmadas
 
@@ -122,14 +123,13 @@ Portal web **Laravel + MySQL** (stack por confirmar — ver D-STACK) con:
 | Despliegue | FTP confirmado; SSH probable no confirmado | `sist_observaciones` usa git/composer |
 | Cron | Disponible (worker/minuto en otro vhost) | Confirmado indirectamente |
 
-> **D-STACK ABIERTA** (C-009): La decisión final depende de TI.
-> - Si TI actualiza a PHP 8.3 → Laravel 13 (Opción A1)
-> - Si TI instala PHP-FPM 8.3 → Laravel 13 (Opción A2)
-> - Si no hay cambios → Laravel 8 / PHP 7.4 (Opción B, deuda conocida)
+> **D-STACK CERRADA (C-015, 11-nov-2026):** Laravel **12.72** + PHP **8.2**. Se reabrió en C-014 porque Laravel 8.83.29 acumula 5 avisos de seguridad sin parche posible, uno crítico; se cerró con la primera rama limpia. El despliegue espera a que TI habilite PHP 8.2.
+>
+> La solicitud a TI está en `docs/infra/solicitud-php-82-ti.md`. Historial del cierre anterior: `02-DOCS/wiki/stack/decision-stack.md`.
 
-### Restricciones de la Constitución (v3.0.0)
+### Restricciones de la Constitución (v4.0.0)
 
-1. **Sin código de aplicación mientras D-STACK esté abierta** (Principio 1)
+1. **D-STACK abierta**: no se introduce código de aplicación nuevo hasta cerrarla (Principio 1)
 2. **Validación V0–V11**: código `ENV-###`, severidad, test obligatorio (Principio 6)
 3. **Transiciones de estado**: servicio único, tests válidas y prohibidas (Principio 7)
 4. **RBAC**: test positivo y negativo por permiso (Principio 8)
@@ -155,49 +155,60 @@ Portal web **Laravel + MySQL** (stack por confirmar — ver D-STACK) con:
 | **Despliegue sin sorpresas** | Artefactos construidos en local (vendor, assets, migraciones). |
 | **Tests como especificación** | Un cambio sin test no se fusiona. No hay % de cobertura. |
 | **Decisiones registradas** | Toda decisión significativa en `02-DOCS/wiki/sdd/decisions.md`. |
-| **UI referencia** | Zenith Dashboard (shadcn/ui) como guía visual para L2/L3; L1 usa AdminLTE 4. |
+| **UI referencia** | AdminLTE 3.2 en L1–L3. Zenith Dashboard (shadcn/ui) queda como referencia visual, nunca como dependencia: exige Node y Bootstrap 5. |
 
 ---
 
 ## 10. Decisiones pendientes y limitaciones conocidas
 
-### Decisiones pendientes (bloquean código de aplicación)
+### Estado de las decisiones
 
-| ID | Decisión | Opciones | Bloquea |
-|---|---|---|---|
-| **D-STACK** | Stack final | A1/A2 (Laravel 13) / B (Laravel 8) / C/D/E | Todo código app |
-| **D1** | Fuente de identidad | Cuentas locales / correo institucional / directorio SS | Alta de usuarios |
-| **D4** | Plazo mensual | Día 5/10/15 / variable | Cierre y recordatorios |
-| **D5** | Series obligatorias | Todas / por tipo / histórico | Completitud |
-| **D7** | Puente CARGAS REM | Opción A/B/C | Alcance MVP |
-| **D10** | 2FA | Nadie / admins / revisores+admins / todos | Auth |
+Todas las decisiones de diseño están tomadas. Ninguna bloquea ya el inicio de F1. Registro completo, con fecha, opciones y motivo, en `02-DOCS/wiki/sdd/decisions.md`.
+
+| ID | Decisión | Resuelta como |
+|---|---|---|
+| **D-STACK** | Stack final | ✅ **Laravel 12.72 / PHP 8.2** (C-015) |
+| **D1** | Fuente de identidad | ✅ Cuentas locales (D-001) |
+| **D2** | Unidad de aprobación | ✅ Mixto: envío completo con veto por serie (D-002) |
+| **D3** | Corrección tras aprobado | ✅ Versión automática nueva (D-003) |
+| **D4** | Plazo mensual | ✅ Día 10 configurable por período (D-004) |
+| **D5** | Series obligatorias | ✅ Histórico + override manual (D-005) |
+| **D6** | Tratamiento SAX | ✅ Fuera del MVP, fase futura (D-006) |
+| **D7** | Puente CARGAS REM | ✅ Opción A: descarga manual ZIP (D-007) |
+| **D8** | Notificaciones | ✅ Solo portal, tabla en BD (D-008) |
+| **D9** | Retención | ✅ 5 años (D-009) |
+| **D10** | 2FA | ✅ Revisores y admins (D-010) |
+| **D11** | PHP/Laravel | ✅ Quedarse en PHP 7.4 / Laravel 8 (C-010) |
+| **D12** | Antivirus | 🟡 Abierta — **no bloquea**: validación de tipo real como fallback |
+| **D13** | Respaldos | 🟡 Abierta — **no bloquea**: manual / phpMyAdmin como fallback |
+| **D14** | Migración histórica | 🟡 Abierta — **no bloquea**: proyecto aparte tras el MVP |
 
 ### Limitaciones técnicas conocidas
 
 | Limitación | Impacto | Mitigación |
 |---|---|---|
-| PHP 7.4.3 en producción | Laravel 13 no corre | Esperar decisión TI o caer a Laravel 8 |
-| Sin `pdo_sqlite`, `opcache`, `bcmath` en servidor | Requeridas por Laravel moderno | TI debe instalarlas si se queda en 7.4 |
+| PHP 8.2 aún no habilitado en el servidor | El portal no se despliega hasta que TI lo haga | Solicitud enviada: `docs/infra/solicitud-php-82-ti.md` (C-015) |
+| Sin `pdo_sqlite`, `opcache`, `bcmath` en servidor | Solo afecta SQLite local y opcache; producción usa MySQL | L1 con el SQLite del entorno local; no se depende de opcache |
 | Límite 2 MB/subida | Un mes = ~11 MB (7 archivos) | Subida secuencial obligatoria (ya en diseño) |
-| Sin SSH confirmado | No `artisan` en prod | Artefacto completo + ruta migración one-shot |
+| Sin SSH confirmado | No `artisan` en prod | Artefacto completo + ruta de migración one-shot |
 | MySQL 8.0 EOL | Sin parches desde abril 2026 | Objetivo 8.4 LTS antes de salida |
 
-### Preguntas a TI (bloquean D-STACK)
+### Preguntas a TI (respondidas — C-010)
 
-1. ¿Se puede actualizar Ubuntu 20.04 → 22.04/24.04?
-2. ¿Se puede instalar PHP-FPM 8.3 para el vhost `sist_envios`?
-3. ¿Se pueden habilitar `pdo_sqlite`, `opcache`, `bcmath` en PHP 7.4?
-4. ¿Hay acceso SSH para el usuario del proyecto?
+1. ¿Actualizar Ubuntu 20.04 → 22.04/24.04? → **No prevista.**
+2. ¿Instalar PHP-FPM 8.3 para `sist_envios`? → **No.**
+3. ¿Habilitar `pdo_sqlite`, `opcache`, `bcmath` en PHP 7.4? → **Sin confirmar**; se asume que no y se diseña sin depender de ellas.
+4. ¿Acceso SSH para el usuario del proyecto? → **Probable no confirmado**; el despliegue se diseña por FTP.
 
 ---
 
 ## Verificación de consistencia ✅
 
 - [x] Objetivo se desprende de la información disponible
-- [x] Restricciones explícitas preservadas (PHP 7.4.3, D-STACK, Constitución)
+- [x] Restricciones explícitas preservadas (Constitución v4.0.0, C-015)
 - [x] No se introdujeron funcionalidades nuevas fuera del alcance documentado
-- [x] Propuestas (Laravel 13, Inertia.js) aparecen como condicionales, no decididas
-- [x] Cuestiones desconocidas identificadas como pendientes (D-STACK, D1, D4, D5, D7, D10, preguntas TI)
+- [x] Stack alineado a la Opción B y marcado como provisional por C-014 (resuelve `CONT-01` de `PLAN.md` §17.3)
+- [x] Todas las decisiones de diseño cerradas; D12–D14 no bloquean código
 - [x] No hay especificaciones funcionales detalladas ni arquitectura prematura
 - [x] Documento guarda en `specs/AGENT.md` (ruta canónica)
 
@@ -205,17 +216,24 @@ Portal web **Laravel + MySQL** (stack por confirmar — ver D-STACK) con:
 
 ## Resumen de cambios
 
-**Documento creado** `specs/AGENT.md` consolidando:
+**v2 (2026-11-11)** — Alineación al canon C-010:
 
-1. Contexto del proyecto (ValidadorRem → Portal M7)
-2. Problema real (WinForms, Access, sin roles, sin auditoría)
-3. Solución objetivo (Laravel/MySQL, paridad, roles, auditoría)
-4. Stack elegido condicionalmente (D-STACK abierta)
-5. Restricciones duras del servidor (PHP 7.4.3 confirmado)
-6. Principios de la Constitución v3.0.0
-7. Decisiones pendientes que bloquean código (D-STACK + D1/D4/D5/D7/D10)
-8. Referencia UX al Zenith Dashboard para L2/L3
+1. §4 y §8 dejaron de presentar el stack como pendiente
+2. §8 «Stack elegido (pendiente D-STACK)» → «Stack canon (Opción B — D-STACK cerrada por C-010)»
+3. §8 «D-STACK ABIERTA (C-009)» → «D-STACK CERRADA (C-010)»
+4. §8 restricciones de la Constitución v3.0.0 → v3.1.0
+5. §10 decisiones pendientes → estado de las decisiones (D1–D14)
+6. §10 preguntas a TI marcadas como respondidas
+
+**v1** — Creación del documento: contexto, problema, solución objetivo, stack condicional, restricciones del servidor, principios, decisiones pendientes y referencia UX.
 
 ---
 
 **Archivo guardado en:** `C:\xampp\htdocs\www\Cargas\specs/AGENT.md`
+
+
+
+
+
+
+

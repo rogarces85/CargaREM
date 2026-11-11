@@ -12,6 +12,7 @@ status: borrador_para_firma
 # Política de severidad de validación REM
 
 > **Estado:** Borrador para firma por Unidad de Estadísticas (T-F0-05).
+> **Para firmar:** use la [hoja de firma de una página](hoja-firma-severidad.md). Este documento es el detalle técnico; la hoja es lo que se firma.
 > **Principio 6 (Constitución v3.1.0):** Toda regla V0–V11 tiene código `ENV-###`, severidad asignada y test obligatorio.
 > **Principio 10:** Paridad con *golden files*, tolerancia 0 en numéricos.
 > **Fuente canónica:** `docs/validacion/catalogo-errores-env.md` (catálogo completo ENV-001 a ENV-032).

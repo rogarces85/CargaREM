@@ -2,9 +2,9 @@
 
 > **Ubicación canónica:** `specs/TASK.md`
 > **Fuentes:** `specs/AGENT.md`, `specs/SPECS.md`, `specs/PLAN.md`, `02-DOCS/wiki/sdd/constitution.md` v3.1.0
-> **Stack confirmado (C-010):** Laravel 8.83 + PHP 7.4.3 + MySQL 8.0.42 + AdminLTE 3.2 (Bootstrap 4) + vanilla JS
+> **Stack confirmado (C-015):** Laravel **12.72** + PHP **8.2** + MySQL 8.0.42 + AdminLTE 3.2 (Bootstrap 4) + vanilla JS
 > **Fecha:** 2026-11-10
-> **Estado:** pendiente de ejecución — ninguna tarea verificada en código
+> **Estado (2026-11-11):** F0 redactado — 7 de 10; las 3 restantes esperan personas. **F1 en Laravel 12:** `portal/` corre 12.72.0, migra contra `cargas_rem`, responde por Apache y pasa 4 tests. F2–F6 sin empezar.
 
 ---
 
@@ -31,7 +31,7 @@
 
 ---
 
-## FASE F0 — Descubrimiento y paridad (Gate: D-STACK cerrada C-010)
+## FASE F0 — Descubrimiento y paridad (Gate: D-STACK — reabierta por C-014)
 
 **Objetivo:** Cerrar paridad con **Cargas REM**, fijar decisiones de negocio, preparar *fixtures*.
 **Dependencia:** Ninguna (no es código de aplicación).
@@ -40,13 +40,13 @@
 | ID | Tarea | Descripción | Resultado esperado | Requisito/CA | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
 | **T-F0-01** | **Cerrar D-STACK (C-010)** | Registrar decisión Opción B (Laravel 8.83/PHP 7.4.3) en `02-DOCS/wiki/sdd/decisions.md` y enmendar Constitución a v3.1.0 (MAJOR) | Decisión registrada, Constitución actualizada | PEND-001, CONT-01, CONT-02 | — | `decisions.md` tiene C-010; Constitución v3.1.0 |
-| **T-F0-02** | **Reunir *golden files*** | Obtener 12–20 archivos Excel reales anonimizados (.xls, .xlsx, .xlsm): por serie, mes, con/sin errores, SAX cuando exista | Carpeta `tests/Parity/fixtures/{input,expected}/` poblada | OBJ-01, RIES-01, RIES-03 | — | 12+ archivos en input; salida esperada en expected |
-| **T-F0-03** | **Ejecutar ValidadorRem de referencia** | Correr ValidadorRem en entorno de prueba con `Global.mdb` copia y base vacía; exportar `datos` y `LogError` por cada *fixture* | Salidas de referencia guardadas en `tests/Parity/fixtures/expected/` | OBJ-01, RIES-01 | T-F0-02 | Cada *fixture* tiene par `input → expected` |
+| **T-F0-02** | **Reunir *golden files*** | Obtener 12–20 archivos Excel reales anonimizados (.xls, .xlsx, .xlsm): por serie, mes, con/sin errores, SAX cuando exista | Estructura y `manifest.json` creados ✅; falta poblarla con archivos reales | OBJ-01, RIES-01, RIES-03 | — | 12+ archivos en input; salida esperada en expected | `[~]` |
+| **T-F0-03** | **Ejecutar ValidadorRem de referencia** | Correr ValidadorRem en entorno de prueba con `Global.mdb` copia y base vacía; exportar `datos` y `LogError` por cada *fixture* | Formato de salida definido en `expected/README.md` ✅; faltan las salidas reales | OBJ-01, RIES-01 | T-F0-02 | Cada *fixture* tiene par `input → expected` | `[~]` |
 | **T-F0-04** | **Mapear cabecera y semántica Diccionario/Excep** | Documentar: coordenadas/etiquetas cabecera por plantilla; significado `inicio`/`fin`/`posicion`/`tipo_dato`; estructura `Excep`/`colexcep` | Documento `docs/validacion/paridad-cabecera-diccionario.md` ✅ | RIES-03, RIES-09, DEP-16 | T-F0-03 | Mapa completo; semántica confirmada por negocio | `[x]`
-| **T-F0-05** | **Definir política de severidad** | Revisar cada `ENV-###` con Unidad de Estadísticas; firmar documento: qué es bloqueante/advertencia/info | `docs/validacion/politica-severidad.md` ✅ (borrador para firma) | OBJ-01, RIES-01, DEP-02 | T-F0-04 | Documento firmado por referente negocio | `[x]`
-| **T-F0-06** | **Confirmar matriz de series obligatorias (D5)** | Definir series por establecimiento: histórico + *override* con vigencia; confirmar SAX (D6) | `docs/validacion/matriz-series-obligatorias.md` | D5, D6, DEP-12, DEP-13 | T-F0-05 | Matriz confirmada; SAX documentada |
-| **T-F0-07** | **Confirmar plazos y reglas de cierre (D4)** | Definir día límite configurable por período; regla período `abierto/en_revision/cerrado` | `docs/validacion/reglas-cierre-periodo.md` | D4, DEP-11 | — | Documento confirmado |
-| **T-F0-08** | **Confirmar fuente de identidad (D1) y 2FA (D10)** | Decidir: cuentas locales / correo institucional / directorio SS; 2FA para quién | `docs/auth/decision-identidad-2fa.md` | D1, D10, DEP-10, DEP-15 | — | Decisión registrada |
+| **T-F0-05** | **Definir política de severidad** | Revisar cada `ENV-###` con Unidad de Estadísticas; firmar documento: qué es bloqueante/advertencia/info | `docs/validacion/politica-severidad.md` ✅ (borrador para firma) | OBJ-01, RIES-01, DEP-02 | T-F0-04 | Documento redactado; falta firma del referente de negocio | `[~]` |
+| **T-F0-06** | **Confirmar matriz de series obligatorias (D5)** | Definir series por establecimiento: histórico + *override* con vigencia; confirmar SAX (D6) | `docs/validacion/matriz-series-obligatorias.md` ✅ (borrador para firma) | D5, D6, DEP-12, DEP-13 | T-F0-05 | Matriz redactada; falta confirmación de negocio | `[~]` |
+| **T-F0-07** | **Confirmar plazos y reglas de cierre (D4)** | Definir día límite configurable por período; regla período `abierto/en_revision/cerrado` | `docs/validacion/reglas-cierre-periodo.md` ✅ (borrador para firma) | D4, DEP-11 | — | Documento redactado; falta confirmación de negocio | `[~]` |
+| **T-F0-08** | **Confirmar fuente de identidad (D1) y 2FA (D10)** | Decidir: cuentas locales / correo institucional / directorio SS; 2FA para quién | `docs/auth/decision-identidad-2fa.md` ✅ (borrador para firma) | D1, D10, DEP-10, DEP-15 | — | Documento redactado; falta confirmación de negocio | `[~]` |
 | **T-F0-09** | **Preparar catálogo de errores `ENV-###`** | Lista completa `ENV-001` a `ENV-032` con mensaje usuario, severidad, etapa, acción sugerida | `docs/validacion/catalogo-errores-env.md` ✅ | RF-019, MOD-04, DEP-16 | T-F0-05 | Catálogo completo coincidente con SPECS §20.1 | `[x]`
 | **T-F0-10** | **Definir *fixtures* de permisos (RBAC)** | Matriz 18 permisos × 4 roles con tests pos/neg esperados | `tests/Parity/fixtures/rbac-matrix.json` ✅ | MOD-01, MOD-02, PRINCIPIO 8 | T-F0-08 | Archivo JSON con casos de prueba | `[x]`
 
@@ -62,57 +62,78 @@
 
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
-| **T-F1-01** | **Crear proyecto Laravel 8.83** | `composer create-project laravel/laravel:^8.83 portal --prefer-dist` en `Cargas/portal/` | Proyecto base instalado | TEC-01 | F0 | `portal/artisan --version` = 8.83.x |
-| **T-F1-02** | **Configurar `composer.json` platform php 7.4.3** | Añadir `"platform": {"php": "7.4.3"}` y `"config": {"platform-check": false}` | `vendor/` compatible con prod | TEC-01, TEC-14 | T-F1-01 | `composer show --platform` muestra php 7.4.3 |
-| **T-F1-03** | **Instalar dependencias base** | `composer require spatie/laravel-permission:^5.11 laravel/fortify:^1.10 phpoffice/phpspreadsheet:^1.29 yajra/laravel-datatables-oracle:^9.21 laravel/sanctum:^2.15` | Paquetes instalados | TEC-04, TEC-06, TEC-07, TEC-10, TEC-11 | T-F1-02 | `composer show` lista paquetes correctos |
-| **T-F1-04** | **Configurar `.env.example` y `.env` local** | Copiar `.env.example` del PLAN §2.4; ajustar DB local (SQLite) | Variables listas | TEC-02, TEC-03 | T-F1-03 | `.env` existe; `php artisan migrate` corre en SQLite |
-| **T-F1-05** | **Configurar base de datos dual** | `config/database.php`: `sqlite` por defecto (testing), `mysql` para paridad (Docker) | Dual DB configurada | C-008, TEC-03 | T-F1-04 | `php artisan migrate --database=sqlite` OK |
-| **T-F1-06** | **Publicar assets AdminLTE 3.2** | Descargar AdminLTE 3.2 `dist/` → `public/assets/adminlte/`; Chart.js, DataTables, Select2, Flatpickr, SweetAlert2 builds Bootstrap 4 | Assets servibles sin Node | TEC-05 | T-F1-03 | `public/assets/adminlte/` existe con CSS/JS |
-| **T-F1-07** | **Configurar `config/rem.php`** | Crear archivo con claves: `archivos`, `validacion`, `series`, `paquete` (ver PLAN §11.4) | Config centralizada | TEC-01, MOD-02, MOD-03, MOD-04 | T-F1-03 | `config('rem.archivos.max_kb')` = 2048 |
-| **T-F1-08** | **Configurar zona horaria y locale** | `config/app.php`: `timezone = 'America/Santiago'`, `locale = 'es'`, `fallback_locale = 'es'` | App en español CL | C-005, RNF-016 | T-F1-01 | `Carbon::now()->timezoneName` = America/Santiago |
-| **T-F1-09** | **Configurar logging y health check** | `config/logging.php`: canales `validacion`, `seguridad`, `correo`; rota diaria 90 días. Ruta `/health` (GET) chequea DB + storage escritura | Logs estructurados + health | RNF-016, MOD-11 | T-F1-03 | `GET /health` → 200 JSON `{db:ok, storage:ok}` |
-
+| **T-F1-01** | **Crear proyecto Laravel 12.72** | `composer create-project "laravel/laravel:^12" portal --prefer-dist` en `Cargas/portal/`. El esqueleto 12.x instala `laravel/framework` 12.72 | Proyecto base instalado | TEC-01 | F0 | `portal/artisan --version` = 12.72.0 → **verificado** | `[x]` |
+| **T-F1-02** | **Fijar el PHP de plataforma** | `composer.json` exige `php ^8.2`. Sin `platform` override: el PHP local y el del servidor objetivo coinciden en 8.2 | `vendor/` compatible con prod | TEC-01, TEC-14 | T-F1-01 | `composer check-platform-reqs` en verde | `[x]` |
+| **T-F1-03** | **Instalar dependencias base** | `spatie/laravel-permission ^6.25`, `laravel/fortify ^1.42`, `yajra/laravel-datatables-oracle ^12.7`, `phpoffice/phpspreadsheet ^5.11` (la 5.x exige PHP 8.1+). **`composer audit` sin avisos** | Paquetes instalados | TEC-04, TEC-06, TEC-07, TEC-10, TEC-11 | T-F1-02 | `composer show` lista paquetes correctos → **verificado** | `[x]` |
+| **T-F1-04** | **Configurar `.env.example` y `.env` local** | `.env.example` con MariaDB `cargas_rem`, `America/Santiago`, `es`, sesión 480 min y `MAIL_MAILER=log` | Variables listas | TEC-02, TEC-03 | T-F1-03 | `php artisan migrate` corre contra `cargas_rem` | `[x]` |
+| **T-F1-05** | **Configurar base de datos dual** | `config/database.php`: MySQL/MariaDB para desarrollo y paridad; SQLite solo para la suite rápida. `sql_mode` estricto explícito para igualar producción | Dual DB configurada | C-008, C-011, TEC-03 | T-F1-04 | `@@sql_mode` incluye `STRICT_TRANS_TABLES` → **verificado** | `[x]` |
+| **T-F1-06** | **Publicar assets AdminLTE 3.2** | AdminLTE 3.2.0 desde el tag `v3.2.0`: `dist/` minificado + 20 plugins (jQuery, Bootstrap 4, FontAwesome, Chart.js, DataTables + bs4/buttons/responsive, Select2 + tema, SweetAlert2 + tema, OverlayScrollbars, Toastr, Inputmask, jQuery-Validation, Pace, Popper, Moment, Tempusdominus) en `public/assets/adminlte/` | Assets servibles sin Node | TEC-05 | T-F1-03 | CSS y JS responden 200 → **verificado** (18,8 MB, 610 archivos) | `[x]` |
+| **T-F1-07** | **Configurar `config/rem.php`** | Crear archivo con claves: `archivos`, `validacion`, `series`, `paquete` (ver PLAN §11.4) | Config centralizada | TEC-01, MOD-02, MOD-03, MOD-04 | T-F1-03 | `config('rem.archivos.max_kb')` = 2048 | `[x]` |
+| **T-F1-08** | **Configurar zona horaria y locale** | `config/app.php`: `timezone = env('APP_TIMEZONE', 'America/Santiago')`, `locale = 'es'`, `fallback_locale = 'es'`, `faker_locale = 'es_CL'` | App en español CL | C-005, RNF-016 | T-F1-01 | `now()->timezoneName` = America/Santiago → **verificado** | `[x]` |
+| **T-F1-09** | **Configurar logging y health check** | `config/logging.php`: canales `validacion`, `seguridad`, `correo` (daily, 90 días). `GET /health` con `HealthController`: comprueba DB y escritura+lectura en `storage`, devuelve 503 y no filtra el mensaje de la excepción | Logs estructurados + health | RNF-016, MOD-11 | T-F1-03 | `GET /health` → 200 JSON → **verificado**, con 2 tests que cubren también el 503 | `[x]` |
 ### F1.2 — Autenticación y RBAC (MOD-01)
 
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
-| **T-F1-10** | **Ejecutar Fortify (backend auth)** | `php artisan vendor:publish --provider="Laravel\Fortify\FortifyServiceProvider"`; configurar `FortifyServiceProvider` (login, password reset, email verification off) | Auth backend listo | RF-001, RF-002, RF-004, TEC-06 | T-F1-07 | Rutas `/login`, `/logout`, `/password/reset` funcionan |
-| **T-F1-11** | **Crear vistas Blade auth (login, reset, email)** | `resources/views/auth/login.blade.php`, `forgot-password.blade.php`, `reset-password.blade.php` con AdminLTE 3.2 + CSRF + mensajes español + códigos `APP-###` | UI auth completa | RF-001, RF-002, RF-004, RNF-014 | T-F1-10, T-F1-06 | Pantallas renderizan; validación cliente + servidor |
-| **T-F1-12** | **Configurar sesión segura** | `config/session.php`: `secure=true`, `http_only=true`, `same_site=lax`, `lifetime=480`, `expire_on_close=false` | Sesión endurecida | RNF-009, RNF-012 | T-F1-10 | Cookie `laravel_session` tiene flags correctos |
-| **T-F1-13** | **Instalar y configurar `spatie/laravel-permission`** | `php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"`; migración + `HasRoles` trait en `User` | RBAC listo | RF-013, MOD-01, TEC-07 | T-F1-10 | `php artisan permission:show` funciona |
-| **T-F1-14** | **Crear seeder de roles y permisos (18 permisos × 4 roles)** | Seeder `RolePermissionSeeder`: roles `encargado`, `revisor`, `admin`, `consulta`; permisos tabla SPECS §3.2 | Datos base RBAC | RF-013, PRINCIPIO 8 | T-F1-13 | `php artisan db:seed --class=RolePermissionSeeder` OK |
-| **T-F1-15** | **Crear Policies base** | `EnvioPolicy`, `ArchivoPolicy`, `CatalogoPolicy`, `UsuarioPolicy` con métodos `view`, `create`, `update`, `delete`, `download`, `approve`, `reopen` | Autorización declarativa | RN-ENV-1, RN-ENV-7, RN-ENV-8, RN-ENV-9, MOD-01 | T-F1-14 | Policies registradas en `AuthServiceProvider` |
-| **T-F1-16** | **Implementar *query scopes* de aislamiento** | `Envio::scopeForUser($user)`, `EnvioArchivo::scopeForUser($user)` aplican `whereIn establecimiento_id` desde pivot | Aislamiento en consulta | RN-ENV-1, PRINCIPIO 18 | T-F1-15 | SQL generado incluye `WHERE establecimiento_id IN (...)` |
-| **T-F1-17** | **Tests auth + RBAC (unit + feature)** | Tests: login/logout/throttle (CA-001, CA-002, CA-004); CRUD usuarios (CA-013 a CA-016); **pos/neg por cada permiso** (PRINCIPIO 8) | Suite verde | CA-001, CA-002, CA-004, CA-013 a CA-016, PRINCIPIO 8 | T-F1-14, T-F1-15 | `php artisan test --filter=Auth` y `--filter=Permission` pasan |
+| **T-F1-10** | **Ejecutar Fortify (backend auth)** | `php artisan vendor:publish --provider="Laravel\Fortify\FortifyServiceProvider"`; configurar `FortifyServiceProvider` (login, password reset, email verification off) | Auth backend listo | RF-001, RF-002, RF-004, TEC-06 | T-F1-07 | Rutas `/login`, `/logout`, `/password/reset` funcionan | `[x]` |
+| **T-F1-11** | **Crear vistas Blade auth (login, reset, email)** | `resources/views/auth/login.blade.php`, `forgot-password.blade.php`, `reset-password.blade.php` con AdminLTE 3.2 + CSRF + mensajes español + códigos `APP-###` | UI auth completa | RF-001, RF-002, RF-004, RNF-014 | T-F1-10, T-F1-06 | Pantallas renderizan; validación cliente + servidor | `[x]` |
+| **T-F1-12** | **Configurar sesión segura** | `config/session.php`: `secure=true`, `http_only=true`, `same_site=lax`, `lifetime=480`, `expire_on_close=false` | Sesión endurecida | RNF-009, RNF-012 | T-F1-10 | Cookie `laravel_session` tiene flags correctos | `[x]` |
+| **T-F1-13** | **Instalar y configurar `spatie/laravel-permission`** | `php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"`; migración + `HasRoles` trait en `User` | RBAC listo | RF-013, MOD-01, TEC-07 | T-F1-10 | `php artisan permission:show` funciona | `[x]` |
+| **T-F1-14** | **Crear seeder de roles y permisos (18 permisos × 4 roles)** | Seeder `RolePermissionSeeder`: roles `encargado`, `revisor`, `admin`, `consulta`; permisos tabla SPECS §3.2 | Datos base RBAC | RF-013, PRINCIPIO 8 | T-F1-13 | `php artisan db:seed --class=RolePermissionSeeder` OK | `[x]` |
+| **T-F1-15** | **Crear Policies base** | `EnvioPolicy`, `ArchivoPolicy`, `CatalogoPolicy`, `UsuarioPolicy` con métodos `view`, `create`, `update`, `delete`, `download`, `approve`, `reopen` | Autorización declarativa | RN-ENV-1, RN-ENV-7, RN-ENV-8, RN-ENV-9, MOD-01 | T-F1-14 | Policies registradas en `AuthServiceProvider` | `[~]` |
+| **T-F1-16** | **Implementar *query scopes* de aislamiento** | `Envio::scopeForUser($user)`, `EnvioArchivo::scopeForUser($user)` aplican `whereIn establecimiento_id` desde pivot | Aislamiento en consulta | RN-ENV-1, PRINCIPIO 18 | T-F1-15 | SQL generado incluye `WHERE establecimiento_id IN (...)` | `[~]` |
+| **T-F1-17** | **Tests auth + RBAC (unit + feature)** | Tests: login/logout/throttle (CA-001, CA-002, CA-004); CRUD usuarios (CA-013 a CA-016); **pos/neg por cada permiso** (PRINCIPIO 8) | Suite verde | CA-001, CA-002, CA-004, CA-013 a CA-016, PRINCIPIO 8 | T-F1-14, T-F1-15 | `php artisan test --filter=Auth` y `--filter=Permission` pasan | `[x]` |
 
 ### F1.3 — Catálogos y estructura base (MOD-02)
 
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
-| **T-F1-18** | **Migraciones catálogos (DAT-01 a DAT-06, DAT-11 a DAT-16)** | Migraciones para: `servicios`, `establecimientos`, `series`, `periodos`, `establecimiento_serie`, `catalogo_snapshots`, `plantillas`, `plantilla_hojas`, `plantilla_cabecera`, `diccionario`, `excepciones`, `usuario_establecimiento` | Esquema completo | DAT-01 a DAT-16, MOD-02 | T-F1-05 | `php artisan migrate` crea todas las tablas con FK/UK/índices |
-| **T-F1-19** | **Modelos Eloquent catálogos** | Clases `Servicio`, `Establecimiento`, `Serie`, `Periodo`, `EstablecimientoSerie`, `CatalogoSnapshot`, `Plantilla`, `PlantillaHoja`, `PlantillaCabecera`, `Diccionario`, `Excepcion` con `$fillable`, relaciones, casts, scopes | Modelos listos | DAT-01 a DAT-16 | T-F1-18 | `Servicio::first()->establecimientos` carga relación |
-| **T-F1-20** | **Importador CSV/ZIP (CatalogoService::importarSnapshot)** | Servicio que: valida ZIP (columnas, encoding, conteos referencia, duplicados), carga tablas espejo en transacción, crea `CatalogoSnapshot` `activo=0` | Importación robusta | RF-005, RF-006, MOD-02, DEP-03 | T-F1-19 | ZIP válido → snapshot inactivo con conteos correctos |
-| **T-F1-21** | **Activar snapshot (único activo)** | `CatalogoService::activarSnapshot($id)`: transacción desactiva anterior + activa nuevo; evento auditoría | Un solo activo | RF-006, MOD-02 | T-F1-20 | Solo 1 fila `activo=1`; auditoría registra cambio |
-| **T-F1-22** | **CRUD Admin catálogos (UI Blade)** | Controladores `Admin\ServicioController`, `EstablecimientoController`, `SerieController`, `PeriodoController`, `PlantillaController`, `CatalogoSnapshotController` + vistas `admin/catalogos/*` con AdminLTE 3.2 | UI admin completa | RF-007 a RF-012, CA-007 a CA-012 | T-F1-19, T-F1-11 | Admin crea/edita/activa; validaciones server-side |
-| **T-F1-23** | **Matriz establecimiento-serie (CRUD + vigencia)** | UI para `establecimiento_serie`: obligatoria, `vigente_desde/hasta`, *override* manual | Reglas D5 configurables | RF-011, DEP-12 | T-F1-22 | Matriz editable; vigencia respetada en consultas |
-| **T-F1-24** | **Tests catálogos (feature + unit)** | Tests: importar snapshot válido/inválido (CA-005, CA-006); activar único (CA-006); CRUD cada entidad; conteos referencia | Suite verde | CA-005 a CA-012, PRINCIPIO 6 | T-F1-20, T-F1-22 | `php artisan test --filter=Catalogo` pasa |
+| **T-F1-18** | **Migraciones catálogos (DAT-01 a DAT-06, DAT-11 a DAT-16)** | Migraciones para: `servicios`, `establecimientos`, `series`, `periodos`, `establecimiento_serie`, `catalogo_snapshots`, `plantillas`, `plantilla_hojas`, `plantilla_cabecera`, `diccionario`, `excepciones`, `usuario_establecimiento` | Esquema completo | DAT-01 a DAT-16, MOD-02 | T-F1-05 | `php artisan migrate` crea todas las tablas con FK/UK/índices | `[x]` |
+| **T-F1-19** | **Modelos Eloquent catálogos** | Clases `Servicio`, `Establecimiento`, `Serie`, `Periodo`, `EstablecimientoSerie`, `CatalogoSnapshot`, `Plantilla`, `PlantillaHoja`, `PlantillaCabecera`, `Diccionario`, `Excepcion` con `$fillable`, relaciones, casts, scopes | Modelos listos | DAT-01 a DAT-16 | T-F1-18 | `Servicio::first()->establecimientos` carga relación | `[x]` |
+| **T-F1-20** | **Importador CSV/ZIP (CatalogoService::importarSnapshot)** | Servicio que: valida ZIP (columnas, encoding, conteos referencia, duplicados), carga tablas espejo en transacción, crea `CatalogoSnapshot` `activo=0` | Importación robusta | RF-005, RF-006, MOD-02, DEP-03 | T-F1-19 | ZIP válido → snapshot inactivo con conteos correctos | `[x]` |
+| **T-F1-21** | **Activar snapshot (único activo)** | `CatalogoService::activarSnapshot($id)`: transacción desactiva anterior + activa nuevo; evento auditoría | Un solo activo | RF-006, MOD-02 | T-F1-20 | Solo 1 fila `activo=1`; auditoría registra cambio | `[x]` |
+| **T-F1-22** | **CRUD Admin catálogos (UI Blade)** | Controladores `Admin\ServicioController`, `EstablecimientoController`, `SerieController`, `PeriodoController`, `PlantillaController`, `CatalogoSnapshotController` + vistas `admin/catalogos/*` con AdminLTE 3.2 | UI admin completa | RF-007 a RF-012, CA-007 a CA-012 | T-F1-19, T-F1-11 | Admin crea/edita/activa; validaciones server-side | `[x]` |
+| **T-F1-23** | **Matriz establecimiento-serie (CRUD + vigencia)** | UI para `establecimiento_serie`: obligatoria, `vigente_desde/hasta`, *override* manual | Reglas D5 configurables | RF-011, DEP-12 | T-F1-22 | Matriz editable; vigencia respetada en consultas | `[x]` |
+| **T-F1-24** | **Tests catálogos (feature + unit)** | Tests: importar snapshot válido/inválido (CA-005, CA-006); activar único (CA-006); CRUD cada entidad; conteos referencia | Suite verde | CA-005 a CA-012, PRINCIPIO 6 | T-F1-20, T-F1-22 | `php artisan test --filter=Catalogo` pasa | `[x]` |
 
 ### F1.4 — Auditoría transversal (MOD-08)
 
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
-| **T-F1-25** | **Migración tabla `auditoria` (DAT-16)** | `auditoria`: `usuario_id`, `evento`, `entidad`, `entidad_id`, `datos` (JSON), `ip`, `user_agent`, `created_at`; índices | Esquema listo | RF-037, DAT-16 | T-F1-18 | Migración crea tabla con índices |
-| **T-F1-26** | **AuditoriaService::registrar()** | Método estático: inserta fila en transacción actual; sin UPDATE/DELETE posibles desde UI | Append-only garantizado | RF-037, MOD-08, PRINCIPIO 21 | T-F1-25 | `Auditoria::count()` solo sube; no hay `update`/`delete` en policies |
-| **T-F1-27** | **Observadores/Listeners para eventos automáticos** | `Login/Logout/Failed` → auditoría; `ModelObservers` en `Envio`, `EnvioArchivo`, `Observacion`, `EnvioTransicion`, `CatalogoSnapshot` | Auditoría automática | RF-037, MOD-08 | T-F1-26, T-F1-15 | Cada acción critica deja fila en `auditoria` |
-| **T-F1-28** | **UI Admin auditoría (filtros + lista)** | `Admin\AuditoriaController` + vista `admin/auditoria/index.blade.php`: filtros usuario/evento/entidad/fecha, paginación servidor | Consulta funcional | RF-037, CA-037 | T-F1-27, T-F1-11 | Filtros funcionan; no hay botón editar/borrar |
-| **T-F1-29** | **Tests auditoría (inmutabilidad + cobertura)** | Test: inserta fila, intenta update/delete → falla; verifica eventos: login, upload, download, validar, observar, aprobar, reaperturar, cargar, importar, permiso | CA-037, PRINCIPIO 21 | T-F1-27 | `php artisan test --filter=Auditoria` pasa |
+| **T-F1-25** | **Migración tabla `auditoria` (DAT-16)** | `auditoria`: `usuario_id`, `evento`, `entidad`, `entidad_id`, `datos` (JSON), `ip`, `user_agent`, `created_at`; índices | Esquema listo | RF-037, DAT-16 | T-F1-18 | Migración crea tabla con índices | `[x]` |
+| **T-F1-26** | **AuditoriaService::registrar()** | Método estático: inserta fila en transacción actual; sin UPDATE/DELETE posibles desde UI | Append-only garantizado | RF-037, MOD-08, PRINCIPIO 21 | T-F1-25 | `Auditoria::count()` solo sube; no hay `update`/`delete` en policies | `[x]` |
+| **T-F1-27** | **Observadores/Listeners para eventos automáticos** | `Login/Logout/Failed` → auditoría; `ModelObservers` en `Envio`, `EnvioArchivo`, `Observacion`, `EnvioTransicion`, `CatalogoSnapshot` | Auditoría automática | RF-037, MOD-08 | T-F1-26, T-F1-15 | Cada acción critica deja fila en `auditoria` | `[x]` |
+| **T-F1-28** | **UI Admin auditoría (filtros + lista)** | `Admin\AuditoriaController` + vista `admin/auditoria/index.blade.php`: filtros usuario/evento/entidad/fecha, paginación servidor | Consulta funcional | RF-037, CA-037 | T-F1-27, T-F1-11 | Filtros funcionan; no hay botón editar/borrar | `[x]` |
+| **T-F1-29** | **Tests auditoría (inmutabilidad + cobertura)** | Test: inserta fila, intenta update/delete → falla; verifica eventos: login, upload, download, validar, observar, aprobar, reaperturar, cargar, importar, permiso | CA-037, PRINCIPIO 21 | T-F1-27 | `php artisan test --filter=Auditoria` pasa | `[x]` |
 
 ### F1.5 — Seed mínimo L1 y verificación fase
 
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
-| **T-F1-30** | **Seeder mínimo L1 (datos de prueba)** | `L1MinimumSeeder`: 1 Servicio (SS Osorno), 7 establecimientos (1/comuna), 7 series (A,BS,BM,D,P,F,SAX), 3–6 períodos, matriz establec-serie todas obligatorias, 4 users (1 admin, 1 revisor, 2 encargados), pivot user-establec (2 encarg × 3-4 establec) | Datos base consistentes | PLAN §8.2, DEP-03 | T-F1-14, T-F1-23 | `php artisan db:seed --class=L1MinimumSeeder` OK |
-| **T-F1-31** | **Verificación de fase F1 (DoD)** | Checklist: [ ] Login/logout/throttle [ ] RBAC 4 roles/18 permisos tests pos/neg [ ] Admin importa snapshot → conteos OK [ ] CRUD catálogos funciona [ ] Auditoría append-only registra todo [ ] Seed mínimo cargado [ ] Health check OK | Fase F1 cerrada | CA-001 a CA-016, CA-005 a CA-012, CA-037, PRINCIPIO 1,2,3,6,7,8,18,21 | T-F1-17, T-F1-24, T-F1-29, T-F1-30 | Todos los checks marcan ✅; `php artisan test` suite F1 verde |
+| **T-F1-30** | **Seeder mínimo L1 (datos de prueba)** | `L1MinimumSeeder`: 1 Servicio (SS Osorno), 7 establecimientos (1/comuna), 7 series (A,BS,BM,D,P,F,SAX), 3–6 períodos, matriz establec-serie todas obligatorias, 4 users (1 admin, 1 revisor, 2 encargados), pivot user-establec (2 encarg × 3-4 establec) | Datos base consistentes | PLAN §8.2, DEP-03 | T-F1-14, T-F1-23 | `php artisan db:seed --class=L1MinimumSeeder` OK | `[x]` |
+| **T-F1-31** | **Verificación de fase F1 (DoD)** | Checklist: [x] Login/logout/throttle [x] RBAC 4 roles/18 permisos tests pos/neg [x] Admin importa snapshot → conteos OK [x] CRUD catálogos funciona [x] Auditoría append-only registra todo [x] Seed mínimo cargado [x] Health check OK | Fase F1 cerrada | CA-001 a CA-016, CA-005 a CA-012, CA-037, PRINCIPIO 1,2,3,6,7,8,18,21 | T-F1-17, T-F1-24, T-F1-29, T-F1-30 | Todos los checks marcan ✅; `php artisan test` suite F1 verde → **69 tests, 252 aserciones** | `[x]` |
+
+---
+
+## Verificación de la fase F1 (2026-11-11)
+
+| Check | Evidencia |
+|---|---|
+| Laravel y PHP | **12.72.0** sobre **PHP 8.2.12** |
+| `composer audit` | sin avisos |
+| Base de datos | `cargas_rem` en MariaDB, `@@sql_mode` con `STRICT_TRANS_TABLES` |
+| Zona horaria y locale | `America/Santiago` · `es` |
+| Migraciones | corren en MariaDB **y** en SQLite |
+| HTTP | `/`, `/login` y `/health` responden **200** |
+| Login / logout / throttle | 3 tests, incluido el bloqueo al sexto intento con mensaje en español |
+| RBAC | 4 roles, **18 permisos**, **72 comprobaciones** (18 × 4) contra el fixture |
+| Importación real | 200.367 filas en **15,6 s**; 1.129 hojas, 939 plantillas, 86 establecimientos |
+| CRUD de catálogos y usuarios | 26 tests; un encargado recibe 403 en todas las rutas de administración |
+| Auditoría | append-only con inmutable comprobado; login, fallo, importación y activación registrados |
+| Seed mínimo | 7 establecimientos, 6 series activas + SAX inactiva, 6 períodos, 4 usuarios, 42 filas de matriz |
+| Suite completa | **69 tests, 252 aserciones, 0 fallos** |
+
+**Pendiente y trasladado a F2:** T-F1-15 y T-F1-16 (policies y *query scopes* de `Envio`, `EnvioArchivo` y `Observacion`) no se pueden escribir hasta que existan esos modelos en F2.1. El resto de F1 está cerrado y verificado.
 
 ---
 
@@ -388,38 +409,47 @@ F0 (T-F0-01..10)
 
 ---
 
-## Estado actual del proyecto (a 2026-11-10)
+## Estado actual del proyecto (a 2026-11-11)
 
-| Fase | Tareas totales | Pendientes | Completadas | Bloqueadas |
+| Fase | Tareas | Completadas | En progreso | Pendientes |
 |---|---|---|---|---|
-| **F0** | 10 | 6 | 4 | 0 (D-STACK cerrada C-010) |
-| **F1** | 31 | 31 | 0 | 0 (**D1, D4, D5, D6 resueltas**) |
-| **F2** | 31 | 31 | 0 | 0 (tras F1) |
-| **F3** | 14 | 14 | 0 | 0 (tras F2) |
-| **F4** | 5 | 5 | 0 | 0 (tras F2) |
-| **F5** | 5 | 5 | 0 | 0 (tras F3) |
-| **F6** | 16 | 16 | 0 | 0 (tras F3–F5) |
-| **TOTAL** | **112** | **108** | **4** | **0 decisiones** |
+| **F0** | 10 | 7 | 3 | 0 |
+| **F1** | 31 | 29 | 2 | 0 |
+| **F2** | 31 | 0 | 0 | 31 |
+| **F3** | 14 | 0 | 0 | 14 |
+| **F4** | 5 | 0 | 0 | 5 |
+| **F5** | 5 | 0 | 0 | 5 |
+| **F6** | 16 | 0 | 0 | 16 |
+| **TOTAL** | **112** | **36** | **5** | **71** |
 
-> **Nota:** Ninguna tarea ha sido verificada en código real. El estado refleja solo planificación. Al iniciar implementación, actualizar casillas `[ ]` → `[~]` → `[x]` con evidencia (commit hash, test output, screenshot).
+**F0 — las 7 completadas:** T-F0-01 (C-010), 04, 06, 07, 08, 09, 10.
+**F0 — las 3 en progreso, todas esperando a personas:**
+
+| Tarea | Qué falta | Quién |
+|---|---|---|
+| T-F0-02 | Poblar `tests/Parity/fixtures/input/` con 12–20 archivos reales anonimizados | Unidad de Estadísticas |
+| T-F0-03 | Ejecutar el ValidadorRem sobre cada uno y exportar `datos` + `LogError` | TI / referente técnico |
+| T-F0-05 | Firmar `docs/validacion/politica-severidad.md` | Referente de negocio |
+
+> **Ajuste de orden (2026-11-11):** T-F1-15 y T-F1-16 crean policies y *query scopes* sobre los modelos Envio, EnvioArchivo y Observacion, que nacen en F2.1. Quedan en progreso: la estructura de autorización (roles, permisos, middleware y policies de User) existe, pero las policies de envío se escriben cuando existan sus modelos.
+
+> **Nota:** nada de esto ha sido verificado en código real. El estado refleja documentos y planificación. Al implementar, actualizar `[ ]` → `[~]` → `[x]` con evidencia (commit, salida de test, captura).
 
 ---
 
 ## Próximos pasos inmediatos
 
-1. **Ejecutar T-F0-01** (registrar C-010) — ya decidida en conversación y documentada.
-2. **Ejecutar T-F0-02..10** en paralelo (golden files, decisiones, catálogo errores) — 1–2 semanas.
-   - T-F0-02..03: Reunir 12-20 archivos reales anonimizados + ejecutar ValidadorRem
-   - T-F0-04: Mapear cabecera + semántica Diccionario/Excep
-   - T-F0-05: Firmar política de severidad con Unidad Estadísticas
-   - T-F0-06: Confirmar matriz series (✅ **D5 resuelto: histórico + override manual**)
-   - T-F0-07: Confirmar reglas cierre (✅ **D4 resuelto: día 10 configurable**)
-   - T-F0-08: Confirmar identidad (✅ **D1 resuelto: cuentas locales**)
-   - T-F0-09: Catálogo errores ENV-001 a ENV-032
-   - T-F0-10: Fixtures RBAC (18 permisos × 4 roles)
-3. **Iniciar F1** con T-F1-01 (proyecto Laravel) en cuanto F0 avance.
-4. **Decisiones pendientes restantes**: D12, D13, D14 (TI: antivirus, respaldos, migración histórica).
+1. **Arrancar F1 con T-F1-01** (`composer create-project laravel/laravel:^8.83`). Ninguna decisión lo bloquea: C-010 está cerrada y D1, D4, D5, D6 y D10 están resueltas.
+2. **Las 3 tareas de F0 que quedan son humanas**, no de código, y corren en paralelo:
+   - T-F0-02/03 — reunir los archivos y generar los *expected* (bloquea F2, no F1).
+   - T-F0-05 — firmar la política de severidad (bloquea F2, no F1).
+   - T-F0-06/07/08 — los documentos ya están redactados; solo falta que negocio los confirme.
+3. **Decisiones abiertas:** D12, D13 y D14. Ninguna bloquea el MVP y todas tienen *fallback*. Se cierran con TI cuando toque F6.
 
 ---
 
 **Archivo guardado en:** `C:\xampp\htdocs\www\Cargas\specs\TASK.md`
+
+
+
+
