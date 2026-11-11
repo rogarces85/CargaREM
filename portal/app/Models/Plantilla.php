@@ -13,7 +13,7 @@ class Plantilla extends Model
 
     protected $table = 'plantillas';
 
-    protected $fillable = ['anio', 'mes', 'serie_id', 'serie_excel', 'version', 'snapshot_id'];
+    protected $fillable = ['anio', 'mes', 'serie_id', 'serie_excel', 'serie_interna', 'version', 'snapshot_id'];
 
     protected function casts(): array
     {

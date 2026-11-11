@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
@@ -20,6 +21,7 @@ class User extends Authenticatable
         'email',
         'password',
         'activo',
+        'servicio_id',
     ];
 
     /**
@@ -43,6 +45,15 @@ class User extends Authenticatable
             'password'          => 'hashed',
             'activo'            => 'boolean',
         ];
+    }
+
+    /**
+     * Servicio de Salud del usuario. Define el alcance de revisor y consulta
+     * (RN-ENV-1).
+     */
+    public function servicio(): BelongsTo
+    {
+        return $this->belongsTo(Servicio::class);
     }
 
     /**

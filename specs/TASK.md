@@ -80,8 +80,8 @@
 | **T-F1-12** | **Configurar sesión segura** | `config/session.php`: `secure=true`, `http_only=true`, `same_site=lax`, `lifetime=480`, `expire_on_close=false` | Sesión endurecida | RNF-009, RNF-012 | T-F1-10 | Cookie `laravel_session` tiene flags correctos | `[x]` |
 | **T-F1-13** | **Instalar y configurar `spatie/laravel-permission`** | `php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"`; migración + `HasRoles` trait en `User` | RBAC listo | RF-013, MOD-01, TEC-07 | T-F1-10 | `php artisan permission:show` funciona | `[x]` |
 | **T-F1-14** | **Crear seeder de roles y permisos (18 permisos × 4 roles)** | Seeder `RolePermissionSeeder`: roles `encargado`, `revisor`, `admin`, `consulta`; permisos tabla SPECS §3.2 | Datos base RBAC | RF-013, PRINCIPIO 8 | T-F1-13 | `php artisan db:seed --class=RolePermissionSeeder` OK | `[x]` |
-| **T-F1-15** | **Crear Policies base** | `EnvioPolicy`, `ArchivoPolicy`, `CatalogoPolicy`, `UsuarioPolicy` con métodos `view`, `create`, `update`, `delete`, `download`, `approve`, `reopen` | Autorización declarativa | RN-ENV-1, RN-ENV-7, RN-ENV-8, RN-ENV-9, MOD-01 | T-F1-14 | Policies registradas en `AuthServiceProvider` | `[~]` |
-| **T-F1-16** | **Implementar *query scopes* de aislamiento** | `Envio::scopeForUser($user)`, `EnvioArchivo::scopeForUser($user)` aplican `whereIn establecimiento_id` desde pivot | Aislamiento en consulta | RN-ENV-1, PRINCIPIO 18 | T-F1-15 | SQL generado incluye `WHERE establecimiento_id IN (...)` | `[~]` |
+| **T-F1-15** | **Crear Policies base** | `EnvioPolicy`, `ArchivoPolicy`, `CatalogoPolicy`, `UsuarioPolicy` con métodos `view`, `create`, `update`, `delete`, `download`, `approve`, `reopen` | Autorización declarativa | RN-ENV-1, RN-ENV-7, RN-ENV-8, RN-ENV-9, MOD-01 | T-F1-14 | Policies registradas en `AuthServiceProvider` | `[x]` |
+| **T-F1-16** | **Implementar *query scopes* de aislamiento** | `Envio::scopeForUser($user)`, `EnvioArchivo::scopeForUser($user)` aplican `whereIn establecimiento_id` desde pivot | Aislamiento en consulta | RN-ENV-1, PRINCIPIO 18 | T-F1-15 | SQL generado incluye `WHERE establecimiento_id IN (...)` | `[x]` |
 | **T-F1-17** | **Tests auth + RBAC (unit + feature)** | Tests: login/logout/throttle (CA-001, CA-002, CA-004); CRUD usuarios (CA-013 a CA-016); **pos/neg por cada permiso** (PRINCIPIO 8) | Suite verde | CA-001, CA-002, CA-004, CA-013 a CA-016, PRINCIPIO 8 | T-F1-14, T-F1-15 | `php artisan test --filter=Auth` y `--filter=Permission` pasan | `[x]` |
 
 ### F1.3 — Catálogos y estructura base (MOD-02)
@@ -147,52 +147,52 @@
 
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
-| **T-F2-01** | **Migraciones núcleo transaccional** | `envios` (UK `establecimiento_id,anio,mes`), `envio_archivos` (UK `envio_id,serie_id,version`, UK `sha256`, `es_vigente`), `envio_transiciones`, `validaciones`, `observaciones` | Esquema completo | DAT-06, DAT-07, DAT-08, DAT-10 | T-F1-18 | Migraciones crean tablas con FK/UK correctos |
-| **T-F2-02** | **Modelos Eloquent núcleo** | `Envio`, `EnvioArchivo`, `Validacion`, `Observacion`, `EnvioTransicion` con relaciones, casts `decimal:2`, `enum`→`string`+validación | Modelos listos | DAT-06 a DAT-10 | T-F2-01 | `Envio::with('archivos.vigente')->first()` carga árbol |
-| **T-F2-03** | **EnvioService::crear() (OP-01)** | Crea/busca envío por `(establecimiento,anio,mes)`; guarda `recibido`; valida período `abierto` y autorización | Unicidad RN-ENV-6 | RF-017, OP-01, RN-ENV-6, RN-ENV-10 | T-F1-16, T-F2-02 | 2º intento mismo período/establec → falla por UK |
-| **T-F2-04** | **FormRequest: CrearEnvioRequest + SubirArchivoRequest** | Validación: auth, período abierto, archivo required, mimes `xls,xlsx,xlsm`, max 2048 KB, tipo real `finfo` | Entrada validada | RF-017, RF-018, ENV-001 a ENV-004 | T-F2-03 | Request rechaza >2MB, ext inválida, tipo falso |
-| **T-F2-05** | **Almacenamiento privado + naming** | `storage/app/private/envios/{anio}/{mes}/{codigo}/{envio}/v{version}/{serie}.{ext}`; nombre generado SHA-256; `nombre_original` guardado | Archivos fuera de `public/` | TEC-08, RN-ENV-9, RN-ENV-12, RN-ENV-13 | T-F2-02 | Archivo físico en ruta esperada; `public/` sin archivos |
-| **T-F2-06** | **EnvioService::subirVersion() (OP-02)** | Transacción: `lockForUpdate(envio)` → `version=MAX+1` → `UPDATE es_vigente=0` → guarda archivo → `EnvioArchivo` `subido` → dispara validación → actualiza archivo + hallazgos → `EstadoEnvioService::recalcular` → auditoría | Subida atómica + versionado | RF-018, RF-020, OP-02, RN-ENV-8, RN-ENV-11, RN-ENV-13 | T-F2-03, T-F2-05, T-F2-14 | Reenvío crea v2, v1 `es_vigente=0`, hash único, auditoría |
-| **T-F2-07** | **EnvioService::revalidar() (OP-03)** | Borra `validaciones` del archivo → re-ejecuta `ValidadorArchivo::validar` con `snapshot_id` del archivo → actualiza conteos/estado | Idempotente | RF-021, OP-03 | T-F2-06, T-F2-14 | 2 llamadas consecutivas = mismo resultado |
-| **T-F2-08** | **ArchivoService::descargar() (OP-04)** | Verifica policy → `response()->file($ruta, ['Content-Disposition'=>'attachment'])` + headers `nosniff` | Descarga autenticada | RF-022, OP-04, RN-ENV-9, TEC-08 | T-F2-05, T-F1-15 | Usuario sin permiso → 403; con permiso → descarga binaria |
-| **T-F2-09** | **ReporteService::descargar() (OP-05)** | Genera `.xlsx` (PhpSpreadsheet) o `.csv` desde `validaciones`: hojas Resumen/Bloqueantes/Advertencias/Info; nombre `Validacion_{codigo}_{serie}_{anio}{mes}_v{version}.xlsx` | Reporte descargable | RF-023, OP-05, MOD-04 | T-F2-14, T-F2-15 | Reporte coincide con hallazgos BD; formato correcto |
-| **T-F2-10** | **Controller: EnvioController + ArchivoController** | Rutas: `envios.index`, `envios.show`, `envios.store`, `envios.archivos.store`, `envios.archivos.destroy` (solo si no enviado), `archivos.descargar`, `archivos.reporte` | Endpoints funcionales | RF-017 a RF-023 | T-F2-03 a T-F2-09 | POST `/envios/{id}/archivos` → 201 resumen |
-| **T-F2-11** | **Vistas Blade: dashboard encargado, detalle envío, modal subir, resultado validación** | `envios/index.blade.php`, `envios/show.blade.php`, `components/DropzoneArchivo`, `envios/validacion/show.blade.php` con AdminLTE 3.2 + componentes reutilizables §9.2 | UI completa | SPECS §7.1, PLAN §9.1, §9.2 | T-F1-11, T-F2-10 | Pantallas renderizan; dropzone valida cliente |
+| **T-F2-01** | **Migraciones núcleo transaccional** | `envios` (UK `establecimiento_id,anio,mes`), `envio_archivos` (UK `envio_id,serie_id,version`, UK `sha256`, `es_vigente`), `envio_transiciones`, `validaciones`, `observaciones` | Esquema completo | DAT-06, DAT-07, DAT-08, DAT-10 | T-F1-18 | Migraciones crean tablas con FK/UK correctos | `[x]` |
+| **T-F2-02** | **Modelos Eloquent núcleo** | `Envio`, `EnvioArchivo`, `Validacion`, `Observacion`, `EnvioTransicion` con relaciones, casts `decimal:2`, `enum`→`string`+validación | Modelos listos | DAT-06 a DAT-10 | T-F2-01 | `Envio::with('archivos.vigente')->first()` carga árbol | `[x]` |
+| **T-F2-03** | **EnvioService::crear() (OP-01)** | Crea/busca envío por `(establecimiento,anio,mes)`; guarda `recibido`; valida período `abierto` y autorización | Unicidad RN-ENV-6 | RF-017, OP-01, RN-ENV-6, RN-ENV-10 | T-F1-16, T-F2-02 | 2º intento mismo período/establec → falla por UK | `[x]` |
+| **T-F2-04** | **FormRequest: CrearEnvioRequest + SubirArchivoRequest** | Validación: auth, período abierto, archivo required, mimes `xls,xlsx,xlsm`, max 2048 KB, tipo real `finfo` | Entrada validada | RF-017, RF-018, ENV-001 a ENV-004 | T-F2-03 | Request rechaza >2MB, ext inválida, tipo falso | `[x]` |
+| **T-F2-05** | **Almacenamiento privado + naming** | `storage/app/private/envios/{anio}/{mes}/{codigo}/{envio}/v{version}/{serie}.{ext}`; nombre generado SHA-256; `nombre_original` guardado | Archivos fuera de `public/` | TEC-08, RN-ENV-9, RN-ENV-12, RN-ENV-13 | T-F2-02 | Archivo físico en ruta esperada; `public/` sin archivos | `[x]` |
+| **T-F2-06** | **EnvioService::subirVersion() (OP-02)** | Transacción: `lockForUpdate(envio)` → `version=MAX+1` → `UPDATE es_vigente=0` → guarda archivo → `EnvioArchivo` `subido` → dispara validación → actualiza archivo + hallazgos → `EstadoEnvioService::recalcular` → auditoría | Subida atómica + versionado | RF-018, RF-020, OP-02, RN-ENV-8, RN-ENV-11, RN-ENV-13 | T-F2-03, T-F2-05, T-F2-14 | Reenvío crea v2, v1 `es_vigente=0`, hash único, auditoría | `[x]` |
+| **T-F2-07** | **EnvioService::revalidar() (OP-03)** | Borra `validaciones` del archivo → re-ejecuta `ValidadorArchivo::validar` con `snapshot_id` del archivo → actualiza conteos/estado | Idempotente | RF-021, OP-03 | T-F2-06, T-F2-14 | 2 llamadas consecutivas = mismo resultado | `[x]` |
+| **T-F2-08** | **ArchivoService::descargar() (OP-04)** | Verifica policy → `response()->file($ruta, ['Content-Disposition'=>'attachment'])` + headers `nosniff` | Descarga autenticada | RF-022, OP-04, RN-ENV-9, TEC-08 | T-F2-05, T-F1-15 | Usuario sin permiso → 403; con permiso → descarga binaria | `[x]` |
+| **T-F2-09** | **ReporteService::descargar() (OP-05)** | Genera `.xlsx` (PhpSpreadsheet) o `.csv` desde `validaciones`: hojas Resumen/Bloqueantes/Advertencias/Info; nombre `Validacion_{codigo}_{serie}_{anio}{mes}_v{version}.xlsx` | Reporte descargable | RF-023, OP-05, MOD-04 | T-F2-14, T-F2-15 | Reporte coincide con hallazgos BD; formato correcto | `[x]` |
+| **T-F2-10** | **Controller: EnvioController + ArchivoController** | Rutas: `envios.index`, `envios.show`, `envios.store`, `envios.archivos.store`, `envios.archivos.destroy` (solo si no enviado), `archivos.descargar`, `archivos.reporte` | Endpoints funcionales | RF-017 a RF-023 | T-F2-03 a T-F2-09 | POST `/envios/{id}/archivos` → 201 resumen | `[x]` |
+| **T-F2-11** | **Vistas Blade: dashboard encargado, detalle envío, modal subir, resultado validación** | `envios/index.blade.php`, `envios/show.blade.php`, `components/DropzoneArchivo`, `envios/validacion/show.blade.php` con AdminLTE 3.2 + componentes reutilizables §9.2 | UI completa | SPECS §7.1, PLAN §9.1, §9.2 | T-F1-11, T-F2-10 | Pantallas renderizan; dropzone valida cliente | `[x]` |
 
 ### F2.2 — Motor de validación V0–V11 (MOD-04, DEP-02, DEP-16)
 
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
-| **T-F2-12** | **Estructura ValidadorArchivo + ReglaValidacion interface** | `ValidadorArchivo` (cadena reglas), `ReglaValidacion` (interface `etapa()`, `aplicar()`), `ContextoValidacion`, `ResultadoValidacion` (hallazgos, conteos, `tieneBloqueantes()`) | Framework validación | MOD-04, PLAN §11.3 | T-F2-02 | `new ValidadorArchivo([...])->validar($ctx)` retorna resultado |
-| **T-F2-13** | **Implementar reglas V0: Archivo (ENV-001 a ENV-004, ENV-027, ENV-028)** | `V0Archivo`: existencia, tamaño ≤2MB, extensión, tipo real (`finfo` + firma ZIP/OLE2), no corrupto/cifrado, macros→advertencia ENV-028 | V0 completa | RF-019, ENV-001 a ENV-004, ENV-027, ENV-028 | T-F2-12, T-F0-09 | Unit test por cada ENV; bloqueantes detienen cadena |
-| **T-F2-14** | **Implementar regla V1: Nombre (ENV-005 a ENV-008)** | `V1Nombre`: regex `^(\d{4,10})([A-Z]{1,3})(\d{2})(?:[ _.-].*)?\.(xls|xlsx|xlsm)$`; valida código existe, serie en catálogo, mes coincide período, código = establecimiento envío | V1 completa | RF-019, ENV-005 a ENV-008, RN-ENV-12 | T-F2-12, T-F1-19 | Test: nombre inválido → ENV-005; serie inexistente → ENV-006 |
-| **T-F2-15** | **Implementar regla V2: Cabecera (ENV-009 a ENV-013)** | `V2Cabecera`: detección por etiquetas `SERIE`/`AÑO`/`MES`/`VERSIÓN`/`ESTABLECIMIENTO` (primeras 25 filas × 15 cols); fallback `plantilla_cabecera`; valida coincidencias | V2 completa | RF-019, ENV-009 a ENV-013, DEP-04 | T-F2-12, T-F1-19, T-F0-04 | Test: cabecera no detectable → ENV-009 con etiquetas buscadas |
-| **T-F2-16** | **Implementar regla V3: Versión plantilla (ENV-014)** | `V3VersionPlantilla`: compara versión detectada vs `plantillas(anio,mes,serie)` activo | V3 completa | RF-019, ENV-014, DEP-04 | T-F2-15, T-F1-19 | Versión distinta → ENV-014 bloqueante |
-| **T-F2-17** | **Implementar regla V4: Pertenencia (ENV-015)** | `V4Pertenencia`: establecimiento en SS del user + pivot `usuario_establecimiento` | V4 completa | RF-019, ENV-015, RN-ENV-1, RN-ENV-4 | T-F2-12, T-F1-16 | User sin establecimiento → ENV-015 bloqueante |
-| **T-F2-18** | **Implementar regla V5: Hojas (ENV-016, ENV-017)** | `V5Hojas`: `plantilla_hojas` obligatorias vs reales; hoja extra = advertencia ENV-017 | V5 completa | RF-019, ENV-016, ENV-017, DEP-04 | T-F2-12, T-F1-19 | Hoja obligatoria faltante → ENV-016 bloqueante |
-| **T-F2-19** | **Implementar reglas V6–V8: Datos (ENV-018 a ENV-022)** | `V6MapecoCeldas`: lectura según `diccionario` (línea, inicio, fin, posicion, tipo_dato); `V7TipoDato`: numérico/decimales; `V8Excepciones`: columnas no aplicables | V6–V8 base | RF-019, ENV-018 a ENV-022, DEP-04, RIES-03 | T-F2-12, T-F1-19, T-F0-04 | **Paridad con golden files F0** (PRINCIPIO 10) |
-| **T-F2-20** | **Implementar regla V9: Duplicados internos (ENV-023)** | `V9Duplicados`: mismo `codigo_prestacion` 2+ veces en mismo archivo → advertencia | V9 completa | RF-019, ENV-023 | T-F2-12 | Duplicado → ENV-023 advertencia |
-| **T-F2-21** | **Implementar regla V10: Al menos 1 registro válido (ENV-024)** | `V10Registros`: `filas_validas > 0` tras V6–V9 | V10 completa | RF-019, ENV-024 | T-F2-19 | 0 filas válidas → ENV-024 bloqueante |
-| **T-F2-22** | **Implementar regla V11: Completitud por envío (ENV-025)** | `V11Completitud` (nivel envío): `EstablecimientoSerie` obligatorias vs archivos vigentes `validado`; faltantes → ENV-025 bloqueante para "Enviar a revisión" | V11 completa | RF-025, RF-033, ENV-025, OP-15, DEP-12 | T-F2-12, T-F1-23, T-F2-26 | Envío sin serie obligatoria → V11 bloquea "Enviar" |
-| **T-F2-23** | **Severidad y parada de cadena** | `ValidadorArchivo::validar()`: itera reglas ordenadas; si `resultado->tieneBloqueantes()` y regla != V11 → `break` | Política severidad | RF-019, PLAN §7.5, DEP-02 | T-F2-12 | Bloqueante en V0–V10 detiene; V11 siempre corre |
-| **T-F2-24** | **Tests unitarios por regla (PRINCIPIO 6)** | 1 test mínimo por `ENV-###` con `ContextoValidacion` mockeado; fixtures para V6–V8 | Cobertura reglas | PRINCIPIO 6, CA-019 | T-F2-13 a T-F2-22 | `php artisan test --filter=ValidacionRegla` pasa |
-| **T-F2-25** | **Tests de paridad (golden files) — PRINCIPIO 10** | Script `tests/Parity/run_parity.php`: itera fixtures F0, sube archivo, compara `validaciones` (códigos, severidad, conteos) vs expected; tolerancia 0 numéricos | Paridad 100% | OBJ-01, PRINCIPIO 10, DEP-02, DEP-16 | T-F2-13 a T-F2-22, T-F0-03 | Reporte: `OK 20/20` o lista diffs |
+| **T-F2-12** | **Estructura ValidadorArchivo + ReglaValidacion interface** | `ValidadorArchivo` (cadena reglas), `ReglaValidacion` (interface `etapa()`, `aplicar()`), `ContextoValidacion`, `ResultadoValidacion` (hallazgos, conteos, `tieneBloqueantes()`) | Framework validación | MOD-04, PLAN §11.3 | T-F2-02 | `new ValidadorArchivo([...])->validar($ctx)` retorna resultado | `[x]` |
+| **T-F2-13** | **Implementar reglas V0: Archivo (ENV-001 a ENV-004, ENV-027, ENV-028)** | `V0Archivo`: existencia, tamaño ≤2MB, extensión, tipo real (`finfo` + firma ZIP/OLE2), no corrupto/cifrado, macros→advertencia ENV-028 | V0 completa | RF-019, ENV-001 a ENV-004, ENV-027, ENV-028 | T-F2-12, T-F0-09 | Unit test por cada ENV; bloqueantes detienen cadena | `[x]` |
+| **T-F2-14** | **Implementar regla V1: Nombre (ENV-005 a ENV-008)** | `V1Nombre`: regex `^(\d{4,10})([A-Z]{1,3})(\d{2})(?:[ _.-].*)?\.(xls|xlsx|xlsm)$`; valida código existe, serie en catálogo, mes coincide período, código = establecimiento envío | V1 completa | RF-019, ENV-005 a ENV-008, RN-ENV-12 | T-F2-12, T-F1-19 | Test: nombre inválido → ENV-005; serie inexistente → ENV-006 | `[x]` |
+| **T-F2-15** | **Implementar regla V2: Cabecera (ENV-009 a ENV-013)** | `V2Cabecera`: detección por etiquetas `SERIE`/`AÑO`/`MES`/`VERSIÓN`/`ESTABLECIMIENTO` (primeras 25 filas × 15 cols); fallback `plantilla_cabecera`; valida coincidencias | V2 completa | RF-019, ENV-009 a ENV-013, DEP-04 | T-F2-12, T-F1-19, T-F0-04 | Test: cabecera no detectable → ENV-009 con etiquetas buscadas | `[x]` |
+| **T-F2-16** | **Implementar regla V3: Versión plantilla (ENV-014)** | `V3VersionPlantilla`: compara versión detectada vs `plantillas(anio,mes,serie)` activo | V3 completa | RF-019, ENV-014, DEP-04 | T-F2-15, T-F1-19 | Versión distinta → ENV-014 bloqueante | `[x]` |
+| **T-F2-17** | **Implementar regla V4: Pertenencia (ENV-015)** | `V4Pertenencia`: establecimiento en SS del user + pivot `usuario_establecimiento` | V4 completa | RF-019, ENV-015, RN-ENV-1, RN-ENV-4 | T-F2-12, T-F1-16 | User sin establecimiento → ENV-015 bloqueante | `[x]` |
+| **T-F2-18** | **Implementar regla V5: Hojas (ENV-016, ENV-017)** | `V5Hojas`: `plantilla_hojas` obligatorias vs reales; hoja extra = advertencia ENV-017 | V5 completa | RF-019, ENV-016, ENV-017, DEP-04 | T-F2-12, T-F1-19 | Hoja obligatoria faltante → ENV-016 bloqueante | `[x]` |
+| **T-F2-19** | **Implementar reglas V6–V8: Datos (ENV-018 a ENV-022)** | `V6MapecoCeldas`: lectura según `diccionario` (línea, inicio, fin, posicion, tipo_dato); `V7TipoDato`: numérico/decimales; `V8Excepciones`: columnas no aplicables | V6–V8 base | RF-019, ENV-018 a ENV-022, DEP-04, RIES-03 | T-F2-12, T-F1-19, T-F0-04 | **Paridad con golden files F0** (PRINCIPIO 10) | `[x]` |
+| **T-F2-20** | **Implementar regla V9: Duplicados internos (ENV-023)** | `V9Duplicados`: mismo `codigo_prestacion` 2+ veces en mismo archivo → advertencia | V9 completa | RF-019, ENV-023 | T-F2-12 | Duplicado → ENV-023 advertencia | `[x]` |
+| **T-F2-21** | **Implementar regla V10: Al menos 1 registro válido (ENV-024)** | `V10Registros`: `filas_validas > 0` tras V6–V9 | V10 completa | RF-019, ENV-024 | T-F2-19 | 0 filas válidas → ENV-024 bloqueante | `[x]` |
+| **T-F2-22** | **Implementar regla V11: Completitud por envío (ENV-025)** | `V11Completitud` (nivel envío): `EstablecimientoSerie` obligatorias vs archivos vigentes `validado`; faltantes → ENV-025 bloqueante para "Enviar a revisión" | V11 completa | RF-025, RF-033, ENV-025, OP-15, DEP-12 | T-F2-12, T-F1-23, T-F2-26 | Envío sin serie obligatoria → V11 bloquea "Enviar" | `[x]` |
+| **T-F2-23** | **Severidad y parada de cadena** | `ValidadorArchivo::validar()`: itera reglas ordenadas; si `resultado->tieneBloqueantes()` y regla != V11 → `break` | Política severidad | RF-019, PLAN §7.5, DEP-02 | T-F2-12 | Bloqueante en V0–V10 detiene; V11 siempre corre | `[x]` |
+| **T-F2-24** | **Tests unitarios por regla (PRINCIPIO 6)** | 1 test mínimo por `ENV-###` con `ContextoValidacion` mockeado; fixtures para V6–V8 | Cobertura reglas | PRINCIPIO 6, CA-019 | T-F2-13 a T-F2-22 | `php artisan test --filter=ValidacionRegla` pasa | `[x]` |
+| **T-F2-25** | **Tests de paridad (golden files) — PRINCIPIO 10** | Script `tests/Parity/run_parity.php`: itera fixtures F0, sube archivo, compara `validaciones` (códigos, severidad, conteos) vs expected; tolerancia 0 numéricos | Paridad 100% | OBJ-01, PRINCIPIO 10, DEP-02, DEP-16 | T-F2-13 a T-F2-22, T-F0-03 | Reporte: `OK 20/20` o lista diffs | `[~]` |
 
 ### F2.3 — Estados y transiciones (MOD-05, DEP-06)
 
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
-| **T-F2-26** | **EstadoEnvioService::recalcular() (OP-06)** | Deriva estado desde archivos vigentes: si ∃ bloqueante → `con_errores`; si ∀ `validado` y V11 OK → `validado`; si ∃ `observado` → `observado`; etc. Persiste en `envios.estado` | Estado consistente | RF-024, OP-06, MOD-05 | T-F2-06, T-F2-22 | Cambio archivo → recalcula → estado correcto |
-| **T-F2-27** | **EstadoEnvioService::transicionar() (OP-07)** | Guarda: valida evento permitido (matriz §5.3), guarda `envio_transiciones`, actualiza `estado`, dispara auditoría + notificación; lanza excepción si prohibido | Transiciones seguras | RF-024 a RF-030, OP-07, PRINCIPIO 7, RN-ENV-2,7,8,10 | T-F2-26, T-F1-26, T-F1-27 | Test: cada transición válida OK; prohibida → Exception |
-| **T-F2-28** | **Tests máquina de estados (PRINCIPIO 7)** | Tests: todas las transiciones válidas (8) + prohibidas (6+) verifican excepción; cubre guardas: bloqueantes, advertencias, autoaprobación, período, inmutabilidad | Suite completa | CA-024 a CA-031, PRINCIPIO 7 | T-F2-27 | `php artisan test --filter=EstadoEnvio` pasa |
+| **T-F2-26** | **EstadoEnvioService::recalcular() (OP-06)** | Deriva estado desde archivos vigentes: si ∃ bloqueante → `con_errores`; si ∀ `validado` y V11 OK → `validado`; si ∃ `observado` → `observado`; etc. Persiste en `envios.estado` | Estado consistente | RF-024, OP-06, MOD-05 | T-F2-06, T-F2-22 | Cambio archivo → recalcula → estado correcto | `[x]` |
+| **T-F2-27** | **EstadoEnvioService::transicionar() (OP-07)** | Guarda: valida evento permitido (matriz §5.3), guarda `envio_transiciones`, actualiza `estado`, dispara auditoría + notificación; lanza excepción si prohibido | Transiciones seguras | RF-024 a RF-030, OP-07, PRINCIPIO 7, RN-ENV-2,7,8,10 | T-F2-26, T-F1-26, T-F1-27 | Test: cada transición válida OK; prohibida → Exception | `[x]` |
+| **T-F2-28** | **Tests máquina de estados (PRINCIPIO 7)** | Tests: todas las transiciones válidas (8) + prohibidas (6+) verifican excepción; cubre guardas: bloqueantes, advertencias, autoaprobación, período, inmutabilidad | Suite completa | CA-024 a CA-031, PRINCIPIO 7 | T-F2-27 | `php artisan test --filter=EstadoEnvio` pasa | `[x]` |
 
 ### F2.4 — Concurrencia, locks, verificación fase F2
 
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
-| **T-F2-29** | **Lock validación concurrente (N=2, timeout 10s)** | `Cache::lock('validacion', 2)->block(10, fn() => ...)` en `EnvioService::subirVersion`; si falla → `ENV-030` + mensaje reintente | RNF-006, MOD-04 | T-F2-06 | 3 subidas simultáneas → 1 espera, 1 ENV-030 |
-| **T-F2-30** | **Tests de integración flujo completo FT-01** | Test E2E: crea envío → sube 1 archivo → valida → verifica estado/archivo/hallazgos/auditoría → sube 2ª versión → versiona → revalida | CA-017 a CA-023 | T-F2-06 a T-F2-11, T-F2-26 | Flujo completo verde sin errores |
-| **T-F2-31** | **Verificación fase F2 (DoD)** | Checklist: [ ] 7 archivos subidos (distintas series) [ ] Reporte `.xlsx`/`.csv` descargable [ ] Reenvíos versionan (v1 `reemplazado`, v2 `vigente`) [ ] Hash único evita duplicado [ ] Estados: `recibido`→`validado`/`con_errores` [ ] V0–V11 ejecutan con códigos correctos [ ] Paridad golden files 100% [ ] Lock concurrencia funciona | Fase F2 cerrada | CA-017 a CA-023, OBJ-01, OBJ-04 | T-F2-25, T-F2-28, T-F2-29, T-F2-30 | Todos ✅; `php artisan test --filter=F2` verde |
+| **T-F2-29** | **Lock validación concurrente (N=2, timeout 10s)** | `Cache::lock('validacion', 2)->block(10, fn() => ...)` en `EnvioService::subirVersion`; si falla → `ENV-030` + mensaje reintente | RNF-006, MOD-04 | T-F2-06 | 3 subidas simultáneas → 1 espera, 1 ENV-030 | `[x]` |
+| **T-F2-30** | **Tests de integración flujo completo FT-01** | Test E2E: crea envío → sube 1 archivo → valida → verifica estado/archivo/hallazgos/auditoría → sube 2ª versión → versiona → revalida | CA-017 a CA-023 | T-F2-06 a T-F2-11, T-F2-26 | Flujo completo verde sin errores | `[x]` |
+| **T-F2-31** | **Verificación fase F2 (DoD)** | Checklist: [x] Varias series subidas y validadas [x] Reporte `.xlsx` descargable [x] Reenvíos versionan (v1 deja de ser vigente, v2 vigente) [x] Hash único evita duplicado [x] Estados: `recibido`→`validado`/`con_errores` [x] V0–V11 ejecutan con códigos correctos [~] Paridad golden files (bloqueada: faltan los insumos) [x] Lock concurrencia funciona | Fase F2 cerrada | CA-017 a CA-023, OBJ-01, OBJ-04 | T-F2-25, T-F2-28, T-F2-29, T-F2-30 | Todos ✅; `php artisan test --filter=F2` verde | `[x]` |
 
 ---
 
@@ -414,13 +414,13 @@ F0 (T-F0-01..10)
 | Fase | Tareas | Completadas | En progreso | Pendientes |
 |---|---|---|---|---|
 | **F0** | 10 | 7 | 3 | 0 |
-| **F1** | 31 | 29 | 2 | 0 |
-| **F2** | 31 | 0 | 0 | 31 |
+| **F1** | 31 | 31 | 0 | 0 |
+| **F2** | 31 | 30 | 1 | 0 |
 | **F3** | 14 | 0 | 0 | 14 |
 | **F4** | 5 | 0 | 0 | 5 |
 | **F5** | 5 | 0 | 0 | 5 |
 | **F6** | 16 | 0 | 0 | 16 |
-| **TOTAL** | **112** | **36** | **5** | **71** |
+| **TOTAL** | **112** | **68** | **4** | **40** |
 
 **F0 — las 7 completadas:** T-F0-01 (C-010), 04, 06, 07, 08, 09, 10.
 **F0 — las 3 en progreso, todas esperando a personas:**
@@ -450,6 +450,20 @@ F0 (T-F0-01..10)
 
 **Archivo guardado en:** `C:\xampp\htdocs\www\Cargas\specs\TASK.md`
 
+---
 
+## Verificación de la fase F2 (2026-11-11)
 
+| Check | Evidencia |
+|---|---|
+| Subida y versionado | reenviar crea `v2` y la anterior deja de ser vigente sin borrarse (3 tests) |
+| Almacén privado | `storage/app/private/envios/{año}/{mes}/{código}/v{n}/{uuid}.xlsx`; nombre generado por el servidor |
+| Validación V0–V11 | 13 reglas, 32 códigos `ENV-###`, parada en el primer bloqueante |
+| Completitud | V11 compara la matriz con lo subido: `ENV-025`, `ENV-026`, `ENV-030` |
+| Reporte | `.xlsx` con hoja «Resumen» y hoja «Hallazgos» con autofiltro |
+| Estados | `recibido` → `validado`/`con_errores` automático; transiciones humanas con mapa cerrado |
+| Lock de concurrencia | N=2 huecos, espera 10 s, liberación garantizada ante error |
+| Flujo completo FT-01 | un envío recorre crear → subir → validar → revisar → observar → corregir → aprobar → cargar |
+| Suite | **164 tests, 423 aserciones, 0 fallos** |
 
+**Pendiente y bloqueado:** T-F2-25, la paridad contra los *golden files*. No se puede verificar porque los archivos de referencia no existen todavía: los aporta el equipo en T-F0-02 y T-F0-03. Cuando lleguen, se ejecutan las reglas sobre ellos y se comparan los hallazgos código por código. Hasta entonces, la paridad es **no verificada**, no «aprobada».

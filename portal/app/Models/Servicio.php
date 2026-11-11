@@ -12,6 +12,9 @@ class Servicio extends Model
 
     protected $table = 'servicios';
 
+    /** Un registro nuevo está activo salvo que se diga lo contrario (default de la columna). */
+    protected $attributes = ['activo' => true];
+
     protected $fillable = ['codigo', 'nombre', 'region', 'activo'];
 
     protected function casts(): array

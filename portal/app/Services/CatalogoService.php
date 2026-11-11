@@ -266,12 +266,15 @@ class CatalogoService
                 continue;
             }
 
-            $plantilla = \App\Models\Plantilla::firstOrCreate(
+            // updateOrCreate y no firstOrCreate: una plantilla que ya existía
+            // de una importación anterior se quedaba con `serie_interna` nula
+            // y V5/V6 no encontraban sus hojas ni su diccionario.
+            $plantilla = \App\Models\Plantilla::updateOrCreate(
                 [
-                    'anio'       => (int) $fila['ano'],
-                    'mes'        => (int) $fila['mes'],
-                    'serie_id'   => $serieId,
-                    'version'    => $fila['version'],
+                    'anio'     => (int) $fila['ano'],
+                    'mes'      => (int) $fila['mes'],
+                    'serie_id' => $serieId,
+                    'version'  => $fila['version'],
                 ],
                 [
                     'serie_excel'   => $fila['SerieExcel'],

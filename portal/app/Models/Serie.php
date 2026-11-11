@@ -13,6 +13,9 @@ class Serie extends Model
 
     protected $table = 'series';
 
+    /** Un registro nuevo está activo salvo que se diga lo contrario (default de la columna). */
+    protected $attributes = ['activo' => true];
+
     protected $fillable = ['codigo', 'nombre', 'orden', 'activo'];
 
     protected function casts(): array
