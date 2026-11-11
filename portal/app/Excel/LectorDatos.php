@@ -1,0 +1,145 @@
+<?php
+
+namespace App\Excel;
+
+use App\Models\Diccionario;
+use App\Models\PlantillaHoja;
+use App\Validacion\ContextoValidacion;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Throwable;
+
+/**
+ * Lee las celdas de datos de un archivo REM (T-F2-19).
+ *
+ * El diccionario dice, para cada prestación, en qué hoja, en qué línea y entre
+ * qué columnas están sus valores. Aquí se recorren esas coordenadas una sola
+ * vez y se devuelven como datos; las reglas V6–V10 trabajan sobre eso y no
+ * vuelven a abrir el archivo.
+ */
+class LectorDatos
+{
+    public function leer(ContextoValidacion $contexto): DatosArchivo
+    {
+        $serieInterna = $contexto->plantilla?->serie_interna;
+
+        if ($serieInterna === null) {
+            return new DatosArchivo([], [], false);
+        }
+
+        $hojas = PlantillaHoja::query()
+            ->where('anio', $contexto->anio())
+            ->where('serie_interna', $serieInterna)
+            ->pluck('hoja')
+            ->all();
+
+        if ($hojas === []) {
+            return new DatosArchivo([], [], false);
+        }
+
+        try {
+            $libro = $this->abrir($contexto->rutaAbsoluta);
+        } catch (Throwable) {
+            return new DatosArchivo([], [], false);
+        }
+
+        $registros = [];
+        $errores = [];
+
+        try {
+            foreach ($hojas as $nombreHoja) {
+                $hoja = $libro->getSheetByName($nombreHoja);
+
+                if ($hoja === null) {
+                    continue; // V5 ya reporta la hoja faltante
+                }
+
+                $filas = Diccionario::query()
+                    ->where('snapshot_id', $contexto->snapshotId)
+                    ->where('anio', $contexto->anio())
+                    ->where('serie', $serieInterna)
+                    ->where('hoja', $nombreHoja)
+                    ->orderBy('linea')
+                    ->get();
+
+                foreach ($filas as $fila) {
+                    try {
+                        $valores = $this->leerRango($hoja, (string) $fila->inicio, (string) $fila->fin, (int) $fila->linea);
+                    } catch (Throwable $e) {
+                        $errores[] = new ErrorLectura($nombreHoja, $fila->codigo_prestacion, $e->getMessage());
+
+                        continue;
+                    }
+
+                    $registros[] = new RegistroPrestacion(
+                        hoja: $nombreHoja,
+                        linea: (int) $fila->linea,
+                        codigo: $fila->codigo_prestacion,
+                        texto: $fila->texto_prestacion,
+                        tipoDato: $fila->tipo_dato,
+                        valores: $valores,
+                    );
+                }
+            }
+        } finally {
+            $libro->disconnectWorksheets();
+        }
+
+        return new DatosArchivo($registros, $errores);
+    }
+
+    /**
+     * @return list<array{celda: string, valor: mixed, formula: bool, calculado: mixed}>
+     */
+    private function leerRango(Worksheet $hoja, string $inicio, string $fin, int $linea): array
+    {
+        if ($inicio === '' || $fin === '') {
+            throw new \RuntimeException('La celda de inicio o fin está vacía en el diccionario.');
+        }
+
+        $desde = Coordinate::columnIndexFromString(strtoupper($inicio));
+        $hasta = Coordinate::columnIndexFromString(strtoupper($fin));
+
+        if ($hasta < $desde) {
+            throw new \RuntimeException("El rango {$inicio}..{$fin} está invertido.");
+        }
+
+        $valores = [];
+
+        for ($columna = $desde; $columna <= $hasta; $columna++) {
+            $letra = Coordinate::stringFromColumnIndex($columna);
+            $celda = $letra.$linea;
+            $objeto = $hoja->getCell($celda);
+
+            $esFormula = $objeto->getDataType() === 'f';
+            $calculado = null;
+
+            if ($esFormula) {
+                try {
+                    $calculado = $objeto->getCalculatedValue();
+                } catch (Throwable) {
+                    $calculado = null;
+                }
+            }
+
+            $valores[] = [
+                'celda'     => $celda,
+                'valor'     => $esFormula ? $calculado : $objeto->getValue(),
+                'formula'   => $esFormula,
+                'calculado' => $calculado,
+            ];
+        }
+
+        return $valores;
+    }
+
+    private function abrir(string $ruta): Spreadsheet
+    {
+        $lector = IOFactory::createReaderForFile($ruta);
+        $lector->setReadDataOnly(false); // las fórmulas se necesitan para ENV-031
+
+        return $lector->load($ruta);
+    }
+}

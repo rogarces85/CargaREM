@@ -10,6 +10,11 @@ use App\Validacion\Reglas\ReglaV2Cabecera;
 use App\Validacion\Reglas\ReglaV3Version;
 use App\Validacion\Reglas\ReglaV4Pertenencia;
 use App\Validacion\Reglas\ReglaV5Hojas;
+use App\Validacion\Reglas\ReglaV6Datos;
+use App\Validacion\Reglas\ReglaV7TipoDato;
+use App\Validacion\Reglas\ReglaV8Excepciones;
+use App\Validacion\Reglas\ReglaV9Duplicados;
+use App\Validacion\Reglas\ReglaV10RegistroValido;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -32,6 +37,11 @@ class ValidadorArchivo
         ReglaV3Version::class,
         ReglaV4Pertenencia::class,
         ReglaV5Hojas::class,
+        ReglaV6Datos::class,
+        ReglaV7TipoDato::class,
+        ReglaV8Excepciones::class,
+        ReglaV9Duplicados::class,
+        ReglaV10RegistroValido::class,
     ];
 
     /** Permite a los tests inyectar un conjunto propio de reglas. */
