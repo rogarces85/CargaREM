@@ -47,6 +47,7 @@ topic: index
 | [`stack/decision-stack.md`](stack/decision-stack.md) | **D-STACK cerrada (C-010)**: canon Laravel 8.83 + PHP 7.4.3 + AdminLTE 3.2 |
 | [`stack/restricciones-servidor.md`](stack/restricciones-servidor.md) | Evidencia confirmada: PHP 7.4.3, sin pdo_sqlite/opcache/bcmath, diagnóstico directo |
 | [`stack/entorno-local.md`](stack/entorno-local.md) | **Entorno local verificado (2026-11-11):** XAMPP 8.2.12, PHP 8.2.12, MariaDB 10.4.32, límites reales, estrategia en dos fases y las diferencias que rompen en producción |
+| [`docs/stack/prototipo-laravel-12.md`](../../docs/stack/prototipo-laravel-12.md) | **Prototipo de Laravel 12 sobre PHP 8.2:** cero avisos, dependencias modernas y el diff estructural contra Laravel 8. Es la prueba de que la opción C es viable |
 
 ## dominio/ — reglas del negocio REM
 
@@ -70,7 +71,7 @@ topic: index
 
 | Artículo | Qué contiene |
 |---|---|
-| [`docs/infra/solicitud-php-81-ti.md`](../../docs/infra/solicitud-php-81-ti.md) | **Solicitud para enviar a TI:** PHP 8.1+ en el vhost, con la evidencia de los 5 avisos, las tres preguntas concretas y qué pasa si dicen no |
+| [`docs/infra/solicitud-php-82-ti.md`](../../docs/infra/solicitud-php-82-ti.md) | **Solicitud para enviar a TI:** PHP 8.2 en el vhost, la misma versión de Observaciones, con la evidencia de los 5 avisos y el prototipo de Laravel 12 ya probado |
 
 ## harness/ — cómo trabaja el agente
 
@@ -88,3 +89,5 @@ topic: index
 4. Toda decisión relevante se agrega a [`sdd/decisions.md`](sdd/decisions.md). Es append-only: no se reescribe una entrada, se agrega la que la reemplaza.
 5. Todo cambio de la wiki se anota con una línea en [`log.md`](log.md).
 6. **Las fuentes originales no se copian aquí:** se enlazan desde su ruta canónica. La wiki sintetiza, no duplica (Constitución, principio 27).
+
+

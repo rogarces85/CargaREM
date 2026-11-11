@@ -23,24 +23,26 @@ El canon vigente hasta el 2026-11-11 era **Laravel 8.83 + PHP 7.4.3** (C-010). S
 
 | # | Hecho confirmado | Consecuencia |
 |---|---|---|
-| S1 | PHP 7.4.3 (EOL 28-nov-2022) en Apache `mod_php` | Impide correr Laravel 10.50.4+ |
+| S1 | PHP 7.4.3 (EOL 28-nov-2022) en Apache `mod_php` | Impide correr Laravel 12+ |
 | S2 | Laravel 8.83.29: **5 avisos abiertos, 1 crítico** | No se corrige en 8.x, por diseño |
-| S3 | La corrección de la crítica vive en Laravel 10.50.4+ | Requiere PHP 8.1 o superior |
+| S3 | La primera rama sin avisos es Laravel 12.68+ | Requiere PHP 8.2 |
 | S4 | `upload_max_filesize=2M`, `display_errors=1` | Configuración de producción a corregir |
 
 **D-STACK abierta.** El **principio 1 vuelve a bloquear** código de aplicación nuevo hasta que la decisión se cierre.
 
 **Estado del código:** `portal/` (Laravel 8.83.29) queda **provisional y congelado**. No se extiende mientras D-STACK esté abierta.
 
-**Lo pedido a TI:** PHP 8.1 o superior, **para** poder subir a Laravel 10.50.4+. PHP 8.1 solo no corrige nada: los avisos son del framework. Solicitud completa en `docs/infra/solicitud-php-81-ti.md`.
+**Lo pedido a TI:** **PHP 8.2**, la misma versión que el servidor ya corre en el vhost de Observaciones. No es para actualizar el intérprete por gusto: es el requisito de **Laravel 12**, primera rama sin avisos abiertos. PHP 8.2 solo no corrige nada. Solicitud completa en `docs/infra/solicitud-php-82-ti.md`.
 
 **Candidatos al cerrar:**
 
 | Opción | Stack | Requiere |
 |---|---|---|
-| **B** (actual) | Laravel 8.83 + PHP 7.4.3 | Nada. Asume los 5 avisos y las mitigaciones |
-| **C** | Laravel 10.50.4+ + PHP 8.1+ | Que TI habilite PHP 8.1 o superior en el vhost |
-| **D** | Laravel 11–12 + PHP 8.2+ | Que TI actualice el servidor, no solo el intérprete |
+| **B** (actual) | Laravel 8.83 + PHP 7.4.3 | Nada. Asume los 5 avisos y las 6 mitigaciones |
+| **C** | **Laravel 12.68+ + PHP 8.2** | Que TI habilite PHP 8.2. **Ya probado** en `docs/stack/prototipo-laravel-12.md`: cero avisos |
+| **D** | Laravel 13.27+ + PHP 8.3 | Que TI instale PHP 8.3, versión que hoy no existe en el servidor |
+
+> Laravel 10 y 11 **también están afectados**: todos sus parches hasta 10.50.4 arrastran avisos. No son un destino válido.
 
 Volver a cerrar D-STACK exige otra enmienda MAJOR de este documento.
 
@@ -176,4 +178,8 @@ Un cambio se entrega solo si TODO se cumple:
 | 2026-11-06 | v2.0.0 | **MAJOR.** Cierra D-STACK y agrega el canon de stack (§0). Actualiza los principios 1–3: se permite código de aplicación, se relaja la prohibición de cron a «solo tareas opcionales», y el despliegue admite SSH. Refuerza 19 y 20 con el incidente de credenciales del sistema de Observaciones. Actualiza la Definition of Done. Reemplaza v1.0.0. | Investigación de 5 opciones, evidencia de campo en `estadisticas.ssosorno.cl` y decisión explícita del usuario (C-007). |
 | 2026-11-06 | **v3.0.0** | **MAJOR.** **Reabre D-STACK** y elimina el canon de stack (§0). La confirmación de PHP 7.4.3 invalida la decisión C-007. Los principios 1–3 vuelven a su forma restrictiva. Se registra C-009. Reemplaza v2.0.0. | Diagnóstico directo en `sist_envios` devuelve PHP 7.4.3. La evidencia de PHP 8.2 pertenecía a otro vhost. |
 | 2026-11-10 | **v3.1.0** | **MAJOR.** **Cierra D-STACK (C-010)** con canon: Laravel 8.83 + PHP 7.4.3 + MySQL 8 + AdminLTE 3.2. Principio 1 ya no bloquea código de aplicación. Se registra C-010 en `decisions.md`. Reemplaza v3.0.0. | TI confirmó que no hay PHP-FPM 8.3 ni actualización de servidor; PHP 7.4.3 es la realidad del vhost principal. |
-| 2026-11-11 | **v3.2.0** | **MAJOR.** **Reabre D-STACK (C-014)** y retira el canon cerrado. Principio 1 vuelve a bloquear código de aplicación. `portal/` queda provisional y congelado. Se pide PHP 8.1+ a TI para poder subir a Laravel 10.50.4+. Reemplaza v3.1.0. | `composer audit` sobre el proyecto real: Laravel 8.83.29 tiene 5 avisos abiertos, uno crítico, y no recibirá parches (EOL). La decisión C-010 no había evaluado ese costo. |
+| 2026-11-11 | **v3.2.0** | **MAJOR.** **Reabre D-STACK (C-014)** y retira el canon cerrado. Principio 1 vuelve a bloquear código de aplicación. `portal/` queda provisional y congelado. Se pide PHP 8.2 a TI para poder subir a Laravel 12.68+, primera rama sin avisos. Reemplaza v3.1.0. | `composer audit` sobre el proyecto real: Laravel 8.83.29 tiene 5 avisos abiertos, uno crítico, y no recibirá parches (EOL). La decisión C-010 no había evaluado ese costo. |
+
+
+
+

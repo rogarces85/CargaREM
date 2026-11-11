@@ -838,7 +838,7 @@ Trabajo que puede avanzar en paralelo sin esperar resultados inexistentes:
 | ID | Riesgo | Prob. | Impacto | Mitigación |
 |---|---|:--:|:--:|---|
 | **RIES-01** | Paridad de validación incompleta | Alta | Alto | F0 con *golden files*; no avanzar a F3 sin paridad firmada |
-| **RIES-02** | Componentes EOL (PHP 7.4, Laravel 8, MySQL 8.0) y **5 avisos de seguridad sin parche** | **Alta** | Alto | **D-STACK reabierta (C-014):** se pide PHP 8.1+ a TI para subir a Laravel 10.50.4+. Ver `docs/infra/solicitud-php-81-ti.md` |
+| **RIES-02** | Componentes EOL (PHP 7.4, Laravel 8, MySQL 8.0) y **5 avisos de seguridad sin parche** | **Alta** | Alto | **D-STACK reabierta (C-014):** se pide PHP 8.2 a TI para subir a Laravel 12, la primera rama sin avisos. Ver `docs/infra/solicitud-php-82-ti.md` |
 | **RIES-03** | Semántica de `Diccionario`/`Excep`/`colexcep` no confirmada | Alta | Alto | F0 produce *golden output*; no implementar por intuición |
 | **RIES-04** | Catálogos no importables en Linux | Media | Alto | Exportación CSV desde Windows + importador con validación de conteos |
 | **RIES-05** | Archivo cerca del límite de 2 MB (SAX y series grandes) | Media | Medio | Medir con archivos reales; `.htaccess` con `php_value`; rechazo claro |
@@ -993,4 +993,6 @@ Trabajo que puede avanzar en paralelo sin esperar resultados inexistentes:
 ---
 
 **Archivo guardado en:** `C:\xampp\htdocs\www\Cargas\specs\PLAN.md`
+
+
 

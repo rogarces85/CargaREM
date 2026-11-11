@@ -3,7 +3,7 @@
 > Ubicación canónica: `specs/AGENT.md`
 > Fuente de verdad para agentes de IA y desarrolladores.
 > No contiene especificaciones funcionales detalladas ni decisiones técnicas prematuras.
-> **Actualizado 2026-11-11:** alineado a la Constitución v3.1.0 (C-010) y **luego afectado por la reapertura de D-STACK (C-014)**. El stack descrito en §8 es el **provisional y congelado**: si TI habilita PHP 8.1+, este documento debe rehacerse sobre Laravel 10.50.4+.
+> **Actualizado 2026-11-11:** alineado a la Constitución v3.1.0 (C-010) y **luego afectado por la reapertura de D-STACK (C-014)**. El stack descrito en §8 es el **provisional y congelado**: si TI habilita PHP 8.2, este documento debe rehacerse sobre Laravel 12.
 
 ---
 
@@ -125,7 +125,7 @@ Portal web **Laravel 8.83 + PHP 7.4.3 + MySQL 8** (Opción B, provisional por C-
 
 > **D-STACK REABIERTA** (C-014, 11-nov-2026). Se había cerrado en C-010 con la Opción B porque PHP 7.4.3 es la realidad del vhost principal. Se reabre porque `composer audit` mostró que Laravel 8.83.29 acumula **5 avisos de seguridad sin parche posible**, uno crítico. **El Principio 1 vuelve a bloquear código de aplicación nuevo** y `portal/` queda congelado.
 >
-> Lo pedido a TI es PHP 8.1+ para poder subir a Laravel 10.50.4+: `docs/infra/solicitud-php-81-ti.md`. Detalle del cierre anterior: `02-DOCS/wiki/stack/decision-stack.md`.
+> Lo pedido a TI es **PHP 8.2** —la versión que ya corre Observaciones— para subir a **Laravel 12**, que es la primera rama limpia de avisos: `docs/infra/solicitud-php-82-ti.md`. Detalle del cierre anterior: `02-DOCS/wiki/stack/decision-stack.md`.
 
 ### Restricciones de la Constitución (v3.2.0)
 
@@ -230,4 +230,7 @@ Todas las decisiones de diseño están tomadas. Ninguna bloquea ya el inicio de 
 ---
 
 **Archivo guardado en:** `C:\xampp\htdocs\www\Cargas\specs/AGENT.md`
+
+
+
 

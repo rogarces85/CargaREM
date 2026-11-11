@@ -38,7 +38,7 @@ No es un descuido del proyecto. Es el costo de la restricción, y hay que nombra
 
 Aviso adicional de `league/flysystem` (baja): normalización de rutas con UTF-8 malformado. Afecta a `Storage` y se mitiga no aceptando nombres de archivo del usuario.
 
-**Ninguno se va a corregir.** Laravel 8 está en EOL y la corrección de la crítica vive en Laravel 10.50.4 en adelante.
+**Ninguno se va a corregir.** Laravel 8 está en EOL. La corrección de la crítica aparece en Laravel 10.50.4, pero esa rama sigue afectada por otros avisos: **la primera sin ninguno es Laravel 12.68+**, que exige PHP 8.2.
 
 ---
 
@@ -84,9 +84,11 @@ Implementación: el archivo se guarda en `storage/app/envios/` con un nombre ale
 
 | ID | Decisión | Estado |
 |---|---|---|
-| **D15** | Riesgo de Laravel 8.83 en EOL | ❌ **No se acepta.** **C-014 reabrió D-STACK** y se pidió PHP 8.1+ a TI |
+| **D15** | Riesgo de Laravel 8.83 en EOL | ❌ **No se acepta.** **C-014 reabrió D-STACK** y se pidió PHP 8.2 a TI para Laravel 12 |
 | **D16** | Lector de Excel | ✅ **Resuelto:** 1.30.8 con la regla de §4 |
 
 Mientras D-STACK esté abierta, el principio 1 de la Constitución vuelve a bloquear código de aplicación nuevo. `portal/` queda **provisional y congelado**.
 
 Si TI responde que no, se vuelve a esta página y se cierra D15 como *riesgo aceptado* con las 6 mitigaciones de §3.
+
+
