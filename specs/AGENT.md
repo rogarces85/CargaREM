@@ -46,7 +46,7 @@ El sistema actual (**Cargas REM**) es una aplicación de escritorio WinForms que
 
 ## 4. Idea general de la solución
 
-Portal web **Laravel 8.83 + PHP 7.4.3 + MySQL 8** (Opción B, provisional por C-014) con:
+Portal web **Laravel 12.72 + PHP 8.2 + MySQL 8** (C-015) con:
 
 - **Validación V0–V11** replicada fielmente, probada contra *golden files* del ValidadorRem
 - **Máquina de estados** del envío (recibido → validado → en_revisión → observado/aprobado → cargado/anulado)
@@ -123,11 +123,11 @@ Portal web **Laravel 8.83 + PHP 7.4.3 + MySQL 8** (Opción B, provisional por C-
 | Despliegue | FTP confirmado; SSH probable no confirmado | `sist_observaciones` usa git/composer |
 | Cron | Disponible (worker/minuto en otro vhost) | Confirmado indirectamente |
 
-> **D-STACK REABIERTA** (C-014, 11-nov-2026). Se había cerrado en C-010 con la Opción B porque PHP 7.4.3 es la realidad del vhost principal. Se reabre porque `composer audit` mostró que Laravel 8.83.29 acumula **5 avisos de seguridad sin parche posible**, uno crítico. **El Principio 1 vuelve a bloquear código de aplicación nuevo** y `portal/` queda congelado.
+> **D-STACK CERRADA (C-015, 11-nov-2026):** Laravel **12.72** + PHP **8.2**. Se reabrió en C-014 porque Laravel 8.83.29 acumula 5 avisos de seguridad sin parche posible, uno crítico; se cerró con la primera rama limpia. El despliegue espera a que TI habilite PHP 8.2.
 >
-> Lo pedido a TI es **PHP 8.2** —la versión que ya corre Observaciones— para subir a **Laravel 12**, que es la primera rama limpia de avisos: `docs/infra/solicitud-php-82-ti.md`. Detalle del cierre anterior: `02-DOCS/wiki/stack/decision-stack.md`.
+> La solicitud a TI está en `docs/infra/solicitud-php-82-ti.md`. Historial del cierre anterior: `02-DOCS/wiki/stack/decision-stack.md`.
 
-### Restricciones de la Constitución (v3.2.0)
+### Restricciones de la Constitución (v4.0.0)
 
 1. **D-STACK abierta**: no se introduce código de aplicación nuevo hasta cerrarla (Principio 1)
 2. **Validación V0–V11**: código `ENV-###`, severidad, test obligatorio (Principio 6)
@@ -167,7 +167,7 @@ Todas las decisiones de diseño están tomadas. Ninguna bloquea ya el inicio de 
 
 | ID | Decisión | Resuelta como |
 |---|---|---|
-| **D-STACK** | Stack final | ✅ **Opción B** — Laravel 8.83 / PHP 7.4.3 (C-010) |
+| **D-STACK** | Stack final | ✅ **Laravel 12.72 / PHP 8.2** (C-015) |
 | **D1** | Fuente de identidad | ✅ Cuentas locales (D-001) |
 | **D2** | Unidad de aprobación | ✅ Mixto: envío completo con veto por serie (D-002) |
 | **D3** | Corrección tras aprobado | ✅ Versión automática nueva (D-003) |
@@ -187,7 +187,7 @@ Todas las decisiones de diseño están tomadas. Ninguna bloquea ya el inicio de 
 
 | Limitación | Impacto | Mitigación |
 |---|---|---|
-| PHP 7.4.3 en producción | Deuda de soporte (EOL 28-nov-2022) | Deuda aceptada en C-010; migración evaluable como proyecto futuro |
+| PHP 8.2 aún no habilitado en el servidor | El portal no se despliega hasta que TI lo haga | Solicitud enviada: `docs/infra/solicitud-php-82-ti.md` (C-015) |
 | Sin `pdo_sqlite`, `opcache`, `bcmath` en servidor | Solo afecta SQLite local y opcache; producción usa MySQL | L1 con el SQLite del entorno local; no se depende de opcache |
 | Límite 2 MB/subida | Un mes = ~11 MB (7 archivos) | Subida secuencial obligatoria (ya en diseño) |
 | Sin SSH confirmado | No `artisan` en prod | Artefacto completo + ruta de migración one-shot |
@@ -205,7 +205,7 @@ Todas las decisiones de diseño están tomadas. Ninguna bloquea ya el inicio de 
 ## Verificación de consistencia ✅
 
 - [x] Objetivo se desprende de la información disponible
-- [x] Restricciones explícitas preservadas (PHP 7.4.3, Constitución v3.1.0)
+- [x] Restricciones explícitas preservadas (Constitución v4.0.0, C-015)
 - [x] No se introdujeron funcionalidades nuevas fuera del alcance documentado
 - [x] Stack alineado a la Opción B y marcado como provisional por C-014 (resuelve `CONT-01` de `PLAN.md` §17.3)
 - [x] Todas las decisiones de diseño cerradas; D12–D14 no bloquean código
@@ -230,7 +230,6 @@ Todas las decisiones de diseño están tomadas. Ninguna bloquea ya el inicio de 
 ---
 
 **Archivo guardado en:** `C:\xampp\htdocs\www\Cargas\specs/AGENT.md`
-
 
 
 

@@ -20,15 +20,15 @@ El MVP se construye y se prueba en local. Cuando funcione, se traslada al servid
 | Fase | Dónde | Stack real | Qué se prueba |
 |---|---|---|---|
 | **1 — MVP local** | `C:\xampp` (Windows) | PHP 8.2.12 · MariaDB 10.4.32 · Apache 2.4.58 | El flujo completo: carga, validación, revisión, aprobación, paquete |
-| **2 — Servidor** | `estadisticas.ssosorno.cl` (Ubuntu 20.04) | PHP 7.4.3 · MySQL 8.0.42 · Apache 2.4 `mod_php` | Paridad con *golden files* y operación real |
+| **2 — Servidor** | `estadisticas.ssosorno.cl` (Ubuntu 20.04) | **PHP 8.2** (hoy 7.4.3, pendiente de TI) · MySQL 8.0.42 · Apache 2.4 `mod_php` | Paridad con *golden files* y operación real |
 
 **Por qué en este orden:** en local se itera en segundos y sin riesgo. En el servidor, cada prueba depende de FTP y de un despliegue. Construir primero contra el servidor multiplica el costo de cada error.
 
 **Criterio de salida de la fase 1:** ciclo encargado → revisor completo en local, con la suite en verde y los presupuestos de rendimiento medidos en local.
 
-**Criterio de salida de la fase 2:** paridad 100 % contra *golden files* corriendo en MySQL 8 y PHP 7.4.3, no antes.
+**Criterio de salida de la fase 2:** paridad 100 % contra *golden files* corriendo en MySQL 8 y PHP 8.2, no antes.
 
-> Esta estrategia no cambia el canon de stack (C-010). Las dos fases usan Laravel 8.83. La diferencia es el PHP y el motor de base de datos que los hospedan.
+> Las dos fases usan Laravel 12.72 (C-015). La diferencia es la versión de PHP y el motor de base de datos que los hospedan: 8.2 con MariaDB 10.4 en local, 8.2 con MySQL 8.0.42 en el servidor.
 
 ---
 
@@ -99,7 +99,7 @@ No son el mismo motor. Cinco diferencias pueden hacer que algo funcione en local
 
 ---
 
-## 5. PHP 8.2 local contra PHP 7.4.3 producción
+## 5. PHP del local contra PHP del servidor
 
 Esta es la diferencia más traicionera: **el código que escribas en local puede no existir en producción.**
 
@@ -171,7 +171,7 @@ El portal usa una base nueva y vacía, con el esquema del módulo M7. Los catál
 | 2 | Exportar los catálogos de `.mdb` a CSV | §7 y `docs/datos/fuentes-datos-mdb.md` |
 | 3 | Fijar `platform.php = 7.4.3` en `composer.json` | §5 |
 | 4 | Configurar `sql_mode` estricto en la conexión | §4 |
-| 5 | Crear el proyecto Laravel 8.83 (T-F1-01) | Fase 1 |
+| 5 | ~~Crear el proyecto Laravel 8.83~~ Hecho con Laravel 12.72 (T-F1-01, C-015) | Fase 1 |
 
 ---
 

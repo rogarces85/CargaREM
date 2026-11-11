@@ -54,13 +54,13 @@ El portal **no reemplaza** a Cargas REM en su primera versión: valida, ordena l
 
 | Capa | Tecnología |
 |---|---|
-| Lenguaje | PHP 7.4.3 |
-| Framework | Laravel 8.83 |
-| Base de datos | MySQL 8.0.42 (`utf8mb4`); SQLite solo en local para L1 |
+| Lenguaje | PHP 8.2 |
+| Framework | Laravel 12.72 |
+| Base de datos | MySQL 8.0.42 (`utf8mb4`), base `cargas_rem`; MariaDB 10.4 en local |
 | UI | AdminLTE 3.2 (Bootstrap 4), `dist/` precompilado, sin Node en producción |
 | JS | Vanilla |
 
-**Por qué esta versión y no una moderna:** el vhost principal del servidor corre **PHP 7.4.3** en Apache `mod_php`, y TI confirmó que no hay PHP-FPM 8.3 ni actualización de servidor prevista. Es deuda técnica aceptada y registrada en [`sdd/decisions.md`](02-DOCS/wiki/sdd/decisions.md) (C-010). Volver a Laravel 13 exige decisión nueva y enmienda MAJOR de la Constitución.
+**Por qué esta versión y no una anterior:** Laravel 8 acumula 5 avisos de seguridad sin parche posible. La primera rama limpia es Laravel 12.68+, que exige PHP 8.2 — la versión que el servidor ya corre en el vhost de Observaciones. Decisión en [`sdd/decisions.md`](02-DOCS/wiki/sdd/decisions.md) (C-015). El despliegue espera a que TI habilite PHP 8.2.
 
 Otras restricciones confirmadas: `upload_max_filesize=2M`, `post_max_size=8M`, sin `pdo_sqlite`/`opcache`/`bcmath` en el servidor, acceso por FTP, sin SSH confirmado. Detalle en [`stack/restricciones-servidor.md`](02-DOCS/wiki/stack/restricciones-servidor.md).
 
@@ -101,7 +101,7 @@ El desarrollo va en **dos fases** (C-011): primero el MVP completo en local, des
 | Fase | Dónde | Stack real |
 |---|---|---|
 | **1 — MVP local** | `C:\xampp` (Windows) | PHP 8.2.12 · MariaDB 10.4.32 · Apache 2.4.58 |
-| **2 — Servidor** | `estadisticas.ssosorno.cl` (Ubuntu 20.04) | PHP 7.4.3 · MySQL 8.0.42 · Apache 2.4 `mod_php` |
+| **2 — Servidor** | `estadisticas.ssosorno.cl` (Ubuntu 20.04) | **PHP 8.2** (hoy 7.4.3, pendiente de TI) · MySQL 8.0.42 · Apache 2.4 `mod_php` |
 
 Los límites y las diferencias entre ambos entornos —incluidas las cinco que rompen al migrar— están verificados y documentados en [`stack/entorno-local.md`](02-DOCS/wiki/stack/entorno-local.md).
 
@@ -136,6 +136,5 @@ Los límites y las diferencias entre ambos entornos —incluidas las cinco que r
 ## Datos sensibles
 
 Este repositorio **no debe contener** datos reales de establecimientos, bases de datos (`.mdb`, `.sql`), credenciales ni archivos `.env`. Los datos REM son confidenciales (Ley 21.719). Revisa cada commit antes de subirlo.
-
 
 

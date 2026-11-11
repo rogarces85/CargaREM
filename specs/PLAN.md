@@ -30,10 +30,10 @@
 | Modelo de lectura separado (CQRS) | El volumen (30 establecimientos × 7 series) no lo justifica; una sola fuente de verdad evita inconsistencias. |
 | Escribir en Access / CARGAS REM | Incompatible con Linux, riesgoso por bloqueos y fuera del alcance del MVP (D7 = A). |
 
-**Portabilidad entre ramas de stack.** El plan es válido para las dos ramas abiertas por D-STACK:
+**Portabilidad de stack.** El plan no depende de la versión del framework:
 
-- **Rama B (baseline asumido en `SPECS.md`):** Laravel 8.83 + PHP 7.4.3 + MySQL 8 + AdminLTE 3.2. Corre hoy; carga con deuda de soporte.
-- **Rama A1/A2 (condicional):** Laravel 13 + PHP 8.3+ + MySQL 8 + AdminLTE 4. Requiere que TI habilite PHP 8.3.
+- **Canon (C-015):** Laravel 12.72 + PHP 8.2 + MySQL 8 + AdminLTE 3.2. Laravel 8 se descartó por sus avisos sin parche; 10 y 11 por seguir afectados.
+- **Escalada futura:** Laravel 13 + PHP 8.3+ + AdminLTE 4, solo si TI habilita PHP 8.3. El plan no cambia: las decisiones de arquitectura son las mismas.
 
 Las capas, los contratos, el modelo de datos y el orden de fases no cambian entre ramas. Cambian versiones de dependencias y mecánicas (ver `TEC-01` a `TEC-14`).
 
@@ -61,7 +61,7 @@ Las capas, los contratos, el modelo de datos y el orden de fases no cambian entr
 
 | ID | Tecnología | Propósito | Justificación | Restricciones relevantes | Estado |
 |---|---|---|---|---|---|
-| **TEC-01** | Framework PHP | Base del portal | El diseño M7 §11 está escrito para Laravel; ecosistema completo para auth, RBAC, Excel y tablas | **D-STACK abierta**: rama B (Laravel 8.83 / PHP 7.4.3) o rama A (Laravel 13 / PHP 8.3+) | **Pendiente** (PEND-001) |
+| **TEC-01** | Framework PHP | Base del portal | El diseño M7 §11 está escrito para Laravel; ecosistema completo para auth, RBAC, Excel y tablas | **Laravel 12.72 + PHP 8.2** | ✅ Resuelto (C-015) |
 | **TEC-02** | MySQL 8.0.42 `utf8mb4` | Almacén de producción | Concurrencia, InnoDB, transacciones, claves foráneas; confirmado en el servidor | Objetivo 8.4 LTS antes del EOL de 8.0 (abril 2026) | **Confirmada** |
 | **TEC-03** | SQLite local + MySQL 8 en Docker | Desarrollo y pruebas | SQLite para suite rápida y navegación; MySQL 8 para paridad numérica y concurrencia | SQLite no reemplaza a MySQL en paridad ni en locks (`lockForUpdate` es no-op); el servidor no tiene `pdo_sqlite`, pero es local | **Confirmada** (C-008) |
 | **TEC-04** | PhpSpreadsheet | Leer `.xls`, `.xlsx`, `.xlsm` sin ejecutar macros | Única vía viable de lectura fiel; paridad con *golden files* | Versión condicionada al stack: 1.29.x (B) o 5.x (A); la lectura puede diferir y se detecta con paridad | **Confirmada en propósito; versión pendiente** |
@@ -211,7 +211,7 @@ Cargas/
     │   └── api.php               # solo si se adopta el puente B
     ├── storage/app/private/envios/{anio}/{mes}/{codigo}/{envio}/v{version}/
     ├── tests/                    # Unit, Feature, Parity
-    ├── composer.json             # platform php 7.4.3 si se elige B
+    ├── composer.json             # exige php ^8.2
     ├── .env                      # ignorado; fuera de public/
     └── public/                   # document root en despliegue (index.php + assets)
 ```

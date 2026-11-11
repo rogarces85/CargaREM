@@ -32,7 +32,7 @@
 | **OBJ-05** | Flujo completo: Encargado → sube → valida → envía → Revisor → observa/aprueba | E2E test con 3 roles |
 | **OBJ-06** | Auditoría append-only de todas las acciones críticas | Test de inmutabilidad de auditoría |
 | **OBJ-07** | Tablero de completitud mensual por SS con exportación | Consulta SQL + vista funcional |
-| **OBJ-08** | Despliegue reproducible por FTP en servidor con PHP 7.4.3 | Artefacto completo + migraciones SQL |
+| **OBJ-08** | Despliegue reproducible por FTP en servidor con PHP 8.2 | Artefacto completo + migraciones SQL |
 
 ---
 
@@ -554,5 +554,5 @@
 
 ---
 
-> **Nota sobre D-STACK:** Este documento fija **Opción B (Laravel 8.83 + PHP 7.4.3 + MySQL 8.0.42 + AdminLTE 3.2)** como canon vigente (C-010), coherente con las restricciones confirmadas del servidor (PHP 7.4.3 en el vhost principal). Cambiar a Laravel 13 / AdminLTE 4 exige una decisión nueva en `02-DOCS/wiki/sdd/decisions.md` y una enmienda MAJOR de la Constitución; no se hace por actualización de este documento.
+> **Nota sobre D-STACK:** Este documento fija el canon **C-015 (Laravel 12.72 + PHP 8.2 + MySQL 8.0.42 + AdminLTE 3.2)**. Laravel 10 y 11 quedaron descartados por seguir afectados por avisos de seguridad. El despliegue espera a que TI habilite PHP 8.2; la solicitud está en `docs/infra/solicitud-php-82-ti.md`.
 

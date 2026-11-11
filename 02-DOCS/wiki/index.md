@@ -44,7 +44,7 @@ topic: index
 | Artículo | Qué contiene |
 |---|---|
 | [`stack/opciones-stack.md`](stack/opciones-stack.md) | Investigación de 5 opciones (Opción A requería PHP 8.3, hoy inválida) |
-| [`stack/decision-stack.md`](stack/decision-stack.md) | **D-STACK cerrada (C-010)**: canon Laravel 8.83 + PHP 7.4.3 + AdminLTE 3.2 |
+| [`stack/decision-stack.md`](stack/decision-stack.md) | **D-STACK cerrada (C-015)**: canon Laravel 12.72 + PHP 8.2 + AdminLTE 3.2. La página conserva el historial de C-010 y su reapertura |
 | [`stack/restricciones-servidor.md`](stack/restricciones-servidor.md) | Evidencia confirmada: PHP 7.4.3, sin pdo_sqlite/opcache/bcmath, diagnóstico directo |
 | [`stack/entorno-local.md`](stack/entorno-local.md) | **Entorno local verificado (2026-11-11):** XAMPP 8.2.12, PHP 8.2.12, MariaDB 10.4.32, límites reales, estrategia en dos fases y las diferencias que rompen en producción |
 | [`docs/stack/prototipo-laravel-12.md`](../../docs/stack/prototipo-laravel-12.md) | **Prototipo de Laravel 12 sobre PHP 8.2:** cero avisos, dependencias modernas y el diff estructural contra Laravel 8. Es la prueba de que la opción C es viable |
@@ -65,7 +65,7 @@ topic: index
 
 | Artículo | Qué contiene |
 |---|---|
-| [`docs/seguridad/dependencias-eol.md`](../../docs/seguridad/dependencias-eol.md) | Los 5 avisos abiertos de Laravel 8.83 y los 13 de PhpSpreadsheet: cuáles alcanzan al portal, las 6 mitigaciones obligatorias y las decisiones D15/D16 |
+| [`docs/seguridad/dependencias-eol.md`](../../docs/seguridad/dependencias-eol.md) | Cómo se pasó de Laravel 8.83 —5 avisos sin parche, uno crítico— a Laravel 12.72 sin ninguno: la cadena de decisiones y las prácticas que se conservaron |
 
 ## infra/ — lo que depende de TI
 
