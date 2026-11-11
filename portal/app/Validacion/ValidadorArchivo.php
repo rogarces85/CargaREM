@@ -6,6 +6,7 @@ use App\Models\EnvioArchivo;
 use App\Models\Plantilla;
 use App\Validacion\Reglas\ReglaV0Archivo;
 use App\Validacion\Reglas\ReglaV1Nombre;
+use App\Validacion\Reglas\ReglaV2Cabecera;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -24,6 +25,7 @@ class ValidadorArchivo
     private array $reglas = [
         ReglaV0Archivo::class,
         ReglaV1Nombre::class,
+        ReglaV2Cabecera::class,
     ];
 
     /** Permite a los tests inyectar un conjunto propio de reglas. */

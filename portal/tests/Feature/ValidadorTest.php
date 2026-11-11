@@ -16,6 +16,8 @@ use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Tests\TestCase;
 
 /**
@@ -51,9 +53,28 @@ class ValidadorTest extends TestCase
         $this->envio = app(EnvioService::class)->crear($this->establecimiento, 2026, 9, $usuario);
     }
 
+    /** .xlsx real con cabecera válida, para que V2 tenga algo que leer. */
+    private function workbookValido(): string
+    {
+        $libro = new Spreadsheet();
+        $hoja = $libro->getActiveSheet();
+        $hoja->setTitle('NOMBRE');
+        $hoja->setCellValue('C3', '123100');
+        $hoja->setCellValue('C6', '09');
+        $hoja->setCellValue('B7', '2026');
+        $hoja->setCellValue('B17', 'SERIE A');
+        $hoja->setCellValue('A9', 'Version 1.2');
+
+        $ruta = tempnam(sys_get_temp_dir(), 'rem').'.xlsx';
+        (new Xlsx($libro))->save($ruta);
+        $libro->disconnectWorksheets();
+
+        return $ruta;
+    }
+
     private function subir(string $nombre, ?string $contenido = null): EnvioArchivo
     {
-        $contenido ??= "PK\x03\x04".str_repeat('A', 1024);
+        $contenido ??= file_get_contents($this->workbookValido());
 
         return app(EnvioService::class)->subirVersion(
             $this->envio,

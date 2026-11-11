@@ -166,7 +166,7 @@
 | **T-F2-12** | **Estructura ValidadorArchivo + ReglaValidacion interface** | `ValidadorArchivo` (cadena reglas), `ReglaValidacion` (interface `etapa()`, `aplicar()`), `ContextoValidacion`, `ResultadoValidacion` (hallazgos, conteos, `tieneBloqueantes()`) | Framework validación | MOD-04, PLAN §11.3 | T-F2-02 | `new ValidadorArchivo([...])->validar($ctx)` retorna resultado | `[x]` |
 | **T-F2-13** | **Implementar reglas V0: Archivo (ENV-001 a ENV-004, ENV-027, ENV-028)** | `V0Archivo`: existencia, tamaño ≤2MB, extensión, tipo real (`finfo` + firma ZIP/OLE2), no corrupto/cifrado, macros→advertencia ENV-028 | V0 completa | RF-019, ENV-001 a ENV-004, ENV-027, ENV-028 | T-F2-12, T-F0-09 | Unit test por cada ENV; bloqueantes detienen cadena | `[x]` |
 | **T-F2-14** | **Implementar regla V1: Nombre (ENV-005 a ENV-008)** | `V1Nombre`: regex `^(\d{4,10})([A-Z]{1,3})(\d{2})(?:[ _.-].*)?\.(xls|xlsx|xlsm)$`; valida código existe, serie en catálogo, mes coincide período, código = establecimiento envío | V1 completa | RF-019, ENV-005 a ENV-008, RN-ENV-12 | T-F2-12, T-F1-19 | Test: nombre inválido → ENV-005; serie inexistente → ENV-006 | `[x]` |
-| **T-F2-15** | **Implementar regla V2: Cabecera (ENV-009 a ENV-013)** | `V2Cabecera`: detección por etiquetas `SERIE`/`AÑO`/`MES`/`VERSIÓN`/`ESTABLECIMIENTO` (primeras 25 filas × 15 cols); fallback `plantilla_cabecera`; valida coincidencias | V2 completa | RF-019, ENV-009 a ENV-013, DEP-04 | T-F2-12, T-F1-19, T-F0-04 | Test: cabecera no detectable → ENV-009 con etiquetas buscadas |
+| **T-F2-15** | **Implementar regla V2: Cabecera (ENV-009 a ENV-013)** | `V2Cabecera`: detección por etiquetas `SERIE`/`AÑO`/`MES`/`VERSIÓN`/`ESTABLECIMIENTO` (primeras 25 filas × 15 cols); fallback `plantilla_cabecera`; valida coincidencias | V2 completa | RF-019, ENV-009 a ENV-013, DEP-04 | T-F2-12, T-F1-19, T-F0-04 | Test: cabecera no detectable → ENV-009 con etiquetas buscadas | `[x]` |
 | **T-F2-16** | **Implementar regla V3: Versión plantilla (ENV-014)** | `V3VersionPlantilla`: compara versión detectada vs `plantillas(anio,mes,serie)` activo | V3 completa | RF-019, ENV-014, DEP-04 | T-F2-15, T-F1-19 | Versión distinta → ENV-014 bloqueante |
 | **T-F2-17** | **Implementar regla V4: Pertenencia (ENV-015)** | `V4Pertenencia`: establecimiento en SS del user + pivot `usuario_establecimiento` | V4 completa | RF-019, ENV-015, RN-ENV-1, RN-ENV-4 | T-F2-12, T-F1-16 | User sin establecimiento → ENV-015 bloqueante |
 | **T-F2-18** | **Implementar regla V5: Hojas (ENV-016, ENV-017)** | `V5Hojas`: `plantilla_hojas` obligatorias vs reales; hoja extra = advertencia ENV-017 | V5 completa | RF-019, ENV-016, ENV-017, DEP-04 | T-F2-12, T-F1-19 | Hoja obligatoria faltante → ENV-016 bloqueante |
@@ -415,12 +415,12 @@ F0 (T-F0-01..10)
 |---|---|---|---|---|
 | **F0** | 10 | 7 | 3 | 0 |
 | **F1** | 31 | 31 | 0 | 0 |
-| **F2** | 31 | 9 | 0 | 22 |
+| **F2** | 31 | 10 | 0 | 21 |
 | **F3** | 14 | 0 | 0 | 14 |
 | **F4** | 5 | 0 | 0 | 5 |
 | **F5** | 5 | 0 | 0 | 5 |
 | **F6** | 16 | 0 | 0 | 16 |
-| **TOTAL** | **112** | **47** | **3** | **62** |
+| **TOTAL** | **112** | **48** | **3** | **61** |
 
 **F0 — las 7 completadas:** T-F0-01 (C-010), 04, 06, 07, 08, 09, 10.
 **F0 — las 3 en progreso, todas esperando a personas:**
