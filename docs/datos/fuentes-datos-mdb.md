@@ -197,6 +197,7 @@ El riesgo 3 y el 4 afectan directamente la paridad (Constitución, principio 10)
 | Inventario de bases | ✅ verificado |
 | Volúmenes | ✅ contados |
 | Mapeo a tablas del portal | ✅ definido (§2, §6) |
-| Exportador `.mdb → CSV` | ❌ por construir (fase 1) |
+| Exportador `.mdb → CSV` | ✅ [`01-TOOLS/rem-export`](../../01-TOOLS/rem-export/README.md) — 200.367 filas en 26 s |
 | Importador Laravel CSV → MySQL | ❌ por construir (T-F1-20) |
+| Histórico `DatosSERIE` (393.053 filas) | ❌ fuera del exportador; tarea aparte para F4 |
 | `Diccionario.xlsx` como alternativa | 🟡 existe en `REM-respaldo-datos`, sin verificar contra el `.mdb` |

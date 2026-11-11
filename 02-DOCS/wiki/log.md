@@ -47,3 +47,4 @@ topic: log
 | 2026-11-11 | **Se parte de cero (C-012):** bases `cargasrem` y `cargasrem_test` respaldadas y eliminadas; catálogos a reimportar desde las Access del sistema | `docs/datos/fuentes-datos-mdb.md` · `sdd/decisions.md` · `stack/entorno-local.md` |
 | 2026-11-11 | Inventario verificado de las bases Access: `Global.mdb` 185.526 prestaciones, 3.207 establecimientos (86 de Osorno), 393.053 filas de datos en 9 bases `DatosSERIE` | `docs/datos/fuentes-datos-mdb.md` |
 | 2026-11-11 | **Fuente oficial de datos declarada (C-013):** `C:\Program Files (x86)\Minsal\Cargas Rem 2016`, solo lectura; las demás copias no son válidas | `docs/datos/fuentes-datos-mdb.md` · `sdd/decisions.md` |
+| 2026-11-11 | Exportador `.mdb → CSV` construido y probado: 200.367 filas en 26 s desde la instalación oficial, con `manifest.json` y hashes | `01-TOOLS/rem-export/` |

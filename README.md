@@ -28,7 +28,7 @@ El portal **no reemplaza** a Cargas REM en su primera versión: valida, ordena l
 | [`Flujos/`](Flujos/) | 8 infografías PNG de los flujos principales |
 | [`REVIEW.md`](REVIEW.md) | Qué mira el revisor: 11 fallos graves, rutas que no se revisan, tope de nits y rutas que exigen decisión humana |
 | [`tests/Parity/fixtures/`](tests/Parity/fixtures/) | *Fixtures* de paridad. Hoy solo [`rbac-matrix.json`](tests/Parity/fixtures/rbac-matrix.json) (18 permisos × 4 roles) |
-| [`01-TOOLS/`](01-TOOLS/) | Plantilla para credenciales de proveedores (`.env` local, fuera de git) |
+| [`01-TOOLS/`](01-TOOLS/) | Herramientas de máquina. Incluye [`rem-export`](01-TOOLS/rem-export/README.md), el exportador de catálogos `.mdb → CSV`; y una plantilla para credenciales (`.env` local, fuera de git) |
 | [`AGENTS.md`](AGENTS.md) · `.rsc/` · `.opencode/` | Harness de trabajo del agente (rsc 4.1.2) |
 
 ---
