@@ -37,6 +37,7 @@ class RolePermissionSeeder extends Seeder
         'completitud.ver'      => ['encargado', 'revisor', 'admin', 'consulta'],
         'paquetes.generar'     => ['revisor', 'admin'],
         'catalogos.importar'   => ['admin'],
+        'catalogos.gestionar'  => ['admin'],
         'usuarios.gestionar'   => ['admin'],
         'periodos.gestionar'   => ['admin'],
         'auditoria.ver'        => ['admin'],

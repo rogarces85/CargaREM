@@ -75,14 +75,14 @@
 
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
-| **T-F1-10** | **Ejecutar Fortify (backend auth)** | `php artisan vendor:publish --provider="Laravel\Fortify\FortifyServiceProvider"`; configurar `FortifyServiceProvider` (login, password reset, email verification off) | Auth backend listo | RF-001, RF-002, RF-004, TEC-06 | T-F1-07 | Rutas `/login`, `/logout`, `/password/reset` funcionan |
-| **T-F1-11** | **Crear vistas Blade auth (login, reset, email)** | `resources/views/auth/login.blade.php`, `forgot-password.blade.php`, `reset-password.blade.php` con AdminLTE 3.2 + CSRF + mensajes español + códigos `APP-###` | UI auth completa | RF-001, RF-002, RF-004, RNF-014 | T-F1-10, T-F1-06 | Pantallas renderizan; validación cliente + servidor |
-| **T-F1-12** | **Configurar sesión segura** | `config/session.php`: `secure=true`, `http_only=true`, `same_site=lax`, `lifetime=480`, `expire_on_close=false` | Sesión endurecida | RNF-009, RNF-012 | T-F1-10 | Cookie `laravel_session` tiene flags correctos |
-| **T-F1-13** | **Instalar y configurar `spatie/laravel-permission`** | `php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"`; migración + `HasRoles` trait en `User` | RBAC listo | RF-013, MOD-01, TEC-07 | T-F1-10 | `php artisan permission:show` funciona |
-| **T-F1-14** | **Crear seeder de roles y permisos (18 permisos × 4 roles)** | Seeder `RolePermissionSeeder`: roles `encargado`, `revisor`, `admin`, `consulta`; permisos tabla SPECS §3.2 | Datos base RBAC | RF-013, PRINCIPIO 8 | T-F1-13 | `php artisan db:seed --class=RolePermissionSeeder` OK |
-| **T-F1-15** | **Crear Policies base** | `EnvioPolicy`, `ArchivoPolicy`, `CatalogoPolicy`, `UsuarioPolicy` con métodos `view`, `create`, `update`, `delete`, `download`, `approve`, `reopen` | Autorización declarativa | RN-ENV-1, RN-ENV-7, RN-ENV-8, RN-ENV-9, MOD-01 | T-F1-14 | Policies registradas en `AuthServiceProvider` |
+| **T-F1-10** | **Ejecutar Fortify (backend auth)** | `php artisan vendor:publish --provider="Laravel\Fortify\FortifyServiceProvider"`; configurar `FortifyServiceProvider` (login, password reset, email verification off) | Auth backend listo | RF-001, RF-002, RF-004, TEC-06 | T-F1-07 | Rutas `/login`, `/logout`, `/password/reset` funcionan | `[x]` |
+| **T-F1-11** | **Crear vistas Blade auth (login, reset, email)** | `resources/views/auth/login.blade.php`, `forgot-password.blade.php`, `reset-password.blade.php` con AdminLTE 3.2 + CSRF + mensajes español + códigos `APP-###` | UI auth completa | RF-001, RF-002, RF-004, RNF-014 | T-F1-10, T-F1-06 | Pantallas renderizan; validación cliente + servidor | `[x]` |
+| **T-F1-12** | **Configurar sesión segura** | `config/session.php`: `secure=true`, `http_only=true`, `same_site=lax`, `lifetime=480`, `expire_on_close=false` | Sesión endurecida | RNF-009, RNF-012 | T-F1-10 | Cookie `laravel_session` tiene flags correctos | `[x]` |
+| **T-F1-13** | **Instalar y configurar `spatie/laravel-permission`** | `php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"`; migración + `HasRoles` trait en `User` | RBAC listo | RF-013, MOD-01, TEC-07 | T-F1-10 | `php artisan permission:show` funciona | `[x]` |
+| **T-F1-14** | **Crear seeder de roles y permisos (18 permisos × 4 roles)** | Seeder `RolePermissionSeeder`: roles `encargado`, `revisor`, `admin`, `consulta`; permisos tabla SPECS §3.2 | Datos base RBAC | RF-013, PRINCIPIO 8 | T-F1-13 | `php artisan db:seed --class=RolePermissionSeeder` OK | `[x]` |
+| **T-F1-15** | **Crear Policies base** | `EnvioPolicy`, `ArchivoPolicy`, `CatalogoPolicy`, `UsuarioPolicy` con métodos `view`, `create`, `update`, `delete`, `download`, `approve`, `reopen` | Autorización declarativa | RN-ENV-1, RN-ENV-7, RN-ENV-8, RN-ENV-9, MOD-01 | T-F1-14 | Policies registradas en `AuthServiceProvider` | `[~]` |
 | **T-F1-16** | **Implementar *query scopes* de aislamiento** | `Envio::scopeForUser($user)`, `EnvioArchivo::scopeForUser($user)` aplican `whereIn establecimiento_id` desde pivot | Aislamiento en consulta | RN-ENV-1, PRINCIPIO 18 | T-F1-15 | SQL generado incluye `WHERE establecimiento_id IN (...)` |
-| **T-F1-17** | **Tests auth + RBAC (unit + feature)** | Tests: login/logout/throttle (CA-001, CA-002, CA-004); CRUD usuarios (CA-013 a CA-016); **pos/neg por cada permiso** (PRINCIPIO 8) | Suite verde | CA-001, CA-002, CA-004, CA-013 a CA-016, PRINCIPIO 8 | T-F1-14, T-F1-15 | `php artisan test --filter=Auth` y `--filter=Permission` pasan |
+| **T-F1-17** | **Tests auth + RBAC (unit + feature)** | Tests: login/logout/throttle (CA-001, CA-002, CA-004); CRUD usuarios (CA-013 a CA-016); **pos/neg por cada permiso** (PRINCIPIO 8) | Suite verde | CA-001, CA-002, CA-004, CA-013 a CA-016, PRINCIPIO 8 | T-F1-14, T-F1-15 | `php artisan test --filter=Auth` y `--filter=Permission` pasan | `[~]` |
 
 ### F1.3 — Catálogos y estructura base (MOD-02)
 
@@ -392,13 +392,13 @@ F0 (T-F0-01..10)
 | Fase | Tareas | Completadas | En progreso | Pendientes |
 |---|---|---|---|---|
 | **F0** | 10 | 7 | 3 | 0 |
-| **F1** | 31 | 6 | 2 | 23 |
+| **F1** | 31 | 11 | 3 | 17 |
 | **F2** | 31 | 0 | 0 | 31 |
 | **F3** | 14 | 0 | 0 | 14 |
 | **F4** | 5 | 0 | 0 | 5 |
 | **F5** | 5 | 0 | 0 | 5 |
 | **F6** | 16 | 0 | 0 | 16 |
-| **TOTAL** | **112** | **13** | **5** | **94** |
+| **TOTAL** | **112** | **18** | **6** | **88** |
 
 **F0 — las 7 completadas:** T-F0-01 (C-010), 04, 06, 07, 08, 09, 10.
 **F0 — las 3 en progreso, todas esperando a personas:**
@@ -408,6 +408,8 @@ F0 (T-F0-01..10)
 | T-F0-02 | Poblar `tests/Parity/fixtures/input/` con 12–20 archivos reales anonimizados | Unidad de Estadísticas |
 | T-F0-03 | Ejecutar el ValidadorRem sobre cada uno y exportar `datos` + `LogError` | TI / referente técnico |
 | T-F0-05 | Firmar `docs/validacion/politica-severidad.md` | Referente de negocio |
+
+> **Ajuste de orden (2026-11-11):** T-F1-15 y T-F1-16 crean policies y *query scopes* sobre los modelos Envio, EnvioArchivo y Observacion, que nacen en F2.1. Quedan en progreso: la estructura de autorización (roles, permisos, middleware y policies de User) existe, pero las policies de envío se escriben cuando existan sus modelos.
 
 > **Nota:** nada de esto ha sido verificado en código real. El estado refleja documentos y planificación. Al implementar, actualizar `[ ]` → `[~]` → `[x]` con evidencia (commit, salida de test, captura).
 

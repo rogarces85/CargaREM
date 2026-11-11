@@ -366,6 +366,28 @@
       }
     },
     {
+      "name": "catalogos.gestionar",
+      "description": "CRUD de servicios, establecimientos, series y plantillas. No incluye períodos (periodos.gestionar) ni la importación de snapshots (catalogos.importar)",
+      "matrix": {
+        "encargado": false,
+        "revisor": false,
+        "admin": true,
+        "consulta": false
+      },
+      "test_cases": {
+        "positive": [
+          "admin crea y edita un servicio → 200",
+          "admin crea y edita un establecimiento → 200",
+          "admin edita la matriz establecimiento-serie con vigencia → 200"
+        ],
+        "negative": [
+          "encargado → 403",
+          "revisor → 403",
+          "consulta → 403"
+        ]
+      }
+    },
+    {
       "name": "auditoria.ver",
       "description": "Ver logs de auditoría append-only con filtros",
       "matrix": {
@@ -390,9 +412,9 @@
   "summary": {
     "total_permissions": 18,
     "total_roles": 4,
-    "total_test_cases": 108,
-    "positive_tests": 54,
-    "negative_tests": 54,
+    "total_test_cases": 110,
+    "positive_tests": 41,
+    "negative_tests": 69,
     "principio_8": "Cada permiso tiene test positivo y negativo; incluye aislamiento (RN-ENV-1) y no autoaprobación (RN-ENV-7)"
   }
 }

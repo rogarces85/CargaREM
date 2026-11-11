@@ -67,6 +67,7 @@
 | `completitud.ver` | ✅ | ✅ | ✅ | ✅ |
 | `paquetes.generar` | — | ✅ | ✅ | — |
 | `catalogos.importar` | — | — | ✅ | — |
+| `catalogos.gestionar` | — | — | ✅ | — |
 | `usuarios.gestionar` | — | — | ✅ | — |
 | `periodos.gestionar` | — | — | ✅ | — |
 | `auditoria.ver` | — | — | ✅ | — |
