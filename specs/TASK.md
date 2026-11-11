@@ -149,10 +149,10 @@
 |---|---|---|---|---|---|---|
 | **T-F2-01** | **Migraciones núcleo transaccional** | `envios` (UK `establecimiento_id,anio,mes`), `envio_archivos` (UK `envio_id,serie_id,version`, UK `sha256`, `es_vigente`), `envio_transiciones`, `validaciones`, `observaciones` | Esquema completo | DAT-06, DAT-07, DAT-08, DAT-10 | T-F1-18 | Migraciones crean tablas con FK/UK correctos | `[x]` |
 | **T-F2-02** | **Modelos Eloquent núcleo** | `Envio`, `EnvioArchivo`, `Validacion`, `Observacion`, `EnvioTransicion` con relaciones, casts `decimal:2`, `enum`→`string`+validación | Modelos listos | DAT-06 a DAT-10 | T-F2-01 | `Envio::with('archivos.vigente')->first()` carga árbol | `[x]` |
-| **T-F2-03** | **EnvioService::crear() (OP-01)** | Crea/busca envío por `(establecimiento,anio,mes)`; guarda `recibido`; valida período `abierto` y autorización | Unicidad RN-ENV-6 | RF-017, OP-01, RN-ENV-6, RN-ENV-10 | T-F1-16, T-F2-02 | 2º intento mismo período/establec → falla por UK |
+| **T-F2-03** | **EnvioService::crear() (OP-01)** | Crea/busca envío por `(establecimiento,anio,mes)`; guarda `recibido`; valida período `abierto` y autorización | Unicidad RN-ENV-6 | RF-017, OP-01, RN-ENV-6, RN-ENV-10 | T-F1-16, T-F2-02 | 2º intento mismo período/establec → falla por UK | `[x]` |
 | **T-F2-04** | **FormRequest: CrearEnvioRequest + SubirArchivoRequest** | Validación: auth, período abierto, archivo required, mimes `xls,xlsx,xlsm`, max 2048 KB, tipo real `finfo` | Entrada validada | RF-017, RF-018, ENV-001 a ENV-004 | T-F2-03 | Request rechaza >2MB, ext inválida, tipo falso |
-| **T-F2-05** | **Almacenamiento privado + naming** | `storage/app/private/envios/{anio}/{mes}/{codigo}/{envio}/v{version}/{serie}.{ext}`; nombre generado SHA-256; `nombre_original` guardado | Archivos fuera de `public/` | TEC-08, RN-ENV-9, RN-ENV-12, RN-ENV-13 | T-F2-02 | Archivo físico en ruta esperada; `public/` sin archivos |
-| **T-F2-06** | **EnvioService::subirVersion() (OP-02)** | Transacción: `lockForUpdate(envio)` → `version=MAX+1` → `UPDATE es_vigente=0` → guarda archivo → `EnvioArchivo` `subido` → dispara validación → actualiza archivo + hallazgos → `EstadoEnvioService::recalcular` → auditoría | Subida atómica + versionado | RF-018, RF-020, OP-02, RN-ENV-8, RN-ENV-11, RN-ENV-13 | T-F2-03, T-F2-05, T-F2-14 | Reenvío crea v2, v1 `es_vigente=0`, hash único, auditoría |
+| **T-F2-05** | **Almacenamiento privado + naming** | `storage/app/private/envios/{anio}/{mes}/{codigo}/{envio}/v{version}/{serie}.{ext}`; nombre generado SHA-256; `nombre_original` guardado | Archivos fuera de `public/` | TEC-08, RN-ENV-9, RN-ENV-12, RN-ENV-13 | T-F2-02 | Archivo físico en ruta esperada; `public/` sin archivos | `[x]` |
+| **T-F2-06** | **EnvioService::subirVersion() (OP-02)** | Transacción: `lockForUpdate(envio)` → `version=MAX+1` → `UPDATE es_vigente=0` → guarda archivo → `EnvioArchivo` `subido` → dispara validación → actualiza archivo + hallazgos → `EstadoEnvioService::recalcular` → auditoría | Subida atómica + versionado | RF-018, RF-020, OP-02, RN-ENV-8, RN-ENV-11, RN-ENV-13 | T-F2-03, T-F2-05, T-F2-14 | Reenvío crea v2, v1 `es_vigente=0`, hash único, auditoría | `[x]` |
 | **T-F2-07** | **EnvioService::revalidar() (OP-03)** | Borra `validaciones` del archivo → re-ejecuta `ValidadorArchivo::validar` con `snapshot_id` del archivo → actualiza conteos/estado | Idempotente | RF-021, OP-03 | T-F2-06, T-F2-14 | 2 llamadas consecutivas = mismo resultado |
 | **T-F2-08** | **ArchivoService::descargar() (OP-04)** | Verifica policy → `response()->file($ruta, ['Content-Disposition'=>'attachment'])` + headers `nosniff` | Descarga autenticada | RF-022, OP-04, RN-ENV-9, TEC-08 | T-F2-05, T-F1-15 | Usuario sin permiso → 403; con permiso → descarga binaria |
 | **T-F2-09** | **ReporteService::descargar() (OP-05)** | Genera `.xlsx` (PhpSpreadsheet) o `.csv` desde `validaciones`: hojas Resumen/Bloqueantes/Advertencias/Info; nombre `Validacion_{codigo}_{serie}_{anio}{mes}_v{version}.xlsx` | Reporte descargable | RF-023, OP-05, MOD-04 | T-F2-14, T-F2-15 | Reporte coincide con hallazgos BD; formato correcto |
@@ -415,12 +415,12 @@ F0 (T-F0-01..10)
 |---|---|---|---|---|
 | **F0** | 10 | 7 | 3 | 0 |
 | **F1** | 31 | 31 | 0 | 0 |
-| **F2** | 31 | 2 | 0 | 29 |
+| **F2** | 31 | 5 | 0 | 26 |
 | **F3** | 14 | 0 | 0 | 14 |
 | **F4** | 5 | 0 | 0 | 5 |
 | **F5** | 5 | 0 | 0 | 5 |
 | **F6** | 16 | 0 | 0 | 16 |
-| **TOTAL** | **112** | **40** | **3** | **69** |
+| **TOTAL** | **112** | **43** | **3** | **66** |
 
 **F0 — las 7 completadas:** T-F0-01 (C-010), 04, 06, 07, 08, 09, 10.
 **F0 — las 3 en progreso, todas esperando a personas:**

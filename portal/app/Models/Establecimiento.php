@@ -13,6 +13,9 @@ class Establecimiento extends Model
 
     protected $table = 'establecimientos';
 
+    /** Un registro nuevo está activo salvo que se diga lo contrario (default de la columna). */
+    protected $attributes = ['activo' => true];
+
     protected $fillable = ['codigo', 'nombre', 'servicio_id', 'comuna', 'dependencia', 'id_comuna', 'id_dependencia', 'tipo', 'activo'];
 
     protected function casts(): array
