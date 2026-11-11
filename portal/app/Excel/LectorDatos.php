@@ -95,12 +95,8 @@ class LectorDatos
      */
     private function leerRango(Worksheet $hoja, string $inicio, string $fin, int $linea): array
     {
-        if ($inicio === '' || $fin === '') {
-            throw new \RuntimeException('La celda de inicio o fin está vacía en el diccionario.');
-        }
-
-        $desde = Coordinate::columnIndexFromString(strtoupper($inicio));
-        $hasta = Coordinate::columnIndexFromString(strtoupper($fin));
+        $desde = $this->columna($inicio);
+        $hasta = $this->columna($fin);
 
         if ($hasta < $desde) {
             throw new \RuntimeException("El rango {$inicio}..{$fin} está invertido.");
@@ -133,6 +129,37 @@ class LectorDatos
         }
 
         return $valores;
+    }
+
+    /**
+     * Convierte una columna del diccionario a número.
+     *
+     * El Access guarda índices numéricos (2, 37), no letras (B, AK). Se aceptan
+     * las dos formas porque no todas las versiones del catálogo usan la misma.
+     */
+    private function columna(string $valor): int
+    {
+        $valor = trim($valor);
+
+        if ($valor === '') {
+            throw new \RuntimeException('La columna de inicio o fin está vacía en el diccionario.');
+        }
+
+        if (ctype_digit($valor)) {
+            $indice = (int) $valor;
+
+            if ($indice < 1 || $indice > 16384) {
+                throw new \RuntimeException("La columna {$valor} está fuera del rango de una hoja.");
+            }
+
+            return $indice;
+        }
+
+        if (! ctype_alpha($valor)) {
+            throw new \RuntimeException("La columna «{$valor}» no es válida.");
+        }
+
+        return Coordinate::columnIndexFromString(strtoupper($valor));
     }
 
     private function abrir(string $ruta): Spreadsheet

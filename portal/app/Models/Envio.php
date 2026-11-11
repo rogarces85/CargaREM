@@ -97,6 +97,12 @@ class Envio extends Model
         return $this->hasMany(EnvioTransicion::class);
     }
 
+    /** Hallazgos del envío completo (V11), sin archivo asociado. */
+    public function validaciones(): HasMany
+    {
+        return $this->hasMany(Validacion::class, 'envio_id');
+    }
+
     public function enviadoPor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'enviado_por');

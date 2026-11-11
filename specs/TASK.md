@@ -182,9 +182,9 @@
 
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
-| **T-F2-26** | **EstadoEnvioService::recalcular() (OP-06)** | Deriva estado desde archivos vigentes: si ∃ bloqueante → `con_errores`; si ∀ `validado` y V11 OK → `validado`; si ∃ `observado` → `observado`; etc. Persiste en `envios.estado` | Estado consistente | RF-024, OP-06, MOD-05 | T-F2-06, T-F2-22 | Cambio archivo → recalcula → estado correcto |
-| **T-F2-27** | **EstadoEnvioService::transicionar() (OP-07)** | Guarda: valida evento permitido (matriz §5.3), guarda `envio_transiciones`, actualiza `estado`, dispara auditoría + notificación; lanza excepción si prohibido | Transiciones seguras | RF-024 a RF-030, OP-07, PRINCIPIO 7, RN-ENV-2,7,8,10 | T-F2-26, T-F1-26, T-F1-27 | Test: cada transición válida OK; prohibida → Exception |
-| **T-F2-28** | **Tests máquina de estados (PRINCIPIO 7)** | Tests: todas las transiciones válidas (8) + prohibidas (6+) verifican excepción; cubre guardas: bloqueantes, advertencias, autoaprobación, período, inmutabilidad | Suite completa | CA-024 a CA-031, PRINCIPIO 7 | T-F2-27 | `php artisan test --filter=EstadoEnvio` pasa |
+| **T-F2-26** | **EstadoEnvioService::recalcular() (OP-06)** | Deriva estado desde archivos vigentes: si ∃ bloqueante → `con_errores`; si ∀ `validado` y V11 OK → `validado`; si ∃ `observado` → `observado`; etc. Persiste en `envios.estado` | Estado consistente | RF-024, OP-06, MOD-05 | T-F2-06, T-F2-22 | Cambio archivo → recalcula → estado correcto | `[x]` |
+| **T-F2-27** | **EstadoEnvioService::transicionar() (OP-07)** | Guarda: valida evento permitido (matriz §5.3), guarda `envio_transiciones`, actualiza `estado`, dispara auditoría + notificación; lanza excepción si prohibido | Transiciones seguras | RF-024 a RF-030, OP-07, PRINCIPIO 7, RN-ENV-2,7,8,10 | T-F2-26, T-F1-26, T-F1-27 | Test: cada transición válida OK; prohibida → Exception | `[x]` |
+| **T-F2-28** | **Tests máquina de estados (PRINCIPIO 7)** | Tests: todas las transiciones válidas (8) + prohibidas (6+) verifican excepción; cubre guardas: bloqueantes, advertencias, autoaprobación, período, inmutabilidad | Suite completa | CA-024 a CA-031, PRINCIPIO 7 | T-F2-27 | `php artisan test --filter=EstadoEnvio` pasa | `[x]` |
 
 ### F2.4 — Concurrencia, locks, verificación fase F2
 
@@ -415,12 +415,12 @@ F0 (T-F0-01..10)
 |---|---|---|---|---|
 | **F0** | 10 | 7 | 3 | 0 |
 | **F1** | 31 | 31 | 0 | 0 |
-| **F2** | 31 | 17 | 0 | 14 |
+| **F2** | 31 | 20 | 0 | 11 |
 | **F3** | 14 | 0 | 0 | 14 |
 | **F4** | 5 | 0 | 0 | 5 |
 | **F5** | 5 | 0 | 0 | 5 |
 | **F6** | 16 | 0 | 0 | 16 |
-| **TOTAL** | **112** | **55** | **3** | **54** |
+| **TOTAL** | **112** | **58** | **3** | **51** |
 
 **F0 — las 7 completadas:** T-F0-01 (C-010), 04, 06, 07, 08, 09, 10.
 **F0 — las 3 en progreso, todas esperando a personas:**

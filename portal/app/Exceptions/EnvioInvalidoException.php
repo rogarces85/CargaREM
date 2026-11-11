@@ -49,4 +49,16 @@ class EnvioInvalidoException extends RuntimeException
     {
         return new self('APP-ENV-005', "La serie {$serie} no está activa en el catálogo.");
     }
+public static function transicionNoPermitida(string $desde, string $hacia): self
+    {
+        return new self(
+            'APP-ENV-006',
+            "No se puede pasar de «{$desde}» a «{$hacia}». Revise el flujo del envío."
+        );
+    }
+
+    public static function motivoRequerido(string $accion): self
+    {
+        return new self('APP-ENV-007', "Para {$accion} hace falta un motivo: queda en la bitácora.");
+    }
 }

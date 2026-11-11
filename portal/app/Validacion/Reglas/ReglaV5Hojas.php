@@ -72,6 +72,13 @@ final class ReglaV5Hojas implements ReglaValidacion
         $previstas = $esperadas->pluck('hoja')->map($normalizar)->all();
 
         foreach ($presentes as $hoja) {
+            // «NOMBRE» es la hoja de cabecera: está en todo archivo real y el
+            // catálogo de hojas no la lista. Avisar de ella sería un falso
+            // positivo en cada envío.
+            if ($normalizar($hoja) === 'NOMBRE') {
+                continue;
+            }
+
             if (! in_array($normalizar($hoja), $previstas, true)) {
                 $hallazgos[] = new Hallazgo(
                     'V5', 'ENV-017', Severidad::ADVERTENCIA,
