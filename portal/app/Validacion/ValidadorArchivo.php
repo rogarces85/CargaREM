@@ -62,8 +62,16 @@ class ValidadorArchivo
 
     /**
      * Valida un archivo y deja el resultado en base de datos.
+     *
+     * Ocupa uno de los huecos de validación concurrente: abrir un Excel
+     * consume memoria, y el servidor solo aguanta dos a la vez.
      */
     public function validar(EnvioArchivo $archivo): ResultadoValidacion
+    {
+        return app(BloqueoValidacion::class)->conSlot(fn () => $this->validarSinBloqueo($archivo));
+    }
+
+    private function validarSinBloqueo(EnvioArchivo $archivo): ResultadoValidacion
     {
         $archivo->loadMissing('envio.establecimiento', 'serie');
 

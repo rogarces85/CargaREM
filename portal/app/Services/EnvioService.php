@@ -26,6 +26,7 @@ class EnvioService
     public function __construct(
         private readonly ArchivoService $archivos,
         private readonly ValidadorArchivo $validador,
+        private readonly EstadoEnvioService $estados,
     ) {
     }
 
@@ -138,9 +139,10 @@ class EnvioService
                 'subido_por'      => $usuario->id,
             ]);
 
-            if ($envio->estado !== Envio::RECIBIDO) {
-                $envio->update(['estado' => Envio::RECIBIDO]);
-            }
+            // Un reenvío devuelve el envío a `recibido`: hay que revalidar.
+            // Va por el servicio de estados para que el movimiento quede en
+            // el historial; escribirlo a mano dejaba la historia incompleta.
+            $this->estados->marcarRecibido($envio, $usuario);
 
             AuditoriaService::registrarSobre('archivo.subido', $registro, [
                 'envio'   => $envio->id,

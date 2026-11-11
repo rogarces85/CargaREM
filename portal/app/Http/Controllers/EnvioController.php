@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\ArchivoRechazadoException;
 use App\Exceptions\EnvioInvalidoException;
+use App\Exceptions\ValidacionOcupadaException;
+use App\Http\Requests\CrearEnvioRequest;
+use App\Http\Requests\SubirArchivoRequest;
 use App\Models\Envio;
 use App\Models\Establecimiento;
 use App\Models\Periodo;
@@ -52,20 +55,11 @@ class EnvioController extends Controller
         ]);
     }
 
-    public function store(Request $request): RedirectResponse
+    public function store(CrearEnvioRequest $request): RedirectResponse
     {
-        $datos = $request->validate([
-            'establecimiento_id' => ['required', 'integer', 'exists:establecimientos,id'],
-            'periodo'            => ['required', 'regex:/^\d{4}-(?:[1-9]|1[0-2])$/'],
-        ], [
-            'periodo.regex' => 'Elija un período válido.',
-        ]);
+        [$anio, $mes] = $request->periodo();
 
-        [$anio, $mes] = array_map('intval', explode('-', $datos['periodo']));
-
-        $establecimiento = Establecimiento::findOrFail($datos['establecimiento_id']);
-
-        $this->authorize('create', [Envio::class, $establecimiento]);
+        $establecimiento = Establecimiento::findOrFail($request->integer('establecimiento_id'));
 
         try {
             $envio = $this->envios->crear($establecimiento, $anio, $mes, $request->user());
@@ -106,23 +100,18 @@ class EnvioController extends Controller
     /**
      * Sube o reemplaza el archivo de una serie (OP-02).
      */
-    public function subir(Request $request, Envio $envio): RedirectResponse
+    public function subir(SubirArchivoRequest $request, Envio $envio): RedirectResponse
     {
-        $this->authorize('update', $envio);
-
-        $datos = $request->validate([
-            'serie_id' => ['required', 'integer', 'exists:series,id'],
-            'archivo'  => ['required', 'file', 'max:'.config('rem.archivos.max_kb')],
-        ], [
-            'archivo.max' => 'El archivo supera el máximo permitido de '.config('rem.archivos.max_kb').' KB.',
-        ]);
-
-        $serie = Serie::findOrFail($datos['serie_id']);
+        $serie = Serie::findOrFail($request->integer('serie_id'));
 
         try {
             $registro = $this->envios->subirVersion($envio, $serie, $request->file('archivo'), $request->user());
         } catch (ArchivoRechazadoException|EnvioInvalidoException $e) {
             return back()->withErrors(['archivo' => $e->getMessage()]);
+        } catch (ValidacionOcupadaException $e) {
+            // El archivo quedó guardado; solo falta validarlo. Se avisa sin
+            // perder la subida, que es lo que costó tiempo al usuario.
+            return back()->withErrors(['archivo' => $e->getMessage().' El archivo quedó guardado: revalide desde el detalle.']);
         }
 
         $this->envios->revalidar($envio);

@@ -125,6 +125,39 @@ class EstadoEnvioService
         });
     }
 
+    /**
+     * Devuelve el envío a `recibido` porque llegó una versión nueva.
+     *
+     * Lo llama la subida, con el usuario que subió como actor: aunque el
+     * cambio sea consecuencia del reenvío, alguien lo provocó y la historia
+     * tiene que decirlo.
+     */
+    public function marcarRecibido(Envio $envio, User $actor, string $motivo = 'Se subió una versión nueva.'): string
+    {
+        $envio->refresh();
+
+        if ($envio->estado === Envio::RECIBIDO) {
+            return $envio->estado;
+        }
+
+        return DB::transaction(function () use ($envio, $actor, $motivo) {
+            $anterior = $envio->estado;
+
+            $envio->update(['estado' => Envio::RECIBIDO]);
+
+            $envio->transiciones()->create([
+                'estado_anterior' => $anterior,
+                'estado_nuevo'    => Envio::RECIBIDO,
+                'actor_id'        => $actor->id,
+                'motivo'          => $motivo,
+            ]);
+
+            AuditoriaService::registrarSobre('envio.reenvio', $envio, ['de' => $anterior, 'a' => Envio::RECIBIDO]);
+
+            return Envio::RECIBIDO;
+        });
+    }
+
     private function fijar(Envio $envio, string $nuevo, ?string $motivo = null): string
     {
         if ($envio->estado === $nuevo) {

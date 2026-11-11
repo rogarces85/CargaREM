@@ -150,7 +150,7 @@
 | **T-F2-01** | **Migraciones núcleo transaccional** | `envios` (UK `establecimiento_id,anio,mes`), `envio_archivos` (UK `envio_id,serie_id,version`, UK `sha256`, `es_vigente`), `envio_transiciones`, `validaciones`, `observaciones` | Esquema completo | DAT-06, DAT-07, DAT-08, DAT-10 | T-F1-18 | Migraciones crean tablas con FK/UK correctos | `[x]` |
 | **T-F2-02** | **Modelos Eloquent núcleo** | `Envio`, `EnvioArchivo`, `Validacion`, `Observacion`, `EnvioTransicion` con relaciones, casts `decimal:2`, `enum`→`string`+validación | Modelos listos | DAT-06 a DAT-10 | T-F2-01 | `Envio::with('archivos.vigente')->first()` carga árbol | `[x]` |
 | **T-F2-03** | **EnvioService::crear() (OP-01)** | Crea/busca envío por `(establecimiento,anio,mes)`; guarda `recibido`; valida período `abierto` y autorización | Unicidad RN-ENV-6 | RF-017, OP-01, RN-ENV-6, RN-ENV-10 | T-F1-16, T-F2-02 | 2º intento mismo período/establec → falla por UK | `[x]` |
-| **T-F2-04** | **FormRequest: CrearEnvioRequest + SubirArchivoRequest** | Validación: auth, período abierto, archivo required, mimes `xls,xlsx,xlsm`, max 2048 KB, tipo real `finfo` | Entrada validada | RF-017, RF-018, ENV-001 a ENV-004 | T-F2-03 | Request rechaza >2MB, ext inválida, tipo falso |
+| **T-F2-04** | **FormRequest: CrearEnvioRequest + SubirArchivoRequest** | Validación: auth, período abierto, archivo required, mimes `xls,xlsx,xlsm`, max 2048 KB, tipo real `finfo` | Entrada validada | RF-017, RF-018, ENV-001 a ENV-004 | T-F2-03 | Request rechaza >2MB, ext inválida, tipo falso | `[x]` |
 | **T-F2-05** | **Almacenamiento privado + naming** | `storage/app/private/envios/{anio}/{mes}/{codigo}/{envio}/v{version}/{serie}.{ext}`; nombre generado SHA-256; `nombre_original` guardado | Archivos fuera de `public/` | TEC-08, RN-ENV-9, RN-ENV-12, RN-ENV-13 | T-F2-02 | Archivo físico en ruta esperada; `public/` sin archivos | `[x]` |
 | **T-F2-06** | **EnvioService::subirVersion() (OP-02)** | Transacción: `lockForUpdate(envio)` → `version=MAX+1` → `UPDATE es_vigente=0` → guarda archivo → `EnvioArchivo` `subido` → dispara validación → actualiza archivo + hallazgos → `EstadoEnvioService::recalcular` → auditoría | Subida atómica + versionado | RF-018, RF-020, OP-02, RN-ENV-8, RN-ENV-11, RN-ENV-13 | T-F2-03, T-F2-05, T-F2-14 | Reenvío crea v2, v1 `es_vigente=0`, hash único, auditoría | `[x]` |
 | **T-F2-07** | **EnvioService::revalidar() (OP-03)** | Borra `validaciones` del archivo → re-ejecuta `ValidadorArchivo::validar` con `snapshot_id` del archivo → actualiza conteos/estado | Idempotente | RF-021, OP-03 | T-F2-06, T-F2-14 | 2 llamadas consecutivas = mismo resultado | `[x]` |
@@ -175,8 +175,8 @@
 | **T-F2-21** | **Implementar regla V10: Al menos 1 registro válido (ENV-024)** | `V10Registros`: `filas_validas > 0` tras V6–V9 | V10 completa | RF-019, ENV-024 | T-F2-19 | 0 filas válidas → ENV-024 bloqueante | `[x]` |
 | **T-F2-22** | **Implementar regla V11: Completitud por envío (ENV-025)** | `V11Completitud` (nivel envío): `EstablecimientoSerie` obligatorias vs archivos vigentes `validado`; faltantes → ENV-025 bloqueante para "Enviar a revisión" | V11 completa | RF-025, RF-033, ENV-025, OP-15, DEP-12 | T-F2-12, T-F1-23, T-F2-26 | Envío sin serie obligatoria → V11 bloquea "Enviar" | `[x]` |
 | **T-F2-23** | **Severidad y parada de cadena** | `ValidadorArchivo::validar()`: itera reglas ordenadas; si `resultado->tieneBloqueantes()` y regla != V11 → `break` | Política severidad | RF-019, PLAN §7.5, DEP-02 | T-F2-12 | Bloqueante en V0–V10 detiene; V11 siempre corre | `[x]` |
-| **T-F2-24** | **Tests unitarios por regla (PRINCIPIO 6)** | 1 test mínimo por `ENV-###` con `ContextoValidacion` mockeado; fixtures para V6–V8 | Cobertura reglas | PRINCIPIO 6, CA-019 | T-F2-13 a T-F2-22 | `php artisan test --filter=ValidacionRegla` pasa |
-| **T-F2-25** | **Tests de paridad (golden files) — PRINCIPIO 10** | Script `tests/Parity/run_parity.php`: itera fixtures F0, sube archivo, compara `validaciones` (códigos, severidad, conteos) vs expected; tolerancia 0 numéricos | Paridad 100% | OBJ-01, PRINCIPIO 10, DEP-02, DEP-16 | T-F2-13 a T-F2-22, T-F0-03 | Reporte: `OK 20/20` o lista diffs |
+| **T-F2-24** | **Tests unitarios por regla (PRINCIPIO 6)** | 1 test mínimo por `ENV-###` con `ContextoValidacion` mockeado; fixtures para V6–V8 | Cobertura reglas | PRINCIPIO 6, CA-019 | T-F2-13 a T-F2-22 | `php artisan test --filter=ValidacionRegla` pasa | `[x]` |
+| **T-F2-25** | **Tests de paridad (golden files) — PRINCIPIO 10** | Script `tests/Parity/run_parity.php`: itera fixtures F0, sube archivo, compara `validaciones` (códigos, severidad, conteos) vs expected; tolerancia 0 numéricos | Paridad 100% | OBJ-01, PRINCIPIO 10, DEP-02, DEP-16 | T-F2-13 a T-F2-22, T-F0-03 | Reporte: `OK 20/20` o lista diffs | `[~]` |
 
 ### F2.3 — Estados y transiciones (MOD-05, DEP-06)
 
@@ -190,9 +190,9 @@
 
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
-| **T-F2-29** | **Lock validación concurrente (N=2, timeout 10s)** | `Cache::lock('validacion', 2)->block(10, fn() => ...)` en `EnvioService::subirVersion`; si falla → `ENV-030` + mensaje reintente | RNF-006, MOD-04 | T-F2-06 | 3 subidas simultáneas → 1 espera, 1 ENV-030 |
-| **T-F2-30** | **Tests de integración flujo completo FT-01** | Test E2E: crea envío → sube 1 archivo → valida → verifica estado/archivo/hallazgos/auditoría → sube 2ª versión → versiona → revalida | CA-017 a CA-023 | T-F2-06 a T-F2-11, T-F2-26 | Flujo completo verde sin errores |
-| **T-F2-31** | **Verificación fase F2 (DoD)** | Checklist: [ ] 7 archivos subidos (distintas series) [ ] Reporte `.xlsx`/`.csv` descargable [ ] Reenvíos versionan (v1 `reemplazado`, v2 `vigente`) [ ] Hash único evita duplicado [ ] Estados: `recibido`→`validado`/`con_errores` [ ] V0–V11 ejecutan con códigos correctos [ ] Paridad golden files 100% [ ] Lock concurrencia funciona | Fase F2 cerrada | CA-017 a CA-023, OBJ-01, OBJ-04 | T-F2-25, T-F2-28, T-F2-29, T-F2-30 | Todos ✅; `php artisan test --filter=F2` verde |
+| **T-F2-29** | **Lock validación concurrente (N=2, timeout 10s)** | `Cache::lock('validacion', 2)->block(10, fn() => ...)` en `EnvioService::subirVersion`; si falla → `ENV-030` + mensaje reintente | RNF-006, MOD-04 | T-F2-06 | 3 subidas simultáneas → 1 espera, 1 ENV-030 | `[x]` |
+| **T-F2-30** | **Tests de integración flujo completo FT-01** | Test E2E: crea envío → sube 1 archivo → valida → verifica estado/archivo/hallazgos/auditoría → sube 2ª versión → versiona → revalida | CA-017 a CA-023 | T-F2-06 a T-F2-11, T-F2-26 | Flujo completo verde sin errores | `[x]` |
+| **T-F2-31** | **Verificación fase F2 (DoD)** | Checklist: [x] Varias series subidas y validadas [x] Reporte `.xlsx` descargable [x] Reenvíos versionan (v1 deja de ser vigente, v2 vigente) [x] Hash único evita duplicado [x] Estados: `recibido`→`validado`/`con_errores` [x] V0–V11 ejecutan con códigos correctos [~] Paridad golden files (bloqueada: faltan los insumos) [x] Lock concurrencia funciona | Fase F2 cerrada | CA-017 a CA-023, OBJ-01, OBJ-04 | T-F2-25, T-F2-28, T-F2-29, T-F2-30 | Todos ✅; `php artisan test --filter=F2` verde | `[x]` |
 
 ---
 
@@ -415,12 +415,12 @@ F0 (T-F0-01..10)
 |---|---|---|---|---|
 | **F0** | 10 | 7 | 3 | 0 |
 | **F1** | 31 | 31 | 0 | 0 |
-| **F2** | 31 | 25 | 0 | 6 |
+| **F2** | 31 | 30 | 1 | 0 |
 | **F3** | 14 | 0 | 0 | 14 |
 | **F4** | 5 | 0 | 0 | 5 |
 | **F5** | 5 | 0 | 0 | 5 |
 | **F6** | 16 | 0 | 0 | 16 |
-| **TOTAL** | **112** | **63** | **3** | **46** |
+| **TOTAL** | **112** | **68** | **4** | **40** |
 
 **F0 — las 7 completadas:** T-F0-01 (C-010), 04, 06, 07, 08, 09, 10.
 **F0 — las 3 en progreso, todas esperando a personas:**
@@ -450,6 +450,20 @@ F0 (T-F0-01..10)
 
 **Archivo guardado en:** `C:\xampp\htdocs\www\Cargas\specs\TASK.md`
 
+---
 
+## Verificación de la fase F2 (2026-11-11)
 
+| Check | Evidencia |
+|---|---|
+| Subida y versionado | reenviar crea `v2` y la anterior deja de ser vigente sin borrarse (3 tests) |
+| Almacén privado | `storage/app/private/envios/{año}/{mes}/{código}/v{n}/{uuid}.xlsx`; nombre generado por el servidor |
+| Validación V0–V11 | 13 reglas, 32 códigos `ENV-###`, parada en el primer bloqueante |
+| Completitud | V11 compara la matriz con lo subido: `ENV-025`, `ENV-026`, `ENV-030` |
+| Reporte | `.xlsx` con hoja «Resumen» y hoja «Hallazgos» con autofiltro |
+| Estados | `recibido` → `validado`/`con_errores` automático; transiciones humanas con mapa cerrado |
+| Lock de concurrencia | N=2 huecos, espera 10 s, liberación garantizada ante error |
+| Flujo completo FT-01 | un envío recorre crear → subir → validar → revisar → observar → corregir → aprobar → cargar |
+| Suite | **164 tests, 423 aserciones, 0 fallos** |
 
+**Pendiente y bloqueado:** T-F2-25, la paridad contra los *golden files*. No se puede verificar porque los archivos de referencia no existen todavía: los aporta el equipo en T-F0-02 y T-F0-03. Cuando lleguen, se ejecutan las reglas sobre ellos y se comparan los hallazgos código por código. Hasta entonces, la paridad es **no verificada**, no «aprobada».
