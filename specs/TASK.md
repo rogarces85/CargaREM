@@ -88,8 +88,8 @@
 
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
-| **T-F1-18** | **Migraciones catálogos (DAT-01 a DAT-06, DAT-11 a DAT-16)** | Migraciones para: `servicios`, `establecimientos`, `series`, `periodos`, `establecimiento_serie`, `catalogo_snapshots`, `plantillas`, `plantilla_hojas`, `plantilla_cabecera`, `diccionario`, `excepciones`, `usuario_establecimiento` | Esquema completo | DAT-01 a DAT-16, MOD-02 | T-F1-05 | `php artisan migrate` crea todas las tablas con FK/UK/índices |
-| **T-F1-19** | **Modelos Eloquent catálogos** | Clases `Servicio`, `Establecimiento`, `Serie`, `Periodo`, `EstablecimientoSerie`, `CatalogoSnapshot`, `Plantilla`, `PlantillaHoja`, `PlantillaCabecera`, `Diccionario`, `Excepcion` con `$fillable`, relaciones, casts, scopes | Modelos listos | DAT-01 a DAT-16 | T-F1-18 | `Servicio::first()->establecimientos` carga relación |
+| **T-F1-18** | **Migraciones catálogos (DAT-01 a DAT-06, DAT-11 a DAT-16)** | Migraciones para: `servicios`, `establecimientos`, `series`, `periodos`, `establecimiento_serie`, `catalogo_snapshots`, `plantillas`, `plantilla_hojas`, `plantilla_cabecera`, `diccionario`, `excepciones`, `usuario_establecimiento` | Esquema completo | DAT-01 a DAT-16, MOD-02 | T-F1-05 | `php artisan migrate` crea todas las tablas con FK/UK/índices | `[x]` |
+| **T-F1-19** | **Modelos Eloquent catálogos** | Clases `Servicio`, `Establecimiento`, `Serie`, `Periodo`, `EstablecimientoSerie`, `CatalogoSnapshot`, `Plantilla`, `PlantillaHoja`, `PlantillaCabecera`, `Diccionario`, `Excepcion` con `$fillable`, relaciones, casts, scopes | Modelos listos | DAT-01 a DAT-16 | T-F1-18 | `Servicio::first()->establecimientos` carga relación | `[x]` |
 | **T-F1-20** | **Importador CSV/ZIP (CatalogoService::importarSnapshot)** | Servicio que: valida ZIP (columnas, encoding, conteos referencia, duplicados), carga tablas espejo en transacción, crea `CatalogoSnapshot` `activo=0` | Importación robusta | RF-005, RF-006, MOD-02, DEP-03 | T-F1-19 | ZIP válido → snapshot inactivo con conteos correctos |
 | **T-F1-21** | **Activar snapshot (único activo)** | `CatalogoService::activarSnapshot($id)`: transacción desactiva anterior + activa nuevo; evento auditoría | Un solo activo | RF-006, MOD-02 | T-F1-20 | Solo 1 fila `activo=1`; auditoría registra cambio |
 | **T-F1-22** | **CRUD Admin catálogos (UI Blade)** | Controladores `Admin\ServicioController`, `EstablecimientoController`, `SerieController`, `PeriodoController`, `PlantillaController`, `CatalogoSnapshotController` + vistas `admin/catalogos/*` con AdminLTE 3.2 | UI admin completa | RF-007 a RF-012, CA-007 a CA-012 | T-F1-19, T-F1-11 | Admin crea/edita/activa; validaciones server-side |
@@ -392,13 +392,13 @@ F0 (T-F0-01..10)
 | Fase | Tareas | Completadas | En progreso | Pendientes |
 |---|---|---|---|---|
 | **F0** | 10 | 7 | 3 | 0 |
-| **F1** | 31 | 11 | 3 | 17 |
+| **F1** | 31 | 13 | 3 | 15 |
 | **F2** | 31 | 0 | 0 | 31 |
 | **F3** | 14 | 0 | 0 | 14 |
 | **F4** | 5 | 0 | 0 | 5 |
 | **F5** | 5 | 0 | 0 | 5 |
 | **F6** | 16 | 0 | 0 | 16 |
-| **TOTAL** | **112** | **18** | **6** | **88** |
+| **TOTAL** | **112** | **20** | **6** | **86** |
 
 **F0 — las 7 completadas:** T-F0-01 (C-010), 04, 06, 07, 08, 09, 10.
 **F0 — las 3 en progreso, todas esperando a personas:**
