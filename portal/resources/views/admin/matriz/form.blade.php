@@ -35,7 +35,9 @@
                     </thead>
                     <tbody>
                         @foreach ($series as $serie)
-                            @php($actual = $actuales->get($serie->id))
+                            @php
+                                $actual = $actuales->get($serie->id);
+                            @endphp
                             <tr>
                                 <td>
                                     <strong>{{ $serie->codigo }}</strong>

@@ -9,6 +9,8 @@ use App\Http\Controllers\Admin\PlantillaController;
 use App\Http\Controllers\Admin\SerieController;
 use App\Http\Controllers\Admin\UsuarioController;
 use App\Http\Controllers\Admin\ServicioController;
+use App\Http\Controllers\ArchivoController;
+use App\Http\Controllers\EnvioController;
 use App\Http\Controllers\HealthController;
 use Illuminate\Support\Facades\Route;
 
@@ -73,3 +75,16 @@ Route::middleware(['auth', 'permission:usuarios.gestionar'])
     ->group(function () {
         Route::resource('usuarios', UsuarioController::class)->except(['show', 'destroy']);
     });
+/*
+ * Flujo de envío: dashboard, detalle, subida, descargas y transiciones.
+ */
+Route::middleware(['auth'])->group(function () {
+    Route::get('envios', [EnvioController::class, 'index'])->name('envios.index');
+    Route::post('envios', [EnvioController::class, 'store'])->name('envios.store');
+    Route::get('envios/{envio}', [EnvioController::class, 'show'])->name('envios.show');
+    Route::post('envios/{envio}/archivos', [EnvioController::class, 'subir'])->name('envios.subir');
+    Route::post('envios/{envio}/transicion', [EnvioController::class, 'transicion'])->name('envios.transicion');
+    Route::get('envios/{envio}/reporte', [EnvioController::class, 'reporte'])->name('envios.reporte');
+    Route::get('envios/{envio}/archivos/{archivo}/descargar', [ArchivoController::class, 'descargar'])
+        ->name('envios.archivo.descargar');
+});
