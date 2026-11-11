@@ -4,7 +4,7 @@
 > **Fuentes:** `specs/AGENT.md`, `specs/SPECS.md`, `specs/PLAN.md`, `02-DOCS/wiki/sdd/constitution.md` v3.1.0
 > **Stack confirmado (C-015):** Laravel **12.72** + PHP **8.2** + MySQL 8.0.42 + AdminLTE 3.2 (Bootstrap 4) + vanilla JS
 > **Fecha:** 2026-11-10
-> **Estado (2026-11-11):** F0 redactado — 7 de 10; las 3 restantes esperan personas. **F1 en Laravel 12:** `portal/` corre 12.72.0, migra contra `portal_m7`, responde por Apache y pasa 4 tests. F2–F6 sin empezar.
+> **Estado (2026-11-11):** F0 redactado — 7 de 10; las 3 restantes esperan personas. **F1 en Laravel 12:** `portal/` corre 12.72.0, migra contra `cargas_rem`, responde por Apache y pasa 4 tests. F2–F6 sin empezar.
 
 ---
 
@@ -65,7 +65,7 @@
 | **T-F1-01** | **Crear proyecto Laravel 12.72** | `composer create-project "laravel/laravel:^12" portal --prefer-dist` en `Cargas/portal/`. El esqueleto 12.x instala `laravel/framework` 12.72 | Proyecto base instalado | TEC-01 | F0 | `portal/artisan --version` = 12.72.0 → **verificado** | `[x]` |
 | **T-F1-02** | **Fijar el PHP de plataforma** | `composer.json` exige `php ^8.2`. Sin `platform` override: el PHP local y el del servidor objetivo coinciden en 8.2 | `vendor/` compatible con prod | TEC-01, TEC-14 | T-F1-01 | `composer check-platform-reqs` en verde | `[x]` |
 | **T-F1-03** | **Instalar dependencias base** | `spatie/laravel-permission ^6.25`, `laravel/fortify ^1.42`, `yajra/laravel-datatables-oracle ^12.7`, `phpoffice/phpspreadsheet ^5.11` (la 5.x exige PHP 8.1+). **`composer audit` sin avisos** | Paquetes instalados | TEC-04, TEC-06, TEC-07, TEC-10, TEC-11 | T-F1-02 | `composer show` lista paquetes correctos → **verificado** | `[x]` |
-| **T-F1-04** | **Configurar `.env.example` y `.env` local** | `.env.example` con MariaDB `portal_m7`, `America/Santiago`, `es`, sesión 480 min y `MAIL_MAILER=log` | Variables listas | TEC-02, TEC-03 | T-F1-03 | `php artisan migrate` corre contra `portal_m7` | `[x]` |
+| **T-F1-04** | **Configurar `.env.example` y `.env` local** | `.env.example` con MariaDB `cargas_rem`, `America/Santiago`, `es`, sesión 480 min y `MAIL_MAILER=log` | Variables listas | TEC-02, TEC-03 | T-F1-03 | `php artisan migrate` corre contra `cargas_rem` | `[x]` |
 | **T-F1-05** | **Configurar base de datos dual** | `config/database.php`: MySQL/MariaDB para desarrollo y paridad; SQLite solo para la suite rápida. `sql_mode` estricto explícito para igualar producción | Dual DB configurada | C-008, C-011, TEC-03 | T-F1-04 | `@@sql_mode` incluye `STRICT_TRANS_TABLES` → **verificado** | `[x]` |
 | **T-F1-06** | **Publicar assets AdminLTE 3.2** | AdminLTE 3.2.0 desde el tag `v3.2.0`: `dist/` minificado + 20 plugins (jQuery, Bootstrap 4, FontAwesome, Chart.js, DataTables + bs4/buttons/responsive, Select2 + tema, SweetAlert2 + tema, OverlayScrollbars, Toastr, Inputmask, jQuery-Validation, Pace, Popper, Moment, Tempusdominus) en `public/assets/adminlte/` | Assets servibles sin Node | TEC-05 | T-F1-03 | CSS y JS responden 200 → **verificado** (18,8 MB, 610 archivos) | `[x]` |
 | **T-F1-07** | **Configurar `config/rem.php`** | Crear archivo con claves: `archivos`, `validacion`, `series`, `paquete` (ver PLAN §11.4) | Config centralizada | TEC-01, MOD-02, MOD-03, MOD-04 | T-F1-03 | `config('rem.archivos.max_kb')` = 2048 | `[x]` |
@@ -121,7 +121,7 @@
 |---|---|
 | Laravel y PHP | **12.72.0** sobre **PHP 8.2.12** |
 | `composer audit` | sin avisos |
-| Base de datos | `portal_m7` en MariaDB, `@@sql_mode` con `STRICT_TRANS_TABLES` |
+| Base de datos | `cargas_rem` en MariaDB, `@@sql_mode` con `STRICT_TRANS_TABLES` |
 | Zona horaria y locale | `America/Santiago` · `es` |
 | Migraciones | corren en MariaDB **y** en SQLite |
 | HTTP | `/`, `/login` y `/health` responden **200** |

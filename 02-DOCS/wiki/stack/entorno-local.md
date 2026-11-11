@@ -153,7 +153,7 @@ El respaldo vive **fuera del repositorio**: contiene datos y la Constitución (p
 
 El portal usa una base nueva y vacía, con el esquema del módulo M7. Los catálogos no se heredan de la base borrada: se **reimportan desde las bases Access del sistema**, que son la fuente real y están actualizadas.
 
-- Nombre propuesto: `portal_m7` (y `portal_m7_test` para la suite).
+- Nombre: **`cargas_rem`** (y `cargas_rem_test` para la suite). Minúsculas y guion bajo, igual que `observaciones_rem`: el MySQL de producción en Linux es sensible a mayúsculas en el nombre de la base.
 - Origen de los datos: [`docs/datos/fuentes-datos-mdb.md`](../../../docs/datos/fuentes-datos-mdb.md).
 - Ruta: `.mdb` → CSV (Windows, fase 1) → MySQL. El servidor Linux nunca abre un Access.
 
@@ -167,7 +167,7 @@ El portal usa una base nueva y vacía, con el esquema del módulo M7. Los catál
 
 | # | Falta | Por qué |
 |---|---|---|
-| 1 | Crear la base `portal_m7` vacía | §7 |
+| 1 | Crear la base `cargas_rem` vacía | §7 |
 | 2 | Exportar los catálogos de `.mdb` a CSV | §7 y `docs/datos/fuentes-datos-mdb.md` |
 | 3 | Fijar `platform.php = 7.4.3` en `composer.json` | §5 |
 | 4 | Configurar `sql_mode` estricto en la conexión | §4 |

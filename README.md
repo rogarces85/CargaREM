@@ -2,7 +2,7 @@
 
 Documentación técnica de **Cargas REM** (el sistema que existe hoy) y especificación del **Portal M7**: el módulo web de envío mensual de estadísticas REM por establecimiento.
 
-> **Estado:** **D-STACK cerrada (C-015): Laravel 12.72 sobre PHP 8.2.** El portal corre en [`portal/`](portal/), migra contra `portal_m7`, responde por Apache y pasa sus tests con **cero avisos de seguridad**. El despliegue espera a que TI habilite PHP 8.2 en el vhost: ver [`solicitud-php-82-ti.md`](docs/infra/solicitud-php-82-ti.md). Ver [`solicitud-php-82-ti.md`](docs/infra/solicitud-php-82-ti.md).
+> **Estado:** **D-STACK cerrada (C-015): Laravel 12.72 sobre PHP 8.2.** El portal corre en [`portal/`](portal/), migra contra `cargas_rem`, responde por Apache y pasa sus tests con **cero avisos de seguridad**. El despliegue espera a que TI habilite PHP 8.2 en el vhost: ver [`solicitud-php-82-ti.md`](docs/infra/solicitud-php-82-ti.md).
 
 ---
 
