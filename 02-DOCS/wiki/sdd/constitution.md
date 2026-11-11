@@ -5,46 +5,48 @@ description: Los principios no negociables que toda fase rsc-sdd obedece. Stack 
 tags: [sdd, constitution, cargas, rem]
 timestamp: 2026-11-10T12:30:00Z
 topic: sdd
-version: v3.2.0
+version: v4.0.0
 ---
 
 # Cargas — Constitution
 
-> Version: v3.2.0 · Ratified: 2026-11-06 · Last amended: 2026-11-11
+> Version: v4.0.0 · Ratified: 2026-11-06 · Last amended: 2026-11-11
 > Principios no negociables que toda fase rsc-sdd obedece. El detalle técnico vive en
 > `02-DOCS/wiki/stack/` y `02-DOCS/wiki/dominio/`; este archivo ratifica el principio y enlaza el detalle.
 >
 > **Alcance.** Rige el portal M7 de envío REM por establecimiento y la documentación técnica de
 > Cargas REM. No rige el ejecutable WinForms existente, que se documenta pero no se modifica aquí.
 
-## 0. Decisión de stack — REABIERTA (C-014)
+## 0. Decisión de stack — CERRADA (C-015: Laravel 12.72 + PHP 8.2 + MySQL 8 + AdminLTE 3.2)
 
-El canon vigente hasta el 2026-11-11 era **Laravel 8.83 + PHP 7.4.3** (C-010). Se reabre porque `composer audit` sobre el proyecto real confirmó algo que la decisión anterior no evaluó: **Laravel 8.83.29 acumula 5 avisos de seguridad abiertos, uno crítico, y no recibirá parches nunca**. La rama 8.x está en fin de vida.
+La decisión está tomada y **probada en código**. El portal corre sobre **Laravel 12.72.0 con PHP 8.2**.
 
 | # | Hecho confirmado | Consecuencia |
 |---|---|---|
-| S1 | PHP 7.4.3 (EOL 28-nov-2022) en Apache `mod_php` | Impide correr Laravel 12+ |
-| S2 | Laravel 8.83.29: **5 avisos abiertos, 1 crítico** | No se corrige en 8.x, por diseño |
-| S3 | La primera rama sin avisos es Laravel 12.68+ | Requiere PHP 8.2 |
+| S1 | Laravel 12.72.0 instalado y funcionando | `composer audit`: **0 avisos** |
+| S2 | Laravel 10 y 11 **siguen afectados** | Descartados como destino |
+| S3 | Laravel 12 exige **PHP 8.2** | El servidor lo tiene en el vhost de Observaciones, no en el del portal |
 | S4 | `upload_max_filesize=2M`, `display_errors=1` | Configuración de producción a corregir |
 
-**D-STACK abierta.** El **principio 1 vuelve a bloquear** código de aplicación nuevo hasta que la decisión se cierre.
+**Stack canon:**
 
-**Estado del código:** `portal/` (Laravel 8.83.29) queda **provisional y congelado**. No se extiende mientras D-STACK esté abierta.
-
-**Lo pedido a TI:** **PHP 8.2**, la misma versión que el servidor ya corre en el vhost de Observaciones. No es para actualizar el intérprete por gusto: es el requisito de **Laravel 12**, primera rama sin avisos abiertos. PHP 8.2 solo no corrige nada. Solicitud completa en `docs/infra/solicitud-php-82-ti.md`.
-
-**Candidatos al cerrar:**
-
-| Opción | Stack | Requiere |
+| Capa | Tecnología | Versión |
 |---|---|---|
-| **B** (actual) | Laravel 8.83 + PHP 7.4.3 | Nada. Asume los 5 avisos y las 6 mitigaciones |
-| **C** | **Laravel 12.68+ + PHP 8.2** | Que TI habilite PHP 8.2. **Ya probado** en `docs/stack/prototipo-laravel-12.md`: cero avisos |
-| **D** | Laravel 13.27+ + PHP 8.3 | Que TI instale PHP 8.3, versión que hoy no existe en el servidor |
+| Lenguaje | PHP | 8.2 |
+| Framework | Laravel | 12.72 |
+| Base de datos | MySQL | 8.0.42 → 8.4 LTS |
+| UI | AdminLTE | 3.2 (Bootstrap 4) |
+| JS | Vanilla | Sin Node en producción |
 
-> Laravel 10 y 11 **también están afectados**: todos sus parches hasta 10.50.4 arrastran avisos. No son un destino válido.
+### La consecuencia que se acepta a sabiendas
 
-Volver a cerrar D-STACK exige otra enmienda MAJOR de este documento.
+**El portal no se puede desplegar en el servidor actual hasta que TI habilite PHP 8.2.** Desarrollo y despliegue quedan desacoplados: se construye sobre el stack limpio y la publicación espera la respuesta de TI.
+
+Es una decisión deliberada. La alternativa —Laravel 8 con 5 avisos sin parche— se evaluó y se rechazó en C-014.
+
+**Solicitud enviada pendiente de respuesta:** `docs/infra/solicitud-php-82-ti.md`.
+
+> El camino hasta acá está documentado en `docs/stack/prototipo-laravel-12.md`: por qué se descartaron Laravel 10 y 11, qué costó la migración y qué trampas aparecieron.
 
 ## 1. Stack y restricciones del entorno
 
@@ -179,6 +181,8 @@ Un cambio se entrega solo si TODO se cumple:
 | 2026-11-06 | **v3.0.0** | **MAJOR.** **Reabre D-STACK** y elimina el canon de stack (§0). La confirmación de PHP 7.4.3 invalida la decisión C-007. Los principios 1–3 vuelven a su forma restrictiva. Se registra C-009. Reemplaza v2.0.0. | Diagnóstico directo en `sist_envios` devuelve PHP 7.4.3. La evidencia de PHP 8.2 pertenecía a otro vhost. |
 | 2026-11-10 | **v3.1.0** | **MAJOR.** **Cierra D-STACK (C-010)** con canon: Laravel 8.83 + PHP 7.4.3 + MySQL 8 + AdminLTE 3.2. Principio 1 ya no bloquea código de aplicación. Se registra C-010 en `decisions.md`. Reemplaza v3.0.0. | TI confirmó que no hay PHP-FPM 8.3 ni actualización de servidor; PHP 7.4.3 es la realidad del vhost principal. |
 | 2026-11-11 | **v3.2.0** | **MAJOR.** **Reabre D-STACK (C-014)** y retira el canon cerrado. Principio 1 vuelve a bloquear código de aplicación. `portal/` queda provisional y congelado. Se pide PHP 8.2 a TI para poder subir a Laravel 12.68+, primera rama sin avisos. Reemplaza v3.1.0. | `composer audit` sobre el proyecto real: Laravel 8.83.29 tiene 5 avisos abiertos, uno crítico, y no recibirá parches (EOL). La decisión C-010 no había evaluado ese costo. |
+| 2026-11-11 | **v4.0.0** | **MAJOR.** **Cierra D-STACK (C-015)** con canon **Laravel 12.72 + PHP 8.2 + MySQL 8 + AdminLTE 3.2**. Principio 1 deja de bloquear. `portal/` pasa a Laravel 12. Se acepta que el despliegue espera a que TI habilite PHP 8.2. Reemplaza v3.2.0. | Prototipo en `portal-l12/` con Laravel 12.72.0 y `composer audit` sin avisos. Laravel 10 y 11 descartados por seguir afectados. |
+
 
 
 

@@ -2,9 +2,9 @@
 
 > **Ubicación canónica:** `specs/TASK.md`
 > **Fuentes:** `specs/AGENT.md`, `specs/SPECS.md`, `specs/PLAN.md`, `02-DOCS/wiki/sdd/constitution.md` v3.1.0
-> **Stack confirmado (C-010):** Laravel 8.83 + PHP 7.4.3 + MySQL 8.0.42 + AdminLTE 3.2 (Bootstrap 4) + vanilla JS
+> **Stack confirmado (C-015):** Laravel **12.72** + PHP **8.2** + MySQL 8.0.42 + AdminLTE 3.2 (Bootstrap 4) + vanilla JS
 > **Fecha:** 2026-11-10
-> **Estado (2026-11-11):** F0 redactado — 7 de 10; las 3 restantes esperan personas. **F1 congelada por C-014:** el proyecto Laravel 8.83.29 de `portal/` existe y funciona, pero no se extiende mientras D-STACK esté abierta. F2–F6 sin empezar.
+> **Estado (2026-11-11):** F0 redactado — 7 de 10; las 3 restantes esperan personas. **F1 en Laravel 12:** `portal/` corre 12.72.0, migra contra `portal_m7`, responde por Apache y pasa 4 tests. F2–F6 sin empezar.
 
 ---
 
@@ -62,9 +62,9 @@
 
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
-| **T-F1-01** | **Crear proyecto Laravel 8.83** | `composer create-project "laravel/laravel:8.6.12" portal --no-install --no-scripts --ignore-platform-reqs` en `Cargas/portal/`. **Ojo:** el esqueleto va por 8.6.x; `^8.83` es la versión de `laravel/framework` y no existe como etiqueta del esqueleto | Proyecto base instalado | TEC-01 | F0 | `portal/artisan --version` = 8.83.x → **8.83.29** | `[x]` |
-| **T-F1-02** | **Configurar `composer.json` platform php 7.4.3** | Añadir `"platform": {"php": "7.4.3"}` y `"config": {"platform-check": false}` | `vendor/` compatible con prod | TEC-01, TEC-14 | T-F1-01 | `composer show --platform` muestra php 7.4.3 | `[x]` |
-| **T-F1-03** | **Instalar dependencias base** | `spatie/laravel-permission ^5.11` (5.11.1), `laravel/fortify ^1.10` (1.19.1), `yajra/laravel-datatables-oracle ^9.21` (9.21.2), `laravel/sanctum ^2.15` (2.15.1). **`phpoffice/phpspreadsheet` 1.30.8:** sin avisos y compatible con PHP 7.4 y 8.1+ (D16 cerrada) | Paquetes instalados | TEC-04, TEC-06, TEC-07, TEC-10, TEC-11 | T-F1-02 | `composer show` lista paquetes correctos → **verificado** | `[~]` |
+| **T-F1-01** | **Crear proyecto Laravel 12.72** | `composer create-project "laravel/laravel:^12" portal --prefer-dist` en `Cargas/portal/`. El esqueleto 12.x instala `laravel/framework` 12.72 | Proyecto base instalado | TEC-01 | F0 | `portal/artisan --version` = 12.72.0 → **verificado** | `[x]` |
+| **T-F1-02** | **Fijar el PHP de plataforma** | `composer.json` exige `php ^8.2`. Sin `platform` override: el PHP local y el del servidor objetivo coinciden en 8.2 | `vendor/` compatible con prod | TEC-01, TEC-14 | T-F1-01 | `composer check-platform-reqs` en verde | `[x]` |
+| **T-F1-03** | **Instalar dependencias base** | `spatie/laravel-permission ^6.25`, `laravel/fortify ^1.42`, `yajra/laravel-datatables-oracle ^12.7`, `phpoffice/phpspreadsheet ^5.11` (la 5.x exige PHP 8.1+). **`composer audit` sin avisos** | Paquetes instalados | TEC-04, TEC-06, TEC-07, TEC-10, TEC-11 | T-F1-02 | `composer show` lista paquetes correctos → **verificado** | `[~]` |
 | **T-F1-04** | **Configurar `.env.example` y `.env` local** | `.env.example` con MariaDB `portal_m7`, `America/Santiago`, `es`, sesión 480 min y `MAIL_MAILER=log` | Variables listas | TEC-02, TEC-03 | T-F1-03 | `php artisan migrate` corre contra `portal_m7` | `[x]` |
 | **T-F1-05** | **Configurar base de datos dual** | `config/database.php`: MySQL/MariaDB para desarrollo y paridad; SQLite solo para la suite rápida. `sql_mode` estricto explícito para igualar producción | Dual DB configurada | C-008, C-011, TEC-03 | T-F1-04 | `@@sql_mode` incluye `STRICT_TRANS_TABLES` → **verificado** | `[~]` |
 | **T-F1-06** | **Publicar assets AdminLTE 3.2** | AdminLTE 3.2.0 desde el tag `v3.2.0`: `dist/` minificado + 20 plugins (jQuery, Bootstrap 4, FontAwesome, Chart.js, DataTables + bs4/buttons/responsive, Select2 + tema, SweetAlert2 + tema, OverlayScrollbars, Toastr, Inputmask, jQuery-Validation, Pace, Popper, Moment, Tempusdominus) en `public/assets/adminlte/` | Assets servibles sin Node | TEC-05 | T-F1-03 | CSS y JS responden 200 → **verificado** (18,8 MB, 610 archivos) | `[x]` |
@@ -425,4 +425,7 @@ F0 (T-F0-01..10)
 ---
 
 **Archivo guardado en:** `C:\xampp\htdocs\www\Cargas\specs\TASK.md`
+
+
+
 

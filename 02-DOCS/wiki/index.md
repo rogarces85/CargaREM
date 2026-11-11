@@ -36,7 +36,7 @@ topic: index
 
 | Artículo | Qué contiene |
 |---|---|
-| [`sdd/constitution.md`](sdd/constitution.md) | Constitución **v3.2.0**: **D-STACK reabierta (C-014)**, 28 principios y Definition of Done. El stack Laravel 8.83 / PHP 7.4.3 queda provisional y congelado |
+| [`sdd/constitution.md`](sdd/constitution.md) | Constitución **v4.0.0**: **D-STACK cerrada (C-015)** con canon Laravel **12.72** + PHP **8.2**, 28 principios y Definition of Done. |
 | [`sdd/decisions.md`](sdd/decisions.md) | Registro append-only de decisiones, incluidas D-STACK cerrada (C-010) y D1/D4/D5/D6/D10 pendientes |
 
 ## stack/ — entorno y decisión **reabierta (C-014)**
@@ -89,5 +89,6 @@ topic: index
 4. Toda decisión relevante se agrega a [`sdd/decisions.md`](sdd/decisions.md). Es append-only: no se reescribe una entrada, se agrega la que la reemplaza.
 5. Todo cambio de la wiki se anota con una línea en [`log.md`](log.md).
 6. **Las fuentes originales no se copian aquí:** se enlazan desde su ruta canónica. La wiki sintetiza, no duplica (Constitución, principio 27).
+
 
 

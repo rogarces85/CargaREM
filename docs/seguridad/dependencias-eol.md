@@ -1,61 +1,72 @@
 ---
 type: seguridad
-title: Dependencias al final de su vida — riesgo aceptado y mitigaciones
-description: Avisos de seguridad abiertos en Laravel 8.83 y en el lector de Excel, derivados del canon PHP 7.4.3. Qué es alcanzable en este portal, qué no, y cómo se reduce.
+title: Dependencias — del Laravel 8 sin parche al Laravel 12 limpio
+description: Historia de los avisos de seguridad que trajo el canon PHP 7.4.3, cómo se resolvieron al migrar a Laravel 12 con PHP 8.2, y qué prácticas siguen siendo obligatorias aunque ya no haya avisos.
 tags: [seguridad, dependencias, eol, laravel, phpspreadsheet, riesgo]
-timestamp: 2026-11-11T16:30:00Z
+timestamp: 2026-11-11T18:00:00Z
 topic: seguridad
-status: decision_pendiente
+status: resuelto
 ---
 
-# Dependencias al final de su vida
+# Dependencias — del Laravel 8 sin parche al Laravel 12 limpio
 
-> **Medido el 2026-11-11** con `composer audit` sobre el proyecto real.
+> **Medido el 2026-11-11** con `composer audit` sobre el proyecto real, antes y después de migrar.
+
+---
+
+## 0. Estado actual: sin avisos
+
+| | |
+|---|---|
+| Framework | **Laravel 12.72.0** |
+| PHP | 8.2 |
+| `composer audit` | **«No security vulnerability advisories found»** |
+| Decisión | C-015 · Constitución v4.0.0 |
+
+Lo que sigue es el registro de **por qué se llegó hasta acá**: la lección sirve para la próxima dependencia que haya que elegir.
 
 ---
 
 ## 1. El origen del problema
 
-El canon es **PHP 7.4.3** (C-010) porque es lo que corre el vhost del servidor y TI no va a actualizarlo. Ese PHP salió de soporte el **28 de noviembre de 2022**.
+El canon anterior era **PHP 7.4.3** (C-010) porque era lo que corría el vhost del servidor. Ese PHP salió de soporte el **28 de noviembre de 2022**.
 
-Todo lo que corra encima hereda esa fecha: la última versión de Laravel compatible es la 8.x, y la de cualquier librería queda congelada en su última rama que acepte 7.4. **Esas ramas ya no reciben parches de seguridad.**
-
-No es un descuido del proyecto. Es el costo de la restricción, y hay que nombrarlo.
+Todo lo que corriera encima heredaba esa fecha: la última versión de Laravel compatible era la 8.x, y cualquier librería quedaba congelada en su última rama que aceptara 7.4. **Esas ramas ya no reciben parches.**
 
 ---
 
-## 2. Laravel 8.83.29 — 5 avisos abiertos
+## 2. Laravel 8.83.29 — los 5 avisos que obligaron a migrar
 
-`composer audit` reporta:
+`composer audit` reportaba:
 
-| Severidad | Aviso | ¿Alcanza a este portal? |
+| Severidad | Aviso | ¿Alcanzaba al portal? |
 |---|---|---|
-| **Crítica** | `PKSA-b41t-wbzk-9q51` — *TokenGuard authentication bypass* por credenciales no-string | **Solo si se usa autenticación por token.** El portal usa sesión |
+| **Crítica** | `PKSA-b41t-wbzk-9q51` — *TokenGuard authentication bypass* por credenciales no-string | **Solo con autenticación por token.** El portal usa sesión |
 | **Alta** | `PKSA-3r5d-mb8f-1qw9` — inyección CRLF en la regla de validación `email` | **Sí**, si un formulario valida email con la regla por defecto |
-| Media | `PKSA-8qx3-n5y5-vvnd` — *File Validation Bypass* | **Sí**, pero el diseño ya no confía en esa regla (§3) |
-| Media | `PKSA-m5cs-t1y6-qpcs` — confusión de ruta en URLs firmadas temporales | Solo si se usan URLs firmadas |
+| Media | `PKSA-8qx3-n5y5-vvnd` — *File Validation Bypass* | **Sí**, pero el diseño nunca confió en esa regla (§3) |
+| Media | `PKSA-m5cs-t1y6-qpcs` — confusión de ruta en URLs firmadas temporales | Solo con URLs firmadas |
 | Baja | `PKSA-d5tc-s1qs-h781` — XSS en la página de depuración | Solo con `APP_DEBUG=true` |
 
-Aviso adicional de `league/flysystem` (baja): normalización de rutas con UTF-8 malformado. Afecta a `Storage` y se mitiga no aceptando nombres de archivo del usuario.
+Aviso adicional de `league/flysystem` (baja): normalización de rutas con UTF-8 malformado.
 
-**Ninguno se va a corregir.** Laravel 8 está en EOL. La corrección de la crítica aparece en Laravel 10.50.4, pero esa rama sigue afectada por otros avisos: **la primera sin ninguno es Laravel 12.68+**, que exige PHP 8.2.
+**Ninguno se iba a corregir.** La corrección de la crítica apareció en Laravel 10.50.4, pero esa rama siguió afectada por otros avisos, y Laravel 11 tampoco quedó limpia. La primera sin ninguno fue **Laravel 12.68+**, que exige PHP 8.2. Esa es la cadena que llevó a C-014 y a C-015.
 
 ---
 
-## 3. Mitigaciones obligatorias
+## 3. Prácticas que siguen vigentes
 
-Estas no son sugerencias: si un cambio las rompe, `REVIEW.md` lo declara fallo grave.
+Seis reglas nacieron para neutralizar aquellos cinco avisos. **Con Laravel 12 ya no hacen falta para eso, pero cuatro siguen siendo buena ingeniería** y una es obligatoria por la Constitución. Se mantienen: quitar una regla cuesta más de lo que ahorra.
 
-| # | Mitigación | Qué neutraliza |
+| # | Práctica | Por qué se queda |
 |---|---|---|
-| 1 | **Solo autenticación por sesión.** No se habilitan tokens de API ni Sanctum para el portal | La crítica de TokenGuard |
-| 2 | **Nunca `$request->validate(['email' => 'email'])` con datos sin sanear.** Se filtra `\r` y `\n` antes, o se usa una regla propia | Inyección CRLF |
-| 3 | **El tipo real del archivo se comprueba con `finfo` y firma ZIP/OLE2**, no con la regla `mimes` | El *File Validation Bypass* |
-| 4 | **`APP_DEBUG=false` en producción** y sin páginas de diagnóstico | XSS de la página de depuración |
-| 5 | **No se usan URLs firmadas temporales** | Confusión de ruta |
-| 6 | **Nombre de archivo generado por el servidor**, nunca el del usuario | Normalización de rutas de Flysystem |
+| 1 | **Solo autenticación por sesión.** Sin tokens de API ni Sanctum en el portal | El portal no expone API (D-007). Si algún día lo hace, se decide entonces |
+| 2 | **Sanear `\r` y `\n` antes de validar un correo** | La regla `email` de Laravel es input del usuario; sanear es gratis |
+| 3 | **Tipo real del archivo con `finfo` y firma ZIP/OLE2**, no la regla `mimes` | **Obligatoria:** principio 19 y `ENV-003`/`ENV-004`. El portal recibe archivos de terceros |
+| 4 | **`APP_DEBUG=false` en producción** | **Obligatoria:** principio 20 |
+| 5 | **Nombre de archivo generado por el servidor** | **Obligatoria:** principio 19, y evita la clase de fallo de §4 |
+| 6 | URLs firmadas temporales solo si se necesitan y con criterio | Hoy no se usan; no hay nada que prohibir |
 
-Las reglas 2, 3 y 6 ya estaban en la Constitución y en el catálogo `ENV-###`. Este documento solo explica **por qué** están ahí y qué pasa si se relajan.
+Las reglas 3, 4 y 5 ya estaban en la Constitución y en el catálogo `ENV-###`. Este documento solo explica **por qué** están ahí.
 
 ---
 
@@ -63,32 +74,32 @@ Las reglas 2, 3 y 6 ya estaban en la Constitución y en el catálogo `ENV-###`. 
 
 | Dato | Valor |
 |---|---|
-| Versión adoptada | **1.30.8** |
-| Avisos abiertos | **0** |
-| Compatibilidad | PHP `>=7.4.0 <8.5.0` → corre en 7.4.3 y en 8.1+ |
-| Probado el 2026-11-11 | Escribe y lee `.xlsx`; lectores `Xls`, `Ods` y `Csv` disponibles; acentos y decimales correctos |
+| Versión en Laravel 12 | **5.11** |
+| Versión que se usó en Laravel 8 | 1.30.8 |
+| Avisos abiertos | **0** en ambas |
+| Probado el 2026-11-11 | En Laravel 8: escribe y lee `.xlsx`, lectores `Xls`, `Ods` y `Csv`, acentos y decimales correctos |
 
-Una conclusión anterior de este documento estaba equivocada y conviene dejarlo escrito: el bloqueo inicial de Composer no era de seguridad sino de `zipstream-php`. Con `^1.29` se resolvía a 1.30.x, que exige `zipstream` 2.2+, y en ese momento la resolución chocaba con PHP 7.4. La versión **1.30.8** funciona con `zipstream` **2.2.6**, que sí acepta 7.4, y no arrastra ningún aviso.
+Una conclusión anterior de este documento estaba equivocada y conviene dejarla escrita: el bloqueo inicial de Composer **no era de seguridad** sino de `zipstream-php`. La versión 1.30.8 resultó limpia y funcionaba en PHP 7.4. El salto a 5.11 en Laravel 12 es de versión mayor: **su API de lectura hay que revisarla contra el validador en F2**, no traducirla a ciegas.
 
 ### La regla de uso (D16)
 
 **El lector recibe siempre una ruta generada por el servidor, nunca el nombre que subió el usuario.**
 
-Es la clase de fallo que más costó en esta librería: la crítica `CVE-2026-34084` era SSRF/RCE en `IOFactory::load` cuando el nombre del archivo lo controlaba el usuario. Está corregida en 1.30.8, pero la regla evita depender de que el próximo parche llegue a tiempo.
+Es la clase de fallo que más costó en esta librería: la crítica `CVE-2026-34084` era SSRF/RCE en `IOFactory::load` cuando el nombre del archivo lo controlaba el usuario. Está corregida, pero la regla evita depender de que el próximo parche llegue a tiempo.
 
 Implementación: el archivo se guarda en `storage/app/envios/` con un nombre aleatorio y el motor de validación recibe esa ruta absoluta. Nunca se toca `getClientOriginalName()` para construir una ruta.
 
 ---
 
-## 5. Lo que queda abierto
+## 5. Lo que queda
 
 | ID | Decisión | Estado |
 |---|---|---|
-| **D15** | Riesgo de Laravel 8.83 en EOL | ❌ **No se acepta.** **C-014 reabrió D-STACK** y se pidió PHP 8.2 a TI para Laravel 12 |
-| **D16** | Lector de Excel | ✅ **Resuelto:** 1.30.8 con la regla de §4 |
+| **D15** | Riesgo de Laravel 8.83 en EOL | ✅ **Cerrada:** no se aceptó. C-014 reabrió y C-015 cerró con Laravel 12 |
+| **D16** | Lector de Excel | ✅ **Cerrada:** la regla de §4 |
+| **—** | **Despliegue** | 🟡 **Abierto y es el único:** el portal no publica hasta que TI habilite PHP 8.2. `docs/infra/solicitud-php-82-ti.md` |
 
-Mientras D-STACK esté abierta, el principio 1 de la Constitución vuelve a bloquear código de aplicación nuevo. `portal/` queda **provisional y congelado**.
+Si TI responde que no, el proyecto tiene dos salidas: volver a Laravel 8 aceptando el riesgo, o quedarse en Laravel 12 sin desplegar. **Ninguna es gratis, y la decisión vuelve a ser de negocio.**
 
-Si TI responde que no, se vuelve a esta página y se cierra D15 como *riesgo aceptado* con las 6 mitigaciones de §3.
 
 

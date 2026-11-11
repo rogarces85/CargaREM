@@ -3,7 +3,7 @@
 > Ubicación canónica: `specs/AGENT.md`
 > Fuente de verdad para agentes de IA y desarrolladores.
 > No contiene especificaciones funcionales detalladas ni decisiones técnicas prematuras.
-> **Actualizado 2026-11-11:** alineado a la Constitución v3.1.0 (C-010) y **luego afectado por la reapertura de D-STACK (C-014)**. El stack descrito en §8 es el **provisional y congelado**: si TI habilita PHP 8.2, este documento debe rehacerse sobre Laravel 12.
+> **Actualizado 2026-11-11:** Constitución **v4.0.0** (C-015). Stack canon: **Laravel 12.72 + PHP 8.2**. Ver §0 de la Constitución y `docs/stack/prototipo-laravel-12.md` para el camino hasta acá.
 
 ---
 
@@ -97,12 +97,12 @@ Portal web **Laravel 8.83 + PHP 7.4.3 + MySQL 8** (Opción B, provisional por C-
 
 ## 8. Tecnologías y restricciones generales
 
-### Stack provisional (Opción B — D-STACK reabierta por C-014)
+### Stack canon (C-015)
 
 | Capa | Decisión | Condición |
 |---|---|---|
-| **Lenguaje** | PHP 7.4.3 | EOL 28-nov-2022; es la causa de la reapertura (C-014) |
-| **Framework** | Laravel 8.83 | Última rama que corre en PHP 7.4 |
+| **Lenguaje** | PHP 8.2 | Requisito de Laravel 12; el servidor ya lo usa en el vhost de Observaciones |
+| **Framework** | Laravel 12.72 | Primera rama con `composer audit` sin avisos |
 | **Base de datos producción** | MySQL 8.0.42, `utf8mb4` | Compartido con `sist_observaciones` |
 | **Base de datos desarrollo** | SQLite (local, L1 — C-008) + MySQL 8 (paridad) | La paridad numérica se valida en MySQL, no en SQLite |
 | **UI** | AdminLTE 3.2 (Bootstrap 4) `dist/` precompilado | Sin Node en producción |
@@ -230,6 +230,10 @@ Todas las decisiones de diseño están tomadas. Ninguna bloquea ya el inicio de 
 ---
 
 **Archivo guardado en:** `C:\xampp\htdocs\www\Cargas\specs/AGENT.md`
+
+
+
+
 
 
 

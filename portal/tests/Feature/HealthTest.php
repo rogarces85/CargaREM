@@ -7,8 +7,7 @@ use Tests\TestCase;
 
 class HealthTest extends TestCase
 {
-    /** @test */
-    public function responde_ok_cuando_base_y_almacen_funcionan(): void
+    public function test_responde_ok_cuando_base_y_almacen_funcionan(): void
     {
         $response = $this->get('/health');
 
@@ -22,8 +21,7 @@ class HealthTest extends TestCase
         ]);
     }
 
-    /** @test */
-    public function devuelve_503_sin_filtrar_el_detalle_cuando_la_base_falla(): void
+    public function test_devuelve_503_sin_filtrar_el_detalle_cuando_la_base_falla(): void
     {
         // Conexión deliberadamente rota: puerto cerrado. La ruta es pública,
         // así que la respuesta no puede revelar el mensaje del driver.

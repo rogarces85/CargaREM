@@ -2,7 +2,7 @@
 
 > **Ubicación canónica:** `specs/PLAN.md`
 > **Fuentes:** `specs/AGENT.md`, `specs/SPECS.md`, `backup_documentacion/MODULO_M7_PROFUNDIZADO.md`, `02-DOCS/wiki/sdd/constitution.md` v3.1.0, `02-DOCS/wiki/sdd/decisions.md`, `02-DOCS/wiki/dominio/validacion-rem.md`, `02-DOCS/wiki/stack/*`, `REVIEW.md`.
-> **Estado:** base técnica de la implementación. **D-STACK reabierta (C-014):** el stack de este plan (Laravel 8.83 / PHP 7.4.3 / MySQL 8.0.42 / AdminLTE 3.2) es provisional y congelado hasta la respuesta de TI.
+> **Estado:** base técnica de la implementación. **D-STACK cerrada (C-015):** Laravel **12.72** + PHP **8.2** + MySQL 8.0.42 + AdminLTE 3.2.
 > **Fecha:** 2026-11-09 · actualizado 2026-11-11 (CONT-01 y CONT-02 resueltos)
 
 ---
@@ -993,6 +993,7 @@ Trabajo que puede avanzar en paralelo sin esperar resultados inexistentes:
 ---
 
 **Archivo guardado en:** `C:\xampp\htdocs\www\Cargas\specs\PLAN.md`
+
 
 
 

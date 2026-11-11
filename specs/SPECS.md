@@ -2,7 +2,7 @@
 
 > **Ubicación canónica:** `specs/SPECS.md`
 > **Fuente:** `specs/AGENT.md` + `backup_documentacion/MODULO_M7_PROFUNDIZADO.md` + Constitución v3.1.0
-> **Stack (D-STACK REABIERTA, C-014):** Laravel 8.83 + PHP 7.4.3 + MySQL 8.0.42 + AdminLTE 3.2 (Bootstrap 4). **Provisional y congelado:** si TI habilita PHP 8.2 se sube a Laravel 12. Ver §0 de la Constitución.
+> **Stack canon (C-015):** Laravel 12.72 + PHP 8.2 + MySQL 8.0.42 + AdminLTE 3.2 (Bootstrap 4). Ver §0 de la Constitución.
 > **Referencia UX:** Zenith Dashboard (shadcn/ui) como guía visual de L2/L3, no como dependencia. Toda la UI usa AdminLTE 3.2.
 
 ---
@@ -554,3 +554,4 @@
 ---
 
 > **Nota sobre D-STACK:** Este documento fija **Opción B (Laravel 8.83 + PHP 7.4.3 + MySQL 8.0.42 + AdminLTE 3.2)** como canon vigente (C-010), coherente con las restricciones confirmadas del servidor (PHP 7.4.3 en el vhost principal). Cambiar a Laravel 13 / AdminLTE 4 exige una decisión nueva en `02-DOCS/wiki/sdd/decisions.md` y una enmienda MAJOR de la Constitución; no se hace por actualización de este documento.
+

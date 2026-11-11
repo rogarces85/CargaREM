@@ -2,7 +2,7 @@
 
 Documentación técnica de **Cargas REM** (el sistema que existe hoy) y especificación del **Portal M7**: el módulo web de envío mensual de estadísticas REM por establecimiento.
 
-> **Estado:** **D-STACK reabierta (C-014) y F1 congelada.** El proyecto Laravel 8.83 de [`portal/`](portal/) es **provisional**: esa rama acumula 5 avisos de seguridad sin parche posible. Se pidió PHP 8.2 a TI —la misma versión de Observaciones— para subir a Laravel 12. El prototipo que lo demuestra vive en [`portal-l12/`](portal-l12/) y en [`prototipo-laravel-12.md`](docs/stack/prototipo-laravel-12.md). Ver [`solicitud-php-82-ti.md`](docs/infra/solicitud-php-82-ti.md).
+> **Estado:** **D-STACK cerrada (C-015): Laravel 12.72 sobre PHP 8.2.** El portal corre en [`portal/`](portal/), migra contra `portal_m7`, responde por Apache y pasa sus tests con **cero avisos de seguridad**. El despliegue espera a que TI habilite PHP 8.2 en el vhost: ver [`solicitud-php-82-ti.md`](docs/infra/solicitud-php-82-ti.md). Ver [`solicitud-php-82-ti.md`](docs/infra/solicitud-php-82-ti.md).
 
 ---
 
@@ -20,8 +20,7 @@ El portal **no reemplaza** a Cargas REM en su primera versión: valida, ordena l
 
 | Ruta | Qué contiene |
 |---|---|
-| [`portal/`](portal/) | **La aplicación.** Laravel 8.83.29 sobre PHP 7.4.3 (fijado en Composer), MySQL 8 en producción y MariaDB 10.4 en local. **Provisional y congelada por C-014** |
-| [`portal-l12/`](portal-l12/) | **Prototipo descartable** de Laravel 12 sobre PHP 8.2, en la rama `prototype/laravel-12`. No se fusiona: sirve para probar que la opción C es viable. Ver [`prototipo-laravel-12.md`](docs/stack/prototipo-laravel-12.md) |
+| [`portal/`](portal/) | **La aplicación.** Laravel **12.72.0** sobre PHP **8.2**, fijado en Composer. MySQL 8 en producción, MariaDB 10.4 en local. AdminLTE 3.2 en `public/assets` |
 | [`specs/`](specs/) | **La especificación operativa del MVP.** Cuatro documentos, ~178 KB: [`AGENT.md`](specs/AGENT.md) (contexto), [`SPECS.md`](specs/SPECS.md) (requisitos funcionales y criterios de aceptación), [`PLAN.md`](specs/PLAN.md) (arquitectura, 11 módulos técnicos, modelo de datos), [`TASK.md`](specs/TASK.md) (**112 tareas atómicas** en 7 fases) |
 | [`02-DOCS/wiki/`](02-DOCS/wiki/) | Wiki del proyecto: [`sdd/constitution.md`](02-DOCS/wiki/sdd/constitution.md) (Constitución **v3.1.0**, 28 principios), [`sdd/decisions.md`](02-DOCS/wiki/sdd/decisions.md) (registro append-only de decisiones), `stack/` (entorno y decisión de stack), `dominio/` (pipeline V0–V11). Puerta de entrada: [`index.md`](02-DOCS/wiki/index.md) |
 | [`informe.md`](informe.md) | Informe técnico completo de Cargas REM: arquitectura, módulos M1–M6, reglas de negocio, flujos, §2.10 del módulo de envío, pendientes P1–P13 |

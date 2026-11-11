@@ -54,6 +54,7 @@ topic: log
 | 2026-11-11 | **D16 resuelto:** PhpSpreadsheet **1.30.8** no tiene avisos (el bloqueo era de `zipstream`). Regla: ruta generada por el servidor | `docs/seguridad/dependencias-eol.md` · `portal/composer.json` |
 | 2026-11-11 | **D-STACK reabierta (C-014):** no se acepta el riesgo de Laravel 8. Constitución a **v3.2.0**, F1 congelada y solicitud de PHP 8.2 a TI | `sdd/constitution.md` · `docs/infra/solicitud-php-82-ti.md` · `README.md` |
 | 2026-11-11 | **Prototipo Laravel 12.72.0 sobre PHP 8.2: cero avisos.** Laravel 10 y 11 también están afectados; la primera rama limpia es 12.68+. Dependencias modernas verificadas | `docs/stack/prototipo-laravel-12.md` · `portal-l12/` · `portal-l12` en rama `prototype/laravel-12` |
+| 2026-11-11 | **D-STACK cerrada con Laravel 12.72 + PHP 8.2 (C-015).** Constitución a **v4.0.0**. El portal se rehace sobre Laravel 12: AdminLTE, `/health`, `sql_mode` y canales de log reinstalados y verificados. 4 tests en verde | `portal/` · `sdd/constitution.md` · `sdd/decisions.md` |
 
 
 

@@ -5,12 +5,12 @@ description: Resultado de levantar Laravel 12 sobre PHP 8.2 local. Versiones de 
 tags: [stack, laravel-12, prototipo, migracion, php-82, seguridad]
 timestamp: 2026-11-11T17:30:00Z
 topic: stack
-status: verificado
+status: promovido
 ---
 
 # Prototipo Laravel 12
 
-> Rama `prototype/laravel-12`. Carpeta `portal-l12/`. **Descartable: no se fusiona.**
+> **Promovido el 2026-11-11:** este prototipo se convirtió en el portal. `portal-l12/` pasó a ser `portal/` y la rama `prototype/laravel-12` a `feature/f1-laravel-12`, tras cerrar D-STACK con C-015. Se conserva como registro de por qué se descartaron Laravel 8, 10 y 11.
 
 ---
 
@@ -132,5 +132,6 @@ Que el prototipo haya tropezado con lo mismo confirma que no era un accidente: e
 | Suite | 1 test falla por el `APP_URL` conocido; se corrige igual que en L8 |
 
 El prototipo **no se fusiona**. Existe para que, si TI responde que sí, la decisión se ejecute en días y no en semanas.
+
 
 
