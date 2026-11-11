@@ -80,8 +80,8 @@
 | **T-F1-12** | **Configurar sesión segura** | `config/session.php`: `secure=true`, `http_only=true`, `same_site=lax`, `lifetime=480`, `expire_on_close=false` | Sesión endurecida | RNF-009, RNF-012 | T-F1-10 | Cookie `laravel_session` tiene flags correctos | `[x]` |
 | **T-F1-13** | **Instalar y configurar `spatie/laravel-permission`** | `php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"`; migración + `HasRoles` trait en `User` | RBAC listo | RF-013, MOD-01, TEC-07 | T-F1-10 | `php artisan permission:show` funciona | `[x]` |
 | **T-F1-14** | **Crear seeder de roles y permisos (18 permisos × 4 roles)** | Seeder `RolePermissionSeeder`: roles `encargado`, `revisor`, `admin`, `consulta`; permisos tabla SPECS §3.2 | Datos base RBAC | RF-013, PRINCIPIO 8 | T-F1-13 | `php artisan db:seed --class=RolePermissionSeeder` OK | `[x]` |
-| **T-F1-15** | **Crear Policies base** | `EnvioPolicy`, `ArchivoPolicy`, `CatalogoPolicy`, `UsuarioPolicy` con métodos `view`, `create`, `update`, `delete`, `download`, `approve`, `reopen` | Autorización declarativa | RN-ENV-1, RN-ENV-7, RN-ENV-8, RN-ENV-9, MOD-01 | T-F1-14 | Policies registradas en `AuthServiceProvider` | `[~]` |
-| **T-F1-16** | **Implementar *query scopes* de aislamiento** | `Envio::scopeForUser($user)`, `EnvioArchivo::scopeForUser($user)` aplican `whereIn establecimiento_id` desde pivot | Aislamiento en consulta | RN-ENV-1, PRINCIPIO 18 | T-F1-15 | SQL generado incluye `WHERE establecimiento_id IN (...)` | `[~]` |
+| **T-F1-15** | **Crear Policies base** | `EnvioPolicy`, `ArchivoPolicy`, `CatalogoPolicy`, `UsuarioPolicy` con métodos `view`, `create`, `update`, `delete`, `download`, `approve`, `reopen` | Autorización declarativa | RN-ENV-1, RN-ENV-7, RN-ENV-8, RN-ENV-9, MOD-01 | T-F1-14 | Policies registradas en `AuthServiceProvider` | `[x]` |
+| **T-F1-16** | **Implementar *query scopes* de aislamiento** | `Envio::scopeForUser($user)`, `EnvioArchivo::scopeForUser($user)` aplican `whereIn establecimiento_id` desde pivot | Aislamiento en consulta | RN-ENV-1, PRINCIPIO 18 | T-F1-15 | SQL generado incluye `WHERE establecimiento_id IN (...)` | `[x]` |
 | **T-F1-17** | **Tests auth + RBAC (unit + feature)** | Tests: login/logout/throttle (CA-001, CA-002, CA-004); CRUD usuarios (CA-013 a CA-016); **pos/neg por cada permiso** (PRINCIPIO 8) | Suite verde | CA-001, CA-002, CA-004, CA-013 a CA-016, PRINCIPIO 8 | T-F1-14, T-F1-15 | `php artisan test --filter=Auth` y `--filter=Permission` pasan | `[x]` |
 
 ### F1.3 — Catálogos y estructura base (MOD-02)
@@ -147,8 +147,8 @@
 
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
-| **T-F2-01** | **Migraciones núcleo transaccional** | `envios` (UK `establecimiento_id,anio,mes`), `envio_archivos` (UK `envio_id,serie_id,version`, UK `sha256`, `es_vigente`), `envio_transiciones`, `validaciones`, `observaciones` | Esquema completo | DAT-06, DAT-07, DAT-08, DAT-10 | T-F1-18 | Migraciones crean tablas con FK/UK correctos |
-| **T-F2-02** | **Modelos Eloquent núcleo** | `Envio`, `EnvioArchivo`, `Validacion`, `Observacion`, `EnvioTransicion` con relaciones, casts `decimal:2`, `enum`→`string`+validación | Modelos listos | DAT-06 a DAT-10 | T-F2-01 | `Envio::with('archivos.vigente')->first()` carga árbol |
+| **T-F2-01** | **Migraciones núcleo transaccional** | `envios` (UK `establecimiento_id,anio,mes`), `envio_archivos` (UK `envio_id,serie_id,version`, UK `sha256`, `es_vigente`), `envio_transiciones`, `validaciones`, `observaciones` | Esquema completo | DAT-06, DAT-07, DAT-08, DAT-10 | T-F1-18 | Migraciones crean tablas con FK/UK correctos | `[x]` |
+| **T-F2-02** | **Modelos Eloquent núcleo** | `Envio`, `EnvioArchivo`, `Validacion`, `Observacion`, `EnvioTransicion` con relaciones, casts `decimal:2`, `enum`→`string`+validación | Modelos listos | DAT-06 a DAT-10 | T-F2-01 | `Envio::with('archivos.vigente')->first()` carga árbol | `[x]` |
 | **T-F2-03** | **EnvioService::crear() (OP-01)** | Crea/busca envío por `(establecimiento,anio,mes)`; guarda `recibido`; valida período `abierto` y autorización | Unicidad RN-ENV-6 | RF-017, OP-01, RN-ENV-6, RN-ENV-10 | T-F1-16, T-F2-02 | 2º intento mismo período/establec → falla por UK |
 | **T-F2-04** | **FormRequest: CrearEnvioRequest + SubirArchivoRequest** | Validación: auth, período abierto, archivo required, mimes `xls,xlsx,xlsm`, max 2048 KB, tipo real `finfo` | Entrada validada | RF-017, RF-018, ENV-001 a ENV-004 | T-F2-03 | Request rechaza >2MB, ext inválida, tipo falso |
 | **T-F2-05** | **Almacenamiento privado + naming** | `storage/app/private/envios/{anio}/{mes}/{codigo}/{envio}/v{version}/{serie}.{ext}`; nombre generado SHA-256; `nombre_original` guardado | Archivos fuera de `public/` | TEC-08, RN-ENV-9, RN-ENV-12, RN-ENV-13 | T-F2-02 | Archivo físico en ruta esperada; `public/` sin archivos |
@@ -414,13 +414,13 @@ F0 (T-F0-01..10)
 | Fase | Tareas | Completadas | En progreso | Pendientes |
 |---|---|---|---|---|
 | **F0** | 10 | 7 | 3 | 0 |
-| **F1** | 31 | 29 | 2 | 0 |
-| **F2** | 31 | 0 | 0 | 31 |
+| **F1** | 31 | 31 | 0 | 0 |
+| **F2** | 31 | 2 | 0 | 29 |
 | **F3** | 14 | 0 | 0 | 14 |
 | **F4** | 5 | 0 | 0 | 5 |
 | **F5** | 5 | 0 | 0 | 5 |
 | **F6** | 16 | 0 | 0 | 16 |
-| **TOTAL** | **112** | **36** | **5** | **71** |
+| **TOTAL** | **112** | **40** | **3** | **69** |
 
 **F0 — las 7 completadas:** T-F0-01 (C-010), 04, 06, 07, 08, 09, 10.
 **F0 — las 3 en progreso, todas esperando a personas:**
