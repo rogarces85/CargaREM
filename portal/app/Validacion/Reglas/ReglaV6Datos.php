@@ -53,7 +53,7 @@ final class ReglaV6Datos implements ReglaValidacion
                 $hallazgos[] = new Hallazgo(
                     'V6', 'ENV-018', Severidad::ADVERTENCIA,
                     "La prestación {$registro->codigo} no tiene datos en la hoja «{$registro->hoja}».",
-                    $registro->hoja, $registro->codigo, null, 'R-V6-02'
+                    $registro->hoja, null, $registro->codigo, 'R-V6-02'
                 );
                 $mostrados++;
             }
