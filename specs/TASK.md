@@ -100,11 +100,11 @@
 
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
-| **T-F1-25** | **Migración tabla `auditoria` (DAT-16)** | `auditoria`: `usuario_id`, `evento`, `entidad`, `entidad_id`, `datos` (JSON), `ip`, `user_agent`, `created_at`; índices | Esquema listo | RF-037, DAT-16 | T-F1-18 | Migración crea tabla con índices |
-| **T-F1-26** | **AuditoriaService::registrar()** | Método estático: inserta fila en transacción actual; sin UPDATE/DELETE posibles desde UI | Append-only garantizado | RF-037, MOD-08, PRINCIPIO 21 | T-F1-25 | `Auditoria::count()` solo sube; no hay `update`/`delete` en policies |
-| **T-F1-27** | **Observadores/Listeners para eventos automáticos** | `Login/Logout/Failed` → auditoría; `ModelObservers` en `Envio`, `EnvioArchivo`, `Observacion`, `EnvioTransicion`, `CatalogoSnapshot` | Auditoría automática | RF-037, MOD-08 | T-F1-26, T-F1-15 | Cada acción critica deja fila en `auditoria` |
-| **T-F1-28** | **UI Admin auditoría (filtros + lista)** | `Admin\AuditoriaController` + vista `admin/auditoria/index.blade.php`: filtros usuario/evento/entidad/fecha, paginación servidor | Consulta funcional | RF-037, CA-037 | T-F1-27, T-F1-11 | Filtros funcionan; no hay botón editar/borrar |
-| **T-F1-29** | **Tests auditoría (inmutabilidad + cobertura)** | Test: inserta fila, intenta update/delete → falla; verifica eventos: login, upload, download, validar, observar, aprobar, reaperturar, cargar, importar, permiso | CA-037, PRINCIPIO 21 | T-F1-27 | `php artisan test --filter=Auditoria` pasa |
+| **T-F1-25** | **Migración tabla `auditoria` (DAT-16)** | `auditoria`: `usuario_id`, `evento`, `entidad`, `entidad_id`, `datos` (JSON), `ip`, `user_agent`, `created_at`; índices | Esquema listo | RF-037, DAT-16 | T-F1-18 | Migración crea tabla con índices | `[x]` |
+| **T-F1-26** | **AuditoriaService::registrar()** | Método estático: inserta fila en transacción actual; sin UPDATE/DELETE posibles desde UI | Append-only garantizado | RF-037, MOD-08, PRINCIPIO 21 | T-F1-25 | `Auditoria::count()` solo sube; no hay `update`/`delete` en policies | `[x]` |
+| **T-F1-27** | **Observadores/Listeners para eventos automáticos** | `Login/Logout/Failed` → auditoría; `ModelObservers` en `Envio`, `EnvioArchivo`, `Observacion`, `EnvioTransicion`, `CatalogoSnapshot` | Auditoría automática | RF-037, MOD-08 | T-F1-26, T-F1-15 | Cada acción critica deja fila en `auditoria` | `[x]` |
+| **T-F1-28** | **UI Admin auditoría (filtros + lista)** | `Admin\AuditoriaController` + vista `admin/auditoria/index.blade.php`: filtros usuario/evento/entidad/fecha, paginación servidor | Consulta funcional | RF-037, CA-037 | T-F1-27, T-F1-11 | Filtros funcionan; no hay botón editar/borrar | `[x]` |
+| **T-F1-29** | **Tests auditoría (inmutabilidad + cobertura)** | Test: inserta fila, intenta update/delete → falla; verifica eventos: login, upload, download, validar, observar, aprobar, reaperturar, cargar, importar, permiso | CA-037, PRINCIPIO 21 | T-F1-27 | `php artisan test --filter=Auditoria` pasa | `[x]` |
 
 ### F1.5 — Seed mínimo L1 y verificación fase
 
@@ -392,13 +392,13 @@ F0 (T-F0-01..10)
 | Fase | Tareas | Completadas | En progreso | Pendientes |
 |---|---|---|---|---|
 | **F0** | 10 | 7 | 3 | 0 |
-| **F1** | 31 | 21 | 2 | 8 |
+| **F1** | 31 | 26 | 2 | 3 |
 | **F2** | 31 | 0 | 0 | 31 |
 | **F3** | 14 | 0 | 0 | 14 |
 | **F4** | 5 | 0 | 0 | 5 |
 | **F5** | 5 | 0 | 0 | 5 |
 | **F6** | 16 | 0 | 0 | 16 |
-| **TOTAL** | **112** | **28** | **5** | **79** |
+| **TOTAL** | **112** | **33** | **5** | **74** |
 
 **F0 — las 7 completadas:** T-F0-01 (C-010), 04, 06, 07, 08, 09, 10.
 **F0 — las 3 en progreso, todas esperando a personas:**

@@ -96,6 +96,16 @@
                             </a>
                         </li>
                     @endcan
+
+                    @can('auditoria.ver')
+                        <li class="nav-header">CONTROL</li>
+                        <li class="nav-item">
+                            <a href="{{ route('admin.auditoria.index') }}" class="nav-link">
+                                <i class="nav-icon fas fa-clipboard-list"></i>
+                                <p>Auditoría</p>
+                            </a>
+                        </li>
+                    @endcan
                 </ul>
             </nav>
         </div>

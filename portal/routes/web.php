@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AuditoriaController;
 use App\Http\Controllers\Admin\CatalogoSnapshotController;
 use App\Http\Controllers\Admin\EstablecimientoController;
 use App\Http\Controllers\Admin\MatrizController;
@@ -55,3 +56,10 @@ Route::middleware(['auth', 'permission:catalogos.gestionar'])
         Route::post('snapshots/importar', [CatalogoSnapshotController::class, 'importar'])->name('snapshots.importar');
         Route::post('snapshots/{snapshot}/activar', [CatalogoSnapshotController::class, 'activar'])->name('snapshots.activar');
     });
+
+/*
+ * Auditoría: permiso propio, no el de catálogos.
+ */
+Route::middleware(['auth', 'permission:auditoria.ver'])
+    ->get('admin/auditoria', [AuditoriaController::class, 'index'])
+    ->name('admin.auditoria.index');
