@@ -51,6 +51,16 @@
                         </a>
                     </li>
 
+                    @canany(['envios.ver.propio', 'envios.ver.ss'])
+                        <li class="nav-header">OPERACIÓN</li>
+                        <li class="nav-item">
+                            <a href="{{ route('envios.index') }}" class="nav-link">
+                                <i class="nav-icon fas fa-file-upload"></i>
+                                <p>Envíos</p>
+                            </a>
+                        </li>
+                    @endcanany
+
                     @can('catalogos.gestionar')
                         <li class="nav-header">ADMINISTRACIÓN</li>
                         <li class="nav-item">
