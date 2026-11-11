@@ -7,6 +7,8 @@ use App\Models\Envio;
 use App\Models\EnvioArchivo;
 use App\Models\Establecimiento;
 use App\Models\Periodo;
+use App\Models\Plantilla;
+use App\Models\PlantillaHoja;
 use App\Models\Serie;
 use App\Models\Servicio;
 use App\Models\User;
@@ -48,6 +50,21 @@ class ValidadorV2Test extends TestCase
         $this->actingAs($usuario);
 
         $this->serie = Serie::create(['codigo' => 'A', 'nombre' => 'SERIE A']);
+
+        // Plantilla y hojas en el catálogo: sin ellas V3 y V5 avisan de que no
+        // pueden verificar, y un archivo correcto dejaría de estar limpio.
+        $plantilla = Plantilla::create([
+            'anio'          => 2026,
+            'mes'           => 9,
+            'serie_id'      => $this->serie->id,
+            'serie_excel'   => 'SERIE A',
+            'serie_interna' => 'SERIE A1',
+            'version'       => '1.2',
+            'snapshot_id'   => \App\Models\CatalogoSnapshot::activo()->first()->id,
+        ]);
+        PlantillaHoja::create([
+            'anio' => 2026, 'serie_interna' => 'SERIE A1', 'hoja' => 'NOMBRE', 'obligatoria' => true,
+        ]);
         $this->envio = app(EnvioService::class)->crear($establecimiento, 2026, 9, $usuario);
     }
 

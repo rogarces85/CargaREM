@@ -7,6 +7,9 @@ use App\Models\Plantilla;
 use App\Validacion\Reglas\ReglaV0Archivo;
 use App\Validacion\Reglas\ReglaV1Nombre;
 use App\Validacion\Reglas\ReglaV2Cabecera;
+use App\Validacion\Reglas\ReglaV3Version;
+use App\Validacion\Reglas\ReglaV4Pertenencia;
+use App\Validacion\Reglas\ReglaV5Hojas;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -26,6 +29,9 @@ class ValidadorArchivo
         ReglaV0Archivo::class,
         ReglaV1Nombre::class,
         ReglaV2Cabecera::class,
+        ReglaV3Version::class,
+        ReglaV4Pertenencia::class,
+        ReglaV5Hojas::class,
     ];
 
     /** Permite a los tests inyectar un conjunto propio de reglas. */
