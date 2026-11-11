@@ -46,3 +46,14 @@ Plan id: `190dee3e909da91948618835822bfc4f9ccf4c1cca31b3967f51c02a424951d3`
 | skill | ux | selected | Included in the development workflow for growing software. | — |
 | skill | verify | selected | Included in the development workflow for growing software. | — |
 | skill | worktrees | selected | Included in the development workflow for growing software. | — |
+
+---
+
+## Targets instalados
+
+| Fecha | Target | Qué agrega |
+|---|---|---|
+| 2026-11-06 | `opencode` | Instalación original: `.opencode/` con agentes, comandos y plugins |
+| 2026-11-11 | `deepseek` | `.dsh/skills/` con las 34 skills y `.dsh/hooks.json`. Aditivo: no reemplaza a OpenCode |
+
+Ambos targets comparten `AGENTS.md` como punto de enganche. Las skills de `.dsh/skills/` son locales de la máquina y no se versionan (`.gitignore`). `rsc doctor` reporta `healthy: true` con los dos instalados.
