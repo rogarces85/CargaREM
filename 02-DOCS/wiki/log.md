@@ -49,3 +49,5 @@ topic: log
 | 2026-11-11 | **Fuente oficial de datos declarada (C-013):** `C:\Program Files (x86)\Minsal\Cargas Rem 2016`, solo lectura; las demás copias no son válidas | `docs/datos/fuentes-datos-mdb.md` · `sdd/decisions.md` |
 | 2026-11-11 | Exportador `.mdb → CSV` construido y probado: 200.367 filas en 26 s desde la instalación oficial, con `manifest.json` y hashes | `01-TOOLS/rem-export/` |
 | 2026-11-11 | **F1 iniciada:** Laravel 8.83.29 en `portal/`, platform PHP 7.4.3, base `portal_m7`, `sql_mode` estricto, `America/Santiago`, locale `es`. Responde 200 por Apache | `portal/` · `specs/TASK.md` |
+| 2026-11-11 | Dependencias base instaladas: spatie/permission 5.11.1, Fortify 1.19.1, DataTables 9.21.2, Sanctum 2.15.1. AdminLTE 3.2.0 en `public/assets/adminlte/`. `/health` con 2 tests | `portal/` |
+| 2026-11-11 | **Riesgo de dependencias documentado:** Laravel 8.83 tiene 5 avisos abiertos (1 crítico) y PhpSpreadsheet 1.29.12 tiene 13. Se registran D15 y D16 | `docs/seguridad/dependencias-eol.md` · `sdd/decisions.md` |

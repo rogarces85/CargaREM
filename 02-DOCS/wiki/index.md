@@ -60,6 +60,12 @@ topic: index
 |---|---|
 | [`docs/datos/fuentes-datos-mdb.md`](../../docs/datos/fuentes-datos-mdb.md) | **Inventario verificado** de `Global.mdb` (402,9 MB), `Trans.mdb` y las 9 bases `DatosSERIE` con datos (393.053 filas), el mapeo a tablas del portal y el camino `.mdb → CSV → MySQL` |
 
+## seguridad/ — riesgo de dependencias
+
+| Artículo | Qué contiene |
+|---|---|
+| [`docs/seguridad/dependencias-eol.md`](../../docs/seguridad/dependencias-eol.md) | Los 5 avisos abiertos de Laravel 8.83 y los 13 de PhpSpreadsheet: cuáles alcanzan al portal, las 6 mitigaciones obligatorias y las decisiones D15/D16 |
+
 ## harness/ — cómo trabaja el agente
 
 | Artículo | Qué contiene |

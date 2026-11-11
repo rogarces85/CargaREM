@@ -65,6 +65,8 @@ Tomadas de `MODULO_M7_PROFUNDIZADO.md` §18. Ninguna se cierra por inferencia: l
 | **D12** | Antivirus | Sin / ClamAV / servicio de TI | ClamAV si TI lo provee | Archivos maliciosos | Pendiente |
 | **D13** | Respaldos | TI / manual / sin respaldo | `mysqldump` programado + copia de `storage/` | Continuidad | Pendiente |
 | **D14** | Migración histórica | No / parcial / total | Proyecto aparte tras el MVP | Reportes históricos | Pendiente |
+| **D15** | Riesgo de Laravel 8.83 en EOL | Aceptar con mitigaciones / exigir PHP 8.1 | — | 5 avisos abiertos, uno crítico. Se aceptan con 6 mitigaciones verificables; el riesgo residual vive en `docs/seguridad/dependencias-eol.md` | Pendiente |
+| **D16** | Lector de Excel | A: PhpSpreadsheet 1.29.12 con bloqueo desactivado · B: conversión externa a CSV · C: exigir PHP 8.1 | F2 | 1.29.12 tiene 13 avisos abiertos; 2.x exige PHP 8.1 y el servidor tiene 7.4.3. Sin cerrar esto no empieza F2 | Pendiente |
 
 ## Cómo se cierra una decisión
 

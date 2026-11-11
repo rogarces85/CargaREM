@@ -19,6 +19,10 @@
     </coverage>
     <php>
         <server name="APP_ENV" value="testing"/>
+        <!-- La app se sirve en un subdirectorio en local. En la suite la raíz
+             es el host, o cada $this->get('/ruta') resolvería contra el
+             subdirectorio y daría 404. -->
+        <server name="APP_URL" value="http://localhost"/>
         <server name="BCRYPT_ROUNDS" value="4"/>
         <server name="CACHE_DRIVER" value="array"/>
         <!-- <server name="DB_CONNECTION" value="sqlite"/> -->

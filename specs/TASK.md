@@ -64,14 +64,13 @@
 |---|---|---|---|---|---|---|
 | **T-F1-01** | **Crear proyecto Laravel 8.83** | `composer create-project "laravel/laravel:8.6.12" portal --no-install --no-scripts --ignore-platform-reqs` en `Cargas/portal/`. **Ojo:** el esqueleto va por 8.6.x; `^8.83` es la versión de `laravel/framework` y no existe como etiqueta del esqueleto | Proyecto base instalado | TEC-01 | F0 | `portal/artisan --version` = 8.83.x → **8.83.29** | `[x]` |
 | **T-F1-02** | **Configurar `composer.json` platform php 7.4.3** | Añadir `"platform": {"php": "7.4.3"}` y `"config": {"platform-check": false}` | `vendor/` compatible con prod | TEC-01, TEC-14 | T-F1-01 | `composer show --platform` muestra php 7.4.3 | `[x]` |
-| **T-F1-03** | **Instalar dependencias base** | `composer require spatie/laravel-permission:^5.11 laravel/fortify:^1.10 phpoffice/phpspreadsheet:^1.29 yajra/laravel-datatables-oracle:^9.21 laravel/sanctum:^2.15` | Paquetes instalados | TEC-04, TEC-06, TEC-07, TEC-10, TEC-11 | T-F1-02 | `composer show` lista paquetes correctos |
+| **T-F1-03** | **Instalar dependencias base** | `spatie/laravel-permission ^5.11` (5.11.1), `laravel/fortify ^1.10` (1.19.1), `yajra/laravel-datatables-oracle ^9.21` (9.21.2), `laravel/sanctum ^2.15` (2.15.1). **`phpoffice/phpspreadsheet` diferido:** 1.29.12 tiene 13 avisos abiertos y 2.x exige PHP 8.1 (ver D16) | Paquetes instalados | TEC-04, TEC-06, TEC-07, TEC-10, TEC-11 | T-F1-02 | `composer show` lista paquetes correctos → **verificado** | `[~]` |
 | **T-F1-04** | **Configurar `.env.example` y `.env` local** | `.env.example` con MariaDB `portal_m7`, `America/Santiago`, `es`, sesión 480 min y `MAIL_MAILER=log` | Variables listas | TEC-02, TEC-03 | T-F1-03 | `php artisan migrate` corre contra `portal_m7` | `[x]` |
 | **T-F1-05** | **Configurar base de datos dual** | `config/database.php`: MySQL/MariaDB para desarrollo y paridad; SQLite solo para la suite rápida. `sql_mode` estricto explícito para igualar producción | Dual DB configurada | C-008, C-011, TEC-03 | T-F1-04 | `@@sql_mode` incluye `STRICT_TRANS_TABLES` → **verificado** | `[~]` |
-| **T-F1-06** | **Publicar assets AdminLTE 3.2** | Descargar AdminLTE 3.2 `dist/` → `public/assets/adminlte/`; Chart.js, DataTables, Select2, Flatpickr, SweetAlert2 builds Bootstrap 4 | Assets servibles sin Node | TEC-05 | T-F1-03 | `public/assets/adminlte/` existe con CSS/JS |
+| **T-F1-06** | **Publicar assets AdminLTE 3.2** | AdminLTE 3.2.0 desde el tag `v3.2.0`: `dist/` minificado + 20 plugins (jQuery, Bootstrap 4, FontAwesome, Chart.js, DataTables + bs4/buttons/responsive, Select2 + tema, SweetAlert2 + tema, OverlayScrollbars, Toastr, Inputmask, jQuery-Validation, Pace, Popper, Moment, Tempusdominus) en `public/assets/adminlte/` | Assets servibles sin Node | TEC-05 | T-F1-03 | CSS y JS responden 200 → **verificado** (18,8 MB, 610 archivos) | `[x]` |
 | **T-F1-07** | **Configurar `config/rem.php`** | Crear archivo con claves: `archivos`, `validacion`, `series`, `paquete` (ver PLAN §11.4) | Config centralizada | TEC-01, MOD-02, MOD-03, MOD-04 | T-F1-03 | `config('rem.archivos.max_kb')` = 2048 |
 | **T-F1-08** | **Configurar zona horaria y locale** | `config/app.php`: `timezone = env('APP_TIMEZONE', 'America/Santiago')`, `locale = 'es'`, `fallback_locale = 'es'`, `faker_locale = 'es_CL'` | App en español CL | C-005, RNF-016 | T-F1-01 | `now()->timezoneName` = America/Santiago → **verificado** | `[x]` |
-| **T-F1-09** | **Configurar logging y health check** | `config/logging.php`: canales `validacion`, `seguridad`, `correo`; rota diaria 90 días. Ruta `/health` (GET) chequea DB + storage escritura | Logs estructurados + health | RNF-016, MOD-11 | T-F1-03 | `GET /health` → 200 JSON `{db:ok, storage:ok}` |
-
+| **T-F1-09** | **Configurar logging y health check** | `config/logging.php`: canales `validacion`, `seguridad`, `correo` (daily, 90 días). `GET /health` con `HealthController`: comprueba DB y escritura+lectura en `storage`, devuelve 503 y no filtra el mensaje de la excepción | Logs estructurados + health | RNF-016, MOD-11 | T-F1-03 | `GET /health` → 200 JSON → **verificado**, con 2 tests que cubren también el 503 | `[x]` |
 ### F1.2 — Autenticación y RBAC (MOD-01)
 
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
@@ -393,13 +392,13 @@ F0 (T-F0-01..10)
 | Fase | Tareas | Completadas | En progreso | Pendientes |
 |---|---|---|---|---|
 | **F0** | 10 | 7 | 3 | 0 |
-| **F1** | 31 | 4 | 1 | 26 |
+| **F1** | 31 | 6 | 2 | 23 |
 | **F2** | 31 | 0 | 0 | 31 |
 | **F3** | 14 | 0 | 0 | 14 |
 | **F4** | 5 | 0 | 0 | 5 |
 | **F5** | 5 | 0 | 0 | 5 |
 | **F6** | 16 | 0 | 0 | 16 |
-| **TOTAL** | **112** | **11** | **4** | **97** |
+| **TOTAL** | **112** | **13** | **5** | **94** |
 
 **F0 — las 7 completadas:** T-F0-01 (C-010), 04, 06, 07, 08, 09, 10.
 **F0 — las 3 en progreso, todas esperando a personas:**
