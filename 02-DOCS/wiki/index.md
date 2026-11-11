@@ -89,6 +89,4 @@ topic: index
 4. Toda decisión relevante se agrega a [`sdd/decisions.md`](sdd/decisions.md). Es append-only: no se reescribe una entrada, se agrega la que la reemplaza.
 5. Todo cambio de la wiki se anota con una línea en [`log.md`](log.md).
 6. **Las fuentes originales no se copian aquí:** se enlazan desde su ruta canónica. La wiki sintetiza, no duplica (Constitución, principio 27).
-
-
-
+| [`docs/operacion/como-probar.md`](../../docs/operacion/como-probar.md) | Puesta en marcha desde cero y cómo validar archivos REM reales |

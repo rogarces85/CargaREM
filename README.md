@@ -137,4 +137,11 @@ Los límites y las diferencias entre ambos entornos —incluidas las cinco que r
 
 Este repositorio **no debe contener** datos reales de establecimientos, bases de datos (`.mdb`, `.sql`), credenciales ni archivos `.env`. Los datos REM son confidenciales (Ley 21.719). Revisa cada commit antes de subirlo.
 
+## Cómo se ejecuta
 
+Guía paso a paso, incluido cómo probar archivos REM reales:
+[`docs/operacion/como-probar.md`](docs/operacion/como-probar.md).
+
+Resumen: `composer install` → `.env` → `php artisan migrate --seed` →
+`php artisan catalogos:importar <snapshot> --activar` → entrar por
+`http://localhost/Cargas/portal/public/login`.
