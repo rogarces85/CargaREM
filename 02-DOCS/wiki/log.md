@@ -36,3 +36,14 @@ topic: log
 | 2026-11-10 | Nomenclatura unificada: sistema legacy = "Cargas REM"; ejecutable = `ValidadorRem.exe` | `specs/AGENT.md` · `specs/SPECS.md` · `specs/TASK.md` |
 | 2026-11-10 | Estrategia de ramas Git documentada: `main` protegida, `docs/constitucion-y-stack` base, `feature/*` por fase | `specs/AGENT.md` |
 | 2026-11-10 | `specs/TASK.md` creado: 112 tareas atómicas F0–F6 con dependencias, verificación, DoD | `specs/TASK.md` |
+| 2026-11-11 | `specs/AGENT.md` alineado al canon C-010 (Laravel 8.83 / PHP 7.4.3 / AdminLTE 3.2) y a la Constitución v3.1.0; cierra CONT-01 | `specs/AGENT.md` · `specs/PLAN.md` |
+| 2026-11-11 | `specs/SPECS.md` alineado al canon C-010: stack, AdminLTE 3.2, decisiones cerradas; cierra CONT-02 | `specs/SPECS.md` · `specs/PLAN.md` |
+| 2026-11-11 | `README.md` reescrito como puerta de entrada: mapa real del repo, canon C-010, estado 4/112 y próximos pasos | `README.md` |
+| 2026-11-11 | Wiki: índice corregido al flujo real (sin `inbox/` ni `raw/`) y sección de `specs/` agregada | `02-DOCS/wiki/index.md` |
+| 2026-11-11 | F0 completo en el papel: matriz de series, reglas de cierre e identidad/2FA redactados; andamiaje de *golden files* con `manifest.json` | `docs/validacion/` · `docs/auth/` · `tests/Parity/fixtures/` · `specs/TASK.md` |
+| 2026-11-11 | Hoja de firma de una página para la severidad de los 32 `ENV-###` (24 bloqueantes, 8 advertencias) | `docs/validacion/hoja-firma-severidad.md` |
+| 2026-11-11 | Harness: target `deepseek` agregado junto a `opencode`; 34 skills en `.dsh/skills/` | `.rsc.json` · `.dsh/` · `02-DOCS/wiki/harness/installation-plan.md` |
+| 2026-11-11 | Entorno local verificado en la máquina: XAMPP 8.2.12 / PHP 8.2.12 / MariaDB 10.4.32, límites reales, diferencias contra producción y estrategia en dos fases (C-011) | `02-DOCS/wiki/stack/entorno-local.md` · `sdd/decisions.md` · `README.md` |
+| 2026-11-11 | **Se parte de cero (C-012):** bases `cargasrem` y `cargasrem_test` respaldadas y eliminadas; catálogos a reimportar desde las Access del sistema | `docs/datos/fuentes-datos-mdb.md` · `sdd/decisions.md` · `stack/entorno-local.md` |
+| 2026-11-11 | Inventario verificado de las bases Access: `Global.mdb` 185.526 prestaciones, 3.207 establecimientos (86 de Osorno), 393.053 filas de datos en 9 bases `DatosSERIE` | `docs/datos/fuentes-datos-mdb.md` |
+| 2026-11-11 | **Fuente oficial de datos declarada (C-013):** `C:\Program Files (x86)\Minsal\Cargas Rem 2016`, solo lectura; las demás copias no son válidas | `docs/datos/fuentes-datos-mdb.md` · `sdd/decisions.md` |
