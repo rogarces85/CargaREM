@@ -34,7 +34,8 @@ class ProbarMotor extends Command
                             {--serie=A : Serie a probar}
                             {--filas=300 : Cuántas prestaciones rellenar por hoja}
                             {--establecimiento= : Código de establecimiento (por defecto uno de prueba)}
-                            {--sucio : Genera el archivo con errores a propósito}';
+                            {--sucio : Genera el archivo con errores a propósito}
+                            {--guardar= : Guarda una copia del Excel en esta ruta}';
 
     protected $description = 'Crea un envío de prueba, genera su Excel y muestra el reporte de validación.';
 
@@ -136,6 +137,20 @@ class ProbarMotor extends Command
         $this->newLine();
         $this->line('Para ver la bitácora:');
         $this->line('  php artisan tinker --execute="dump(App\Models\Auditoria::latest(\'id\')->take(5)->get([\'evento\',\'entidad\',\'entidad_id\'])->toArray());"');
+
+        $destino = (string) $this->option('guardar');
+
+        if ($destino !== '') {
+            $carpeta = dirname($destino);
+
+            if (! is_dir($carpeta)) {
+                mkdir($carpeta, 0775, true);
+            }
+
+            copy($ruta, $destino);
+            $this->info("Excel guardado en {$destino}");
+            $this->line('Súbalo desde el navegador en: '.route('envios.index'));
+        }
 
         Storage::disk('local')->delete($ruta);
 
