@@ -48,3 +48,4 @@ topic: log
 | 2026-11-11 | Inventario verificado de las bases Access: `Global.mdb` 185.526 prestaciones, 3.207 establecimientos (86 de Osorno), 393.053 filas de datos en 9 bases `DatosSERIE` | `docs/datos/fuentes-datos-mdb.md` |
 | 2026-11-11 | **Fuente oficial de datos declarada (C-013):** `C:\Program Files (x86)\Minsal\Cargas Rem 2016`, solo lectura; las demás copias no son válidas | `docs/datos/fuentes-datos-mdb.md` · `sdd/decisions.md` |
 | 2026-11-11 | Exportador `.mdb → CSV` construido y probado: 200.367 filas en 26 s desde la instalación oficial, con `manifest.json` y hashes | `01-TOOLS/rem-export/` |
+| 2026-11-11 | **F1 iniciada:** Laravel 8.83.29 en `portal/`, platform PHP 7.4.3, base `portal_m7`, `sql_mode` estricto, `America/Santiago`, locale `es`. Responde 200 por Apache | `portal/` · `specs/TASK.md` |

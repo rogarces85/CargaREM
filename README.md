@@ -2,7 +2,7 @@
 
 Documentación técnica de **Cargas REM** (el sistema que existe hoy) y especificación del **Portal M7**: el módulo web de envío mensual de estadísticas REM por establecimiento.
 
-> **Estado:** documentación y especificación cerradas. **Código de aplicación: 0 archivos.** El siguiente paso es F1 del plan de tareas.
+> **Estado:** F1 en curso. El proyecto Laravel 8.83 vive en [`portal/`](portal/) y ya migra contra `portal_m7` y responde por Apache.
 
 ---
 
@@ -20,6 +20,7 @@ El portal **no reemplaza** a Cargas REM en su primera versión: valida, ordena l
 
 | Ruta | Qué contiene |
 |---|---|
+| [`portal/`](portal/) | **La aplicación.** Laravel 8.83.29 sobre PHP 7.4.3 (fijado en Composer), MySQL 8 en producción y MariaDB 10.4 en local. Es el portal M7 |
 | [`specs/`](specs/) | **La especificación operativa del MVP.** Cuatro documentos, ~178 KB: [`AGENT.md`](specs/AGENT.md) (contexto), [`SPECS.md`](specs/SPECS.md) (requisitos funcionales y criterios de aceptación), [`PLAN.md`](specs/PLAN.md) (arquitectura, 11 módulos técnicos, modelo de datos), [`TASK.md`](specs/TASK.md) (**112 tareas atómicas** en 7 fases) |
 | [`02-DOCS/wiki/`](02-DOCS/wiki/) | Wiki del proyecto: [`sdd/constitution.md`](02-DOCS/wiki/sdd/constitution.md) (Constitución **v3.1.0**, 28 principios), [`sdd/decisions.md`](02-DOCS/wiki/sdd/decisions.md) (registro append-only de decisiones), `stack/` (entorno y decisión de stack), `dominio/` (pipeline V0–V11). Puerta de entrada: [`index.md`](02-DOCS/wiki/index.md) |
 | [`informe.md`](informe.md) | Informe técnico completo de Cargas REM: arquitectura, módulos M1–M6, reglas de negocio, flujos, §2.10 del módulo de envío, pendientes P1–P13 |
@@ -72,7 +73,7 @@ El plan son **112 tareas atómicas** en 7 fases. Estado real hoy:
 | Fase | Alcance | Marcadas como hechas |
 |---|---|---|
 | **F0** Descubrimiento y paridad | *Golden files*, decisiones, catálogo `ENV-###` | **7 de 10** (3 esperan personas) |
-| **F1** Base L1 | Laravel, auth, RBAC, catálogos, auditoría, seed | 0 de 31 |
+| **F1** Base L1 | Laravel, auth, RBAC, catálogos, auditoría, seed | **4 de 31** |
 | **F2** Carga y validación L2 | Subida, versionado, V0–V11, reporte, estados | 0 de 31 |
 | **F3** Revisión L3 | Observaciones, aprobación, bandeja, notificaciones | 0 de 14 |
 | **F4** Completitud y tablero | Matriz semáforo, totales, exportación | 0 de 5 |
