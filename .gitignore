@@ -98,3 +98,8 @@
 .dsh/skills/verify
 .dsh/skills/worktrees
 .dsh/skills/.rsc-state.json
+# Archivos reales del Minsal para pruebas (principio 22: datos reales fuera del
+# repositorio). Se leen desde disco, nunca se versionan.
+portal/archivos/
+*.xlsm
+!portal/public/**/*.xlsm

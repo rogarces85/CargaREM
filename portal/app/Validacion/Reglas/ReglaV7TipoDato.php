@@ -37,6 +37,18 @@ final class ReglaV7TipoDato implements ReglaValidacion
         $aceptaDecimal = $this->aceptaDecimal($contexto);
         $porCodigo = [];
 
+        /*
+         * El diccionario incluye columnas que no son datos: la del profesional
+         * («Médico/a», «Matrona/ón») o la del tipo de control. Marcarlas como
+         * «valor no numérico» produce miles de avisos falsos en cada archivo
+         * real.
+         *
+         * Se decide con la evidencia del propio archivo: si una columna no
+         * trae un solo número en toda la hoja, no es una columna de datos y
+         * no se le exige número.
+         */
+        $columnasNumericas = $this->columnasNumericas($contexto);
+
         foreach ($datos->registros as $registro) {
             foreach ($registro->valores as $valor) {
                 if (trim((string) $valor['valor']) === '') {
@@ -54,6 +66,10 @@ final class ReglaV7TipoDato implements ReglaValidacion
                 }
 
                 if (! is_numeric($valor['valor'])) {
+                    if (! ($columnasNumericas[$registro->hoja][$this->letra($valor['celda'])] ?? false)) {
+                        continue; // columna de etiqueta, no de dato
+                    }
+
                     $clave = $registro->codigo ?? $registro->hoja;
 
                     if (($porCodigo[$clave] ?? 0) < self::MAX_POR_CODIGO) {
@@ -79,6 +95,60 @@ final class ReglaV7TipoDato implements ReglaValidacion
         }
 
         return $hallazgos;
+    }
+
+    /**
+     * Columnas que se comportan como datos numéricos, por hoja.
+     *
+     * Una columna entra si trae al menos un número. Y se descarta como
+     * etiqueta solo con evidencia suficiente: tres o más textos y ningún
+     * número. Con una sola celda no se puede afirmar nada, así que se valida.
+     *
+     * @return array<string, array<string, bool>>
+     */
+    private function columnasNumericas(ContextoValidacion $contexto): array
+    {
+        $numeros = [];
+        $textos = [];
+
+        foreach ($contexto->datos()->registros as $registro) {
+            foreach ($registro->valores as $valor) {
+                $vacio = trim((string) $valor['valor']) === '';
+
+                if ($vacio) {
+                    continue;
+                }
+
+                if (is_numeric($valor['valor'])) {
+                    $numeros[$registro->hoja][$this->letra($valor['celda'])] = true;
+                } else {
+                    $columna = $this->letra($valor['celda']);
+                    $textos[$registro->hoja][$columna] = ($textos[$registro->hoja][$columna] ?? 0) + 1;
+                }
+            }
+        }
+
+        $mapa = [];
+
+        foreach ($textos as $hoja => $columnas) {
+            foreach ($columnas as $celda => $cantidad) {
+                $mapa[$hoja][$celda] = isset($numeros[$hoja][$celda]) || $cantidad < 3;
+            }
+        }
+
+        foreach ($numeros as $hoja => $columnas) {
+            foreach ($columnas as $celda => $_) {
+                $mapa[$hoja][$celda] = true;
+            }
+        }
+
+        return $mapa;
+    }
+
+    /** "B11" => "B": la columna, sin la fila. */
+    private function letra(string $celda): string
+    {
+        return (string) preg_replace('/\d+/', '', $celda);
     }
 
     private function tieneDecimal(string $valor): bool

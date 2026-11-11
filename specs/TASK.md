@@ -467,3 +467,21 @@ F0 (T-F0-01..10)
 | Suite | **164 tests, 423 aserciones, 0 fallos** |
 
 **Pendiente y bloqueado:** T-F2-25, la paridad contra los *golden files*. No se puede verificar porque los archivos de referencia no existen todavía: los aporta el equipo en T-F0-02 y T-F0-03. Cuando lleguen, se ejecutan las reglas sobre ellos y se comparan los hallazgos código por código. Hasta entonces, la paridad es **no verificada**, no «aprobada».
+
+### Paridad con archivos reales (2026-11-11)
+
+El equipo aportó cinco archivos del Minsal en `portal/archivos/` (fuera del repositorio, principio 22): serie A, 2026, meses 07 a 09, tres establecimientos.
+
+| Archivo | Hojas | Cabecera | Bloqueantes | Advertencias |
+|---|---|---|---|---|
+| 123012A09.xlsm | 30 | 09/2026 · serie A · v1.2 | 0 | 333 |
+| 123030A09.xlsm | 30 | 09/2026 · serie A · v1.2 | 0 | 333 |
+| 123100A08.xlsm | 30 | 08/2026 · serie A · v1.2 | 0 | 333 |
+| 123100A09.xlsm | 30 | 09/2026 · serie A · v1.2 | 0 | 333 |
+| 123101A07.xlsm | 30 | 07/2026 · serie A · v1.2 | 0 | 333 |
+
+Los cinco se leen correctamente y el motor no encuentra bloqueantes. Las advertencias son 41 `ENV-018` (prestaciones sin datos, con 459 más resumidas), 291 `ENV-020` y 1 `ENV-028` (macros).
+
+**Esto no cierra la paridad.** Prueba que el motor lee archivos reales y produce un reporte coherente; no prueba que coincida con el ValidadorRem. Para eso hace falta el resultado esperado de cada archivo: los códigos y las cantidades que el sistema anterior produce. Sin eso, comparar es imposible.
+
+**Riesgo abierto:** 34 s por archivo de 1,5 MB. El límite de tiempo de validación es 90 s y el de espera del lock 10 s. Un archivo del doble de tamaño se acerca al límite.

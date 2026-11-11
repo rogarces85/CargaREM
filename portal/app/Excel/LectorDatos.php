@@ -102,29 +102,27 @@ class LectorDatos
             throw new \RuntimeException("El rango {$inicio}..{$fin} está invertido.");
         }
 
+        /*
+         * Se lee la fila entera de una vez: pedir celda por celda cuesta una
+         * llamada por columna y multiplica el tiempo de un archivo real de
+         * treinta hojas por varias decenas de segundos.
+         */
+        $rango = Coordinate::stringFromColumnIndex($desde).$linea.':'.Coordinate::stringFromColumnIndex($hasta).$linea;
+        $fila = $hoja->rangeToArray($rango, null, false, false, false)[0] ?? [];
+
         $valores = [];
 
-        for ($columna = $desde; $columna <= $hasta; $columna++) {
-            $letra = Coordinate::stringFromColumnIndex($columna);
-            $celda = $letra.$linea;
-            $objeto = $hoja->getCell($celda);
+        foreach (array_values($fila) as $indice => $valor) {
+            $celda = Coordinate::stringFromColumnIndex($desde + $indice).$linea;
 
-            $esFormula = $objeto->getDataType() === 'f';
-            $calculado = null;
-
-            if ($esFormula) {
-                try {
-                    $calculado = $objeto->getCalculatedValue();
-                } catch (Throwable) {
-                    $calculado = null;
-                }
-            }
+            // Una fórmula sin calcular llega como el texto de la fórmula.
+            $esFormula = is_string($valor) && str_starts_with(trim($valor), '=');
 
             $valores[] = [
                 'celda'     => $celda,
-                'valor'     => $esFormula ? $calculado : $objeto->getValue(),
+                'valor'     => $esFormula ? null : $valor,
                 'formula'   => $esFormula,
-                'calculado' => $calculado,
+                'calculado' => null,
             ];
         }
 
