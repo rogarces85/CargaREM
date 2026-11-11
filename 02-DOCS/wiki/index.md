@@ -36,10 +36,10 @@ topic: index
 
 | Artículo | Qué contiene |
 |---|---|
-| [`sdd/constitution.md`](sdd/constitution.md) | Constitución **v3.1.0**: D-STACK cerrada (C-010), canon Laravel 8.83 + PHP 7.4.3 + AdminLTE 3.2, 28 principios y Definition of Done |
+| [`sdd/constitution.md`](sdd/constitution.md) | Constitución **v3.2.0**: **D-STACK reabierta (C-014)**, 28 principios y Definition of Done. El stack Laravel 8.83 / PHP 7.4.3 queda provisional y congelado |
 | [`sdd/decisions.md`](sdd/decisions.md) | Registro append-only de decisiones, incluidas D-STACK cerrada (C-010) y D1/D4/D5/D6/D10 pendientes |
 
-## stack/ — entorno y decisión **cerrada (C-010)**
+## stack/ — entorno y decisión **reabierta (C-014)**
 
 | Artículo | Qué contiene |
 |---|---|
@@ -65,6 +65,12 @@ topic: index
 | Artículo | Qué contiene |
 |---|---|
 | [`docs/seguridad/dependencias-eol.md`](../../docs/seguridad/dependencias-eol.md) | Los 5 avisos abiertos de Laravel 8.83 y los 13 de PhpSpreadsheet: cuáles alcanzan al portal, las 6 mitigaciones obligatorias y las decisiones D15/D16 |
+
+## infra/ — lo que depende de TI
+
+| Artículo | Qué contiene |
+|---|---|
+| [`docs/infra/solicitud-php-81-ti.md`](../../docs/infra/solicitud-php-81-ti.md) | **Solicitud para enviar a TI:** PHP 8.1+ en el vhost, con la evidencia de los 5 avisos, las tres preguntas concretas y qué pasa si dicen no |
 
 ## harness/ — cómo trabaja el agente
 

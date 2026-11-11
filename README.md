@@ -2,7 +2,7 @@
 
 Documentación técnica de **Cargas REM** (el sistema que existe hoy) y especificación del **Portal M7**: el módulo web de envío mensual de estadísticas REM por establecimiento.
 
-> **Estado:** F1 en curso. El proyecto Laravel 8.83 vive en [`portal/`](portal/) y ya migra contra `portal_m7` y responde por Apache.
+> **Estado:** **D-STACK reabierta (C-014) y F1 congelada.** El proyecto Laravel 8.83 de [`portal/`](portal/) es **provisional**: esa rama acumula 5 avisos de seguridad sin parche posible. Se pidió PHP 8.1+ a TI para subir a Laravel 10.50.4+. Ver [`solicitud-php-81-ti.md`](docs/infra/solicitud-php-81-ti.md).
 
 ---
 

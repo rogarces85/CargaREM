@@ -2,7 +2,7 @@
 
 > **Ubicación canónica:** `specs/SPECS.md`
 > **Fuente:** `specs/AGENT.md` + `backup_documentacion/MODULO_M7_PROFUNDIZADO.md` + Constitución v3.1.0
-> **Stack canon (D-STACK cerrada, C-010):** Laravel 8.83 + PHP 7.4.3 + MySQL 8.0.42 + AdminLTE 3.2 (Bootstrap 4)
+> **Stack (D-STACK REABIERTA, C-014):** Laravel 8.83 + PHP 7.4.3 + MySQL 8.0.42 + AdminLTE 3.2 (Bootstrap 4). **Provisional y congelado:** si TI habilita PHP 8.1+ se sube a Laravel 10.50.4+. Ver §0 de la Constitución.
 > **Referencia UX:** Zenith Dashboard (shadcn/ui) como guía visual de L2/L3, no como dependencia. Toda la UI usa AdminLTE 3.2.
 
 ---

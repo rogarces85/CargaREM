@@ -51,3 +51,5 @@ topic: log
 | 2026-11-11 | **F1 iniciada:** Laravel 8.83.29 en `portal/`, platform PHP 7.4.3, base `portal_m7`, `sql_mode` estricto, `America/Santiago`, locale `es`. Responde 200 por Apache | `portal/` · `specs/TASK.md` |
 | 2026-11-11 | Dependencias base instaladas: spatie/permission 5.11.1, Fortify 1.19.1, DataTables 9.21.2, Sanctum 2.15.1. AdminLTE 3.2.0 en `public/assets/adminlte/`. `/health` con 2 tests | `portal/` |
 | 2026-11-11 | **Riesgo de dependencias documentado:** Laravel 8.83 tiene 5 avisos abiertos (1 crítico) y PhpSpreadsheet 1.29.12 tiene 13. Se registran D15 y D16 | `docs/seguridad/dependencias-eol.md` · `sdd/decisions.md` |
+| 2026-11-11 | **D16 resuelto:** PhpSpreadsheet **1.30.8** no tiene avisos (el bloqueo era de `zipstream`). Regla: ruta generada por el servidor | `docs/seguridad/dependencias-eol.md` · `portal/composer.json` |
+| 2026-11-11 | **D-STACK reabierta (C-014):** no se acepta el riesgo de Laravel 8. Constitución a **v3.2.0**, F1 congelada y solicitud de PHP 8.1+ a TI | `sdd/constitution.md` · `docs/infra/solicitud-php-81-ti.md` · `README.md` |

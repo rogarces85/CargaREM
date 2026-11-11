@@ -59,39 +59,34 @@ Las reglas 2, 3 y 6 ya estaban en la Constitución y en el catálogo `ENV-###`. 
 
 ---
 
-## 4. El lector de Excel — decisión pendiente
-
-`phpoffice/phpspreadsheet` es la única librería que lee `.xls`, `.xlsx` y `.xlsm` con fórmulas en PHP 7.4. Las alternativas (`box/spout`, lectores simples) no cubren `.xls` ni evalúan fórmulas, y el validador las necesita.
-
-Pero:
+## 4. El lector de Excel — resuelto
 
 | Dato | Valor |
 |---|---|
-| Última versión compatible con PHP 7.4 | **1.29.12** |
-| Avisos abiertos en 1.29.12 | **13** |
-| Versión que los corrige | 2.x |
-| PHP mínimo de 2.x | **8.1** |
+| Versión adoptada | **1.30.8** |
+| Avisos abiertos | **0** |
+| Compatibilidad | PHP `>=7.4.0 <8.5.0` → corre en 7.4.3 y en 8.1+ |
+| Probado el 2026-11-11 | Escribe y lee `.xlsx`; lectores `Xls`, `Ods` y `Csv` disponibles; acentos y decimales correctos |
 
-Con PHP 7.4.3 no hay versión de PhpSpreadsheet sin avisos. Composer 2.9 lo bloquea por defecto (`block-insecure`), y por eso **no está instalado todavía**.
+Una conclusión anterior de este documento estaba equivocada y conviene dejarlo escrito: el bloqueo inicial de Composer no era de seguridad sino de `zipstream-php`. Con `^1.29` se resolvía a 1.30.x, que exige `zipstream` 2.2+, y en ese momento la resolución chocaba con PHP 7.4. La versión **1.30.8** funciona con `zipstream` **2.2.6**, que sí acepta 7.4, y no arrastra ningún aviso.
 
-### Las opciones
+### La regla de uso (D16)
 
-| # | Opción | Coste | Consecuencia |
-|---|---|---|---|
-| **A** | Instalar 1.29.12 desactivando el bloqueo solo para sus avisos, y endurecer todo el perímetro de entrada | Bajo | Se acepta el riesgo del lector. Requiere validar tipo real, tope de tamaño y rechazo de estructuras no permitidas (`ENV-027`) antes de abrir el archivo |
-| **B** | Convertir cada Excel a CSV **fuera** del portal (un script en el servidor de archivos) y que el portal solo lea CSV | Medio | El portal no toca el formato binario, pero se pierde la validación en el momento de la subida y aparece un paso manual |
-| **C** | Revisar el canon: exigir PHP 8.1+ en el servidor | Alto | Mata C-010. Depende de TI, que ya dijo que no |
-| **D** | Dejar la decisión para F2 y seguir con F1 | Ninguno hoy | Es lo que se hizo: el lector no se necesita hasta F2 |
+**El lector recibe siempre una ruta generada por el servidor, nunca el nombre que subió el usuario.**
 
-La opción **A** es la única que no cambia el alcance del MVP. La decisión es de negocio y TI, no del agente: se registra cuando se cierre.
+Es la clase de fallo que más costó en esta librería: la crítica `CVE-2026-34084` era SSRF/RCE en `IOFactory::load` cuando el nombre del archivo lo controlaba el usuario. Está corregida en 1.30.8, pero la regla evita depender de que el próximo parche llegue a tiempo.
+
+Implementación: el archivo se guarda en `storage/app/envios/` con un nombre aleatorio y el motor de validación recibe esa ruta absoluta. Nunca se toca `getClientOriginalName()` para construir una ruta.
 
 ---
 
 ## 5. Lo que queda abierto
 
-| ID | Decisión | Bloquea |
+| ID | Decisión | Estado |
 |---|---|---|
-| **D15** | Riesgo aceptado de Laravel 8.83 en EOL con las 6 mitigaciones | Nada, si se respetan |
-| **D16** | Lector de Excel: opción A, B o C | F2, no F1 |
+| **D15** | Riesgo de Laravel 8.83 en EOL | ❌ **No se acepta.** **C-014 reabrió D-STACK** y se pidió PHP 8.1+ a TI |
+| **D16** | Lector de Excel | ✅ **Resuelto:** 1.30.8 con la regla de §4 |
 
-Mientras D15 y D16 estén abiertas, el proyecto puede avanzar en F1. **F2 no puede empezar sin cerrar D16.**
+Mientras D-STACK esté abierta, el principio 1 de la Constitución vuelve a bloquear código de aplicación nuevo. `portal/` queda **provisional y congelado**.
+
+Si TI responde que no, se vuelve a esta página y se cierra D15 como *riesgo aceptado* con las 6 mitigaciones de §3.

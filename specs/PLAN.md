@@ -2,7 +2,7 @@
 
 > **Ubicación canónica:** `specs/PLAN.md`
 > **Fuentes:** `specs/AGENT.md`, `specs/SPECS.md`, `backup_documentacion/MODULO_M7_PROFUNDIZADO.md`, `02-DOCS/wiki/sdd/constitution.md` v3.1.0, `02-DOCS/wiki/sdd/decisions.md`, `02-DOCS/wiki/dominio/validacion-rem.md`, `02-DOCS/wiki/stack/*`, `REVIEW.md`.
-> **Estado:** base técnica de la implementación. Stack canon cerrado en C-010 (Laravel 8.83 / PHP 7.4.3 / MySQL 8.0.42 / AdminLTE 3.2).
+> **Estado:** base técnica de la implementación. **D-STACK reabierta (C-014):** el stack de este plan (Laravel 8.83 / PHP 7.4.3 / MySQL 8.0.42 / AdminLTE 3.2) es provisional y congelado hasta la respuesta de TI.
 > **Fecha:** 2026-11-09 · actualizado 2026-11-11 (CONT-01 y CONT-02 resueltos)
 
 ---
@@ -838,7 +838,7 @@ Trabajo que puede avanzar en paralelo sin esperar resultados inexistentes:
 | ID | Riesgo | Prob. | Impacto | Mitigación |
 |---|---|:--:|:--:|---|
 | **RIES-01** | Paridad de validación incompleta | Alta | Alto | F0 con *golden files*; no avanzar a F3 sin paridad firmada |
-| **RIES-02** | Componentes EOL (PHP 7.4, Laravel 8, MySQL 8.0), con D-STACK cerrada (C-010) | Media | Alto | Deuda aceptada y registrada; plan de migración futura; WAF/proxy mientras tanto; objetivo MySQL 8.4 |
+| **RIES-02** | Componentes EOL (PHP 7.4, Laravel 8, MySQL 8.0) y **5 avisos de seguridad sin parche** | **Alta** | Alto | **D-STACK reabierta (C-014):** se pide PHP 8.1+ a TI para subir a Laravel 10.50.4+. Ver `docs/infra/solicitud-php-81-ti.md` |
 | **RIES-03** | Semántica de `Diccionario`/`Excep`/`colexcep` no confirmada | Alta | Alto | F0 produce *golden output*; no implementar por intuición |
 | **RIES-04** | Catálogos no importables en Linux | Media | Alto | Exportación CSV desde Windows + importador con validación de conteos |
 | **RIES-05** | Archivo cerca del límite de 2 MB (SAX y series grandes) | Media | Medio | Medir con archivos reales; `.htaccess` con `php_value`; rechazo claro |
@@ -993,3 +993,4 @@ Trabajo que puede avanzar en paralelo sin esperar resultados inexistentes:
 ---
 
 **Archivo guardado en:** `C:\xampp\htdocs\www\Cargas\specs\PLAN.md`
+

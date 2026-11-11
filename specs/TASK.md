@@ -4,7 +4,7 @@
 > **Fuentes:** `specs/AGENT.md`, `specs/SPECS.md`, `specs/PLAN.md`, `02-DOCS/wiki/sdd/constitution.md` v3.1.0
 > **Stack confirmado (C-010):** Laravel 8.83 + PHP 7.4.3 + MySQL 8.0.42 + AdminLTE 3.2 (Bootstrap 4) + vanilla JS
 > **Fecha:** 2026-11-10
-> **Estado (2026-11-11):** F0 redactado — 7 de 10; las 3 restantes esperan personas. **F1 iniciada:** proyecto Laravel 8.83.29 creado en `portal/`, migrando contra `portal_m7` y sirviendo por Apache. F2–F6 sin empezar.
+> **Estado (2026-11-11):** F0 redactado — 7 de 10; las 3 restantes esperan personas. **F1 congelada por C-014:** el proyecto Laravel 8.83.29 de `portal/` existe y funciona, pero no se extiende mientras D-STACK esté abierta. F2–F6 sin empezar.
 
 ---
 
@@ -31,7 +31,7 @@
 
 ---
 
-## FASE F0 — Descubrimiento y paridad (Gate: D-STACK cerrada C-010)
+## FASE F0 — Descubrimiento y paridad (Gate: D-STACK — reabierta por C-014)
 
 **Objetivo:** Cerrar paridad con **Cargas REM**, fijar decisiones de negocio, preparar *fixtures*.
 **Dependencia:** Ninguna (no es código de aplicación).

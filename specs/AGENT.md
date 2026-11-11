@@ -3,7 +3,7 @@
 > Ubicación canónica: `specs/AGENT.md`
 > Fuente de verdad para agentes de IA y desarrolladores.
 > No contiene especificaciones funcionales detalladas ni decisiones técnicas prematuras.
-> **Actualizado 2026-11-11:** alineado al canon C-010 (Laravel 8.83 / PHP 7.4.3 / AdminLTE 3.2) y a la Constitución v3.1.0. Cierra `CONT-01` de `PLAN.md`.
+> **Actualizado 2026-11-11:** alineado a la Constitución v3.1.0 (C-010) y **luego afectado por la reapertura de D-STACK (C-014)**. El stack descrito en §8 es el **provisional y congelado**: si TI habilita PHP 8.1+, este documento debe rehacerse sobre Laravel 10.50.4+.
 
 ---
 
@@ -46,7 +46,7 @@ El sistema actual (**Cargas REM**) es una aplicación de escritorio WinForms que
 
 ## 4. Idea general de la solución
 
-Portal web **Laravel 8.83 + PHP 7.4.3 + MySQL 8** (canon C-010) con:
+Portal web **Laravel 8.83 + PHP 7.4.3 + MySQL 8** (Opción B, provisional por C-014) con:
 
 - **Validación V0–V11** replicada fielmente, probada contra *golden files* del ValidadorRem
 - **Máquina de estados** del envío (recibido → validado → en_revisión → observado/aprobado → cargado/anulado)
@@ -97,11 +97,11 @@ Portal web **Laravel 8.83 + PHP 7.4.3 + MySQL 8** (canon C-010) con:
 
 ## 8. Tecnologías y restricciones generales
 
-### Stack canon (Opción B — D-STACK cerrada por C-010)
+### Stack provisional (Opción B — D-STACK reabierta por C-014)
 
 | Capa | Decisión | Condición |
 |---|---|---|
-| **Lenguaje** | PHP 7.4.3 | Canon C-010; EOL 28-nov-2022 (deuda aceptada y documentada) |
+| **Lenguaje** | PHP 7.4.3 | EOL 28-nov-2022; es la causa de la reapertura (C-014) |
 | **Framework** | Laravel 8.83 | Última rama que corre en PHP 7.4 |
 | **Base de datos producción** | MySQL 8.0.42, `utf8mb4` | Compartido con `sist_observaciones` |
 | **Base de datos desarrollo** | SQLite (local, L1 — C-008) + MySQL 8 (paridad) | La paridad numérica se valida en MySQL, no en SQLite |
@@ -123,13 +123,13 @@ Portal web **Laravel 8.83 + PHP 7.4.3 + MySQL 8** (canon C-010) con:
 | Despliegue | FTP confirmado; SSH probable no confirmado | `sist_observaciones` usa git/composer |
 | Cron | Disponible (worker/minuto en otro vhost) | Confirmado indirectamente |
 
-> **D-STACK CERRADA** (C-010, 10-nov-2026). TI confirmó que no hay PHP-FPM 8.3 ni actualización de servidor prevista: **PHP 7.4.3 es la realidad del vhost principal**. Se adopta la Opción B como canon y la Constitución se enmendó a v3.1.0 (MAJOR). El Principio 1 ya no bloquea código de aplicación.
+> **D-STACK REABIERTA** (C-014, 11-nov-2026). Se había cerrado en C-010 con la Opción B porque PHP 7.4.3 es la realidad del vhost principal. Se reabre porque `composer audit` mostró que Laravel 8.83.29 acumula **5 avisos de seguridad sin parche posible**, uno crítico. **El Principio 1 vuelve a bloquear código de aplicación nuevo** y `portal/` queda congelado.
 >
-> Volver a A1/A2 exige una decisión nueva en `02-DOCS/wiki/sdd/decisions.md` y una enmienda MAJOR de la Constitución. Detalle: `02-DOCS/wiki/stack/decision-stack.md`.
+> Lo pedido a TI es PHP 8.1+ para poder subir a Laravel 10.50.4+: `docs/infra/solicitud-php-81-ti.md`. Detalle del cierre anterior: `02-DOCS/wiki/stack/decision-stack.md`.
 
-### Restricciones de la Constitución (v3.1.0)
+### Restricciones de la Constitución (v3.2.0)
 
-1. **D-STACK cerrada**: no se cambia de framework ni de versión de PHP sin decisión registrada y enmienda MAJOR (Principio 1)
+1. **D-STACK abierta**: no se introduce código de aplicación nuevo hasta cerrarla (Principio 1)
 2. **Validación V0–V11**: código `ENV-###`, severidad, test obligatorio (Principio 6)
 3. **Transiciones de estado**: servicio único, tests válidas y prohibidas (Principio 7)
 4. **RBAC**: test positivo y negativo por permiso (Principio 8)
@@ -207,7 +207,7 @@ Todas las decisiones de diseño están tomadas. Ninguna bloquea ya el inicio de 
 - [x] Objetivo se desprende de la información disponible
 - [x] Restricciones explícitas preservadas (PHP 7.4.3, Constitución v3.1.0)
 - [x] No se introdujeron funcionalidades nuevas fuera del alcance documentado
-- [x] Stack alineado al canon C-010 (resuelve `CONT-01` de `PLAN.md` §17.3)
+- [x] Stack alineado a la Opción B y marcado como provisional por C-014 (resuelve `CONT-01` de `PLAN.md` §17.3)
 - [x] Todas las decisiones de diseño cerradas; D12–D14 no bloquean código
 - [x] No hay especificaciones funcionales detalladas ni arquitectura prematura
 - [x] Documento guarda en `specs/AGENT.md` (ruta canónica)
@@ -230,3 +230,4 @@ Todas las decisiones de diseño están tomadas. Ninguna bloquea ya el inicio de 
 ---
 
 **Archivo guardado en:** `C:\xampp\htdocs\www\Cargas\specs/AGENT.md`
+
