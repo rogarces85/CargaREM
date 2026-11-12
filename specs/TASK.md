@@ -210,13 +210,13 @@
 | **T-F3-02** | **Resolución automática al reenviar** | En `EnvioService::subirVersion`: si existe `Observacion` para esa `serie` y `resuelta=0` → marca `resuelta=1`, `resuelta_en=now()` | Cierra loop | RF-031, RN-ENV-15 | T-F3-01, T-F2-06 | Reenvío serie observada → obs marcada resuelta | `[x]` |
 | **T-F3-03** | **Controller: RevisionController (bandeja + acciones)** | Rutas: `revision.index` (filtros SS/establec/período/estado/antigüedad, paginación servidor, contadores), `revision.observar`, `revision.aprobar`, `revision.cargar`, `revision.reabrir` | Endpoints revisor | RF-026, RF-027, RF-030, RF-032, MOD-06 | T-F2-10, T-F3-01 | GET `/supervision` → tabla paginada con filtros | `[x]` |
 | **T-F3-04** | **Vistas Blade: bandeja, modal observar, modal aprobar** | `revision/index.blade.php` (tabla + filtros), `components/ModalObservar` (checklist series + textarea obligatorio), `components/ModalAprobar` (resumen archivos, bloqueantes=0, checklist advertencias, comentario) | UI revisor | SPECS §7.1, PLAN §9.1, §9.2 | T-F1-11, T-F3-03 | Modales validan: obs requiere texto; aprobar requiere checks | `[x]` |
-| **T-F3-05** | **Tests observación + bandeja** | Test: revisor observa con checklist → `observado` + notificación; encargado reenvía → `recibido`; revisor ve en bandeja; paginación/filtros funcionan; RN-ENV-7 (revisor no aprueba su establec) | CA-027, CA-032, CA-033, RN-ENV-7 | T-F3-01, T-F3-03, T-F3-04 | `php artisan test --filter=Revision` pasa | `[ ]` |
+| **T-F3-05** | **Tests observación + bandeja** | Test: revisor observa con checklist → `observado` + notificación; encargado reenvía → `recibido`; revisor ve en bandeja; paginación/filtros funcionan; RN-ENV-7 (revisor no aprueba su establec) | CA-027, CA-032, CA-033, RN-ENV-7 | T-F3-01, T-F3-03, T-F3-04 | `php artisan test --filter=Revision` pasa | `[x]` |
 
 ### F3.2 — Aprobación y confirmación carga (MOD-05, MOD-10)
 
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
-| **T-F3-06** | **Transición 'aprobar' con guardas completas** | `EstadoEnvioService::transicionar('aprobar')`: valida 0 bloqueantes en archivos vigentes + advertencias con `revisada=1` + RN-ENV-7 (revisor ≠ encargado establec) → `estado=aprobado`, archivos `aprobado`, transición, notificación | Aprobación segura | RF-027, RF-028, CA-028, RN-ENV-2, RN-ENV-7 | T-F2-27, T-F3-01 | Test: bloqueante>0 → falla; advertencia sin check → falla; autoaprobación → falla | `[ ]` |
+| **T-F3-06** | **Transición 'aprobar' con guardas completas** | `EstadoEnvioService::transicionar('aprobar')`: valida 0 bloqueantes en archivos vigentes + advertencias con `revisada=1` + RN-ENV-7 (revisor ≠ encargado establec) → `estado=aprobado`, archivos `aprobado`, transición, notificación | Aprobación segura | RF-027, RF-028, CA-028, RN-ENV-2, RN-ENV-7 | T-F2-27, T-F3-01 | Test: bloqueante>0 → falla; advertencia sin check → falla; autoaprobación → falla | `[x]` |
 | **T-F3-07** | **Transición 'confirmar_carga' (manual MVP A)** | `transicionar('confirmar_carga')`: solo `aprobado`/`cargado` → `cargado` + `fecha_carga` + transición + auditoría | Cierre ciclo | RF-030, CA-031, MOD-05, MOD-10 | T-F3-06 | Test: estado `aprobado` → `cargado` con fecha | `[ ]` |
 | **T-F3-08** | **Transiciones reaperturar/anular (solo admin)** | `transicionar('reabrir')`: `aprobado`/`cargado` → `observado`/`recibido` + motivo obligatorio + auditoría; `transicionar('anular')`: `recibido`/`con_errores`/`observado` → `anulado` + motivo | Excepciones admin | RF-028, RF-029, CA-029, CA-030 | T-F2-27 | Test: admin reaperture → motivo en auditoría; no-admin → 403 | `[ ]` |
 
@@ -416,11 +416,11 @@ F0 (T-F0-01..10)
 | **F0** | 10 | 7 | 3 | 0 |
 | **F1** | 31 | 31 | 0 | 0 |
 | **F2** | 31 | 30 | 1 | 0 |
-| **F3** | 14 | 4 | 0 | 10 |
+| **F3** | 14 | 6 | 0 | 8 |
 | **F4** | 5 | 0 | 0 | 5 |
 | **F5** | 5 | 0 | 0 | 5 |
 | **F6** | 16 | 0 | 0 | 16 |
-| **TOTAL** | **112** | **72** | **4** | **36** |
+| **TOTAL** | **112** | **74** | **4** | **34** |
 
 **F0 — las 7 completadas:** T-F0-01 (C-010), 04, 06, 07, 08, 09, 10.
 **F0 — las 3 en progreso, todas esperando a personas:**

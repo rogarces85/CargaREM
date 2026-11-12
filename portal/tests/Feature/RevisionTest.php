@@ -29,6 +29,7 @@ class RevisionTest extends TestCase
     private User $revisor;
     private Serie $serie;
     private Envio $envio;
+    private CatalogoSnapshot $snapshot;
 
     protected function setUp(): void
     {
@@ -41,7 +42,7 @@ class RevisionTest extends TestCase
             'codigo' => '123100', 'nombre' => 'Hospital Base', 'servicio_id' => $servicio->id,
         ]);
         Periodo::create(['anio' => 2026, 'mes' => 9, 'estado' => Periodo::ABIERTO]);
-        $snapshot = CatalogoSnapshot::create(['origen' => 'prueba', 'activo' => true]);
+        $this->snapshot = CatalogoSnapshot::create(['origen' => 'prueba', 'activo' => true]);
 
         $this->encargado = User::factory()->create(['activo' => true]);
         $this->encargado->assignRole('encargado');
@@ -115,8 +116,22 @@ class RevisionTest extends TestCase
             ->assertSessionHasErrors('texto');
     }
 
+    /** Una serie exigida con su archivo vigente y válido: el envío está completo. */
+    private function completar(): void
+    {
+        $this->envio->archivos()->create([
+            'serie_id' => $this->serie->id, 'version' => 1, 'es_vigente' => true,
+            'nombre_original' => '123100A09.xlsx', 'ruta' => 'envios/x.xlsx', 'disco' => 'local',
+            'sha256' => str_repeat('c', 64), 'tamano_bytes' => 100, 'mime' => 'application/vnd.ms-excel',
+            'estado' => \App\Models\EnvioArchivo::VALIDO, 'snapshot_id' => $this->snapshot->id,
+            'subido_por' => $this->encargado->id,
+        ]);
+    }
+
     public function test_aprobar_sin_observaciones_funciona(): void
     {
+        $this->completar();
+
         $this->actingAs($this->revisor)
             ->post("/revision/{$this->envio->id}/aprobar")
             ->assertRedirect(route('revision.index'));

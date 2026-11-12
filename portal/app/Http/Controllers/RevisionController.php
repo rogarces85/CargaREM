@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\EnvioInvalidoException;
 use App\Models\Envio;
 use App\Models\Establecimiento;
 use App\Services\EstadoEnvioService;
@@ -109,20 +110,17 @@ class RevisionController extends Controller
     {
         $this->authorize('aprobar', $envio);
 
-        $abiertas = $this->observaciones->abiertas($envio);
-
-        if ($abiertas > 0) {
-            return back()->withErrors([
-                'aprobar' => "Hay {$abiertas} observación(es) sin resolver. Resuélvalas antes de aprobar.",
-            ]);
+        // Las guardas viven en el servicio: la pantalla no decide si un envío
+        // está en condiciones, solo muestra el motivo cuando no lo está.
+        try {
+            $this->estados->aprobar(
+                $envio,
+                $request->user(),
+                $request->input('comentario') ?: null
+            );
+        } catch (EnvioInvalidoException $e) {
+            return back()->withErrors(['aprobar' => $e->getMessage()]);
         }
-
-        $this->estados->transicionar(
-            $envio,
-            Envio::APROBADO,
-            $request->user(),
-            $request->input('comentario') ?: 'Aprobado sin observaciones.'
-        );
 
         return redirect()
             ->route('revision.index')

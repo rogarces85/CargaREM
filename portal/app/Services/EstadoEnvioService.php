@@ -126,6 +126,61 @@ class EstadoEnvioService
     }
 
     /**
+     * Aprueba el envío, con las guardas completas (T-F3-06).
+     *
+     * No alcanza con que el revisor tenga el permiso y el envío esté en
+     * revisión: tiene que estar completo, sin bloqueantes y sin observaciones
+     * abiertas. Aprobar algo a medias es lo que después aparece como dato
+     * faltante en la consolidación.
+     */
+    public function aprobar(Envio $envio, User $actor, ?string $motivo = null): Envio
+    {
+        $this->verificarGuardas($envio);
+
+        return $this->transicionar($envio, Envio::APROBADO, $actor, $motivo ?? 'Aprobado sin observaciones.');
+    }
+
+    private function verificarGuardas(Envio $envio): void
+    {
+        if ($envio->estado !== Envio::EN_REVISION) {
+            throw EnvioInvalidoException::transicionNoPermitida($envio->estado, Envio::APROBADO);
+        }
+
+        $abiertas = $envio->observaciones()->where('resuelta', false)->count();
+
+        if ($abiertas > 0) {
+            throw EnvioInvalidoException::aprobacionConObservaciones($abiertas);
+        }
+
+        // Se mira el estado del archivo además de sus hallazgos: el estado es
+        // el resultado de la última validación y vale aunque el detalle se
+        // haya regenerado.
+        $bloqueantes = $envio->archivos()->where('es_vigente', true)
+            ->where(function ($q) {
+                $q->where('estado', \App\Models\EnvioArchivo::CON_ERRORES)
+                    ->orWhereHas('validaciones', fn ($v) => $v->where('severidad', 'bloqueante'));
+            })
+            ->count()
+            + $envio->validaciones()->where('severidad', 'bloqueante')->count();
+
+        if ($bloqueantes > 0) {
+            throw EnvioInvalidoException::aprobacionConBloqueantes($bloqueantes);
+        }
+
+        $exigidas = $envio->establecimiento->series()
+            ->wherePivot('obligatoria', true)
+            ->pluck('series.id');
+
+        $presentes = $envio->archivos()->where('es_vigente', true)->pluck('serie_id');
+
+        $faltantes = $exigidas->diff($presentes);
+
+        if ($faltantes->isNotEmpty()) {
+            throw EnvioInvalidoException::aprobacionIncompleta($faltantes->count());
+        }
+    }
+
+    /**
      * Devuelve el envío a `recibido` porque llegó una versión nueva.
      *
      * Lo llama la subida, con el usuario que subió como actor: aunque el

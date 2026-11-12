@@ -75,4 +75,18 @@ public static function observacionVacia(): self
     {
         return new self('APP-OBS-003', 'El archivo observado no pertenece a este envío.');
     }
+public static function aprobacionConObservaciones(int $abiertas): self
+    {
+        return new self('APP-ENV-009', "Hay {$abiertas} observación(es) sin resolver: no se puede aprobar.");
+    }
+
+    public static function aprobacionConBloqueantes(int $bloqueantes): self
+    {
+        return new self('APP-ENV-010', "El envío tiene {$bloqueantes} archivo(s) con errores bloqueantes.");
+    }
+
+    public static function aprobacionIncompleta(int $faltantes): self
+    {
+        return new self('APP-ENV-011', "Falta(n) {$faltantes} serie(s) exigida(s) por la matriz: el envío no está completo.");
+    }
 }
