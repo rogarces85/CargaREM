@@ -50,7 +50,7 @@ El portal **no reemplaza** a Cargas REM en su primera versión: valida, ordena l
 
 ---
 
-## Stack canon — decisión cerrada (C-010)
+## Stack canon — decisión cerrada (C-015)
 
 | Capa | Tecnología |
 |---|---|
@@ -82,15 +82,14 @@ El plan son **112 tareas atómicas** en 7 fases. Estado real hoy:
 
 Las **12 decisiones de diseño están cerradas** (D1–D11 + D-STACK). Solo quedan abiertas D12 (antivirus), D13 (respaldos) y D14 (migración histórica), y ninguna bloquea el desarrollo. Detalle por tarea: [`specs/TASK.md`](specs/TASK.md).
 
-### Lo que falta para arrancar F1
+### Lo que queda de F0
 
-**Nada.** F1 no depende de F0: solo necesita C-010 cerrada, y lo está.
+Tres tareas humanas que corren en paralelo al código. **No bloquean nada del
+portal**: todo lo demás está construido.
 
-Lo que queda de F0 son tres tareas humanas que corren en paralelo al código y bloquean **F2**, no F1:
-
-1. **`T-F0-02/03` — *golden files*:** 12–20 archivos Excel reales anonimizados y su salida de referencia del ValidadorRem. La estructura y el `manifest.json` ya existen en [`tests/Parity/fixtures/`](tests/Parity/fixtures/README.md); falta poblarlos.
-2. **`T-F0-05` — firma de la política de severidad** por la Unidad de Estadísticas. La [hoja de firma de una página](docs/validacion/hoja-firma-severidad.md) destila los 32 códigos `ENV-###` para firmar sin leer el detalle técnico.
-3. **`T-F0-06/07/08` — tres documentos de decisión**, redactados y esperando confirmación de negocio: [matriz de series](docs/validacion/matriz-series-obligatorias.md), [reglas de cierre](docs/validacion/reglas-cierre-periodo.md) e [identidad/2FA](docs/auth/decision-identidad-2fa.md).
+1. **`T-F0-02/03` — *golden files*:** archivos Excel reales anonimizados y su salida del ValidadorRem. La estructura existe en [`tests/Parity/fixtures/`](tests/Parity/fixtures/README.md); falta poblarla. La comparación ya está armada: `php artisan rem:paridad`.
+2. **`T-F0-05` — firma de la política de severidad.** Las [cuatro decisiones](docs/decisiones/pendientes-de-firma.md) están escritas con recomendación y justificación.
+3. **`T-F0-06/07/08` — matriz de series, reglas de cierre e identidad/2FA**, redactadas y esperando confirmación de negocio.
 
 ---
 
@@ -137,10 +136,95 @@ Los límites y las diferencias entre ambos entornos —incluidas las cinco que r
 
 Este repositorio **no debe contener** datos reales de establecimientos, bases de datos (`.mdb`, `.sql`), credenciales ni archivos `.env`. Los datos REM son confidenciales (Ley 21.719). Revisa cada commit antes de subirlo.
 
-## Estado del proyecto
+## Resumen de entrega
 
-Resumen para quien toma el proyecto: [docs/entrega/estado-del-proyecto.md](docs/entrega/estado-del-proyecto.md).
+Para quien toma el proyecto: [docs/entrega/estado-del-proyecto.md](docs/entrega/estado-del-proyecto.md).
 
+## Trabajar en otra máquina
+
+El repositorio lleva el código, los tests y la documentación. **No lleva datos
+reales ni configuración local**: eso viaja aparte (principio 22).
+
+### Lo que hay que llevar aparte
+
+| Qué | Dónde | Tamaño |
+|---|---|---|
+| Catálogo del Minsal (CSV) | `C:\xampp\_snapshot_m7\` | 22 MB |
+| Archivos REM de prueba | `portal\archivos\` | 8 MB |
+| Configuración | `portal\.env` | 1 KB |
+| Respaldo de la base (opcional) | un `.sql` de `01-TOOLS/backup/` | 54 MB |
+
+El catálogo se puede regenerar con `01-TOOLS\rem-export\export-mdb.ps1` si hay
+acceso al Access del Minsal. El respaldo se genera con
+`01-TOOLS\backup\respaldo.ps1`.
+
+### Puesta en marcha
+
+**1. Traer el código**
+
+```bat
+cd C:\xampp\htdocs\www
+git clone https://github.com/rogarces85/CargaREM.git Cargas
+cd Cargas\portal
+```
+
+**2. Copiar los datos**
+
+```bat
+:: el catálogo
+xcopy RUTA\catalogo\* C:\xampp\_snapshot_m7\ /E /I /Y
+
+:: los archivos de prueba
+xcopy RUTA\archivos\* C:\xampp\htdocs\www\Cargas\portal\archivos\ /E /I /Y
+
+:: la configuración
+copy RUTA\configuracion\.env C:\xampp\htdocs\www\Cargas\portal\.env
+```
+
+**3. Instalar y crear la base**
+
+```bat
+composer install
+
+C:\xampp\mysql\bin\mysql.exe -u root -e "CREATE DATABASE IF NOT EXISTS cargas_rem CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+
+php artisan migrate --seed
+php artisan catalogos:importar C:\xampp\_snapshot_m7 --activar
+```
+
+**4. Restaurar el respaldo (alternativa al paso 3, más rápido)**
+
+Si se trae el `.sql`, en vez de sembrar e importar:
+
+```bat
+C:\xampp\mysql\bin\mysql.exe -u root cargas_rem < RUTA\db_AAAA-MM-DD_HHMM.sql
+tar -xzf RUTA\storage_AAAA-MM-DD_HHMM.tar.gz -C portal\storage\app\private
+php artisan migrate --force
+```
+
+**5. Arrancar**
+
+```bat
+cd C:\xampp\htdocs\www\Cargas
+iniciar.bat
+```
+
+Abre `http://127.0.0.1:8000/login`. Usuarios de desarrollo, creados por el
+seeder: `admin@ssosorno.cl`, `revisor@ssosorno.cl`,
+`encargado.hospital@ssosorno.cl` y `encargado.postas@ssosorno.cl`, todos con la
+clave `Portal2026!`.
+
+**6. Comprobar**
+
+```bat
+php artisan test
+```
+
+Deben pasar **246 tests**. Usan su propia base (`cargas_rem_test`) y no tocan los
+datos de trabajo.
+
+La guía detallada, con problemas comunes y cómo validar archivos REM:
+[`docs/operacion/como-probar.md`](docs/operacion/como-probar.md).
 ## Cómo se ejecuta
 
 Guía paso a paso, incluido cómo probar archivos REM reales:
