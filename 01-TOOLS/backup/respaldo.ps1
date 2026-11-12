@@ -19,7 +19,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-$raiz = Split-Path -Parent $PSScriptRoot
+$raiz = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 
 if ($Destino -eq '') { $Destino = Join-Path $raiz 'backup' }
 
