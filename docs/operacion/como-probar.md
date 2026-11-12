@@ -162,3 +162,61 @@ C:\xampp\mysql\bin\mysql.exe -u root -e "CREATE DATABASE IF NOT EXISTS cargas_re
 | Un archivo tarda ~35 s | Se abre un Excel de 1,5 MB y 30 hojas | Es lo esperado hoy; el límite es 90 s |
 | `Unknown database 'cargas_rem'` | No se creó la base | Paso 4, la creación es manual |
 | Falla `composer install` por PHP | Se está usando el PHP 7.4 de otro XAMPP | `php -v` y ajustar el `PATH` |
+
+## 9. Llevarse el proyecto a otra máquina
+
+El repositorio no lleva datos reales ni configuración local. Al cambiar de
+computadora hay que copiar aparte cuatro cosas y volver a clonar.
+
+### Lo que viaja por GitHub
+
+```bat
+git clone https://github.com/rogarces85/CargaREM.git
+```
+
+Todo el código, la documentación, los tests y los manuales. `main` es la rama
+publicada.
+
+### Lo que hay que copiar a mano
+
+| Qué | Dónde está acá | Tamaño | Para qué |
+|---|---|---|---|
+| Snapshot del catálogo | `C:\xampp\_snapshot_m7\` | 22 MB | Importar los 185.526 registros |
+| Archivos REM de prueba | `portal\archivos\` | 8 MB | Validar y comparar paridad |
+| Configuración | `portal\.env` | 1 KB | Base, correo, URL |
+| Respaldo de la base | `C:\xampp\_backup_test\` | 81 MB | Alternativa a reimportar |
+
+Los dos últimos son opcionales si se sigue el camino largo: crear el `.env` desde
+`.env.example` y reimportar el catálogo.
+
+### Camino corto: restaurar el respaldo
+
+Con el `.sql` copiado, en la máquina nueva:
+
+```bat
+C:\xampp\mysql\bin\mysql.exe -u root -e "CREATE DATABASE cargas_rem CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+C:\xampp\mysql\bin\mysql.exe -u root cargas_rem < ruta\db_2026-11-12_1018.sql
+```
+
+Y los archivos subidos, si hacen falta:
+
+```bat
+tar -xzf storage_2026-11-12_1018.tar.gz -C portal\storage\app\private
+```
+
+Después `php artisan migrate --force` por si el respaldo es anterior a alguna
+migración nueva, y `php artisan storage:link` no hace falta (los archivos no se
+sirven desde `public`).
+
+### Camino largo: de cero
+
+Los pasos 1 a 4 de esta guía, más `php artisan catalogos:importar`.
+
+### Comprobar que quedó bien
+
+```bat
+php artisan test
+```
+
+Deben pasar **246 tests**. El conteo no depende de los datos: los tests usan su
+propia base.
