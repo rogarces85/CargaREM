@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Exceptions\EnvioInvalidoException;
 use App\Models\Envio;
 use App\Models\User;
+use App\Services\Notificador;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -91,7 +92,7 @@ class EstadoEnvioService
             throw EnvioInvalidoException::motivoRequerido('anular');
         }
 
-        return DB::transaction(function () use ($envio, $nuevo, $actor, $motivo) {
+        $envio = DB::transaction(function () use ($envio, $nuevo, $actor, $motivo) {
             $anterior = $envio->estado;
 
             $envio->estado = $nuevo;
@@ -123,6 +124,38 @@ class EstadoEnvioService
 
             return $envio;
         });
+
+        // Se avisa fuera de la transacción: si el correo falla, el cambio de
+        // estado ya está confirmado y no se pierde.
+        $this->notificar($envio, $nuevo, $actor);
+
+        return $envio;
+    }
+
+    /**
+     * Envía el aviso que corresponde al estado nuevo.
+     *
+     * Un fallo del notificador no propaga: la transición ya ocurrió.
+     */
+    private function notificar(Envio $envio, string $nuevo, User $actor): void
+    {
+        $evento = match ($nuevo) {
+            Envio::EN_REVISION => 'enviado_a_revision',
+            Envio::OBSERVADO   => 'observado',
+            Envio::APROBADO    => 'aprobado',
+            Envio::CARGADO     => 'cargado',
+            default            => null,
+        };
+
+        if ($evento === null) {
+            return;
+        }
+
+        try {
+            app(Notificador::class)->enviar($envio->fresh(), $evento, $actor);
+        } catch (\Throwable $e) {
+            report($e);
+        }
     }
 
     /**

@@ -224,10 +224,10 @@
 
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
-| **T-F3-09** | **Migración tabla `notifications` (Laravel default)** | `php artisan notifications:table` → migración + modelo `Notification` | Esquema listo | RF-038, MOD-09 | T-F1-05 | Tabla creada | `[ ]` |
-| **T-F3-10** | **Notificador::enviar() (OP-17)** | Crea `Notification` en BD siempre; `Mail::to(...)->send(...)` en `afterCommit` con `try/catch` timeout 5s; si falla mail → log + no revierte | BD + correo tolerante | RF-038, OP-17, MOD-09 | T-F3-09, T-F1-09 | Test: mail falla → notificación en BD, operación OK | `[ ]` |
-| **T-F3-11** | **Plantillas correo (Blade mail)** | `resources/views/emails/enviado-revision.blade.php`, `observacion.blade.php`, `aprobado.blade.php`, `cargado.blade.php` con enlace directo + estado | Correos bonitos | RF-038, RNF-014 | T-F3-10 | Mail renderiza; variables correctas | `[ ]` |
-| **T-F3-12** | **Tests notificaciones** | Test: cada evento genera notificación BD; correo enviado (mock); fallo correo no revierte; admin puede reenviar manual | CA-038 | T-F3-10, T-F3-11 | `php artisan test --filter=Notificacion` pasa | `[ ]` |
+| **T-F3-09** | **Migración tabla `notifications` (Laravel default)** | `php artisan notifications:table` → migración + modelo `Notification` | Esquema listo | RF-038, MOD-09 | T-F1-05 | Tabla creada | `[x]` |
+| **T-F3-10** | **Notificador::enviar() (OP-17)** | Crea `Notification` en BD siempre; `Mail::to(...)->send(...)` en `afterCommit` con `try/catch` timeout 5s; si falla mail → log + no revierte | BD + correo tolerante | RF-038, OP-17, MOD-09 | T-F3-09, T-F1-09 | Test: mail falla → notificación en BD, operación OK | `[x]` |
+| **T-F3-11** | **Plantillas correo (Blade mail)** | `resources/views/emails/enviado-revision.blade.php`, `observacion.blade.php`, `aprobado.blade.php`, `cargado.blade.php` con enlace directo + estado | Correos bonitos | RF-038, RNF-014 | T-F3-10 | Mail renderiza; variables correctas | `[x]` |
+| **T-F3-12** | **Tests notificaciones** | Test: cada evento genera notificación BD; correo enviado (mock); fallo correo no revierte; admin puede reenviar manual | CA-038 | T-F3-10, T-F3-11 | `php artisan test --filter=Notificacion` pasa | `[x]` |
 
 ### F3.4 — Verificación fase F3
 
@@ -416,11 +416,11 @@ F0 (T-F0-01..10)
 | **F0** | 10 | 7 | 3 | 0 |
 | **F1** | 31 | 31 | 0 | 0 |
 | **F2** | 31 | 30 | 1 | 0 |
-| **F3** | 14 | 8 | 0 | 6 |
+| **F3** | 14 | 12 | 0 | 2 |
 | **F4** | 5 | 0 | 0 | 5 |
 | **F5** | 5 | 0 | 0 | 5 |
 | **F6** | 16 | 0 | 0 | 16 |
-| **TOTAL** | **112** | **76** | **4** | **32** |
+| **TOTAL** | **112** | **80** | **4** | **28** |
 
 **F0 — las 7 completadas:** T-F0-01 (C-010), 04, 06, 07, 08, 09, 10.
 **F0 — las 3 en progreso, todas esperando a personas:**
