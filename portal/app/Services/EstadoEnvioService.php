@@ -140,6 +140,62 @@ class EstadoEnvioService
         return $this->transicionar($envio, Envio::APROBADO, $actor, $motivo ?? 'Aprobado sin observaciones.');
     }
 
+    /**
+     * Confirma la carga en el sistema institucional (T-F3-07, MVP manual).
+     *
+     * En el MVP no hay integración: alguien carga los datos en el sistema de
+     * estadísticas y vuelve a confirmarlo aquí. La referencia —número de acta,
+     * folio, lo que use el Servicio— queda en el historial, porque es lo que
+     * permite rastrear después.
+     */
+    public function confirmarCarga(Envio $envio, User $actor, ?string $referencia = null): Envio
+    {
+        if ($envio->estado !== Envio::APROBADO) {
+            throw EnvioInvalidoException::transicionNoPermitida($envio->estado, Envio::CARGADO);
+        }
+
+        $referencia = trim((string) $referencia);
+
+        $motivo = $referencia === ''
+            ? 'Carga confirmada manualmente.'
+            : "Carga confirmada. Referencia: {$referencia}";
+
+        return $this->transicionar($envio, Envio::CARGADO, $actor, $motivo);
+    }
+
+    /**
+     * Reabre un envío ya aprobado o cargado (T-F3-08, solo administración).
+     *
+     * Vuelve a revisión sin borrar la aprobación anterior: queda en el
+     * historial quién reabrió, cuándo y por qué.
+     */
+    public function reaperturar(Envio $envio, User $actor, string $motivo): Envio
+    {
+        if (trim($motivo) === '') {
+            throw EnvioInvalidoException::motivoRequerido('reaperturar');
+        }
+
+        if (! in_array($envio->estado, [Envio::APROBADO, Envio::CARGADO], true)) {
+            throw EnvioInvalidoException::transicionNoPermitida($envio->estado, Envio::EN_REVISION);
+        }
+
+        return $this->transicionar($envio, Envio::EN_REVISION, $actor, "Reapertura: {$motivo}");
+    }
+
+    /**
+     * Anula un envío (T-F3-08, solo administración).
+     *
+     * Un envío anulado no se borra: deja de contar y queda el motivo.
+     */
+    public function anular(Envio $envio, User $actor, string $motivo): Envio
+    {
+        if (trim($motivo) === '') {
+            throw EnvioInvalidoException::motivoRequerido('anular');
+        }
+
+        return $this->transicionar($envio, Envio::ANULADO, $actor, $motivo);
+    }
+
     private function verificarGuardas(Envio $envio): void
     {
         if ($envio->estado !== Envio::EN_REVISION) {

@@ -97,4 +97,6 @@ Route::middleware(['auth', 'permission:envios.ver.ss'])->prefix('revision')->nam
     Route::post('{envio}/observar', [RevisionController::class, 'observar'])->name('observar');
     Route::post('{envio}/aprobar', [RevisionController::class, 'aprobar'])->name('aprobar');
     Route::post('{envio}/cargar', [RevisionController::class, 'cargar'])->name('cargar');
+    Route::post('{envio}/reaperturar', [RevisionController::class, 'reaperturar'])->name('reaperturar');
+    Route::post('{envio}/anular', [RevisionController::class, 'anular'])->name('anular');
 });

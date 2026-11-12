@@ -128,16 +128,72 @@ class RevisionController extends Controller
     }
 
     /**
-     * Marca el envío como cargado en el sistema institucional (MVP manual).
+     * Confirma la carga en el sistema institucional (T-F3-07, MVP manual).
      */
-    public function cargar(Envio $envio): RedirectResponse
+    public function cargar(Request $request, Envio $envio): RedirectResponse
     {
         $this->authorize('cargar', $envio);
 
-        $this->estados->transicionar($envio, Envio::CARGADO, request()->user(), 'Carga confirmada.');
+        $datos = $request->validate([
+            'referencia' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        try {
+            $this->estados->confirmarCarga($envio, $request->user(), $datos['referencia'] ?? null);
+        } catch (EnvioInvalidoException $e) {
+            return back()->withErrors(['cargar' => $e->getMessage()]);
+        }
 
         return redirect()
             ->route('revision.index')
-            ->with('ok', 'Envío marcado como cargado.');
+            ->with('ok', 'Carga confirmada.');
+    }
+
+    /**
+     * Reabre un envío aprobado o cargado (T-F3-08, solo administración).
+     */
+    public function reaperturar(Request $request, Envio $envio): RedirectResponse
+    {
+        $this->authorize('reabrir', $envio);
+
+        $datos = $request->validate([
+            'motivo' => ['required', 'string', 'max:500'],
+        ], [
+            'motivo.required' => 'Escriba por qué se reabre: queda en el historial.',
+        ]);
+
+        try {
+            $this->estados->reaperturar($envio, $request->user(), $datos['motivo']);
+        } catch (EnvioInvalidoException $e) {
+            return back()->withErrors(['reaperturar' => $e->getMessage()]);
+        }
+
+        return redirect()
+            ->route('revision.index')
+            ->with('ok', 'Envío reabierto: vuelve a revisión.');
+    }
+
+    /**
+     * Anula un envío (T-F3-08, solo administración).
+     */
+    public function anular(Request $request, Envio $envio): RedirectResponse
+    {
+        $this->authorize('anular', $envio);
+
+        $datos = $request->validate([
+            'motivo' => ['required', 'string', 'max:500'],
+        ], [
+            'motivo.required' => 'Escriba el motivo de la anulación: queda en el historial.',
+        ]);
+
+        try {
+            $this->estados->anular($envio, $request->user(), $datos['motivo']);
+        } catch (EnvioInvalidoException $e) {
+            return back()->withErrors(['anular' => $e->getMessage()]);
+        }
+
+        return redirect()
+            ->route('revision.index')
+            ->with('ok', 'Envío anulado.');
     }
 }

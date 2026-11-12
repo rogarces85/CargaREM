@@ -217,8 +217,8 @@
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
 | **T-F3-06** | **Transición 'aprobar' con guardas completas** | `EstadoEnvioService::transicionar('aprobar')`: valida 0 bloqueantes en archivos vigentes + advertencias con `revisada=1` + RN-ENV-7 (revisor ≠ encargado establec) → `estado=aprobado`, archivos `aprobado`, transición, notificación | Aprobación segura | RF-027, RF-028, CA-028, RN-ENV-2, RN-ENV-7 | T-F2-27, T-F3-01 | Test: bloqueante>0 → falla; advertencia sin check → falla; autoaprobación → falla | `[x]` |
-| **T-F3-07** | **Transición 'confirmar_carga' (manual MVP A)** | `transicionar('confirmar_carga')`: solo `aprobado`/`cargado` → `cargado` + `fecha_carga` + transición + auditoría | Cierre ciclo | RF-030, CA-031, MOD-05, MOD-10 | T-F3-06 | Test: estado `aprobado` → `cargado` con fecha | `[ ]` |
-| **T-F3-08** | **Transiciones reaperturar/anular (solo admin)** | `transicionar('reabrir')`: `aprobado`/`cargado` → `observado`/`recibido` + motivo obligatorio + auditoría; `transicionar('anular')`: `recibido`/`con_errores`/`observado` → `anulado` + motivo | Excepciones admin | RF-028, RF-029, CA-029, CA-030 | T-F2-27 | Test: admin reaperture → motivo en auditoría; no-admin → 403 | `[ ]` |
+| **T-F3-07** | **Transición 'confirmar_carga' (manual MVP A)** | `transicionar('confirmar_carga')`: solo `aprobado`/`cargado` → `cargado` + `fecha_carga` + transición + auditoría | Cierre ciclo | RF-030, CA-031, MOD-05, MOD-10 | T-F3-06 | Test: estado `aprobado` → `cargado` con fecha | `[x]` |
+| **T-F3-08** | **Transiciones reaperturar/anular (solo admin)** | `transicionar('reabrir')`: `aprobado`/`cargado` → `observado`/`recibido` + motivo obligatorio + auditoría; `transicionar('anular')`: `recibido`/`con_errores`/`observado` → `anulado` + motivo | Excepciones admin | RF-028, RF-029, CA-029, CA-030 | T-F2-27 | Test: admin reaperture → motivo en auditoría; no-admin → 403 | `[x]` |
 
 ### F3.3 — Notificaciones (MOD-09)
 
@@ -416,11 +416,11 @@ F0 (T-F0-01..10)
 | **F0** | 10 | 7 | 3 | 0 |
 | **F1** | 31 | 31 | 0 | 0 |
 | **F2** | 31 | 30 | 1 | 0 |
-| **F3** | 14 | 6 | 0 | 8 |
+| **F3** | 14 | 8 | 0 | 6 |
 | **F4** | 5 | 0 | 0 | 5 |
 | **F5** | 5 | 0 | 0 | 5 |
 | **F6** | 16 | 0 | 0 | 16 |
-| **TOTAL** | **112** | **74** | **4** | **34** |
+| **TOTAL** | **112** | **76** | **4** | **32** |
 
 **F0 — las 7 completadas:** T-F0-01 (C-010), 04, 06, 07, 08, 09, 10.
 **F0 — las 3 en progreso, todas esperando a personas:**

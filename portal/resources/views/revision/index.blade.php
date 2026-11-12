@@ -138,6 +138,37 @@
                                         Aprobar
                                     </button>
                                 @endcan
+
+                                @can('cargar', $envio)
+                                    <button type="button" class="btn btn-sm btn-info btn-cargar"
+                                            data-id="{{ $envio->id }}"
+                                            data-referencia="{{ $envio->establecimiento->codigo }} · {{ sprintf('%02d/%d', $envio->mes, $envio->anio) }}"
+                                            data-toggle="modal" data-target="#modalCargar">
+                                        Confirmar carga
+                                    </button>
+                                @endcan
+
+                                @can('reabrir', $envio)
+                                    <button type="button" class="btn btn-sm btn-outline-secondary btn-motivo"
+                                            data-id="{{ $envio->id }}"
+                                            data-accion="reaperturar"
+                                            data-titulo="Reabrir envío"
+                                            data-referencia="{{ $envio->establecimiento->codigo }} · {{ sprintf('%02d/%d', $envio->mes, $envio->anio) }}"
+                                            data-toggle="modal" data-target="#modalMotivo">
+                                        Reabrir
+                                    </button>
+                                @endcan
+
+                                @can('anular', $envio)
+                                    <button type="button" class="btn btn-sm btn-outline-danger btn-motivo"
+                                            data-id="{{ $envio->id }}"
+                                            data-accion="anular"
+                                            data-titulo="Anular envío"
+                                            data-referencia="{{ $envio->establecimiento->codigo }} · {{ sprintf('%02d/%d', $envio->mes, $envio->anio) }}"
+                                            data-toggle="modal" data-target="#modalMotivo">
+                                        Anular
+                                    </button>
+                                @endcan
                             </td>
                         </tr>
                     @empty
@@ -153,6 +184,67 @@
     </div>
 
     <div class="mt-3">{{ $envios->links() }}</div>
+
+{{-- Modal confirmar carga --}}
+    <div class="modal fade" id="modalCargar" tabindex="-1" role="dialog" aria-labelledby="tituloCargar" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <form method="POST" id="formCargar" action="">
+                @csrf
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="tituloCargar">Confirmar carga</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="mb-2">Envío <strong id="referenciaCargar"></strong></p>
+                        <p class="text-muted small">
+                            Confirme que los datos ya fueron cargados en el sistema institucional.
+                        </p>
+                        <div class="form-group mb-0">
+                            <label for="referencia">Referencia (opcional)</label>
+                            <input type="text" name="referencia" id="referencia" class="form-control" maxlength="100"
+                                   placeholder="N° de acta, folio o lo que use el Servicio">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-link" data-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-info">Confirmar carga</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{-- Modal reabrir / anular --}}
+    <div class="modal fade" id="modalMotivo" tabindex="-1" role="dialog" aria-labelledby="tituloMotivo" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <form method="POST" id="formMotivo" action="">
+                @csrf
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="tituloMotivo">Motivo</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="mb-2">Envío <strong id="referenciaMotivo"></strong></p>
+                        <div class="form-group mb-0">
+                            <label for="motivo">Motivo</label>
+                            <textarea name="motivo" id="motivo" rows="3" class="form-control" maxlength="500" required></textarea>
+                            <small class="form-text text-muted">Queda en el historial del envío.</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-link" data-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-danger">Confirmar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 
     {{-- Modal observar --}}
     <div class="modal fade" id="modalObservar" tabindex="-1" role="dialog" aria-labelledby="tituloObservar" aria-hidden="true">
@@ -240,5 +332,21 @@
                 document.getElementById('botonAprobar').disabled = abiertas > 0;
             });
         });
-    </script>
+
+        document.querySelectorAll('.btn-cargar').forEach(function (boton) {
+            boton.addEventListener('click', function () {
+                document.getElementById('formCargar').action = '/revision/' + this.dataset.id + '/cargar';
+                document.getElementById('referenciaCargar').textContent = this.dataset.referencia;
+                document.getElementById('referencia').value = '';
+            });
+        });
+
+        document.querySelectorAll('.btn-motivo').forEach(function (boton) {
+            boton.addEventListener('click', function () {
+                document.getElementById('formMotivo').action = '/revision/' + this.dataset.id + '/' + this.dataset.accion;
+                document.getElementById('tituloMotivo').textContent = this.dataset.titulo;
+                document.getElementById('referenciaMotivo').textContent = this.dataset.referencia;
+                document.getElementById('motivo').value = '';
+            });
+        });    </script>
 @endpush
