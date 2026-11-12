@@ -9,7 +9,7 @@ use App\Validacion\ReglaValidacion;
 use App\Validacion\Severidad;
 
 /**
- * V11 — completitud del envío (ENV-025, ENV-026, ENV-030).
+ * V11 — completitud del envío (ENV-025).
  *
  * Es la única regla que no mira el archivo sino el conjunto: compara las
  * series que la matriz exige al establecimiento con las que efectivamente
@@ -67,30 +67,25 @@ final class ReglaV11Completitud implements ReglaValidacion
                 continue;
             }
 
-            // Hay archivo, pero no sirve: es distinto de no tenerlo, y el
-            // mensaje tiene que decirlo.
+            // Hay archivo, pero no sirve. El catálogo no tiene un código
+            // aparte para «llegó mal»: ENV-025 es «faltan series obligatorias»,
+            // y una serie con errores bloqueantes es una serie que falta a
+            // efectos de la consolidación. El mensaje distingue los dos casos.
             if ($archivo->estado === EnvioArchivo::CON_ERRORES) {
                 $hallazgos[] = new Hallazgo(
-                    'V11', 'ENV-030', Severidad::BLOQUEANTE,
-                    "El archivo de la serie {$serie->codigo} tiene errores bloqueantes: el envío no se considera completo.",
+                    'V11', 'ENV-025', Severidad::BLOQUEANTE,
+                    "La serie {$serie->codigo} está exigida y su archivo tiene errores bloqueantes: cuenta como faltante.",
                     null, null, $serie->codigo, 'R-V11-02'
                 );
             }
         }
 
-        $idsExigidos = $exigidas->pluck('id')->all();
-
-        foreach ($vigentes as $serieId => $archivo) {
-            if (in_array($serieId, $idsExigidos, true)) {
-                continue;
-            }
-
-            $hallazgos[] = new Hallazgo(
-                'V11', 'ENV-026', Severidad::ADVERTENCIA,
-                "La serie {$archivo->serie->codigo} no está exigida por la matriz para este establecimiento.",
-                null, null, (string) $archivo->serie->codigo, 'R-V11-03'
-            );
-        }
+        /*
+         * Las series que no exige la matriz no generan hallazgo: el catálogo
+         * de códigos no contempla ese caso y ENV-026 está reservado para otra
+         * cosa («ya existe una carga aprobada para el período»). Se ven en la
+         * matriz de completitud, que es su lugar.
+         */
 
         return $hallazgos;
     }

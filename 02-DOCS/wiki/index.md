@@ -96,3 +96,4 @@ topic: index
 | [`docs/manual/manual-operacion.md`](../../docs/manual/manual-operacion.md) | Despliegue, respaldos, registros y problemas comunes |
 | [`docs/decisiones/pendientes-de-firma.md`](../../docs/decisiones/pendientes-de-firma.md) | Las cuatro decisiones de F0 con recomendación: matriz de series, severidad, plazos y 2FA |
 | [`docs/entrega/estado-del-proyecto.md`](../../docs/entrega/estado-del-proyecto.md) | Resumen de entrega: qué está hecho, qué falta, riesgos vivos y números del sistema |
+| [`docs/operacion/matriz-paridad-catalogo.md`](../../docs/operacion/matriz-paridad-catalogo.md) | Contraste de las 32 reglas implementadas contra el catálogo documentado, con las desviaciones justificadas |

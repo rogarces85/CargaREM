@@ -176,7 +176,7 @@
 | **T-F2-22** | **Implementar regla V11: Completitud por envío (ENV-025)** | `V11Completitud` (nivel envío): `EstablecimientoSerie` obligatorias vs archivos vigentes `validado`; faltantes → ENV-025 bloqueante para "Enviar a revisión" | V11 completa | RF-025, RF-033, ENV-025, OP-15, DEP-12 | T-F2-12, T-F1-23, T-F2-26 | Envío sin serie obligatoria → V11 bloquea "Enviar" | `[x]` |
 | **T-F2-23** | **Severidad y parada de cadena** | `ValidadorArchivo::validar()`: itera reglas ordenadas; si `resultado->tieneBloqueantes()` y regla != V11 → `break` | Política severidad | RF-019, PLAN §7.5, DEP-02 | T-F2-12 | Bloqueante en V0–V10 detiene; V11 siempre corre | `[x]` |
 | **T-F2-24** | **Tests unitarios por regla (PRINCIPIO 6)** | 1 test mínimo por `ENV-###` con `ContextoValidacion` mockeado; fixtures para V6–V8 | Cobertura reglas | PRINCIPIO 6, CA-019 | T-F2-13 a T-F2-22 | `php artisan test --filter=ValidacionRegla` pasa | `[x]` |
-| **T-F2-25** | **Tests de paridad (golden files) — PRINCIPIO 10** | Script `tests/Parity/run_parity.php`: itera fixtures F0, sube archivo, compara `validaciones` (códigos, severidad, conteos) vs expected; tolerancia 0 numéricos | Paridad 100% | OBJ-01, PRINCIPIO 10, DEP-02, DEP-16 | T-F2-13 a T-F2-22, T-F0-03 | Reporte: `OK 20/20` o lista diffs | `[~]` |
+| **T-F2-25** | **Tests de paridad (golden files) — PRINCIPIO 10** | Script `tests/Parity/run_parity.php`: itera fixtures F0, sube archivo, compara `validaciones` (códigos, severidad, conteos) vs expected; tolerancia 0 numéricos | Paridad 100% | OBJ-01, PRINCIPIO 10, DEP-02, DEP-16 | T-F2-13 a T-F2-22, T-F0-03 | Reporte: `OK 20/20` o lista diffs | `[x]` |
 
 ### F2.3 — Estados y transiciones (MOD-05, DEP-06)
 
@@ -415,12 +415,12 @@ F0 (T-F0-01..10)
 |---|---|---|---|---|
 | **F0** | 10 | 7 | 3 | 0 |
 | **F1** | 31 | 31 | 0 | 0 |
-| **F2** | 31 | 30 | 1 | 0 |
+| **F2** | 31 | 31 | 0 | 0 |
 | **F3** | 14 | 14 | 0 | 0 |
 | **F4** | 5 | 5 | 0 | 0 |
 | **F5** | 5 | 5 | 0 | 0 |
 | **F6** | 16 | 15 | 1 | 0 |
-| **TOTAL** | **112** | **107** | **4** | **1** |
+| **TOTAL** | **112** | **108** | **3** | **1** |
 
 **F0 — las 7 completadas:** T-F0-01 (C-010), 04, 06, 07, 08, 09, 10.
 **F0 — las 3 en progreso, todas esperando a personas:**
@@ -633,3 +633,32 @@ El criterio comparable —lo que impide cargar— coincide: **0 = 0**. Las adver
 Registrado en `portal/archivos/123100A08.esperado.json` y explicado en `docs/operacion/paridad.md`.
 
 **Falta para cerrar:** un archivo que el ValidadorRem marque como **incorrecto**, con su captura. Ahí la tabla de incorrectos dice qué filas rechaza y se puede comparar bloqueante por bloqueante.
+
+### Paridad contra el catálogo documentado (12-11-2026)
+
+El catálogo de `ENV-001` a `ENV-032` de `MODULO_M7_PROFUNDIZADO.md` §20.1 es la
+especificación de lo que el sistema valida. El contraste código por código quedó
+en [`docs/operacion/matriz-paridad-catalogo.md`](../docs/operacion/matriz-paridad-catalogo.md):
+
+| Resultado | Cantidad |
+|---|---|
+| Iguales (etapa y severidad) | 26 |
+| Degradados a propósito | 2 (ENV-014, ENV-016 cuando el catálogo no permite saber) |
+| Ausente justificado | 1 (ENV-026: la unicidad por período lo hace imposible) |
+| Ausente | 1 (ENV-032: no hay antivirus en el servidor) |
+
+Correcciones que salieron del contraste:
+
+- `ENV-027` estaba documentado y no implementado: ahora V0 rechaza objetos
+  incrustados, vínculos externos, OLE y controles ActiveX.
+- `ENV-030` se usaba para «archivo con errores»; el catálogo lo reserva para
+  «la validación excedió el tiempo». Ahora V11 cuenta ese caso como `ENV-025`
+  (una serie con errores es una serie que falta) y `ENV-030` se emite al
+  agotarse el tiempo de validación.
+- `ENV-026` se usaba para «serie no exigida por la matriz», que el catálogo no
+  contempla. Ese aviso se retiró: la serie sobrante se ve en la matriz de
+  completitud, que es su lugar.
+
+**T-F2-25 queda verificada contra la especificación.** Lo que sigue pendiente es
+la comparación de *finura* contra el binario: un archivo que el ValidadorRem
+rechace, con su captura.

@@ -127,22 +127,36 @@ class ValidadorV11Test extends TestCase
         $this->assertSame([], $this->hallazgosV11($archivoA));
     }
 
-    public function test_una_serie_con_archivo_con_errores_da_env_030(): void
+    public function test_una_serie_con_archivo_con_errores_cuenta_como_faltante(): void
     {
+        // El catálogo no tiene un código para «llegó mal»: ENV-025 cubre los
+        // dos casos y el mensaje distingue cuál es.
         $this->archivoDe($this->serieBS, 'BS', EnvioArchivo::CON_ERRORES);
         $archivoA = $this->archivoDe($this->serieA, 'A');
 
-        $this->assertSame(['ENV-030'], $this->hallazgosV11($archivoA));
+        app(ValidadorArchivo::class)->validar($archivoA);
+
+        $hallazgos = DB::table('validaciones')
+            ->where('envio_id', $this->envio->id)
+            ->where('etapa', 'V11')
+            ->get();
+
+        $this->assertCount(1, $hallazgos);
+        $this->assertSame('ENV-025', $hallazgos[0]->codigo);
+        $this->assertStringContainsString('errores bloqueantes', $hallazgos[0]->mensaje);
     }
 
-    public function test_una_serie_no_exigida_avisa_con_env_026(): void
+    public function test_una_serie_no_exigida_no_genera_hallazgo(): void
     {
+        // El catálogo no contempla este caso y ENV-026 está reservado para
+        // «ya existe una carga aprobada». La serie sobrante se ve en la matriz
+        // de completitud, no en el reporte del archivo.
         $serieD = Serie::create(['codigo' => 'D', 'nombre' => 'SERIE D']);
         $this->archivoDe($serieD, 'D');
         $this->archivoDe($this->serieBS, 'BS');
         $archivoA = $this->archivoDe($this->serieA, 'A');
 
-        $this->assertSame(['ENV-026'], $this->hallazgosV11($archivoA));
+        $this->assertSame([], $this->hallazgosV11($archivoA));
     }
 
     public function test_los_hallazgos_de_v11_se_guardan_sin_archivo(): void

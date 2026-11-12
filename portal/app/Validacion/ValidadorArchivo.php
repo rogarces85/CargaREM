@@ -73,6 +73,8 @@ class ValidadorArchivo
 
     private function validarSinBloqueo(EnvioArchivo $archivo): ResultadoValidacion
     {
+        $inicio = microtime(true);
+
         $archivo->loadMissing('envio.establecimiento', 'serie');
 
         $ruta = Storage::disk($archivo->disco)->path($archivo->ruta);
@@ -104,6 +106,22 @@ class ValidadorArchivo
             if ($hayBloqueante && $regla->etapa() !== 'V11') {
                 break;
             }
+        }
+
+        /*
+         * ENV-030: la validación excedió el tiempo disponible.
+         *
+         * Se comprueba al final y se agrega como bloqueante: si se pasó del
+         * límite, el resultado puede estar incompleto y no debe aprobarse.
+         */
+        $limite = (int) config('rem.validacion.timeout_segundos');
+
+        if ($limite > 0 && (microtime(true) - $inicio) > $limite) {
+            $hallazgos[] = new Hallazgo(
+                'V11', 'ENV-030', Severidad::BLOQUEANTE,
+                "La validación tardó más de {$limite} segundos: vuelva a intentarlo.",
+                null, null, null, 'R-V11-04'
+            );
         }
 
         $this->persistir($archivo, $hallazgos);

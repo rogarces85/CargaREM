@@ -80,6 +80,9 @@ Termina con código de error si algo no coincide, para que sirva en un pipeline.
 (principio 22) los mantiene fuera del repositorio. Hay que copiarlos a cada
 máquina donde se quiera correr la comparación.
 
+> El contraste código por código contra el catálogo documentado está en
+> [matriz-paridad-catalogo.md](matriz-paridad-catalogo.md): 26 reglas iguales, 2 degradadas y 2 ausentes.
+
 ## Qué reporta realmente el ValidadorRem
 
 Su pantalla «Cargar Datos» no habla de advertencias. Muestra dos conteos:

@@ -68,6 +68,25 @@ final class ReglaV0Archivo implements ReglaValidacion
             );
         }
 
+        /*
+         * ENV-027: estructuras no permitidas.
+         *
+         * Un Excel puede traer objetos incrustados, vínculos externos o
+         * documentos OLE. Ninguno hace falta para un REM y todos son vías de
+         * entrada: se rechazan antes de abrir el libro.
+         */
+        if (in_array($extension, ['xlsx', 'xlsm'], true)) {
+            $prohibidas = $this->estructurasProhibidas($ruta);
+
+            if ($prohibidas !== []) {
+                $hallazgos[] = new Hallazgo(
+                    'V0', 'ENV-027', Severidad::BLOQUEANTE,
+                    'El archivo contiene estructuras no permitidas: '.implode(', ', array_slice($prohibidas, 0, 3)).'.',
+                    null, null, implode(',', array_slice($prohibidas, 0, 3)), 'R-V0-06'
+                );
+            }
+        }
+
         // Un .xlsm trae macros: no se ejecutan nunca, pero se avisa.
         if ($extension === 'xlsm') {
             $hallazgos[] = new Hallazgo(
@@ -78,5 +97,43 @@ final class ReglaV0Archivo implements ReglaValidacion
         }
 
         return $hallazgos;
+    }
+
+    /**
+     * Busca dentro del ZIP las partes que no debería traer un REM.
+     *
+     * @return list<string>
+     */
+    private function estructurasProhibidas(string $ruta): array
+    {
+        $zip = new \ZipArchive();
+
+        if ($zip->open($ruta) !== true) {
+            return [];
+        }
+
+        $patrones = [
+            'xl/embeddings/'       => 'objetos incrustados',
+            'xl/externalLinks/'    => 'vínculos externos',
+            'xl/oleObjects/'       => 'objetos OLE',
+            'xl/activeX/'          => 'controles ActiveX',
+            'xl/macrosheets/'      => 'hojas de macro',
+        ];
+
+        $encontradas = [];
+
+        for ($i = 0; $i < $zip->numFiles; $i++) {
+            $nombre = (string) $zip->getNameIndex($i);
+
+            foreach ($patrones as $patron => $etiqueta) {
+                if (str_contains($nombre, $patron)) {
+                    $encontradas[$etiqueta] = true;
+                }
+            }
+        }
+
+        $zip->close();
+
+        return array_keys($encontradas);
     }
 }
