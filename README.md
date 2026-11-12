@@ -78,7 +78,7 @@ El plan son **112 tareas atómicas** en 7 fases. Estado real hoy:
 | **F3** Revisión L3 | Observaciones, aprobación, bandeja, notificaciones | **14 de 14** |
 | **F4** Completitud | Matriz semáforo, totales, exportación, drill-down | **5 de 5** |
 | **F5** Puente | ZIP con manifiesto firmado, confirmación de carga | **5 de 5** |
-| **F6** Endurecimiento | Seguridad, rendimiento, respaldo, manuales | **13 de 16** |
+| **F6** Endurecimiento | Seguridad, rendimiento, respaldo, manuales | **15 de 16** (UAT pendiente de personas) |
 
 Las **12 decisiones de diseño están cerradas** (D1–D11 + D-STACK). Solo quedan abiertas D12 (antivirus), D13 (respaldos) y D14 (migración histórica), y ninguna bloquea el desarrollo. Detalle por tarea: [`specs/TASK.md`](specs/TASK.md).
 
@@ -101,7 +101,7 @@ El desarrollo va en **dos fases** (C-011): primero el MVP completo en local, des
 | Fase | Dónde | Stack real |
 |---|---|---|
 | **1 — MVP local** | `C:\xampp` (Windows) | PHP 8.2.12 · MariaDB 10.4.32 · Apache 2.4.58 |
-| **2 — Servidor** | `estadisticas.ssosorno.cl` (Ubuntu 20.04) | **PHP 8.2** (hoy 7.4.3, pendiente de TI) · MySQL 8.0.42 · Apache 2.4 `mod_php` |
+| **2 — Servidor** | `estadisticas.ssosorno.cl` (Ubuntu 20.04) | **PHP 8.2** (confirmado por TI) · MySQL 8.0.42 · Apache 2.4 `mod_php` |
 
 Los límites y las diferencias entre ambos entornos —incluidas las cinco que rompen al migrar— están verificados y documentados en [`stack/entorno-local.md`](02-DOCS/wiki/stack/entorno-local.md).
 

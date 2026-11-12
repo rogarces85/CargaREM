@@ -20,7 +20,7 @@ El MVP se construye y se prueba en local. Cuando funcione, se traslada al servid
 | Fase | Dónde | Stack real | Qué se prueba |
 |---|---|---|---|
 | **1 — MVP local** | `C:\xampp` (Windows) | PHP 8.2.12 · MariaDB 10.4.32 · Apache 2.4.58 | El flujo completo: carga, validación, revisión, aprobación, paquete |
-| **2 — Servidor** | `estadisticas.ssosorno.cl` (Ubuntu 20.04) | **PHP 8.2** (hoy 7.4.3, pendiente de TI) · MySQL 8.0.42 · Apache 2.4 `mod_php` | Paridad con *golden files* y operación real |
+| **2 — Servidor** | `estadisticas.ssosorno.cl` (Ubuntu 20.04) | **PHP 8.2** (confirmado por TI el 12-nov-2026) · MySQL 8.0.42 · Apache 2.4 `mod_php` | Paridad con *golden files* y operación real |
 
 **Por qué en este orden:** en local se itera en segundos y sin riesgo. En el servidor, cada prueba depende de FTP y de un despliegue. Construir primero contra el servidor multiplica el costo de cada error.
 

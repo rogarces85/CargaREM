@@ -106,3 +106,14 @@ Reducen la exposición. No eliminan el riesgo: el próximo aviso será igual de 
 La respuesta condiciona el resto del proyecto. El desarrollo está **detenido** en la base ya construida: cada semana que pasa sin respuesta es una semana sin avanzar, porque escribir más código sobre Laravel 8 es trabajo que se descarta.
 
 No hay urgencia de horas. Sí de semanas.
+
+---
+
+## Respuesta de TI (12-nov-2026)
+
+**Aprobado.** El vhost principal de `estadisticas.ssosorno.cl` queda con PHP 8.2,
+la misma versión que ya corre el sistema de Observaciones.
+
+Con esto el requisito de C-015 queda satisfecho y el portal puede desplegarse
+según `docs/manual/manual-operacion.md`. Lo que sigue pendiente no depende del
+stack: la paridad con el ValidadorRem y el UAT con usuarios.

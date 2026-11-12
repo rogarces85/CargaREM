@@ -40,7 +40,7 @@ La decisión está tomada y **probada en código**. El portal corre sobre **Lara
 
 ### La consecuencia que se acepta a sabiendas
 
-**El portal no se puede desplegar en el servidor actual hasta que TI habilite PHP 8.2.** Desarrollo y despliegue quedan desacoplados: se construye sobre el stack limpio y la publicación espera la respuesta de TI.
+**El despliegue requiere PHP 8.2 en el servidor.** TI confirmó su habilitación el 12-nov-2026, así que el requisito queda satisfecho y el portal puede publicarse. La espera terminó; el requisito sigue escrito para que nadie lo olvide al cambiar de servidor.
 
 Es una decisión deliberada. La alternativa —Laravel 8 con 5 avisos sin parche— se evaluó y se rechazó en C-014.
 

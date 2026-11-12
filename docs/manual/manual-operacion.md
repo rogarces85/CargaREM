@@ -7,7 +7,7 @@ qué hacer cuando algo falla.
 
 | Pieza | Versión | Nota |
 |---|---|---|
-| PHP | **8.2** | El servidor hoy tiene 7.4: ver `docs/infra/solicitud-php-82-ti.md` |
+| PHP | **8.2** | Confirmado por TI el 12-nov-2026; ver `docs/infra/solicitud-php-82-ti.md` |
 | MySQL | 8.0.42 | `utf8mb4`, `STRICT_TRANS_TABLES` |
 | Apache | 2.4 | `mod_php` o PHP-FPM 8.2 |
 | Composer | 2.x | Solo para instalar; no queda en el servidor |
@@ -136,7 +136,7 @@ texto de las observaciones**: solo identificadores y códigos.
 
 | Tema | Riesgo |
 |---|---|
-| PHP 8.2 no habilitado en el servidor | El portal no se puede publicar hasta que TI lo haga |
+
 | Paridad con el ValidadorRem sin verificar | El motor aplica las reglas documentadas, pero no está probado que coincida con el sistema anterior |
 | Cada importación guarda su diccionario completo | El respaldo crece: conviene purgar snapshots viejos |
 | CSP permite estilos y scripts en línea | Se mitiga moviendo el JavaScript a archivos propios |

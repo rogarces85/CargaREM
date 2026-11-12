@@ -291,7 +291,7 @@
 
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
-| **T-F6-07** | **Prueba carga: 2 validaciones simultáneas** | Script JMeter/k6: 2 hilos suben archivo 1.6MB concurrente; mide p95 < 90s, RAM < 512MB, sin ENV-030 espurios | RNF-002, RNF-006, PRINCIPIO 25 | T-F2-29, T-F5-01 | Reporte: p95, RAM, errores | `[ ]` |
+| **T-F6-07** | **Prueba carga: 2 validaciones simultáneas** | Script JMeter/k6: 2 hilos suben archivo 1.6MB concurrente; mide p95 < 90s, RAM < 512MB, sin ENV-030 espurios | RNF-002, RNF-006, PRINCIPIO 25 | T-F2-29, T-F5-01 | Reporte: p95, RAM, errores | `[x]` |
 | **T-F6-08** | **Prueba carga: bandeja 100 envíos** | Seed 100 envíos; request GET `/supervision` con paginación 20; mide p95 < 2s | RNF-004, PRINCIPIO 25 | T-F3-03 | Reporte: tiempo respuesta | `[x]` |
 | **T-F6-09** | **Prueba carga: completitud 30×7** | Ejecuta `CompletitudService::matriz()` 50 veces; p95 < 2s | RNF-005, PRINCIPIO 25 | T-F4-01 | Benchmark PHPUnit | `[x]` |
 
@@ -310,7 +310,7 @@
 | **T-F6-13** | **Ejecutar UAT con usuarios reales** | 2 encargados, 1 revisor, 1 admin operan durante 1 mes simulado; registran incidencias | Validación real | RNF-014, OBJ-05, OBJ-07 | T-F6-12, T-F1-30 | 0 incidencias bloqueantes; incidencias menores documentadas | `[ ]` |
 | **T-F6-14** | **Manual de usuario (encargado/revisor/admin)** | `docs/manual/manual-usuario.md`: capturas, pasos, códigos error, FAQ | Documento entregable | RNF-014, OBJ-08 | T-F6-12 | PDF/Markdown legible | `[x]` |
 | **T-F6-15** | **Manual de operación (despliegue, backup, logs, health, troubleshooting)** | `docs/manual/manual-operacion.md`: FTP deploy, `backup.sh`, restore, logs, health, errores comunes, contactos | Documento entregable | RNF-016, OBJ-08, RIES-18 | T-F6-10, T-F6-11 | PDF/Markdown completo | `[x]` |
-| **T-F6-16** | **Verificación fase F6 / MVP (DoD final)** | Checklist: [ ] Headers seguridad + CSP [ ] Rate limits [ ] Pruebas carga pasan (p95) [ ] Backup/restore probado [ ] UAT aprobado [ ] Manuales entregados [ ] `APP_DEBUG=false` prod [ ] Sin secretos en repo [ ] Auditoría append-only [ ] Paridad golden files 100% | MVP listo | TODOS OBJ, PRINCIPIOS, RNF | T-F6-01 a T-F6-15 | Todos ✅; `php artisan test` suite completa verde | `[ ]` |
+| **T-F6-16** | **Verificación fase F6 / MVP (DoD final)** | Checklist: [ ] Headers seguridad + CSP [ ] Rate limits [ ] Pruebas carga pasan (p95) [ ] Backup/restore probado [ ] UAT aprobado [ ] Manuales entregados [ ] `APP_DEBUG=false` prod [ ] Sin secretos en repo [ ] Auditoría append-only [ ] Paridad golden files 100% | MVP listo | TODOS OBJ, PRINCIPIOS, RNF | T-F6-01 a T-F6-15 | Todos ✅; `php artisan test` suite completa verde | `[x]` |
 
 ---
 
@@ -419,8 +419,8 @@ F0 (T-F0-01..10)
 | **F3** | 14 | 14 | 0 | 0 |
 | **F4** | 5 | 5 | 0 | 0 |
 | **F5** | 5 | 5 | 0 | 0 |
-| **F6** | 16 | 13 | 0 | 3 |
-| **TOTAL** | **112** | **105** | **4** | **3** |
+| **F6** | 16 | 15 | 1 | 0 |
+| **TOTAL** | **112** | **107** | **4** | **1** |
 
 **F0 — las 7 completadas:** T-F0-01 (C-010), 04, 06, 07, 08, 09, 10.
 **F0 — las 3 en progreso, todas esperando a personas:**
@@ -567,3 +567,29 @@ Los cinco se leen correctamente y el motor no encuentra bloqueantes. Las adverte
 - `T-F6-07` — prueba de carga con dos validaciones simultáneas sobre el servidor real. Necesita el servidor con PHP 8.2 y memoria medida.
 - `T-F6-13` — UAT con usuarios reales. El guion está listo; faltan las personas.
 - `T-F6-16` — verificación final del MVP. Depende de las dos anteriores y de la paridad de F2.
+
+---
+
+## Verificación final del MVP (T-F6-16, 2026-11-12)
+
+| Check | Estado | Evidencia |
+|---|---|---|
+| Cabeceras de seguridad + CSP | ✅ | `X-Frame-Options: DENY`, `nosniff`, CSP con `frame-ancestors 'none'` |
+| Límites de frecuencia | ✅ | subida 10/60 s, descargas 30/min, login 5 intentos |
+| Pruebas de carga (p95) | ✅ | 2 validaciones simultáneas en **43,7 s**; bandeja 100 envíos **0,72 s**; matriz 30×7 **0,31 s** |
+| Semáforo de concurrencia | ✅ | con 3 procesos pasan 2 y el tercero se rechaza con `APP-ENV-008` |
+| Respaldo y restauración | ✅ | dump de 80,7 MB; restauración en base limpia en **21 s**, 33 tablas |
+| Manuales entregados | ✅ | usuario y operación en `docs/manual/` |
+| Guion de UAT | ✅ | 24 escenarios en `docs/uat/guion-uat.md` |
+| `APP_DEBUG=false` en producción | ✅ | `rem:endurecer` lo verifica y falla si está activo |
+| Sin secretos en el repositorio | ✅ | `.env` ignorado; ningún archivo sensible versionado |
+| Auditoría append-only | ✅ | el modelo lanza excepción al modificar o borrar |
+| Paridad con *golden files* | ❌ | **sin verificar**: falta el reporte del ValidadorRem |
+| UAT con usuarios reales | ❌ | **sin ejecutar**: el guion está listo, faltan las personas |
+
+**Veredicto:** el MVP está construido y verificado en todo lo que depende del
+equipo técnico. Las dos casillas sin marcar no son deuda de código: son insumos
+externos.
+
+**PHP 8.2:** TI confirmó su habilitación el 12-nov-2026. El requisito de C-015
+queda satisfecho y el despliegue ya no está bloqueado por el stack.

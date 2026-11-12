@@ -97,7 +97,7 @@ Implementación: el archivo se guarda en `storage/app/envios/` con un nombre ale
 |---|---|---|
 | **D15** | Riesgo de Laravel 8.83 en EOL | ✅ **Cerrada:** no se aceptó. C-014 reabrió y C-015 cerró con Laravel 12 |
 | **D16** | Lector de Excel | ✅ **Cerrada:** la regla de §4 |
-| **—** | **Despliegue** | 🟡 **Abierto y es el único:** el portal no publica hasta que TI habilite PHP 8.2. `docs/infra/solicitud-php-82-ti.md` |
+| **—** | **Despliegue** | ✅ **Cerrado:** TI habilitó PHP 8.2 el 12-nov-2026. Ver `docs/infra/solicitud-php-82-ti.md` |
 
 Si TI responde que no, el proyecto tiene dos salidas: volver a Laravel 8 aceptando el riesgo, o quedarse en Laravel 12 sin desplegar. **Ninguna es gratis, y la decisión vuelve a ser de negocio.**
 
