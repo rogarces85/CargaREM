@@ -61,6 +61,15 @@
                         </li>
                     @endcanany
 
+                    @can('envios.ver.ss')
+                        <li class="nav-item">
+                            <a href="{{ route('revision.index') }}" class="nav-link">
+                                <i class="nav-icon fas fa-clipboard-check"></i>
+                                <p>Revisión</p>
+                            </a>
+                        </li>
+                    @endcan
+
                     @can('catalogos.gestionar')
                         <li class="nav-header">ADMINISTRACIÓN</li>
                         <li class="nav-item">
@@ -138,5 +147,7 @@
 <script src="{{ asset('assets/adminlte/plugins/jquery/jquery.min.js') }}"></script>
 <script src="{{ asset('assets/adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ asset('assets/adminlte/js/adminlte.min.js') }}"></script>
+
+@stack('scripts')
 </body>
 </html>

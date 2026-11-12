@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\ServicioController;
 use App\Http\Controllers\ArchivoController;
 use App\Http\Controllers\EnvioController;
 use App\Http\Controllers\HealthController;
+use App\Http\Controllers\RevisionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -87,4 +88,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('envios/{envio}/reporte', [EnvioController::class, 'reporte'])->name('envios.reporte');
     Route::get('envios/{envio}/archivos/{archivo}/descargar', [ArchivoController::class, 'descargar'])
         ->name('envios.archivo.descargar');
+});
+/*
+ * Bandeja de revisión: revisor, admin y consulta del Servicio de Salud.
+ */
+Route::middleware(['auth', 'permission:envios.ver.ss'])->prefix('revision')->name('revision.')->group(function () {
+    Route::get('/', [RevisionController::class, 'index'])->name('index');
+    Route::post('{envio}/observar', [RevisionController::class, 'observar'])->name('observar');
+    Route::post('{envio}/aprobar', [RevisionController::class, 'aprobar'])->name('aprobar');
+    Route::post('{envio}/cargar', [RevisionController::class, 'cargar'])->name('cargar');
 });
