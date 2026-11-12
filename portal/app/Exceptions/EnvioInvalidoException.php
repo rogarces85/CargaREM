@@ -89,4 +89,11 @@ public static function aprobacionConObservaciones(int $abiertas): self
     {
         return new self('APP-ENV-011', "Falta(n) {$faltantes} serie(s) exigida(s) por la matriz: el envío no está completo.");
     }
+public static function paqueteNoDisponible(string $estado): self
+    {
+        return new self(
+            'APP-PAQ-001',
+            "El paquete solo se genera de un envío aprobado o cargado. Este está «{$estado}»."
+        );
+    }
 }

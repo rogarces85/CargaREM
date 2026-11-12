@@ -13,6 +13,7 @@ use App\Http\Controllers\ArchivoController;
 use App\Http\Controllers\CompletitudController;
 use App\Http\Controllers\EnvioController;
 use App\Http\Controllers\HealthController;
+use App\Http\Controllers\PaqueteController;
 use App\Http\Controllers\RevisionController;
 use Illuminate\Support\Facades\Route;
 
@@ -87,6 +88,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('envios/{envio}/archivos', [EnvioController::class, 'subir'])->name('envios.subir');
     Route::post('envios/{envio}/transicion', [EnvioController::class, 'transicion'])->name('envios.transicion');
     Route::get('envios/{envio}/reporte', [EnvioController::class, 'reporte'])->name('envios.reporte');
+    Route::get('envios/{envio}/paquete', [PaqueteController::class, 'descargar'])->name('envios.paquete');
     Route::get('envios/{envio}/archivos/{archivo}/descargar', [ArchivoController::class, 'descargar'])
         ->name('envios.archivo.descargar');
 });

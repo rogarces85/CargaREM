@@ -128,8 +128,9 @@ class EnvioController extends Controller
     public function transicion(Request $request, Envio $envio): RedirectResponse
     {
         $datos = $request->validate([
-            'accion' => ['required', 'string', 'in:enviar,observar,aprobar,cargar,reabrir,anular'],
-            'motivo' => ['nullable', 'string', 'max:500'],
+            'accion'     => ['required', 'string', 'in:enviar,observar,aprobar,cargar,reabrir,anular'],
+            'motivo'     => ['nullable', 'string', 'max:500'],
+            'referencia' => ['nullable', 'string', 'max:100'],
         ]);
 
         $destino = match ($datos['accion']) {
@@ -152,7 +153,13 @@ class EnvioController extends Controller
         $this->authorize($habilidad, $envio);
 
         try {
-            $this->estados->transicionar($envio, $destino, $request->user(), $datos['motivo'] ?? null);
+            // La carga tiene su propio camino: guarda la referencia y valida
+            // que el envío esté aprobado (T-F5-04).
+            if ($datos['accion'] === 'cargar') {
+                $this->estados->confirmarCarga($envio, $request->user(), $datos['referencia'] ?? null);
+            } else {
+                $this->estados->transicionar($envio, $destino, $request->user(), $datos['motivo'] ?? null);
+            }
         } catch (EnvioInvalidoException $e) {
             return back()->withErrors(['transicion' => $e->getMessage()]);
         }

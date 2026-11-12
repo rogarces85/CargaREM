@@ -111,6 +111,19 @@ class EnvioPolicy
             && in_array($envio->estado, [Envio::RECIBIDO, Envio::CON_ERRORES, Envio::OBSERVADO], true);
     }
 
+    /**
+     * Descarga del paquete (T-F5-03).
+     *
+     * Solo de un envío aprobado o cargado: el paquete es el entregable final,
+     * no un borrador.
+     */
+    public function paquete(User $usuario, Envio $envio): bool
+    {
+        return $usuario->can('archivos.descargar')
+            && in_array($envio->estado, [Envio::APROBADO, Envio::CARGADO], true)
+            && $this->view($usuario, $envio);
+    }
+
     public function delete(User $usuario, Envio $envio): bool
     {
         // Un envío no se borra: se anula con motivo y queda auditado.

@@ -35,6 +35,11 @@
                 <a href="{{ route('envios.reporte', $envio) }}" class="btn btn-outline-success">
                     <i class="fas fa-file-excel"></i> Descargar reporte
                 </a>
+                @can('paquete', $envio)
+                    <a href="{{ route('envios.paquete', $envio) }}" class="btn btn-outline-dark">
+                        <i class="fas fa-file-archive"></i> Descargar paquete
+                    </a>
+                @endcan
                 <a href="{{ route('envios.index') }}" class="btn btn-link">Volver</a>
             </div>
         </div>
@@ -264,6 +269,23 @@
                     @empty
                         <p class="text-muted mb-0">No hay acciones disponibles en el estado actual.</p>
                     @endforelse
+
+                    @can('cargar', $envio)
+                        <form method="POST" action="{{ route('envios.transicion', $envio) }}" class="mt-2">
+                            @csrf
+                            <input type="hidden" name="accion" value="cargar">
+                            <div class="form-row align-items-end">
+                                <div class="form-group col-md-8 mb-0">
+                                    <label for="referencia">Confirmar carga · referencia (opcional)</label>
+                                    <input type="text" name="referencia" id="referencia" class="form-control"
+                                           maxlength="100" placeholder="N° de acta o folio">
+                                </div>
+                                <div class="form-group col-md-4 mb-0">
+                                    <button type="submit" class="btn btn-info btn-block">Confirmar carga</button>
+                                </div>
+                            </div>
+                        </form>
+                    @endcan
 
                     @can('anular', $envio)
                         <form method="POST" action="{{ route('envios.transicion', $envio) }}" class="mt-2">

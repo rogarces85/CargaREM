@@ -54,6 +54,14 @@ return [
         'manifiesto' => 'manifiesto.json',
         'algoritmo'  => 'sha256',
         'formato'    => 'zip',
+
+        /*
+         * Clave para firmar el manifiesto. Vacía = paquete sin HMAC.
+         *
+         * Una firma con una clave inventada no protege de nada y da una falsa
+         * sensación de integridad. Sin clave, el manifiesto lo dice.
+         */
+        'hmac_key' => env('PAQUETE_HMAC_KEY'),
     ],
 
 ];

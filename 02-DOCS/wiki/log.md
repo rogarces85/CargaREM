@@ -58,3 +58,4 @@ topic: log
 | 2026-11-11 | **Base renombrada a `cargas_rem` (C-016):** datos migrados sin pérdida, `.env`, `phpunit.xml` y documentación actualizados | `cargas_rem` · `.env.example` · `specs/TASK.md` |
 | 2026-11-11 | **F2 cerrada:** subida, versionado, motor V0–V11 (13 reglas, 32 códigos), estados, lock de concurrencia, pantallas y reporte `.xlsx`. 164 tests. Queda la paridad con *golden files*: sin insumos | `portal/` · `specs/TASK.md` |
 | 2026-11-12 | **F3 cerrada:** observaciones con resolución automática, bandeja de revisión, guardas de aprobación, carga manual, reapertura/anulación y notificaciones por correo. 211 tests | `portal/` · `specs/TASK.md` |
+| 2026-11-12 | **F4 y F5 cerradas:** matriz de completitud con semáforo y exportación; paquete ZIP con manifiesto versionado, hash y HMAC opcional. 232 tests | `portal/` · `specs/TASK.md` |

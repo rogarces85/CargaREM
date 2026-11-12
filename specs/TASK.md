@@ -262,11 +262,11 @@
 
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
-| **T-F5-01** | **PaqueteService::generar() (OP-11)** | Crea ZIP en memoria: `archivos/{serie}.{ext}` (copia original), `validacion/{serie}.xlsx` (reporte), `manifiesto.json` (v1.0: envio_id, establec, servicio, período, aprobado_por/fecha, snapshot_catalogo, archivos[serie, nombre_original, sha256, filas_validas, plantilla], hash_paquete, hmac opcional) | ZIP completo | RF-039, OP-11, MOD-10, D7=A | T-F3-06, T-F2-09 | ZIP descargable; manifiesto JSON válido | `[ ]` |
-| **T-F5-02** | **Hash paquete + HMAC (config `rem.paquete.hmac`)** | `hash_paquete` = SHA256(concat ordered file_shas + manifiesto sin hmac); `hmac` = HMAC-SHA256(key=`PAQUETE_HMAC_KEY` en `.env`) | Integridad verificable | RF-039, MOD-10 | T-F5-01 | Verificación independiente: `sha256` coincide; HMAC valida | `[ ]` |
-| **T-F5-03** | **Controller: PaqueteController (descarga ZIP)** | Ruta `paquetes.descargar` (GET `/envios/{id}/paquete`): solo `aprobado`/`cargado`; policy + `response()->streamDownload()` | Descarga segura | RF-039, CA-039, RN-ENV-9 | T-F5-01, T-F1-15 | Usuario sin permiso → 403; ZIP íntegro | `[ ]` |
-| **T-F5-04** | **Confirmación manual carga (UI revisor/admin)** | Botón "Confirmar carga" en detalle envío `aprobado`/`cargado` → POST `envios.{id}.confirmar_carga` → `transicionar('confirmar_carga')` → `cargado` + fecha + auditoría | Cierre manual | RF-030, CA-031, MOD-05 | T-F3-07, T-F5-03 | Test: click → estado `cargado` + fecha + auditoría | `[ ]` |
-| **T-F5-05** | **Tests paquete + verificación** | Test: genera ZIP → extrae → verifica manifiesto estructura + hashes + HMAC; descarga policy; confirmación carga cambia estado | CA-039, CA-031 | T-F5-02, T-F5-04 | `php artisan test --filter=Paquete` pasa | `[ ]` |
+| **T-F5-01** | **PaqueteService::generar() (OP-11)** | Crea ZIP en memoria: `archivos/{serie}.{ext}` (copia original), `validacion/{serie}.xlsx` (reporte), `manifiesto.json` (v1.0: envio_id, establec, servicio, período, aprobado_por/fecha, snapshot_catalogo, archivos[serie, nombre_original, sha256, filas_validas, plantilla], hash_paquete, hmac opcional) | ZIP completo | RF-039, OP-11, MOD-10, D7=A | T-F3-06, T-F2-09 | ZIP descargable; manifiesto JSON válido | `[x]` |
+| **T-F5-02** | **Hash paquete + HMAC (config `rem.paquete.hmac`)** | `hash_paquete` = SHA256(concat ordered file_shas + manifiesto sin hmac); `hmac` = HMAC-SHA256(key=`PAQUETE_HMAC_KEY` en `.env`) | Integridad verificable | RF-039, MOD-10 | T-F5-01 | Verificación independiente: `sha256` coincide; HMAC valida | `[x]` |
+| **T-F5-03** | **Controller: PaqueteController (descarga ZIP)** | Ruta `paquetes.descargar` (GET `/envios/{id}/paquete`): solo `aprobado`/`cargado`; policy + `response()->streamDownload()` | Descarga segura | RF-039, CA-039, RN-ENV-9 | T-F5-01, T-F1-15 | Usuario sin permiso → 403; ZIP íntegro | `[x]` |
+| **T-F5-04** | **Confirmación manual carga (UI revisor/admin)** | Botón "Confirmar carga" en detalle envío `aprobado`/`cargado` → POST `envios.{id}.confirmar_carga` → `transicionar('confirmar_carga')` → `cargado` + fecha + auditoría | Cierre manual | RF-030, CA-031, MOD-05 | T-F3-07, T-F5-03 | Test: click → estado `cargado` + fecha + auditoría | `[x]` |
+| **T-F5-05** | **Tests paquete + verificación** | Test: genera ZIP → extrae → verifica manifiesto estructura + hashes + HMAC; descarga policy; confirmación carga cambia estado | CA-039, CA-031 | T-F5-02, T-F5-04 | `php artisan test --filter=Paquete` pasa | `[x]` |
 
 ---
 
@@ -418,9 +418,9 @@ F0 (T-F0-01..10)
 | **F2** | 31 | 30 | 1 | 0 |
 | **F3** | 14 | 14 | 0 | 0 |
 | **F4** | 5 | 5 | 0 | 0 |
-| **F5** | 5 | 0 | 0 | 5 |
+| **F5** | 5 | 5 | 0 | 0 |
 | **F6** | 16 | 0 | 0 | 16 |
-| **TOTAL** | **112** | **87** | **4** | **21** |
+| **TOTAL** | **112** | **92** | **4** | **16** |
 
 **F0 — las 7 completadas:** T-F0-01 (C-010), 04, 06, 07, 08, 09, 10.
 **F0 — las 3 en progreso, todas esperando a personas:**
@@ -524,3 +524,18 @@ Los cinco se leen correctamente y el motor no encuentra bloqueantes. Las adverte
 | Suite | **222 tests, 567 aserciones, 0 fallos** |
 
 **Cómo se resuelve:** dos consultas —establecimientos con sus series exigidas, y envíos con sus archivos vigentes— y el cruce en memoria. Una consulta por celda serían 210 para 30 establecimientos.
+
+---
+
+## Verificación de la fase F5 (2026-11-12)
+
+| Check | Evidencia |
+|---|---|
+| Paquete ZIP | `archivos/{serie}.xlsx`, `validacion/{serie}.xlsx` y `manifiesto.json`, generado al vuelo y borrado tras entregarlo |
+| Manifiesto v1.0 | envío, establecimiento, servicio, período, aprobación, snapshot del catálogo, hashes por archivo |
+| Integridad | `hash_paquete` = SHA-256 de los hashes en orden más el manifiesto sin firma; alterar un archivo lo rompe |
+| Firma | HMAC-SHA256 cuando hay `PAQUETE_HMAC_KEY`; sin clave el manifiesto dice `null` en vez de fingir una firma |
+| Descarga | solo envíos aprobados o cargados, con policy y `nosniff` |
+| Confirmar carga | desde la bandeja y desde el detalle, con referencia que queda en el historial |
+| Prueba real | paquete de 142 KB descargado por HTTP con sus tres entradas y manifiesto íntegro |
+| Suite | **232 tests, 597 aserciones, 0 fallos** |
