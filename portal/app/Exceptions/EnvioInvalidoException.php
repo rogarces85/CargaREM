@@ -61,4 +61,18 @@ public static function transicionNoPermitida(string $desde, string $hacia): self
     {
         return new self('APP-ENV-007', "Para {$accion} hace falta un motivo: queda en la bitácora.");
     }
+public static function observacionVacia(): self
+    {
+        return new self('APP-OBS-001', 'La observación no puede estar vacía.');
+    }
+
+    public static function observacionLarga(): self
+    {
+        return new self('APP-OBS-002', 'La observación supera los 2000 caracteres.');
+    }
+
+    public static function observacionDeOtroEnvio(): self
+    {
+        return new self('APP-OBS-003', 'El archivo observado no pertenece a este envío.');
+    }
 }

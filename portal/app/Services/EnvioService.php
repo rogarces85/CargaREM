@@ -27,6 +27,7 @@ class EnvioService
         private readonly ArchivoService $archivos,
         private readonly ValidadorArchivo $validador,
         private readonly EstadoEnvioService $estados,
+        private readonly ObservacionService $observaciones,
     ) {
     }
 
@@ -138,6 +139,10 @@ class EnvioService
                 'snapshot_id'     => $snapshot->id,
                 'subido_por'      => $usuario->id,
             ]);
+
+            // La observación hablaba del archivo anterior; con la versión
+            // nueva queda resuelta (T-F3-02).
+            $this->observaciones->resolverPorSerie($envio, $serie->id);
 
             // Un reenvío devuelve el envío a `recibido`: hay que revalidar.
             // Va por el servicio de estados para que el movimiento quede en

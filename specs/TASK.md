@@ -60,8 +60,8 @@
 
 ### F1.1 — Inicialización del proyecto Laravel
 
-| ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
-|---|---|---|---|---|---|---|
+| ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación | Estado |
+|---|---|---|---|---|---|---|---|
 | **T-F1-01** | **Crear proyecto Laravel 12.72** | `composer create-project "laravel/laravel:^12" portal --prefer-dist` en `Cargas/portal/`. El esqueleto 12.x instala `laravel/framework` 12.72 | Proyecto base instalado | TEC-01 | F0 | `portal/artisan --version` = 12.72.0 → **verificado** | `[x]` |
 | **T-F1-02** | **Fijar el PHP de plataforma** | `composer.json` exige `php ^8.2`. Sin `platform` override: el PHP local y el del servidor objetivo coinciden en 8.2 | `vendor/` compatible con prod | TEC-01, TEC-14 | T-F1-01 | `composer check-platform-reqs` en verde | `[x]` |
 | **T-F1-03** | **Instalar dependencias base** | `spatie/laravel-permission ^6.25`, `laravel/fortify ^1.42`, `yajra/laravel-datatables-oracle ^12.7`, `phpoffice/phpspreadsheet ^5.11` (la 5.x exige PHP 8.1+). **`composer audit` sin avisos** | Paquetes instalados | TEC-04, TEC-06, TEC-07, TEC-10, TEC-11 | T-F1-02 | `composer show` lista paquetes correctos → **verificado** | `[x]` |
@@ -206,35 +206,35 @@
 
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
-| **T-F3-01** | **ObservacionService::registrar() (OP-08)** | Crea `Observacion` (nivel envío o archivo + texto obligatorio); marca `resuelta=0`; dispara notificación + auditoría; transiciona envío a `observado` | Observación registrada | RF-026, RF-031, OP-08, MOD-06 | T-F2-27, T-F1-26 | Test: obs archivo → `envio_archivo_id` set; obs envío → null |
-| **T-F3-02** | **Resolución automática al reenviar** | En `EnvioService::subirVersion`: si existe `Observacion` para esa `serie` y `resuelta=0` → marca `resuelta=1`, `resuelta_en=now()` | Cierra loop | RF-031, RN-ENV-15 | T-F3-01, T-F2-06 | Reenvío serie observada → obs marcada resuelta |
-| **T-F3-03** | **Controller: RevisionController (bandeja + acciones)** | Rutas: `revision.index` (filtros SS/establec/período/estado/antigüedad, paginación servidor, contadores), `revision.observar`, `revision.aprobar`, `revision.cargar`, `revision.reabrir` | Endpoints revisor | RF-026, RF-027, RF-030, RF-032, MOD-06 | T-F2-10, T-F3-01 | GET `/supervision` → tabla paginada con filtros |
-| **T-F3-04** | **Vistas Blade: bandeja, modal observar, modal aprobar** | `revision/index.blade.php` (tabla + filtros), `components/ModalObservar` (checklist series + textarea obligatorio), `components/ModalAprobar` (resumen archivos, bloqueantes=0, checklist advertencias, comentario) | UI revisor | SPECS §7.1, PLAN §9.1, §9.2 | T-F1-11, T-F3-03 | Modales validan: obs requiere texto; aprobar requiere checks |
-| **T-F3-05** | **Tests observación + bandeja** | Test: revisor observa con checklist → `observado` + notificación; encargado reenvía → `recibido`; revisor ve en bandeja; paginación/filtros funcionan; RN-ENV-7 (revisor no aprueba su establec) | CA-027, CA-032, CA-033, RN-ENV-7 | T-F3-01, T-F3-03, T-F3-04 | `php artisan test --filter=Revision` pasa |
+| **T-F3-01** | **ObservacionService::registrar() (OP-08)** | Crea `Observacion` (nivel envío o archivo + texto obligatorio); marca `resuelta=0`; dispara notificación + auditoría; transiciona envío a `observado` | Observación registrada | RF-026, RF-031, OP-08, MOD-06 | T-F2-27, T-F1-26 | Test: obs archivo → `envio_archivo_id` set; obs envío → null | `[x]` |
+| **T-F3-02** | **Resolución automática al reenviar** | En `EnvioService::subirVersion`: si existe `Observacion` para esa `serie` y `resuelta=0` → marca `resuelta=1`, `resuelta_en=now()` | Cierra loop | RF-031, RN-ENV-15 | T-F3-01, T-F2-06 | Reenvío serie observada → obs marcada resuelta | `[x]` |
+| **T-F3-03** | **Controller: RevisionController (bandeja + acciones)** | Rutas: `revision.index` (filtros SS/establec/período/estado/antigüedad, paginación servidor, contadores), `revision.observar`, `revision.aprobar`, `revision.cargar`, `revision.reabrir` | Endpoints revisor | RF-026, RF-027, RF-030, RF-032, MOD-06 | T-F2-10, T-F3-01 | GET `/supervision` → tabla paginada con filtros | `[ ]` |
+| **T-F3-04** | **Vistas Blade: bandeja, modal observar, modal aprobar** | `revision/index.blade.php` (tabla + filtros), `components/ModalObservar` (checklist series + textarea obligatorio), `components/ModalAprobar` (resumen archivos, bloqueantes=0, checklist advertencias, comentario) | UI revisor | SPECS §7.1, PLAN §9.1, §9.2 | T-F1-11, T-F3-03 | Modales validan: obs requiere texto; aprobar requiere checks | `[ ]` |
+| **T-F3-05** | **Tests observación + bandeja** | Test: revisor observa con checklist → `observado` + notificación; encargado reenvía → `recibido`; revisor ve en bandeja; paginación/filtros funcionan; RN-ENV-7 (revisor no aprueba su establec) | CA-027, CA-032, CA-033, RN-ENV-7 | T-F3-01, T-F3-03, T-F3-04 | `php artisan test --filter=Revision` pasa | `[ ]` |
 
 ### F3.2 — Aprobación y confirmación carga (MOD-05, MOD-10)
 
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
-| **T-F3-06** | **Transición 'aprobar' con guardas completas** | `EstadoEnvioService::transicionar('aprobar')`: valida 0 bloqueantes en archivos vigentes + advertencias con `revisada=1` + RN-ENV-7 (revisor ≠ encargado establec) → `estado=aprobado`, archivos `aprobado`, transición, notificación | Aprobación segura | RF-027, RF-028, CA-028, RN-ENV-2, RN-ENV-7 | T-F2-27, T-F3-01 | Test: bloqueante>0 → falla; advertencia sin check → falla; autoaprobación → falla |
-| **T-F3-07** | **Transición 'confirmar_carga' (manual MVP A)** | `transicionar('confirmar_carga')`: solo `aprobado`/`cargado` → `cargado` + `fecha_carga` + transición + auditoría | Cierre ciclo | RF-030, CA-031, MOD-05, MOD-10 | T-F3-06 | Test: estado `aprobado` → `cargado` con fecha |
-| **T-F3-08** | **Transiciones reaperturar/anular (solo admin)** | `transicionar('reabrir')`: `aprobado`/`cargado` → `observado`/`recibido` + motivo obligatorio + auditoría; `transicionar('anular')`: `recibido`/`con_errores`/`observado` → `anulado` + motivo | Excepciones admin | RF-028, RF-029, CA-029, CA-030 | T-F2-27 | Test: admin reaperture → motivo en auditoría; no-admin → 403 |
+| **T-F3-06** | **Transición 'aprobar' con guardas completas** | `EstadoEnvioService::transicionar('aprobar')`: valida 0 bloqueantes en archivos vigentes + advertencias con `revisada=1` + RN-ENV-7 (revisor ≠ encargado establec) → `estado=aprobado`, archivos `aprobado`, transición, notificación | Aprobación segura | RF-027, RF-028, CA-028, RN-ENV-2, RN-ENV-7 | T-F2-27, T-F3-01 | Test: bloqueante>0 → falla; advertencia sin check → falla; autoaprobación → falla | `[ ]` |
+| **T-F3-07** | **Transición 'confirmar_carga' (manual MVP A)** | `transicionar('confirmar_carga')`: solo `aprobado`/`cargado` → `cargado` + `fecha_carga` + transición + auditoría | Cierre ciclo | RF-030, CA-031, MOD-05, MOD-10 | T-F3-06 | Test: estado `aprobado` → `cargado` con fecha | `[ ]` |
+| **T-F3-08** | **Transiciones reaperturar/anular (solo admin)** | `transicionar('reabrir')`: `aprobado`/`cargado` → `observado`/`recibido` + motivo obligatorio + auditoría; `transicionar('anular')`: `recibido`/`con_errores`/`observado` → `anulado` + motivo | Excepciones admin | RF-028, RF-029, CA-029, CA-030 | T-F2-27 | Test: admin reaperture → motivo en auditoría; no-admin → 403 | `[ ]` |
 
 ### F3.3 — Notificaciones (MOD-09)
 
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
-| **T-F3-09** | **Migración tabla `notifications` (Laravel default)** | `php artisan notifications:table` → migración + modelo `Notification` | Esquema listo | RF-038, MOD-09 | T-F1-05 | Tabla creada |
-| **T-F3-10** | **Notificador::enviar() (OP-17)** | Crea `Notification` en BD siempre; `Mail::to(...)->send(...)` en `afterCommit` con `try/catch` timeout 5s; si falla mail → log + no revierte | BD + correo tolerante | RF-038, OP-17, MOD-09 | T-F3-09, T-F1-09 | Test: mail falla → notificación en BD, operación OK |
-| **T-F3-11** | **Plantillas correo (Blade mail)** | `resources/views/emails/enviado-revision.blade.php`, `observacion.blade.php`, `aprobado.blade.php`, `cargado.blade.php` con enlace directo + estado | Correos bonitos | RF-038, RNF-014 | T-F3-10 | Mail renderiza; variables correctas |
-| **T-F3-12** | **Tests notificaciones** | Test: cada evento genera notificación BD; correo enviado (mock); fallo correo no revierte; admin puede reenviar manual | CA-038 | T-F3-10, T-F3-11 | `php artisan test --filter=Notificacion` pasa |
+| **T-F3-09** | **Migración tabla `notifications` (Laravel default)** | `php artisan notifications:table` → migración + modelo `Notification` | Esquema listo | RF-038, MOD-09 | T-F1-05 | Tabla creada | `[ ]` |
+| **T-F3-10** | **Notificador::enviar() (OP-17)** | Crea `Notification` en BD siempre; `Mail::to(...)->send(...)` en `afterCommit` con `try/catch` timeout 5s; si falla mail → log + no revierte | BD + correo tolerante | RF-038, OP-17, MOD-09 | T-F3-09, T-F1-09 | Test: mail falla → notificación en BD, operación OK | `[ ]` |
+| **T-F3-11** | **Plantillas correo (Blade mail)** | `resources/views/emails/enviado-revision.blade.php`, `observacion.blade.php`, `aprobado.blade.php`, `cargado.blade.php` con enlace directo + estado | Correos bonitos | RF-038, RNF-014 | T-F3-10 | Mail renderiza; variables correctas | `[ ]` |
+| **T-F3-12** | **Tests notificaciones** | Test: cada evento genera notificación BD; correo enviado (mock); fallo correo no revierte; admin puede reenviar manual | CA-038 | T-F3-10, T-F3-11 | `php artisan test --filter=Notificacion` pasa | `[ ]` |
 
 ### F3.4 — Verificación fase F3
 
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
-| **T-F3-13** | **Test E2E ciclo completo FT-02** | Encargado sube → valida → envía a revisión → revisor observa → encargado corrige → reenvía → revisor aprueba → confirma carga | OBJ-05, CA-026 a CA-031 | T-F3-05, T-F3-06, T-F3-07 | Flujo completo verde |
-| **T-F3-14** | **Verificación fase F3 (DoD)** | Checklist: [ ] Revisor observa con checklist+texto → `observado` [ ] Encargado corrige y reenvía → `recibido` [ ] No se aprueba con bloqueantes [ ] Advertencias requieren check [ ] RN-ENV-7: revisor no aprueba su establec [ ] Reaperturar/anular solo admin con motivo [ ] Notificaciones BD + correo tolerante [ ] Bandeja con filtros y paginación | Fase F3 cerrada | CA-026 a CA-033, CA-038, OBJ-02, OBJ-05 | T-F3-05, T-F3-06, T-F3-12, T-F3-13 | Todos ✅ |
+| **T-F3-13** | **Test E2E ciclo completo FT-02** | Encargado sube → valida → envía a revisión → revisor observa → encargado corrige → reenvía → revisor aprueba → confirma carga | OBJ-05, CA-026 a CA-031 | T-F3-05, T-F3-06, T-F3-07 | Flujo completo verde | `[ ]` |
+| **T-F3-14** | **Verificación fase F3 (DoD)** | Checklist: [ ] Revisor observa con checklist+texto → `observado` [ ] Encargado corrige y reenvía → `recibido` [ ] No se aprueba con bloqueantes [ ] Advertencias requieren check [ ] RN-ENV-7: revisor no aprueba su establec [ ] Reaperturar/anular solo admin con motivo [ ] Notificaciones BD + correo tolerante [ ] Bandeja con filtros y paginación | Fase F3 cerrada | CA-026 a CA-033, CA-038, OBJ-02, OBJ-05 | T-F3-05, T-F3-06, T-F3-12, T-F3-13 | Todos ✅ | `[ ]` |
 
 ---
 
@@ -246,11 +246,11 @@
 
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
-| **T-F4-01** | **CompletitudService::matriz() (OP-09)** | Query SQL optimizada (ver PLAN §9.2): establecimientos activos × series obligatorias (`establecimiento_serie` vigentes) LEFT JOIN envíos/archivos/vigentes/validaciones; aplica scope usuario; retorna array para vista | Matriz performante | RF-033, OP-09, MOD-07, DEP-12 | T-F1-23, T-F2-02 | 30×7 ejecuta < 2s; scope usuario filtra |
-| **T-F4-02** | **CompletitudService::exportar() (OP-10)** | Genera CSV/Excel desde misma query matriz; respeta filtros actuales; headers correctos | Export funcional | RF-035, OP-10, MOD-07 | T-F4-01 | Export coincide con vista filtrada |
-| **T-F4-03** | **Controller: CompletitudController** | Rutas: `completitud.index` (GET período+SS → matriz), `completitud.exportar` (GET formato=csv|xlsx) | Endpoints | RF-033, RF-035, RF-036 | T-F4-01, T-F4-02 | GET `/completitud?anio=2026&mes=9&ss=1` → matriz |
-| **T-F4-04** | **Vista Blade: matriz semáforo + drill-down** | `completitud/index.blade.php`: tabla con `components/SemaforoCelda` (🟢🟡🔴⚪), totales arriba, botones exportar, click celda → `/envios/{id}` | UI completa | SPECS §7.1, PLAN §9.1, §9.2 | T-F1-11, T-F4-03 | Render correcto; colores consistentes; drill-down navega |
-| **T-F4-05** | **Tests completitud + rendimiento** | Test: matriz 7×7 semáforo correcto (CA-034); export CSV/Excel coincide (CA-035); drill-down navega (CA-036); carga 30×7 p95 < 2s (RNF-005) | CA-034, CA-035, CA-036, RNF-005 | T-F4-03, T-F4-04 | `php artisan test --filter=Completitud` pasa + benchmark |
+| **T-F4-01** | **CompletitudService::matriz() (OP-09)** | Query SQL optimizada (ver PLAN §9.2): establecimientos activos × series obligatorias (`establecimiento_serie` vigentes) LEFT JOIN envíos/archivos/vigentes/validaciones; aplica scope usuario; retorna array para vista | Matriz performante | RF-033, OP-09, MOD-07, DEP-12 | T-F1-23, T-F2-02 | 30×7 ejecuta < 2s; scope usuario filtra | `[ ]` |
+| **T-F4-02** | **CompletitudService::exportar() (OP-10)** | Genera CSV/Excel desde misma query matriz; respeta filtros actuales; headers correctos | Export funcional | RF-035, OP-10, MOD-07 | T-F4-01 | Export coincide con vista filtrada | `[ ]` |
+| **T-F4-03** | **Controller: CompletitudController** | Rutas: `completitud.index` (GET período+SS → matriz), `completitud.exportar` (GET formato=csv|xlsx) | Endpoints | RF-033, RF-035, RF-036 | T-F4-01, T-F4-02 | GET `/completitud?anio=2026&mes=9&ss=1` → matriz | `[ ]` |
+| **T-F4-04** | **Vista Blade: matriz semáforo + drill-down** | `completitud/index.blade.php`: tabla con `components/SemaforoCelda` (🟢🟡🔴⚪), totales arriba, botones exportar, click celda → `/envios/{id}` | UI completa | SPECS §7.1, PLAN §9.1, §9.2 | T-F1-11, T-F4-03 | Render correcto; colores consistentes; drill-down navega | `[ ]` |
+| **T-F4-05** | **Tests completitud + rendimiento** | Test: matriz 7×7 semáforo correcto (CA-034); export CSV/Excel coincide (CA-035); drill-down navega (CA-036); carga 30×7 p95 < 2s (RNF-005) | CA-034, CA-035, CA-036, RNF-005 | T-F4-03, T-F4-04 | `php artisan test --filter=Completitud` pasa + benchmark | `[ ]` |
 
 ---
 
@@ -262,11 +262,11 @@
 
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
-| **T-F5-01** | **PaqueteService::generar() (OP-11)** | Crea ZIP en memoria: `archivos/{serie}.{ext}` (copia original), `validacion/{serie}.xlsx` (reporte), `manifiesto.json` (v1.0: envio_id, establec, servicio, período, aprobado_por/fecha, snapshot_catalogo, archivos[serie, nombre_original, sha256, filas_validas, plantilla], hash_paquete, hmac opcional) | ZIP completo | RF-039, OP-11, MOD-10, D7=A | T-F3-06, T-F2-09 | ZIP descargable; manifiesto JSON válido |
-| **T-F5-02** | **Hash paquete + HMAC (config `rem.paquete.hmac`)** | `hash_paquete` = SHA256(concat ordered file_shas + manifiesto sin hmac); `hmac` = HMAC-SHA256(key=`PAQUETE_HMAC_KEY` en `.env`) | Integridad verificable | RF-039, MOD-10 | T-F5-01 | Verificación independiente: `sha256` coincide; HMAC valida |
-| **T-F5-03** | **Controller: PaqueteController (descarga ZIP)** | Ruta `paquetes.descargar` (GET `/envios/{id}/paquete`): solo `aprobado`/`cargado`; policy + `response()->streamDownload()` | Descarga segura | RF-039, CA-039, RN-ENV-9 | T-F5-01, T-F1-15 | Usuario sin permiso → 403; ZIP íntegro |
-| **T-F5-04** | **Confirmación manual carga (UI revisor/admin)** | Botón "Confirmar carga" en detalle envío `aprobado`/`cargado` → POST `envios.{id}.confirmar_carga` → `transicionar('confirmar_carga')` → `cargado` + fecha + auditoría | Cierre manual | RF-030, CA-031, MOD-05 | T-F3-07, T-F5-03 | Test: click → estado `cargado` + fecha + auditoría |
-| **T-F5-05** | **Tests paquete + verificación** | Test: genera ZIP → extrae → verifica manifiesto estructura + hashes + HMAC; descarga policy; confirmación carga cambia estado | CA-039, CA-031 | T-F5-02, T-F5-04 | `php artisan test --filter=Paquete` pasa |
+| **T-F5-01** | **PaqueteService::generar() (OP-11)** | Crea ZIP en memoria: `archivos/{serie}.{ext}` (copia original), `validacion/{serie}.xlsx` (reporte), `manifiesto.json` (v1.0: envio_id, establec, servicio, período, aprobado_por/fecha, snapshot_catalogo, archivos[serie, nombre_original, sha256, filas_validas, plantilla], hash_paquete, hmac opcional) | ZIP completo | RF-039, OP-11, MOD-10, D7=A | T-F3-06, T-F2-09 | ZIP descargable; manifiesto JSON válido | `[ ]` |
+| **T-F5-02** | **Hash paquete + HMAC (config `rem.paquete.hmac`)** | `hash_paquete` = SHA256(concat ordered file_shas + manifiesto sin hmac); `hmac` = HMAC-SHA256(key=`PAQUETE_HMAC_KEY` en `.env`) | Integridad verificable | RF-039, MOD-10 | T-F5-01 | Verificación independiente: `sha256` coincide; HMAC valida | `[ ]` |
+| **T-F5-03** | **Controller: PaqueteController (descarga ZIP)** | Ruta `paquetes.descargar` (GET `/envios/{id}/paquete`): solo `aprobado`/`cargado`; policy + `response()->streamDownload()` | Descarga segura | RF-039, CA-039, RN-ENV-9 | T-F5-01, T-F1-15 | Usuario sin permiso → 403; ZIP íntegro | `[ ]` |
+| **T-F5-04** | **Confirmación manual carga (UI revisor/admin)** | Botón "Confirmar carga" en detalle envío `aprobado`/`cargado` → POST `envios.{id}.confirmar_carga` → `transicionar('confirmar_carga')` → `cargado` + fecha + auditoría | Cierre manual | RF-030, CA-031, MOD-05 | T-F3-07, T-F5-03 | Test: click → estado `cargado` + fecha + auditoría | `[ ]` |
+| **T-F5-05** | **Tests paquete + verificación** | Test: genera ZIP → extrae → verifica manifiesto estructura + hashes + HMAC; descarga policy; confirmación carga cambia estado | CA-039, CA-031 | T-F5-02, T-F5-04 | `php artisan test --filter=Paquete` pasa | `[ ]` |
 
 ---
 
@@ -280,37 +280,37 @@
 
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
-| **T-F6-01** | **Headers seguridad + CSP básica** | Middleware `SecurityHeaders`: `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Content-Security-Policy` restrictiva (self + fonts.googleapis.com), HSTS si HTTPS | RNF-008, PRINCIPIO 20 | T-F1-01 | `curl -I` muestra headers |
-| **T-F6-02** | **Rate limiting diferenciado** | `Route::middleware('throttle:60,1')` global; `throttle:5,1` login; `throttle:10,60` subida; `throttle:30,1` descarga | RNF-009, MOD-11 | T-F1-12 | Prueba: excede límite → 429 |
-| **T-F6-03** | **Validación archivo robusta (ZIP bomb, path traversal)** | `SubirArchivoRequest`: `phpspreadsheet` `setReadDataOnly(true)`; ratio compresión ZIP < 100; entries < 1000; ruta storage sanitizada | RNF-010, RIES-05 | T-F2-04 | ZIP bomb rechazado; `../../etc/passwd` bloqueado |
-| **T-F6-04** | **CSRF + XSS + SQLi pruebas** | Tests: CSRF token requerido en POST; `{!! !!}` prohibido (grep); SQL crudo prohibido (grep `DB::raw` sin bindings) | PRINCIPIO 20, 22 | T-F1-01 | `grep -r '{!!' resources/views/` → 0; tests pasan |
-| **T-F6-05** | **APP_DEBUG=false + limpieza diagnóstico** | `.env` prod: `APP_DEBUG=false`, `APP_ENV=production`; script `php artisan optimize:clear` + borra cualquier `info.php`, `phpinfo.php`, `.env.example` en `public/` | PRINCIPIO 20 | T-F1-04 | `APP_DEBUG=false`; `public/` sin archivos diagnóstico |
-| **T-F6-06** | **Logs sin datos sensibles** | Canales `validacion`, `seguridad`, `correo` no loguean contenido celdas ni observaciones completas; solo IDs/códigos | RNF-011, PRINCIPIO 22 | T-F1-09, T-F1-26 | Revisa `storage/logs/` → sin datos sensibles |
+| **T-F6-01** | **Headers seguridad + CSP básica** | Middleware `SecurityHeaders`: `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Content-Security-Policy` restrictiva (self + fonts.googleapis.com), HSTS si HTTPS | RNF-008, PRINCIPIO 20 | T-F1-01 | `curl -I` muestra headers | `[ ]` |
+| **T-F6-02** | **Rate limiting diferenciado** | `Route::middleware('throttle:60,1')` global; `throttle:5,1` login; `throttle:10,60` subida; `throttle:30,1` descarga | RNF-009, MOD-11 | T-F1-12 | Prueba: excede límite → 429 | `[ ]` |
+| **T-F6-03** | **Validación archivo robusta (ZIP bomb, path traversal)** | `SubirArchivoRequest`: `phpspreadsheet` `setReadDataOnly(true)`; ratio compresión ZIP < 100; entries < 1000; ruta storage sanitizada | RNF-010, RIES-05 | T-F2-04 | ZIP bomb rechazado; `../../etc/passwd` bloqueado | `[ ]` |
+| **T-F6-04** | **CSRF + XSS + SQLi pruebas** | Tests: CSRF token requerido en POST; `{!! !!}` prohibido (grep); SQL crudo prohibido (grep `DB::raw` sin bindings) | PRINCIPIO 20, 22 | T-F1-01 | `grep -r '{!!' resources/views/` → 0; tests pasan | `[ ]` |
+| **T-F6-05** | **APP_DEBUG=false + limpieza diagnóstico** | `.env` prod: `APP_DEBUG=false`, `APP_ENV=production`; script `php artisan optimize:clear` + borra cualquier `info.php`, `phpinfo.php`, `.env.example` en `public/` | PRINCIPIO 20 | T-F1-04 | `APP_DEBUG=false`; `public/` sin archivos diagnóstico | `[ ]` |
+| **T-F6-06** | **Logs sin datos sensibles** | Canales `validacion`, `seguridad`, `correo` no loguean contenido celdas ni observaciones completas; solo IDs/códigos | RNF-011, PRINCIPIO 22 | T-F1-09, T-F1-26 | Revisa `storage/logs/` → sin datos sensibles | `[ ]` |
 
 ### F6.2 — Rendimiento y carga
 
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
-| **T-F6-07** | **Prueba carga: 2 validaciones simultáneas** | Script JMeter/k6: 2 hilos suben archivo 1.6MB concurrente; mide p95 < 90s, RAM < 512MB, sin ENV-030 espurios | RNF-002, RNF-006, PRINCIPIO 25 | T-F2-29, T-F5-01 | Reporte: p95, RAM, errores |
-| **T-F6-08** | **Prueba carga: bandeja 100 envíos** | Seed 100 envíos; request GET `/supervision` con paginación 20; mide p95 < 2s | RNF-004, PRINCIPIO 25 | T-F3-03 | Reporte: tiempo respuesta |
-| **T-F6-09** | **Prueba carga: completitud 30×7** | Ejecuta `CompletitudService::matriz()` 50 veces; p95 < 2s | RNF-005, PRINCIPIO 25 | T-F4-01 | Benchmark PHPUnit |
+| **T-F6-07** | **Prueba carga: 2 validaciones simultáneas** | Script JMeter/k6: 2 hilos suben archivo 1.6MB concurrente; mide p95 < 90s, RAM < 512MB, sin ENV-030 espurios | RNF-002, RNF-006, PRINCIPIO 25 | T-F2-29, T-F5-01 | Reporte: p95, RAM, errores | `[ ]` |
+| **T-F6-08** | **Prueba carga: bandeja 100 envíos** | Seed 100 envíos; request GET `/supervision` con paginación 20; mide p95 < 2s | RNF-004, PRINCIPIO 25 | T-F3-03 | Reporte: tiempo respuesta | `[ ]` |
+| **T-F6-09** | **Prueba carga: completitud 30×7** | Ejecuta `CompletitudService::matriz()` 50 veces; p95 < 2s | RNF-005, PRINCIPIO 25 | T-F4-01 | Benchmark PHPUnit | `[ ]` |
 
 ### F6.3 — Respaldo y restauración (D13)
 
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
-| **T-F6-10** | **Script respaldo `backup.sh`** | `mysqldump --single-transaction --routines --triggers cargas_rem > backup/db_$(date +%F).sql` + `tar -czf backup/storage_$(date +%F).tar.gz storage/app/private` | Backup atómico | RNF-016, D13, RIES-18 | T-F1-05 | Archivos generados; tamaño coherente |
-| **T-F6-11** | **Prueba restauración en entorno limpio** | Docker MySQL 8 limpio → `mysql < backup/db_xxx.sql` + `tar -xzf storage_xxx.tar.gz` → `php artisan migrate:status` OK + app funcional | Recuperación verificada | RNF-016, RIES-18 | T-F6-10 | App levantada con datos restaurados |
+| **T-F6-10** | **Script respaldo `backup.sh`** | `mysqldump --single-transaction --routines --triggers cargas_rem > backup/db_$(date +%F).sql` + `tar -czf backup/storage_$(date +%F).tar.gz storage/app/private` | Backup atómico | RNF-016, D13, RIES-18 | T-F1-05 | Archivos generados; tamaño coherente | `[ ]` |
+| **T-F6-11** | **Prueba restauración en entorno limpio** | Docker MySQL 8 limpio → `mysql < backup/db_xxx.sql` + `tar -xzf storage_xxx.tar.gz` → `php artisan migrate:status` OK + app funcional | Recuperación verificada | RNF-016, RIES-18 | T-F6-10 | App levantada con datos restaurados | `[ ]` |
 
 ### F6.4 — UAT y documentación
 
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
-| **T-F6-12** | **Guion UAT (3 roles × 1 mes)** | Documento `docs/uat/guion-uat.md`: escenarios encargado (sube 7 series, corrige, envía), revisor (bandeja, observa, aprueba), admin (catálogos, usuarios, auditoría, reaperturas); criterios pass/fail | UAT estructurado | RNF-014, OBJ-05, OBJ-07 | T-F1-30, T-F5-04 | Documento completo |
-| **T-F6-13** | **Ejecutar UAT con usuarios reales** | 2 encargados, 1 revisor, 1 admin operan durante 1 mes simulado; registran incidencias | Validación real | RNF-014, OBJ-05, OBJ-07 | T-F6-12, T-F1-30 | 0 incidencias bloqueantes; incidencias menores documentadas |
-| **T-F6-14** | **Manual de usuario (encargado/revisor/admin)** | `docs/manual/manual-usuario.md`: capturas, pasos, códigos error, FAQ | Documento entregable | RNF-014, OBJ-08 | T-F6-12 | PDF/Markdown legible |
-| **T-F6-15** | **Manual de operación (despliegue, backup, logs, health, troubleshooting)** | `docs/manual/manual-operacion.md`: FTP deploy, `backup.sh`, restore, logs, health, errores comunes, contactos | Documento entregable | RNF-016, OBJ-08, RIES-18 | T-F6-10, T-F6-11 | PDF/Markdown completo |
-| **T-F6-16** | **Verificación fase F6 / MVP (DoD final)** | Checklist: [ ] Headers seguridad + CSP [ ] Rate limits [ ] Pruebas carga pasan (p95) [ ] Backup/restore probado [ ] UAT aprobado [ ] Manuales entregados [ ] `APP_DEBUG=false` prod [ ] Sin secretos en repo [ ] Auditoría append-only [ ] Paridad golden files 100% | MVP listo | TODOS OBJ, PRINCIPIOS, RNF | T-F6-01 a T-F6-15 | Todos ✅; `php artisan test` suite completa verde |
+| **T-F6-12** | **Guion UAT (3 roles × 1 mes)** | Documento `docs/uat/guion-uat.md`: escenarios encargado (sube 7 series, corrige, envía), revisor (bandeja, observa, aprueba), admin (catálogos, usuarios, auditoría, reaperturas); criterios pass/fail | UAT estructurado | RNF-014, OBJ-05, OBJ-07 | T-F1-30, T-F5-04 | Documento completo | `[ ]` |
+| **T-F6-13** | **Ejecutar UAT con usuarios reales** | 2 encargados, 1 revisor, 1 admin operan durante 1 mes simulado; registran incidencias | Validación real | RNF-014, OBJ-05, OBJ-07 | T-F6-12, T-F1-30 | 0 incidencias bloqueantes; incidencias menores documentadas | `[ ]` |
+| **T-F6-14** | **Manual de usuario (encargado/revisor/admin)** | `docs/manual/manual-usuario.md`: capturas, pasos, códigos error, FAQ | Documento entregable | RNF-014, OBJ-08 | T-F6-12 | PDF/Markdown legible | `[ ]` |
+| **T-F6-15** | **Manual de operación (despliegue, backup, logs, health, troubleshooting)** | `docs/manual/manual-operacion.md`: FTP deploy, `backup.sh`, restore, logs, health, errores comunes, contactos | Documento entregable | RNF-016, OBJ-08, RIES-18 | T-F6-10, T-F6-11 | PDF/Markdown completo | `[ ]` |
+| **T-F6-16** | **Verificación fase F6 / MVP (DoD final)** | Checklist: [ ] Headers seguridad + CSP [ ] Rate limits [ ] Pruebas carga pasan (p95) [ ] Backup/restore probado [ ] UAT aprobado [ ] Manuales entregados [ ] `APP_DEBUG=false` prod [ ] Sin secretos en repo [ ] Auditoría append-only [ ] Paridad golden files 100% | MVP listo | TODOS OBJ, PRINCIPIOS, RNF | T-F6-01 a T-F6-15 | Todos ✅; `php artisan test` suite completa verde | `[ ]` |
 
 ---
 
@@ -416,11 +416,11 @@ F0 (T-F0-01..10)
 | **F0** | 10 | 7 | 3 | 0 |
 | **F1** | 31 | 31 | 0 | 0 |
 | **F2** | 31 | 30 | 1 | 0 |
-| **F3** | 14 | 0 | 0 | 14 |
+| **F3** | 14 | 2 | 0 | 12 |
 | **F4** | 5 | 0 | 0 | 5 |
 | **F5** | 5 | 0 | 0 | 5 |
 | **F6** | 16 | 0 | 0 | 16 |
-| **TOTAL** | **112** | **68** | **4** | **40** |
+| **TOTAL** | **112** | **70** | **4** | **38** |
 
 **F0 — las 7 completadas:** T-F0-01 (C-010), 04, 06, 07, 08, 09, 10.
 **F0 — las 3 en progreso, todas esperando a personas:**
