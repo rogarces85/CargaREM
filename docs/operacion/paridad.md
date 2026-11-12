@@ -79,3 +79,49 @@ Termina con código de error si algo no coincide, para que sirva en un pipeline.
 `portal/archivos/` está en `.gitignore`: son datos reales y la Constitución
 (principio 22) los mantiene fuera del repositorio. Hay que copiarlos a cada
 máquina donde se quiera correr la comparación.
+
+## Qué reporta realmente el ValidadorRem
+
+Su pantalla «Cargar Datos» no habla de advertencias. Muestra dos conteos:
+
+| Campo | Significado |
+|---|---|
+| **Cant. Registros Correctos** | Filas de prestación que pudo leer y guardaría |
+| **Cant. Registros Incorrectos** | Filas que descartó, listadas en una tabla con establecimiento, mes, serie, línea, hoja y dato |
+
+En la tabla de incorrectos no hay códigos `ENV-###`: hay **filas** rechazadas.
+
+**Consecuencia para la comparación:** el único criterio equivalente entre los dos
+sistemas es el **bloqueante**. Un archivo con 0 registros incorrectos debe dar 0
+bloqueantes en el portal. Las advertencias del portal no tienen contraparte: el
+ValidadorRem no las cuenta.
+
+Por eso el `.esperado.json` se llena con `bloqueantes` y `advertencias` queda en
+`null` cuando no hay forma de saberlas.
+
+### Caso verificado: 123100A08.xlsm
+
+Captura del ValidadorRem 3.01.000 sobre ese archivo:
+
+```
+Cant. Registros Correctos:   3145
+Cant. Registros Incorrectos:    0
+```
+
+Resultado del portal:
+
+```
+123100A08.xlsm | 0 bloqueantes / 333 advertencias | OK
+```
+
+**Coincide en el criterio que ambos miden.** El archivo está limpio para los dos.
+
+### Lo que falta para una paridad completa
+
+El caso feliz no prueba que el portal detecte lo que el ValidadorRem detecta.
+Para eso hace falta un archivo **con errores**: la tabla de incorrectos diría
+exactamente qué filas rechaza, y se podría comparar contra los bloqueantes del
+portal fila por fila.
+
+Ese es el siguiente insumo: un archivo que el ValidadorRem marque como
+incorrecto, con su captura.

@@ -623,3 +623,13 @@ envíos en `cargado`, uno de ellos pasando por el rebote.
 
 No sustituye al UAT con personas —una persona encuentra lo que un script no—,
 pero llega al UAT con el sistema probado a escala y con datos para demostrarlo.
+
+### Primera verificación de paridad (12-11-2026)
+
+El ValidadorRem 3.01.000 cargó `123100A08.xlsm` y reportó **3145 registros correctos y 0 incorrectos**. El portal, sobre el mismo archivo, reporta **0 bloqueantes y 333 advertencias**.
+
+El criterio comparable —lo que impide cargar— coincide: **0 = 0**. Las advertencias no tienen contraparte porque el ValidadorRem no las cuenta.
+
+Registrado en `portal/archivos/123100A08.esperado.json` y explicado en `docs/operacion/paridad.md`.
+
+**Falta para cerrar:** un archivo que el ValidadorRem marque como **incorrecto**, con su captura. Ahí la tabla de incorrectos dice qué filas rechaza y se puede comparar bloqueante por bloqueante.
