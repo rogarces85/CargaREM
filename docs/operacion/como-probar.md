@@ -128,6 +128,16 @@ registro existente en lugar de chocar con la protección de duplicados.
 Menú **Envíos** → crear un envío → abrirlo → subir el Excel de una serie.
 La validación corre sola y el detalle muestra los hallazgos.
 
+### Simular un mes completo
+
+```bat
+php artisan rem:simular-mes --establecimientos=2 --observar=1
+```
+
+Recorre el ciclo entero con datos reales: carga, validación, revisión,
+observación, corrección y carga confirmada. Sirve para ver el sistema con datos
+y para llegar al UAT con algo probado a escala.
+
 ## 7. Correr los tests
 
 ```bat

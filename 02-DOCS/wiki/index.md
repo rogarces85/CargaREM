@@ -94,3 +94,4 @@ topic: index
 | [`docs/uat/guion-uat.md`](../../docs/uat/guion-uat.md) | 24 escenarios de aceptación para validar con usuarios reales |
 | [`docs/manual/manual-usuario.md`](../../docs/manual/manual-usuario.md) | Guía de uso por rol: encargado, revisor y administrador |
 | [`docs/manual/manual-operacion.md`](../../docs/manual/manual-operacion.md) | Despliegue, respaldos, registros y problemas comunes |
+| [`docs/decisiones/pendientes-de-firma.md`](../../docs/decisiones/pendientes-de-firma.md) | Las cuatro decisiones de F0 con recomendación: matriz de series, severidad, plazos y 2FA |

@@ -307,7 +307,7 @@
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
 | **T-F6-12** | **Guion UAT (3 roles × 1 mes)** | Documento `docs/uat/guion-uat.md`: escenarios encargado (sube 7 series, corrige, envía), revisor (bandeja, observa, aprueba), admin (catálogos, usuarios, auditoría, reaperturas); criterios pass/fail | UAT estructurado | RNF-014, OBJ-05, OBJ-07 | T-F1-30, T-F5-04 | Documento completo | `[x]` |
-| **T-F6-13** | **Ejecutar UAT con usuarios reales** | 2 encargados, 1 revisor, 1 admin operan durante 1 mes simulado; registran incidencias | Validación real | RNF-014, OBJ-05, OBJ-07 | T-F6-12, T-F1-30 | 0 incidencias bloqueantes; incidencias menores documentadas | `[ ]` |
+| **T-F6-13** | **Ejecutar UAT con usuarios reales** | 2 encargados, 1 revisor, 1 admin operan durante 1 mes simulado; registran incidencias | Validación real | RNF-014, OBJ-05, OBJ-07 | T-F6-12, T-F1-30 | 0 incidencias bloqueantes; incidencias menores documentadas | `[~]` |
 | **T-F6-14** | **Manual de usuario (encargado/revisor/admin)** | `docs/manual/manual-usuario.md`: capturas, pasos, códigos error, FAQ | Documento entregable | RNF-014, OBJ-08 | T-F6-12 | PDF/Markdown legible | `[x]` |
 | **T-F6-15** | **Manual de operación (despliegue, backup, logs, health, troubleshooting)** | `docs/manual/manual-operacion.md`: FTP deploy, `backup.sh`, restore, logs, health, errores comunes, contactos | Documento entregable | RNF-016, OBJ-08, RIES-18 | T-F6-10, T-F6-11 | PDF/Markdown completo | `[x]` |
 | **T-F6-16** | **Verificación fase F6 / MVP (DoD final)** | Checklist: [ ] Headers seguridad + CSP [ ] Rate limits [ ] Pruebas carga pasan (p95) [ ] Backup/restore probado [ ] UAT aprobado [ ] Manuales entregados [ ] `APP_DEBUG=false` prod [ ] Sin secretos en repo [ ] Auditoría append-only [ ] Paridad golden files 100% | MVP listo | TODOS OBJ, PRINCIPIOS, RNF | T-F6-01 a T-F6-15 | Todos ✅; `php artisan test` suite completa verde | `[x]` |
@@ -593,3 +593,33 @@ externos.
 
 **PHP 8.2:** TI confirmó su habilitación el 12-nov-2026. El requisito de C-015
 queda satisfecho y el despliegue ya no está bloqueado por el stack.
+
+---
+
+## Decisiones de F0: propuestas con recomendación (2026-11-12)
+
+Las cuatro decisiones que bloqueaban F0 quedaron escritas con recomendación,
+justificación y consecuencia en [`docs/decisiones/pendientes-de-firma.md`](../docs/decisiones/pendientes-de-firma.md):
+
+| Decisión | Recomendación | Estado en el sistema |
+|---|---|---|
+| **D5** matriz de series | todas las series del MVP exigidas a todo establecimiento activo, con excepciones cargadas una por una | el seeder L1 ya la crea completa |
+| **Severidad** | adoptar el catálogo M7 con dos degradaciones documentadas (ENV-014 y ENV-016 advierten cuando el catálogo no permite saber) | implementada tal cual |
+| **D4** plazos y cierre | plazo día 10 del mes siguiente; cierre **manual** del administrador; atrasados aceptados | períodos con estado y fecha límite; falta el indicador visual de fuera de plazo |
+| **D1/D10** identidad y 2FA | cuentas locales; 2FA obligatorio para admin y revisor, opcional para encargado | Fortify trae TOTP; falta el middleware que lo exija por rol |
+
+**Están adoptadas técnicamente** para no detener el desarrollo: el sistema ya se
+comporta como se describe. Falta la firma del referente para que dejen de ser
+propuestas.
+
+### Simulación de un mes completo
+
+`php artisan rem:simular-mes --establecimientos=2 --observar=1`
+
+Recorre el ciclo entero con datos reales del catálogo: carga de las series
+exigidas, validación, envío, observación de una serie, corrección con versión
+nueva, aprobación y confirmación de carga. La primera corrida dejó los dos
+envíos en `cargado`, uno de ellos pasando por el rebote.
+
+No sustituye al UAT con personas —una persona encuentra lo que un script no—,
+pero llega al UAT con el sistema probado a escala y con datos para demostrarlo.
