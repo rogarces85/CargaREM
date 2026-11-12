@@ -233,8 +233,8 @@
 
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
-| **T-F3-13** | **Test E2E ciclo completo FT-02** | Encargado sube → valida → envía a revisión → revisor observa → encargado corrige → reenvía → revisor aprueba → confirma carga | OBJ-05, CA-026 a CA-031 | T-F3-05, T-F3-06, T-F3-07 | Flujo completo verde | `[ ]` |
-| **T-F3-14** | **Verificación fase F3 (DoD)** | Checklist: [ ] Revisor observa con checklist+texto → `observado` [ ] Encargado corrige y reenvía → `recibido` [ ] No se aprueba con bloqueantes [ ] Advertencias requieren check [ ] RN-ENV-7: revisor no aprueba su establec [ ] Reaperturar/anular solo admin con motivo [ ] Notificaciones BD + correo tolerante [ ] Bandeja con filtros y paginación | Fase F3 cerrada | CA-026 a CA-033, CA-038, OBJ-02, OBJ-05 | T-F3-05, T-F3-06, T-F3-12, T-F3-13 | Todos ✅ | `[ ]` |
+| **T-F3-13** | **Test E2E ciclo completo FT-02** | Encargado sube → valida → envía a revisión → revisor observa → encargado corrige → reenvía → revisor aprueba → confirma carga | OBJ-05, CA-026 a CA-031 | T-F3-05, T-F3-06, T-F3-07 | Flujo completo verde | `[x]` |
+| **T-F3-14** | **Verificación fase F3 (DoD)** | Checklist: [ ] Revisor observa con checklist+texto → `observado` [ ] Encargado corrige y reenvía → `recibido` [ ] No se aprueba con bloqueantes [ ] Advertencias requieren check [ ] RN-ENV-7: revisor no aprueba su establec [ ] Reaperturar/anular solo admin con motivo [ ] Notificaciones BD + correo tolerante [ ] Bandeja con filtros y paginación | Fase F3 cerrada | CA-026 a CA-033, CA-038, OBJ-02, OBJ-05 | T-F3-05, T-F3-06, T-F3-12, T-F3-13 | Todos ✅ | `[x]` |
 
 ---
 
@@ -416,11 +416,11 @@ F0 (T-F0-01..10)
 | **F0** | 10 | 7 | 3 | 0 |
 | **F1** | 31 | 31 | 0 | 0 |
 | **F2** | 31 | 30 | 1 | 0 |
-| **F3** | 14 | 12 | 0 | 2 |
+| **F3** | 14 | 14 | 0 | 0 |
 | **F4** | 5 | 0 | 0 | 5 |
 | **F5** | 5 | 0 | 0 | 5 |
 | **F6** | 16 | 0 | 0 | 16 |
-| **TOTAL** | **112** | **80** | **4** | **28** |
+| **TOTAL** | **112** | **82** | **4** | **26** |
 
 **F0 — las 7 completadas:** T-F0-01 (C-010), 04, 06, 07, 08, 09, 10.
 **F0 — las 3 en progreso, todas esperando a personas:**
@@ -485,3 +485,25 @@ Los cinco se leen correctamente y el motor no encuentra bloqueantes. Las adverte
 **Esto no cierra la paridad.** Prueba que el motor lee archivos reales y produce un reporte coherente; no prueba que coincida con el ValidadorRem. Para eso hace falta el resultado esperado de cada archivo: los códigos y las cantidades que el sistema anterior produce. Sin eso, comparar es imposible.
 
 **Riesgo abierto:** 34 s por archivo de 1,5 MB. El límite de tiempo de validación es 90 s y el de espera del lock 10 s. Un archivo del doble de tamaño se acerca al límite.
+
+---
+
+## Verificación de la fase F3 (2026-11-12)
+
+| Check | Evidencia |
+|---|---|
+| Observaciones del envío y del archivo | texto obligatorio, tope de 2000, sin archivo ajeno (8 tests) |
+| Resolución al reenviar | la observación de una serie se resuelve sola al subir su corrección; las generales y las de otras series no |
+| Bandeja de revisión | filtros por estado, establecimiento, año y antigüedad; orden por más antiguo |
+| Aprobar con guardas | estado, observaciones abiertas, bloqueantes y series exigidas (4 códigos de rechazo) |
+| Confirmar carga | manual, con referencia opcional en el historial |
+| Reabrir y anular | solo administración, con motivo obligatorio; un cargado no se anula directo |
+| Notificaciones | correo y tabla; sin avisar a quien provocó el cambio; fallo de correo no rompe la transición |
+| Ciclo completo FT-02 | crear → subir 2 series → enviar → observar → corregir → reenviar → aprobar → cargar → reabrir |
+| Suite | **211 tests, 539 aserciones, 0 fallos** |
+
+**Decisiones que la fase dejó registradas:**
+
+- Una observación apuntada a una serie se resuelve al reenviar; una observación del envío completo queda abierta hasta que alguien la cierre a mano. Se distingue a propósito: la primera la resolvió el hecho, la segunda necesita una decisión.
+- El aviso sale por correo **y** queda en la tabla `notifications`: si el servidor de correo falla, el usuario lo ve al entrar.
+- No se encola: el servidor no tiene worker garantizado y un aviso que nunca sale es peor que uno que espera un segundo.

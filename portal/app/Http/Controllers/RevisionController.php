@@ -87,12 +87,22 @@ class RevisionController extends Controller
         $this->authorize('observar', $envio);
 
         $datos = $request->validate([
-            'texto' => ['required', 'string', 'max:2000'],
+            'texto'    => ['required', 'string', 'max:2000'],
+            'serie_id' => ['nullable', 'integer', 'exists:series,id'],
         ], [
             'texto.required' => 'Escriba qué debe corregir el establecimiento.',
         ]);
 
-        $this->observaciones->registrar($envio, $request->user(), $datos['texto']);
+        // Si el revisor apunta a una serie, la observación se ata al archivo
+        // vigente de esa serie: así se resuelve sola cuando el encargado
+        // sube la corrección.
+        $archivo = null;
+
+        if (! empty($datos['serie_id'])) {
+            $archivo = $envio->archivosVigentes()->where('serie_id', $datos['serie_id'])->first();
+        }
+
+        $this->observaciones->registrar($envio, $request->user(), $datos['texto'], $archivo);
         $this->estados->transicionar($envio, Envio::OBSERVADO, $request->user(), $datos['texto']);
 
         return redirect()

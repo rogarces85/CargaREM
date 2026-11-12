@@ -124,6 +124,7 @@
                                     <button type="button" class="btn btn-sm btn-warning btn-observar"
                                             data-id="{{ $envio->id }}"
                                             data-referencia="{{ $envio->establecimiento->codigo }} · {{ sprintf('%02d/%d', $envio->mes, $envio->anio) }}"
+                                            data-series="{{ $envio->archivosVigentes->map(fn ($a) => ['id' => $a->serie_id, 'codigo' => $a->serie?->codigo])->toJson() }}"
                                             data-toggle="modal" data-target="#modalObservar">
                                         Observar
                                     </button>
@@ -260,6 +261,16 @@
                     </div>
                     <div class="modal-body">
                         <p class="mb-2">Envío <strong id="referenciaObservar"></strong></p>
+                        <div class="form-group">
+                            <label for="serieObservar">¿Sobre qué serie?</label>
+                            <select name="serie_id" id="serieObservar" class="form-control">
+                                <option value="">Todo el envío</option>
+                            </select>
+                            <small class="form-text text-muted">
+                                Si elige una serie, la observación se resuelve sola cuando el encargado suba la corrección.
+                            </small>
+                        </div>
+
                         <div class="form-group mb-0">
                             <label for="texto">¿Qué debe corregir el establecimiento?</label>
                             <textarea name="texto" id="texto" rows="4" class="form-control" maxlength="2000" required></textarea>
@@ -317,6 +328,16 @@
                 document.getElementById('formObservar').action = '/revision/' + id + '/observar';
                 document.getElementById('referenciaObservar').textContent = this.dataset.referencia;
                 document.getElementById('texto').value = '';
+
+                const select = document.getElementById('serieObservar');
+                select.length = 1;
+
+                JSON.parse(this.dataset.series || '[]').forEach(function (serie) {
+                    const opcion = document.createElement('option');
+                    opcion.value = serie.id;
+                    opcion.textContent = serie.codigo;
+                    select.appendChild(opcion);
+                });
             });
         });
 
