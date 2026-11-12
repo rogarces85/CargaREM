@@ -85,12 +85,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('envios', [EnvioController::class, 'index'])->name('envios.index');
     Route::post('envios', [EnvioController::class, 'store'])->name('envios.store');
     Route::get('envios/{envio}', [EnvioController::class, 'show'])->name('envios.show');
-    Route::post('envios/{envio}/archivos', [EnvioController::class, 'subir'])->name('envios.subir');
+    Route::post('envios/{envio}/archivos', [EnvioController::class, 'subir'])->name('envios.subir')->middleware('throttle:10,60');
     Route::post('envios/{envio}/transicion', [EnvioController::class, 'transicion'])->name('envios.transicion');
-    Route::get('envios/{envio}/reporte', [EnvioController::class, 'reporte'])->name('envios.reporte');
-    Route::get('envios/{envio}/paquete', [PaqueteController::class, 'descargar'])->name('envios.paquete');
+    Route::get('envios/{envio}/reporte', [EnvioController::class, 'reporte'])->name('envios.reporte')->middleware('throttle:30,1');
+    Route::get('envios/{envio}/paquete', [PaqueteController::class, 'descargar'])->name('envios.paquete')->middleware('throttle:10,1');
     Route::get('envios/{envio}/archivos/{archivo}/descargar', [ArchivoController::class, 'descargar'])
-        ->name('envios.archivo.descargar');
+        ->name('envios.archivo.descargar')->middleware('throttle:30,1');
 });
 /*
  * Bandeja de revisión: revisor, admin y consulta del Servicio de Salud.

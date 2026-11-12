@@ -280,36 +280,36 @@
 
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
-| **T-F6-01** | **Headers seguridad + CSP básica** | Middleware `SecurityHeaders`: `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Content-Security-Policy` restrictiva (self + fonts.googleapis.com), HSTS si HTTPS | RNF-008, PRINCIPIO 20 | T-F1-01 | `curl -I` muestra headers | `[ ]` |
-| **T-F6-02** | **Rate limiting diferenciado** | `Route::middleware('throttle:60,1')` global; `throttle:5,1` login; `throttle:10,60` subida; `throttle:30,1` descarga | RNF-009, MOD-11 | T-F1-12 | Prueba: excede límite → 429 | `[ ]` |
-| **T-F6-03** | **Validación archivo robusta (ZIP bomb, path traversal)** | `SubirArchivoRequest`: `phpspreadsheet` `setReadDataOnly(true)`; ratio compresión ZIP < 100; entries < 1000; ruta storage sanitizada | RNF-010, RIES-05 | T-F2-04 | ZIP bomb rechazado; `../../etc/passwd` bloqueado | `[ ]` |
-| **T-F6-04** | **CSRF + XSS + SQLi pruebas** | Tests: CSRF token requerido en POST; `{!! !!}` prohibido (grep); SQL crudo prohibido (grep `DB::raw` sin bindings) | PRINCIPIO 20, 22 | T-F1-01 | `grep -r '{!!' resources/views/` → 0; tests pasan | `[ ]` |
-| **T-F6-05** | **APP_DEBUG=false + limpieza diagnóstico** | `.env` prod: `APP_DEBUG=false`, `APP_ENV=production`; script `php artisan optimize:clear` + borra cualquier `info.php`, `phpinfo.php`, `.env.example` en `public/` | PRINCIPIO 20 | T-F1-04 | `APP_DEBUG=false`; `public/` sin archivos diagnóstico | `[ ]` |
-| **T-F6-06** | **Logs sin datos sensibles** | Canales `validacion`, `seguridad`, `correo` no loguean contenido celdas ni observaciones completas; solo IDs/códigos | RNF-011, PRINCIPIO 22 | T-F1-09, T-F1-26 | Revisa `storage/logs/` → sin datos sensibles | `[ ]` |
+| **T-F6-01** | **Headers seguridad + CSP básica** | Middleware `SecurityHeaders`: `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Content-Security-Policy` restrictiva (self + fonts.googleapis.com), HSTS si HTTPS | RNF-008, PRINCIPIO 20 | T-F1-01 | `curl -I` muestra headers | `[x]` |
+| **T-F6-02** | **Rate limiting diferenciado** | `Route::middleware('throttle:60,1')` global; `throttle:5,1` login; `throttle:10,60` subida; `throttle:30,1` descarga | RNF-009, MOD-11 | T-F1-12 | Prueba: excede límite → 429 | `[x]` |
+| **T-F6-03** | **Validación archivo robusta (ZIP bomb, path traversal)** | `SubirArchivoRequest`: `phpspreadsheet` `setReadDataOnly(true)`; ratio compresión ZIP < 100; entries < 1000; ruta storage sanitizada | RNF-010, RIES-05 | T-F2-04 | ZIP bomb rechazado; `../../etc/passwd` bloqueado | `[x]` |
+| **T-F6-04** | **CSRF + XSS + SQLi pruebas** | Tests: CSRF token requerido en POST; `{!! !!}` prohibido (grep); SQL crudo prohibido (grep `DB::raw` sin bindings) | PRINCIPIO 20, 22 | T-F1-01 | `grep -r '{!!' resources/views/` → 0; tests pasan | `[x]` |
+| **T-F6-05** | **APP_DEBUG=false + limpieza diagnóstico** | `.env` prod: `APP_DEBUG=false`, `APP_ENV=production`; script `php artisan optimize:clear` + borra cualquier `info.php`, `phpinfo.php`, `.env.example` en `public/` | PRINCIPIO 20 | T-F1-04 | `APP_DEBUG=false`; `public/` sin archivos diagnóstico | `[x]` |
+| **T-F6-06** | **Logs sin datos sensibles** | Canales `validacion`, `seguridad`, `correo` no loguean contenido celdas ni observaciones completas; solo IDs/códigos | RNF-011, PRINCIPIO 22 | T-F1-09, T-F1-26 | Revisa `storage/logs/` → sin datos sensibles | `[x]` |
 
 ### F6.2 — Rendimiento y carga
 
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
 | **T-F6-07** | **Prueba carga: 2 validaciones simultáneas** | Script JMeter/k6: 2 hilos suben archivo 1.6MB concurrente; mide p95 < 90s, RAM < 512MB, sin ENV-030 espurios | RNF-002, RNF-006, PRINCIPIO 25 | T-F2-29, T-F5-01 | Reporte: p95, RAM, errores | `[ ]` |
-| **T-F6-08** | **Prueba carga: bandeja 100 envíos** | Seed 100 envíos; request GET `/supervision` con paginación 20; mide p95 < 2s | RNF-004, PRINCIPIO 25 | T-F3-03 | Reporte: tiempo respuesta | `[ ]` |
-| **T-F6-09** | **Prueba carga: completitud 30×7** | Ejecuta `CompletitudService::matriz()` 50 veces; p95 < 2s | RNF-005, PRINCIPIO 25 | T-F4-01 | Benchmark PHPUnit | `[ ]` |
+| **T-F6-08** | **Prueba carga: bandeja 100 envíos** | Seed 100 envíos; request GET `/supervision` con paginación 20; mide p95 < 2s | RNF-004, PRINCIPIO 25 | T-F3-03 | Reporte: tiempo respuesta | `[x]` |
+| **T-F6-09** | **Prueba carga: completitud 30×7** | Ejecuta `CompletitudService::matriz()` 50 veces; p95 < 2s | RNF-005, PRINCIPIO 25 | T-F4-01 | Benchmark PHPUnit | `[x]` |
 
 ### F6.3 — Respaldo y restauración (D13)
 
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
-| **T-F6-10** | **Script respaldo `backup.sh`** | `mysqldump --single-transaction --routines --triggers cargas_rem > backup/db_$(date +%F).sql` + `tar -czf backup/storage_$(date +%F).tar.gz storage/app/private` | Backup atómico | RNF-016, D13, RIES-18 | T-F1-05 | Archivos generados; tamaño coherente | `[ ]` |
-| **T-F6-11** | **Prueba restauración en entorno limpio** | Docker MySQL 8 limpio → `mysql < backup/db_xxx.sql` + `tar -xzf storage_xxx.tar.gz` → `php artisan migrate:status` OK + app funcional | Recuperación verificada | RNF-016, RIES-18 | T-F6-10 | App levantada con datos restaurados | `[ ]` |
+| **T-F6-10** | **Script respaldo `backup.sh`** | `mysqldump --single-transaction --routines --triggers cargas_rem > backup/db_$(date +%F).sql` + `tar -czf backup/storage_$(date +%F).tar.gz storage/app/private` | Backup atómico | RNF-016, D13, RIES-18 | T-F1-05 | Archivos generados; tamaño coherente | `[x]` |
+| **T-F6-11** | **Prueba restauración en entorno limpio** | Docker MySQL 8 limpio → `mysql < backup/db_xxx.sql` + `tar -xzf storage_xxx.tar.gz` → `php artisan migrate:status` OK + app funcional | Recuperación verificada | RNF-016, RIES-18 | T-F6-10 | App levantada con datos restaurados | `[x]` |
 
 ### F6.4 — UAT y documentación
 
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
-| **T-F6-12** | **Guion UAT (3 roles × 1 mes)** | Documento `docs/uat/guion-uat.md`: escenarios encargado (sube 7 series, corrige, envía), revisor (bandeja, observa, aprueba), admin (catálogos, usuarios, auditoría, reaperturas); criterios pass/fail | UAT estructurado | RNF-014, OBJ-05, OBJ-07 | T-F1-30, T-F5-04 | Documento completo | `[ ]` |
+| **T-F6-12** | **Guion UAT (3 roles × 1 mes)** | Documento `docs/uat/guion-uat.md`: escenarios encargado (sube 7 series, corrige, envía), revisor (bandeja, observa, aprueba), admin (catálogos, usuarios, auditoría, reaperturas); criterios pass/fail | UAT estructurado | RNF-014, OBJ-05, OBJ-07 | T-F1-30, T-F5-04 | Documento completo | `[x]` |
 | **T-F6-13** | **Ejecutar UAT con usuarios reales** | 2 encargados, 1 revisor, 1 admin operan durante 1 mes simulado; registran incidencias | Validación real | RNF-014, OBJ-05, OBJ-07 | T-F6-12, T-F1-30 | 0 incidencias bloqueantes; incidencias menores documentadas | `[ ]` |
-| **T-F6-14** | **Manual de usuario (encargado/revisor/admin)** | `docs/manual/manual-usuario.md`: capturas, pasos, códigos error, FAQ | Documento entregable | RNF-014, OBJ-08 | T-F6-12 | PDF/Markdown legible | `[ ]` |
-| **T-F6-15** | **Manual de operación (despliegue, backup, logs, health, troubleshooting)** | `docs/manual/manual-operacion.md`: FTP deploy, `backup.sh`, restore, logs, health, errores comunes, contactos | Documento entregable | RNF-016, OBJ-08, RIES-18 | T-F6-10, T-F6-11 | PDF/Markdown completo | `[ ]` |
+| **T-F6-14** | **Manual de usuario (encargado/revisor/admin)** | `docs/manual/manual-usuario.md`: capturas, pasos, códigos error, FAQ | Documento entregable | RNF-014, OBJ-08 | T-F6-12 | PDF/Markdown legible | `[x]` |
+| **T-F6-15** | **Manual de operación (despliegue, backup, logs, health, troubleshooting)** | `docs/manual/manual-operacion.md`: FTP deploy, `backup.sh`, restore, logs, health, errores comunes, contactos | Documento entregable | RNF-016, OBJ-08, RIES-18 | T-F6-10, T-F6-11 | PDF/Markdown completo | `[x]` |
 | **T-F6-16** | **Verificación fase F6 / MVP (DoD final)** | Checklist: [ ] Headers seguridad + CSP [ ] Rate limits [ ] Pruebas carga pasan (p95) [ ] Backup/restore probado [ ] UAT aprobado [ ] Manuales entregados [ ] `APP_DEBUG=false` prod [ ] Sin secretos en repo [ ] Auditoría append-only [ ] Paridad golden files 100% | MVP listo | TODOS OBJ, PRINCIPIOS, RNF | T-F6-01 a T-F6-15 | Todos ✅; `php artisan test` suite completa verde | `[ ]` |
 
 ---
@@ -419,8 +419,8 @@ F0 (T-F0-01..10)
 | **F3** | 14 | 14 | 0 | 0 |
 | **F4** | 5 | 5 | 0 | 0 |
 | **F5** | 5 | 5 | 0 | 0 |
-| **F6** | 16 | 0 | 0 | 16 |
-| **TOTAL** | **112** | **92** | **4** | **16** |
+| **F6** | 16 | 13 | 0 | 3 |
+| **TOTAL** | **112** | **105** | **4** | **3** |
 
 **F0 — las 7 completadas:** T-F0-01 (C-010), 04, 06, 07, 08, 09, 10.
 **F0 — las 3 en progreso, todas esperando a personas:**
@@ -539,3 +539,31 @@ Los cinco se leen correctamente y el motor no encuentra bloqueantes. Las adverte
 | Confirmar carga | desde la bandeja y desde el detalle, con referencia que queda en el historial |
 | Prueba real | paquete de 142 KB descargado por HTTP con sus tres entradas y manifiesto íntegro |
 | Suite | **232 tests, 597 aserciones, 0 fallos** |
+
+---
+
+## Verificación de la fase F6 (2026-11-12)
+
+| Check | Evidencia |
+|---|---|
+| Cabeceras de seguridad | `X-Frame-Options: DENY`, `nosniff`, `Referrer-Policy`, CSP con `frame-ancestors 'none'` y `object-src 'none'` |
+| HSTS | solo sobre HTTPS, comprobado en ambos casos |
+| Límites de frecuencia | subida 10/60 s, descarga 30/min, paquete 10/min; login por Fortify con 5 intentos |
+| Bomba de descompresión | un ZIP que se expande 20 MB se rechaza por ratio; un xlsx normal pasa |
+| CSRF | el grupo `web` incluye `ValidateCsrfToken` y las rutas de escritura lo usan |
+| XSS | ninguna vista usa `{!! !!}` (test que recorre las 20 vistas) |
+| SQLi | ningún `DB::raw` ni `whereRaw` con variables concatenadas |
+| Configuración | `rem:endurecer` revisa `APP_DEBUG`, `APP_ENV`, correo, nivel de registro y limpia `public/` |
+| Registros | los canales `validacion`, `seguridad` y `correo` rotan por día, 90 días, sin contenido de celdas |
+| Rendimiento | bandeja con **100 envíos en 0,72 s**; completitud 30×7 en 0,31 s |
+| Respaldo | `db_2026-11-12_1018.sql` de 80,7 MB generado en 12 s |
+| Restauración | base limpia → **21 s**, 33 tablas, 4 usuarios, diccionario completo |
+| Guion de UAT | `docs/uat/guion-uat.md` con 24 escenarios por rol |
+| Manuales | usuario (encargado, revisor, admin) y operación (despliegue, respaldo, registros) |
+| Suite | **246 tests, 644 aserciones, 0 fallos** |
+
+**Pendiente y bloqueado por personas, no por código:**
+
+- `T-F6-07` — prueba de carga con dos validaciones simultáneas sobre el servidor real. Necesita el servidor con PHP 8.2 y memoria medida.
+- `T-F6-13` — UAT con usuarios reales. El guion está listo; faltan las personas.
+- `T-F6-16` — verificación final del MVP. Depende de las dos anteriores y de la paridad de F2.

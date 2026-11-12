@@ -91,3 +91,6 @@ topic: index
 6. **Las fuentes originales no se copian aquí:** se enlazan desde su ruta canónica. La wiki sintetiza, no duplica (Constitución, principio 27).
 | [`docs/operacion/como-probar.md`](../../docs/operacion/como-probar.md) | Puesta en marcha desde cero y cómo validar archivos REM reales |
 | [`docs/operacion/paridad.md`](../../docs/operacion/paridad.md) | Cómo se mide la paridad contra el ValidadorRem y qué formato tiene el resultado esperado |
+| [`docs/uat/guion-uat.md`](../../docs/uat/guion-uat.md) | 24 escenarios de aceptación para validar con usuarios reales |
+| [`docs/manual/manual-usuario.md`](../../docs/manual/manual-usuario.md) | Guía de uso por rol: encargado, revisor y administrador |
+| [`docs/manual/manual-operacion.md`](../../docs/manual/manual-operacion.md) | Despliegue, respaldos, registros y problemas comunes |

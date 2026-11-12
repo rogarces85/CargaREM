@@ -78,7 +78,7 @@ El plan son **112 tareas atómicas** en 7 fases. Estado real hoy:
 | **F3** Revisión L3 | Observaciones, aprobación, bandeja, notificaciones | **14 de 14** |
 | **F4** Completitud | Matriz semáforo, totales, exportación, drill-down | **5 de 5** |
 | **F5** Puente | ZIP con manifiesto firmado, confirmación de carga | **5 de 5** |
-| **F6** Endurecimiento y salida | Seguridad, rendimiento, UAT, respaldo, manuales | 0 de 16 |
+| **F6** Endurecimiento | Seguridad, rendimiento, respaldo, manuales | **13 de 16** |
 
 Las **12 decisiones de diseño están cerradas** (D1–D11 + D-STACK). Solo quedan abiertas D12 (antivirus), D13 (respaldos) y D14 (migración histórica), y ninguna bloquea el desarrollo. Detalle por tarea: [`specs/TASK.md`](specs/TASK.md).
 

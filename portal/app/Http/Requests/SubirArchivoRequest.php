@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Envio;
+use App\Rules\ZipSeguro;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**
