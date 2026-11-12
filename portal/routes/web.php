@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\SerieController;
 use App\Http\Controllers\Admin\UsuarioController;
 use App\Http\Controllers\Admin\ServicioController;
 use App\Http\Controllers\ArchivoController;
+use App\Http\Controllers\CompletitudController;
 use App\Http\Controllers\EnvioController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\RevisionController;
@@ -99,4 +100,11 @@ Route::middleware(['auth', 'permission:envios.ver.ss'])->prefix('revision')->nam
     Route::post('{envio}/cargar', [RevisionController::class, 'cargar'])->name('cargar');
     Route::post('{envio}/reaperturar', [RevisionController::class, 'reaperturar'])->name('reaperturar');
     Route::post('{envio}/anular', [RevisionController::class, 'anular'])->name('anular');
+});
+/*
+ * Completitud del Servicio de Salud: matriz y exportación.
+ */
+Route::middleware(['auth'])->prefix('completitud')->name('completitud.')->group(function () {
+    Route::get('/', [CompletitudController::class, 'index'])->name('index');
+    Route::get('exportar', [CompletitudController::class, 'exportar'])->name('exportar');
 });

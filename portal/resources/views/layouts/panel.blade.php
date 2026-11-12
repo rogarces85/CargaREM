@@ -70,6 +70,15 @@
                         </li>
                     @endcan
 
+                    @canany(['envios.ver.propio', 'envios.ver.ss'])
+                        <li class="nav-item">
+                            <a href="{{ route('completitud.index') }}" class="nav-link">
+                                <i class="nav-icon fas fa-th"></i>
+                                <p>Completitud</p>
+                            </a>
+                        </li>
+                    @endcanany
+
                     @can('catalogos.gestionar')
                         <li class="nav-header">ADMINISTRACIÓN</li>
                         <li class="nav-item">

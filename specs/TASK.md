@@ -246,11 +246,11 @@
 
 | ID | Tarea | Descripción | Resultado | Requisito | Dependencia | Verificación |
 |---|---|---|---|---|---|---|
-| **T-F4-01** | **CompletitudService::matriz() (OP-09)** | Query SQL optimizada (ver PLAN §9.2): establecimientos activos × series obligatorias (`establecimiento_serie` vigentes) LEFT JOIN envíos/archivos/vigentes/validaciones; aplica scope usuario; retorna array para vista | Matriz performante | RF-033, OP-09, MOD-07, DEP-12 | T-F1-23, T-F2-02 | 30×7 ejecuta < 2s; scope usuario filtra | `[ ]` |
-| **T-F4-02** | **CompletitudService::exportar() (OP-10)** | Genera CSV/Excel desde misma query matriz; respeta filtros actuales; headers correctos | Export funcional | RF-035, OP-10, MOD-07 | T-F4-01 | Export coincide con vista filtrada | `[ ]` |
-| **T-F4-03** | **Controller: CompletitudController** | Rutas: `completitud.index` (GET período+SS → matriz), `completitud.exportar` (GET formato=csv|xlsx) | Endpoints | RF-033, RF-035, RF-036 | T-F4-01, T-F4-02 | GET `/completitud?anio=2026&mes=9&ss=1` → matriz | `[ ]` |
-| **T-F4-04** | **Vista Blade: matriz semáforo + drill-down** | `completitud/index.blade.php`: tabla con `components/SemaforoCelda` (🟢🟡🔴⚪), totales arriba, botones exportar, click celda → `/envios/{id}` | UI completa | SPECS §7.1, PLAN §9.1, §9.2 | T-F1-11, T-F4-03 | Render correcto; colores consistentes; drill-down navega | `[ ]` |
-| **T-F4-05** | **Tests completitud + rendimiento** | Test: matriz 7×7 semáforo correcto (CA-034); export CSV/Excel coincide (CA-035); drill-down navega (CA-036); carga 30×7 p95 < 2s (RNF-005) | CA-034, CA-035, CA-036, RNF-005 | T-F4-03, T-F4-04 | `php artisan test --filter=Completitud` pasa + benchmark | `[ ]` |
+| **T-F4-01** | **CompletitudService::matriz() (OP-09)** | Query SQL optimizada (ver PLAN §9.2): establecimientos activos × series obligatorias (`establecimiento_serie` vigentes) LEFT JOIN envíos/archivos/vigentes/validaciones; aplica scope usuario; retorna array para vista | Matriz performante | RF-033, OP-09, MOD-07, DEP-12 | T-F1-23, T-F2-02 | 30×7 ejecuta < 2s; scope usuario filtra | `[x]` |
+| **T-F4-02** | **CompletitudService::exportar() (OP-10)** | Genera CSV/Excel desde misma query matriz; respeta filtros actuales; headers correctos | Export funcional | RF-035, OP-10, MOD-07 | T-F4-01 | Export coincide con vista filtrada | `[x]` |
+| **T-F4-03** | **Controller: CompletitudController** | Rutas: `completitud.index` (GET período+SS → matriz), `completitud.exportar` (GET formato=csv|xlsx) | Endpoints | RF-033, RF-035, RF-036 | T-F4-01, T-F4-02 | GET `/completitud?anio=2026&mes=9&ss=1` → matriz | `[x]` |
+| **T-F4-04** | **Vista Blade: matriz semáforo + drill-down** | `completitud/index.blade.php`: tabla con `components/SemaforoCelda` (🟢🟡🔴⚪), totales arriba, botones exportar, click celda → `/envios/{id}` | UI completa | SPECS §7.1, PLAN §9.1, §9.2 | T-F1-11, T-F4-03 | Render correcto; colores consistentes; drill-down navega | `[x]` |
+| **T-F4-05** | **Tests completitud + rendimiento** | Test: matriz 7×7 semáforo correcto (CA-034); export CSV/Excel coincide (CA-035); drill-down navega (CA-036); carga 30×7 p95 < 2s (RNF-005) | CA-034, CA-035, CA-036, RNF-005 | T-F4-03, T-F4-04 | `php artisan test --filter=Completitud` pasa + benchmark | `[x]` |
 
 ---
 
@@ -417,10 +417,10 @@ F0 (T-F0-01..10)
 | **F1** | 31 | 31 | 0 | 0 |
 | **F2** | 31 | 30 | 1 | 0 |
 | **F3** | 14 | 14 | 0 | 0 |
-| **F4** | 5 | 0 | 0 | 5 |
+| **F4** | 5 | 5 | 0 | 0 |
 | **F5** | 5 | 0 | 0 | 5 |
 | **F6** | 16 | 0 | 0 | 16 |
-| **TOTAL** | **112** | **82** | **4** | **26** |
+| **TOTAL** | **112** | **87** | **4** | **21** |
 
 **F0 — las 7 completadas:** T-F0-01 (C-010), 04, 06, 07, 08, 09, 10.
 **F0 — las 3 en progreso, todas esperando a personas:**
@@ -507,3 +507,20 @@ Los cinco se leen correctamente y el motor no encuentra bloqueantes. Las adverte
 - Una observación apuntada a una serie se resuelve al reenviar; una observación del envío completo queda abierta hasta que alguien la cierre a mano. Se distingue a propósito: la primera la resolvió el hecho, la segunda necesita una decisión.
 - El aviso sale por correo **y** queda en la tabla `notifications`: si el servidor de correo falla, el usuario lo ve al entrar.
 - No se encola: el servidor no tiene worker garantizado y un aviso que nunca sale es peor que uno que espera un segundo.
+
+---
+
+## Verificación de la fase F4 (2026-11-12)
+
+| Check | Evidencia |
+|---|---|
+| Matriz con semáforo | cinco estados por celda: aprobado, en proceso, con errores, sin archivo, sin envío |
+| Distingue faltantes | «sin envío» y «sin archivo» son distintos: uno es no haber empezado, el otro haber empezado a medias |
+| Alcance por usuario | el encargado ve su establecimiento; el revisor, todo su Servicio de Salud |
+| Totales | por serie, por establecimiento y avance global del período |
+| Drill-down | cada celda con envío abre el detalle del envío |
+| Exportación | CSV con BOM y separador `;` (Excel en español) y XLSX con colores |
+| Rendimiento | 30 establecimientos × 7 series en **0,31 s**, contra un límite de 2 s |
+| Suite | **222 tests, 567 aserciones, 0 fallos** |
+
+**Cómo se resuelve:** dos consultas —establecimientos con sus series exigidas, y envíos con sus archivos vigentes— y el cruce en memoria. Una consulta por celda serían 210 para 30 establecimientos.

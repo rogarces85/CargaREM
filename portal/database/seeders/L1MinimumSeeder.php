@@ -119,21 +119,25 @@ class L1MinimumSeeder extends Seeder
     /** @param list<Establecimiento> $establecimientos */
     private function usuarios(array $establecimientos): void
     {
+        // El revisor ve todo su Servicio de Salud: sin este dato, su bandeja
+        // y la matriz de completitud salen vacías.
+        $servicio = Servicio::where('codigo', self::SERVICIO['codigo'])->first();
+
         $admin = User::updateOrCreate(
             ['email' => 'admin@ssosorno.cl'],
-            ['name' => 'Administrador REM', 'password' => Hash::make(self::CLAVE), 'activo' => true]
+            ['name' => 'Administrador REM', 'password' => Hash::make(self::CLAVE), 'activo' => true, 'servicio_id' => $servicio?->id]
         );
         $admin->syncRoles(['admin']);
 
         $revisor = User::updateOrCreate(
             ['email' => 'revisor@ssosorno.cl'],
-            ['name' => 'Revisor Unidad de Estadísticas', 'password' => Hash::make(self::CLAVE), 'activo' => true]
+            ['name' => 'Revisor Unidad de Estadísticas', 'password' => Hash::make(self::CLAVE), 'activo' => true, 'servicio_id' => $servicio?->id]
         );
         $revisor->syncRoles(['revisor']);
 
         $encargado1 = User::updateOrCreate(
             ['email' => 'encargado.hospital@ssosorno.cl'],
-            ['name' => 'Encargado Hospital Base', 'password' => Hash::make(self::CLAVE), 'activo' => true]
+            ['name' => 'Encargado Hospital Base', 'password' => Hash::make(self::CLAVE), 'activo' => true, 'servicio_id' => $servicio?->id]
         );
         $encargado1->syncRoles(['encargado']);
         $encargado1->establecimientos()->sync(
@@ -142,7 +146,7 @@ class L1MinimumSeeder extends Seeder
 
         $encargado2 = User::updateOrCreate(
             ['email' => 'encargado.postas@ssosorno.cl'],
-            ['name' => 'Encargado Postas Rurales', 'password' => Hash::make(self::CLAVE), 'activo' => true]
+            ['name' => 'Encargado Postas Rurales', 'password' => Hash::make(self::CLAVE), 'activo' => true, 'servicio_id' => $servicio?->id]
         );
         $encargado2->syncRoles(['encargado']);
         $encargado2->establecimientos()->sync(
