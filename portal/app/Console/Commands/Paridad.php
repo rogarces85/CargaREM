@@ -110,6 +110,18 @@ class Paridad extends Command
      */
     private function comparar(array $esperado, array $obtenido): array
     {
+        // Un esperado con todo en null no compara nada: decirlo es distinto de
+        // decir que coincide.
+        $comparable = array_filter([
+            $esperado['bloqueantes'] ?? null,
+            $esperado['advertencias'] ?? null,
+            ! empty($esperado['codigos']) ? $esperado['codigos'] : null,
+        ], fn ($v) => $v !== null);
+
+        if ($comparable === []) {
+            return ['DIFERENTE', 'el esperado está vacío: complete bloqueantes y advertencias'];
+        }
+
         if (isset($esperado['bloqueantes']) && (int) $esperado['bloqueantes'] !== $obtenido['bloqueantes']) {
             return ['DIFERENTE', "bloqueantes esperados {$esperado['bloqueantes']}, obtenidos {$obtenido['bloqueantes']}"];
         }
