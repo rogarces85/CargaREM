@@ -77,9 +77,17 @@ diccionario. Al terminar, el catálogo queda activo.
 
 ## 5. Levantar el sistema
 
-Con Apache encendido desde el panel de XAMPP:
+**Con Apache encendido** (el botón Start de XAMPP), el portal ya está servido:
 
 `http://localhost/Cargas/portal/public/login`
+
+`iniciar.bat` detecta si Apache responde y abre esa dirección. **No hay que
+dejar ninguna ventana abierta**: Apache corre como servicio.
+
+Sin Apache, `iniciar.bat` levanta el servidor de desarrollo en
+`http://127.0.0.1:8000/login`. En ese caso **la ventana tiene que quedar
+abierta**: si se cierra, el servidor se detiene y la página deja de responder.
+Es la causa más común de «no me abre el login».
 
 | Usuario | Clave | Rol |
 |---|---|---|
@@ -91,7 +99,7 @@ Son usuarios de desarrollo: el seeder los crea y están en el repositorio a
 propósito para poder probar. En cualquier entorno compartido se cambian.
 
 Si preferís no usar Apache: `php artisan serve` y entrar por
-`http://127.0.0.1:8000`.
+`http://127.0.0.1:8000`, dejando la terminal abierta.
 
 ## 6. Probar los archivos REM
 

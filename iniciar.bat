@@ -15,6 +15,7 @@ set "DB=cargas_rem"
 set "SNAPSHOT=%SNAPSHOT%"
 if "%SNAPSHOT%"=="" set "SNAPSHOT=C:\xampp\_snapshot_m7"
 set "URL=http://127.0.0.1:8000/login"
+set "URL_APACHE=http://localhost/Cargas/portal/public"
 
 echo.
 echo  ============================================
@@ -133,10 +134,35 @@ echo  ============================================
 echo   Listo. Abriendo el portal...
 echo  ============================================
 echo.
+
+rem Si Apache ya sirve el portal, no hace falta levantar otro servidor.
+set "SALUD="
+for /f %%c in ('curl -s -o nul -m 5 -w "%%{http_code}" "%URL_APACHE%/health" 2^>nul') do set "SALUD=%%c"
+
+if "!SALUD!"=="200" (
+    echo   Apache ya esta sirviendo el portal.
+    echo.
+    echo   %URL_APACHE%/login
+    echo.
+    echo   Usuario: admin@ssosorno.cl
+    echo   Clave:   Portal2026  ^(con el signo de exclamacion al final^)
+    echo.
+    echo   No hay que dejar ninguna ventana abierta: Apache corre como servicio.
+    echo.
+    start "" "%URL_APACHE%/login"
+    goto :fin
+)
+
+echo   Levantando el servidor de desarrollo...
+echo.
 echo   %URL%
 echo.
 echo   Usuario: admin@ssosorno.cl
-echo   Clave:   Portal2026^!
+echo   Clave:   Portal2026  ^(con el signo de exclamacion al final^)
+echo.
+echo   IMPORTANTE: mientras use esta opcion, NO cierre esta ventana.
+echo   Si la cierra, el servidor se detiene y la pagina deja de responder.
+echo   Con Apache encendido no hace falta: ejecute iniciar.bat de nuevo.
 echo.
 echo   Para detener este servidor: Ctrl+C
 echo.
