@@ -136,16 +136,16 @@ Reglas del proceso:
 1. **Copiar el `.mdb`** antes de abrirlo. Nunca trabajar sobre `Program Files`.
 2. **`Mode=Read`** siempre. La fuente no se modifica.
 3. **Filtrar en el origen**, no en Laravel: `mpEstablecimiento` por `IdServicio = 23`.
-4. **Calcular el `sha256`** de cada CSV generado y guardarlo en `catalogo_snapshots` (PLAN.md DAT-11). Un catálogo sin hash no es reproducible.
-5. **Un solo snapshot activo.** Importar genera un snapshot inactivo; activarlo desactiva el anterior (T-F1-21).
+4. **Dejar los CSV en un directorio** y apuntarlo con `REM_CATALOGO_DIR`. `CatalogoSeeder` los carga en las tablas vivas; no hay snapshots ni versión por archivo (v2.0).
+5. **Una sola carga a la vez.** El seeder reemplaza el diccionario completo en una transacción: si falla, queda el anterior.
 
-Esto mantiene válida la tarea **T-F1-20**: el importador Laravel consume CSV o ZIP, nunca el `.mdb`.
+Esto mantiene válida la tarea **T-F1-20**: el portal consume CSV, nunca el `.mdb`.
 
 ---
 
-## 6. Orden de importación
+## 6. Orden de carga
 
-Las tablas tienen dependencias. Este orden evita claves foráneas rotas:
+Las tablas tienen dependencias. `CatalogoSeeder` respeta este orden:
 
 1. `mpServicio` → `servicios`
 2. `mpEstablecimiento` (filtrado) → `establecimientos`
@@ -153,10 +153,10 @@ Las tablas tienen dependencias. Este orden evita claves foráneas rotas:
 4. `version` → `plantillas`
 5. `Thojas` → `plantilla_hojas`
 6. `Diccionario` → `diccionario`
-7. `Excep` + `colexcep` → `excepciones`
+7. `Excep` + `colexcep` → **fuera del alcance v2.0** (V8 inactiva)
 8. `HistCarga` → histórico de completitud
 
-`Meses` y `Software` no son tablas del portal: alimentan el *seeder* y la traza del snapshot.
+`Meses` y `Software` no son tablas del portal: alimentan el *seeder*.
 
 ---
 

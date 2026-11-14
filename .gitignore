@@ -103,3 +103,7 @@
 portal/archivos/
 *.xlsm
 !portal/public/**/*.xlsm
+
+# Respaldos locales de la base y de los archivos subidos: llevan datos reales
+# (principio 22). Se generan con 01-TOOLS/backup y nunca se versionan.
+backup_mvp_v2/

@@ -9,6 +9,9 @@ status: borrador_para_firma
 source: sdd/decisions.md (D-001, D-010); MODULO_M7_PROFUNDIZADO.md §13.1; SPECS.md RF-001–RF-016; Constitución §5
 ---
 
+> **HISTÓRICO.** El 2FA quedó fuera del MVP v2 (D-021). La identidad vigente —cuentas
+> locales y política de contraseña— está en `docs/auth/decision-identidad.md`.
+
 # Identidad de usuarios y segundo factor (2FA)
 
 > **Tarea:** T-F0-08 · **Estado:** borrador para firma por la Unidad de Estadísticas y TI.

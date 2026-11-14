@@ -103,12 +103,11 @@ CREATE TABLE plantilla_cabecera (
 
 ## 2. Semántica del Diccionario (V6–V7)
 
-### 2.1 Esquema BD (M7 §4.3)
+### 2.1 Esquema BD (v2.0: catálogo vivo, sin snapshots)
 
 ```sql
 CREATE TABLE diccionario (
   id                 BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  snapshot_id        BIGINT UNSIGNED NOT NULL,
   anio               SMALLINT NOT NULL,
   mes                TINYINT  NULL,
   serie              VARCHAR(5) NOT NULL,
@@ -120,8 +119,8 @@ CREATE TABLE diccionario (
   fin                VARCHAR(10) NULL,          -- columna fin (ej. "H")
   posicion           SMALLINT NULL,             -- índice de columna destino (0-based)
   tipo_dato          VARCHAR(20) NULL,          -- entero | decimal | texto | fecha
-  KEY ix_dicc_busqueda (snapshot_id, anio, serie, hoja, linea),
-  KEY ix_dicc_prestacion (snapshot_id, codigo_prestacion)
+  KEY ix_dicc_busqueda (anio, serie, hoja, linea),
+  KEY ix_dicc_prestacion (codigo_prestacion)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
@@ -183,14 +182,17 @@ function normalizarTipo($valor, string $tipo): mixed {
 
 ---
 
-## 3. Excepciones (V8) — `Excep` / `colexcep`
+## 3. Excepciones (V8) — fuera de v2.0
 
-### 3.1 Estructura BD (M7 §4.3 — PENDIENTE P6)
+> **Estado:** la tabla `excepciones`, su modelo y su regla se retiraron del
+> alcance el 14-11-2026 (decisión D-026). La estructura descrita abajo queda como
+> referencia histórica para cuando se retome (v2.1, ligado a D6/SAX).
+
+### 3.1 Estructura BD (referencia histórica — no existe en v2.0)
 
 ```sql
 CREATE TABLE excepciones (
   id                 BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  snapshot_id        BIGINT UNSIGNED NOT NULL,
   anio               SMALLINT NOT NULL,
   mes                TINYINT  NULL,
   serie              VARCHAR(5) NOT NULL,
@@ -199,7 +201,7 @@ CREATE TABLE excepciones (
   columna            VARCHAR(10) NULL,   -- columna exceptuada (ej. "D")
   motivo             VARCHAR(200) NULL,  -- descripción legible
   payload            JSON NULL,          -- respaldo crudo hasta mapear esquema real
-  KEY ix_excep_busqueda (snapshot_id, anio, serie, hoja)
+  KEY ix_excep_busqueda (anio, serie, hoja)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 

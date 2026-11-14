@@ -1,21 +1,22 @@
 ---
 type: constitution
 title: Cargas — Constitution
-description: Los principios no negociables que toda fase rsc-sdd obedece. Stack canon: Laravel 12.72 + PHP 8.2 + MySQL 8 + AdminLTE 3.2 (C-015).
-tags: [sdd, constitution, cargas, rem]
-timestamp: 2026-11-10T12:30:00Z
+description: Los principios no negociables que toda fase rsc-sdd obedece. Stack canon: Laravel 12.72 + PHP 8.2 + MySQL 8 + AdminLTE 3.2 (C-015). Alcance vigente: MVP v2.
+tags: [sdd, constitution, cargas, rem, mvp-v2]
+timestamp: 2026-11-13T00:00:00Z
 topic: sdd
-version: v4.0.0
+version: v4.2.0
 ---
 
 # Cargas — Constitution
 
-> Version: v4.0.0 · Ratified: 2026-11-06 · Last amended: 2026-11-11
+> Version: v4.2.0 · Ratified: 2026-11-06 · Last amended: 2026-11-14
 > Principios no negociables que toda fase rsc-sdd obedece. El detalle técnico vive en
 > `02-DOCS/wiki/stack/` y `02-DOCS/wiki/dominio/`; este archivo ratifica el principio y enlaza el detalle.
 >
-> **Alcance.** Rige el portal M7 de envío REM por establecimiento y la documentación técnica de
-> Cargas REM. No rige el ejecutable WinForms existente, que se documenta pero no se modifica aquí.
+> **Alcance.** Rige el portal REM de envío por establecimiento en su MVP v2
+> (`specs/MVP_V2.md`) y la documentación técnica de Cargas REM. No rige el ejecutable WinForms
+> existente, que se documenta pero no se modifica aquí.
 
 ## 0. Decisión de stack — CERRADA (C-015: Laravel 12.72 + PHP 8.2 + MySQL 8 + AdminLTE 3.2)
 
@@ -104,9 +105,9 @@ Es una decisión deliberada. La alternativa —Laravel 8 con 5 avisos sin parche
 13. **Commits:** `gitmoji + Conventional Commits`, resumen en imperativo y alcance corto
     (`✨ feat(envios): valida cabecera sin coordenadas rígidas`). No hay hook que lo imponga en
     OpenCode: se verifica en `review`.
-14. **Contrato del puente:** toda respuesta de la API del paquete aprobado usa una sola forma de
-    error (`codigo`, `mensaje`, `severidad`) y una sola forma de éxito documentada en
-    `MODULO_M7_PROFUNDIZADO.md` §12.3.
+14. **Contrato de descargas:** toda descarga de archivo o reporte usa
+    `Content-Disposition: attachment`, `X-Content-Type-Options: nosniff` y la policy del envío. El
+    MVP v2 no tiene paquete, manifiesto ni API de puente.
 
 ## 4. Ramas y entrega
 
@@ -129,8 +130,8 @@ Es una decisión deliberada. La alternativa —Laravel 8 con 5 avisos sin parche
     `01-TOOLS/<proveedor>/.env`. En producción `APP_DEBUG=false` y sin `phpinfo` ni páginas de
     diagnóstico: cualquier archivo de diagnóstico se borra en la misma sesión.
 21. **La auditoría es *append-only*.** Login, subida, descarga, validación, observación,
-    aprobación, reapertura y carga quedan registrados; no se edita ni se borra desde la interfaz
-    (RN-ENV-3).
+    aprobación y el CRUD de usuarios, catálogos y períodos quedan registrados; no se edita ni se
+    borra desde la interfaz (RN-ENV-3). En v2.0 no hay reapertura ni anulación.
 22. **Datos REM = confidenciales.** El repositorio no contiene archivos reales, `.mdb`, `.sql` con
     datos, credenciales ni `.env`. Los logs no guardan contenido de celdas ni observaciones
     completas. Antes de producción hay revisión legal de privacidad y retención (Ley 21.719).
@@ -140,7 +141,7 @@ Es una decisión deliberada. La alternativa —Laravel 8 con 5 avisos sin parche
 23. **Línea base WCAG 2.2 AA:** navegación por teclado, foco visible, etiquetas de formulario,
     contraste suficiente y mensajes asociados al campo. Usar AdminLTE o Bootstrap no exime.
 24. **La interfaz siempre muestra el período y el establecimiento activos.** Se confirma solo lo
-    irreversible (aprobar, reabrir, anular). Un encargado nuevo completa un envío con la guía en
+    irreversible (aprobar). Un encargado nuevo completa un envío con la guía en
     menos de 15 minutos.
 
 ## 7. Rendimiento
@@ -154,9 +155,9 @@ Es una decisión deliberada. La alternativa —Laravel 8 con 5 avisos sin parche
 
 26. **Toda decisión significativa se registra** en `02-DOCS/wiki/sdd/decisions.md` con fecha,
     opciones consideradas y por qué. La constitución es el registro de mayor orden.
-27. **Los documentos canónicos no se duplican.** `informe.md`, `stack_modulo_envio.md` y
-    `backup_documentacion/MODULO_M7_PROFUNDIZADO.md` son la fuente; la wiki enlaza y sintetiza.
-    Mapa: `02-DOCS/wiki/index.md`.
+27. **Los documentos canónicos no se duplican.** `specs/MVP_V2.md` es la fuente del portal v2;
+    `informe.md` y `stack_modulo_envio.md` documentan el sistema de escritorio. La wiki enlaza y
+    sintetiza. Mapa: `02-DOCS/wiki/index.md`.
 28. **En ASDD no se escribe código antes de la spec aprobada.** En cambios simples (FTD) basta el
     documento de feature con intención, alcance, checklist y evidencia.
 
@@ -166,7 +167,7 @@ Un cambio se entrega solo si TODO se cumple:
 
 - [ ] No introduce stack mientras D-STACK esté abierta (principio 1).
 - [ ] Corre dentro de las restricciones confirmadas o la restricción cambió por decisión (2–5).
-- [ ] Las migraciones corren en SQLite; si toca lectura de celdas o prepara producción, también en MySQL (10, 25).
+- [ ] Las migraciones corren en la base de pruebas (MySQL 8); si prepara producción, también contra la base de trabajo (10, 25).
 - [ ] Cada regla, transición o permiso tocado tiene su test en verde (6–9).
 - [ ] Si tocó lectura de celdas, hay comparación contra *golden files* (10).
 - [ ] Identificadores, errores y commits siguen las convenciones (11–14).
@@ -187,6 +188,8 @@ Un cambio se entrega solo si TODO se cumple:
 | 2026-11-10 | **v3.1.0** | **MAJOR.** **Cierra D-STACK (C-010)** con canon: Laravel 8.83 + PHP 7.4.3 + MySQL 8 + AdminLTE 3.2. Principio 1 ya no bloquea código de aplicación. Se registra C-010 en `decisions.md`. Reemplaza v3.0.0. | TI confirmó que no hay PHP-FPM 8.3 ni actualización de servidor; PHP 7.4.3 es la realidad del vhost principal. |
 | 2026-11-11 | **v3.2.0** | **MAJOR.** **Reabre D-STACK (C-014)** y retira el canon cerrado. Principio 1 vuelve a bloquear código de aplicación. `portal/` queda provisional y congelado. Se pide PHP 8.2 a TI para poder subir a Laravel 12.68+, primera rama sin avisos. Reemplaza v3.1.0. | `composer audit` sobre el proyecto real: Laravel 8.83.29 tiene 5 avisos abiertos, uno crítico, y no recibirá parches (EOL). La decisión C-010 no había evaluado ese costo. |
 | 2026-11-11 | **v4.0.0** | **MAJOR.** **Cierra D-STACK (C-015)** con canon **Laravel 12.72 + PHP 8.2 + MySQL 8 + AdminLTE 3.2**. Principio 1 deja de bloquear. `portal/` pasa a Laravel 12. Se acepta que el despliegue espera a que TI habilite PHP 8.2. Reemplaza v3.2.0. | Prototipo en `portal-l12/` con Laravel 12.72.0 y `composer audit` sin avisos. Laravel 10 y 11 descartados por seguir afectados. |
+| 2026-11-13 | **v4.1.0** | **MINOR.** Reduce el alcance al MVP v2: retira el contrato del puente y la confirmación de carga, deja un solo Servicio de Salud y actualiza el documento canónico a `specs/MVP_V2.md`. | Decisión C-017 y reunión interna: el sistema hacía más de lo necesario. |
+| 2026-11-14 | **v4.2.0** | **MINOR.** Alineación con `specs/MVP_V2.md` (14-11): principios 21 y 24 sin reapertura ni anulación; la auditoría incorpora el CRUD de usuarios, catálogos y períodos; la Definition of Done fija MySQL 8 como base de pruebas. | C-018: el documento del 14-11 recorta la superficie del MVP y retira las operaciones de excepción. |
 
 
 

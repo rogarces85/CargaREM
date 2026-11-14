@@ -63,59 +63,54 @@ criterio.
 
 ## D4 — Plazos y reglas de cierre
 
-**Recomendación:**
+**Recomendación (sigue abierta al 14-11-2026):**
 
 | Regla | Valor propuesto |
 |---|---|
-| Plazo de entrega | **día 10** del mes siguiente al período |
+| Plazo de entrega | **día 10** del mes siguiente al período, declarado en `periodos.fecha_limite` |
 | Cierre del período | **manual**, por el administrador, después del plazo |
 | Envíos atrasados | se aceptan igual, marcados «fuera de plazo» |
-| Reapertura | solo el administrador, con motivo |
 
 **Por qué manual y no automático.** Un cierre automático el día 10 deja afuera a
-quien estaba cargando a las 23:59, y obliga a reabrir. Con cierre manual, el
-administrador cierra cuando el Servicio ya no espera nada —normalmente dos o
-tres días después del plazo— y la decisión queda registrada con su nombre.
+quien estaba cargando a las 23:59, y obliga a corregir el período. Con cierre
+manual, el administrador cierra cuando el Servicio ya no espera nada —normalmente
+dos o tres días después del plazo— y la decisión queda registrada con su nombre.
 
 **Por qué se aceptan atrasados.** El objetivo del portal es que el dato llegue,
 no castigar. Un envío fuera de plazo es información útil para la jefatura; un
 envío rechazado es un dato que no existe.
 
-**Estado en el sistema.** El modelo de períodos tiene estado (abierto, en
-revisión, cerrado) y la fecha límite. Falta: el indicador visual de «fuera de
-plazo» en la bandeja y en la matriz, y el bloqueo de cargas en un período
-cerrado —que ya existe—.
+**Estado en el sistema.** El período tiene estado (abierto, en revisión, cerrado)
+y fecha límite editable. El envío copia la fecha y marca «fuera de plazo» al
+llegar a revisión. **No hay día por defecto:** si el período no declara fecha,
+no se marca atraso y D4 sigue abierta.
 
 **Si se rechaza:** hay que fijar otro plazo y decidir si el cierre es automático
-o no. Lo segundo cambia código; lo primero no.
+o no. Lo primero no cambia código; lo segundo sí.
 
 ---
 
 ## D1 y D10 — Identidad y segundo factor
 
-**Recomendación:**
+**Recomendación para v2.0:**
 
 | Rol | Cuenta | 2FA |
 |---|---|---|
-| Administrador | local, creada por otro administrador | **obligatorio** |
-| Revisor | local, creada por el administrador | **obligatorio** |
-| Encargado | local, creada por el administrador | opcional |
+| Administrador | local, creada por otro administrador | **fuera de v2.0** (v2.1) |
+| Revisor | local, creada por el administrador | **fuera de v2.0** (v2.1) |
+| Encargado | local, creada por el administrador | fuera de v2.0 |
 
 **Por qué local y no directorio institucional.** El servidor no tiene LDAP ni
 SSO confirmado, y esperar esa integración deja el portal sin usuarios. Las
 cuentas locales son reversibles: cuando exista directorio, se migra.
 
-**Por qué 2FA obligatorio para admin y revisor.** Son los dos roles que pueden
-aprobar o cambiar la configuración. Un encargado comprometido afecta a su
-establecimiento; un administrador comprometido afecta a todo el Servicio.
+**Por qué el 2FA queda para v2.1.** El documento vigente lo deja fuera del corte
+(§4). La recomendación de exigirlo por rol sigue en pie para cuando vuelva:
+un administrador comprometido afecta a todo el Servicio.
 
-**Por qué opcional para encargado.** Son decenas de personas rotando, muchas
-con teléfono compartido. Exigirlo ahí es la forma más rápida de que el sistema
-no se use.
-
-**Estado en el sistema.** Fortify ya trae 2FA TOTP. Falta: hacerlo obligatorio
-por rol —un middleware que redirija a la configuración de 2FA si el rol lo
-exige y no está activo—.
+**Estado en el sistema.** Fortify cubre login, logout y recuperación de
+contraseña. El 2FA está retirado de la configuración; volver a activarlo es una
+decisión aparte (v2.1), no una deuda oculta.
 
 **Si se rechaza:** si TI confirma que hay directorio, cambia el origen de las
 cuentas pero no el resto del modelo.

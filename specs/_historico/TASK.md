@@ -1,5 +1,7 @@
 # TASK.md — Descomposición atómica de tareas del MVP (Portal M7)
 
+> **HISTÓRICO.** Reemplazado por `specs/MVP_V2.md` el 2026-11-13. No usar para el MVP v2.
+
 > **Ubicación canónica:** `specs/TASK.md`
 > **Fuentes:** `specs/AGENT.md`, `specs/SPECS.md`, `specs/PLAN.md`, `02-DOCS/wiki/sdd/constitution.md` v3.1.0
 > **Stack confirmado (C-015):** Laravel **12.72** + PHP **8.2** + MySQL 8.0.42 + AdminLTE 3.2 (Bootstrap 4) + vanilla JS

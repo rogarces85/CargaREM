@@ -16,6 +16,9 @@ status: borrador_para_firma
 > **Principio 6 (Constitución v3.1.0):** Toda regla V0–V11 tiene código `ENV-###`, severidad asignada y test obligatorio.
 > **Principio 10:** Paridad con *golden files*, tolerancia 0 en numéricos.
 > **Fuente canónica:** `docs/validacion/catalogo-errores-env.md` (catálogo completo ENV-001 a ENV-032).
+>
+> **Nota v2.0 (14-11-2026):** ENV-021/ENV-022 dependen de V8 (excepciones), que
+> está fuera del alcance: no se emiten. ENV-032 (antivirus) no aplica.
 
 ---
 
@@ -78,7 +81,7 @@ status: borrador_para_firma
 |---|---:|---|
 | **Bloqueante** | 18 | ENV-001, 002, 003, 004, 005, 006, 007, 008, 009, 010, 011, 012, 013, 014, 015, 016, 019, 024, 025, 026, 029, 030, 032 |
 | **Advertencia** | 11 | ENV-017, 018, 020, 021, 022, 023, 028, 031 |
-| **Informativa** | 0 | (Se definen en reporte: filas leídas, duración, plantilla, snapshot) |
+| **Informativa** | 0 | (Se definen en reporte: filas leídas, duración, plantilla) |
 
 > **Total: 32 códigos ENV-###** (23 bloqueantes, 9 advertencias, 0 informativas en catálogo base).
 
@@ -202,7 +205,7 @@ function validar(ContextoValidacion $ctx): ResultadoValidacion {
 | **Resumen** | Totales por severidad, estado final, serie, versión, filas | — |
 | **Bloqueantes** | Detalle de cada `ENV-###` bloqueante (hoja, celda, valor, mensaje) | Solo bloqueantes |
 | **Advertencias** | Detalle de cada `ENV-###` advertencia + columna "Revisada ✓" | Solo advertencias |
-| **Información** | Métricas: filas leídas, duración, plantilla, snapshot, hash | Solo informativas |
+| **Información** | Métricas: filas leídas, duración, plantilla, hash | Solo informativas |
 
 ### 7.2 Columna "Revisada" (solo hoja Advertencias)
 

@@ -34,10 +34,10 @@ versión anterior, o el reporte no dice qué corregir.
 | R2 | Filtrar por antigüedad | Solo aparecen los que llevan más días esperando |
 | R3 | Observar un envío apuntando a una serie | La observación queda asociada a esa serie y el envío vuelve al establecimiento |
 | R4 | Intentar aprobar con observaciones abiertas | Se rechaza con un mensaje claro |
-| R5 | Aprobar un envío completo | Cambia a «aprobado» y el encargado recibe el aviso |
-| R6 | Confirmar la carga con una referencia | Queda «cargado» y la referencia aparece en el historial |
+| R5 | Aprobar un envío completo | Cambia a «aprobado» y el encargado ve el aviso en la campana |
+| R6 | Abrir el aviso de la campana | Lleva al envío y queda marcado como leído |
 | R7 | Ver la matriz de completitud | El semáforo coincide con los envíos que conoce |
-| R8 | Exportar la matriz | El CSV abre en Excel con las columnas separadas |
+| R8 | Confirmar que la matriz no exporta ni navega por celda | No hay botones de CSV/Excel y la celda no es un enlace |
 
 **Falla si:** ve envíos de otro servicio, aprueba algo incompleto, o la matriz
 no coincide con la realidad.
@@ -48,17 +48,17 @@ no coincide con la realidad.
 
 | # | Escenario | Criterio de aceptación |
 |---|---|---|
-| A1 | Importar un catálogo desde ZIP | Queda activo uno solo y los conteos cuadran con el manifiesto |
-| A2 | Editar un establecimiento | El cambio se refleja en la matriz |
+| A1 | Sembrar el catálogo desde `REM_CATALOGO_DIR` | Los conteos cuadran y la validación deja de pedir plantilla |
+| A2 | Editar un establecimiento y asignarle Servicio | El cambio se refleja en la matriz |
 | A3 | Asignar series a un establecimiento | Las columnas de la matriz se ajustan |
 | A4 | Crear un usuario con un rol | Puede entrar y ve lo que su rol permite |
 | A5 | Intentar desactivarse a sí mismo | Se rechaza |
-| A6 | Reabrir un envío cargado | Vuelve a revisión y queda el motivo |
-| A7 | Anular un envío | Queda «anulado» y no se puede reabrir |
-| A8 | Revisar la auditoría | Cada acción anterior aparece con su usuario y su fecha |
+| A6 | Editar una plantilla y sus hojas | La validación usa la versión nueva |
+| A7 | Confirmar que un envío aprobado no se reabre ni se anula | No hay botón ni ruta; el estado final es «aprobado» |
+| A8 | Revisar la bitácora en base de datos | Cada acción anterior aparece con su usuario y su fecha |
 
-**Falla si:** puede dejar el sistema sin administrador, la auditoría tiene
-huecos, o dos catálogos quedan activos a la vez.
+**Falla si:** puede dejar el sistema sin administrador, la bitácora tiene
+huecos, o el catálogo queda a medias tras una carga fallida.
 
 ---
 

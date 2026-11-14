@@ -45,12 +45,28 @@ topic: sdd
 | 2026-11-10 | D-009 | **D9 - Retención**: 5 años | 1 / 3 / 5 años / indefinido | Cumple normativa salud (Ley 21.719); revisar con jurídica; backup anual programado. |
 | 2026-11-10 | D-010 | **D10 - 2FA**: Revisores y admins | Nadie / admins / revisores+admins / todos | Roles con mayor privilegio (aprobar, reaperturar, usuarios) requieren 2FA; encargados solo password robusto. |
 
+### MVP v2 (2026-11-13)
+
+| Fecha | ID | Decisión | Opciones | Motivo |
+|---|---|---|---|---|
+| 2026-11-13 | C-017 | **Alcance MVP v2:** el portal termina en la aprobación de la estadística. Se retiran paquete ZIP, manifiesto, HMAC, confirmación de carga, 2FA, rol `consulta` y multi-servicio. Se conservan catálogos, validación V0–V11, completitud, auditoría, notificaciones, observaciones y reapertura | Mantener el alcance anterior / reducir al núcleo / reescribir el MVP | La reunión interna definió que el sistema hacía más de lo necesario. El valor del MVP es recibir, validar, controlar el plazo y aprobar. Los archivos quedan en el servidor para revisión posterior |
+| 2026-11-13 | D-017 | **Plazo:** se marca «fuera de plazo» y se permite la carga mientras el período esté abierto. El cierre del período sí bloquea | Bloquear al vencer / marcar y permitir / solo mostrar la fecha / cierre manual sin marca | Un envío rechazado es un dato que no existe. El atraso es información para la jefatura y el revisor. Coincide con la recomendación de D4 |
+| 2026-11-13 | D-018 | **Aprobación:** la estadística completa del envío. No hay aprobación por archivo suelto | Envío completo / por archivo / mixto | El revisor aprueba un período completo. Las series se observan por separado, pero la aprobación es del conjunto |
+| 2026-11-13 | D-019 | **Sin base de datos fina:** el portal no persiste prestaciones ni resultados. Guarda archivos, hallazgos y metadatos. El `diccionario` queda como catálogo de validación | Guardar datos / solo archivos y hallazgos / eliminar el diccionario | La consolidación no es necesaria para el MVP. El `diccionario` sí es necesario para V6–V9 |
+| 2026-11-13 | D-020 | **Sin paquete ni confirmación de carga:** se eliminan ZIP, manifiesto, HMAC, estado `cargado` y acción de confirmar carga | Mantener el puente / eliminarlo | Los archivos ya quedan en el servidor. No hay integración automática con CARGAS REM en el MVP |
+| 2026-11-13 | D-021 | **Sin 2FA, rol `consulta` ni multi-servicio:** tres roles y un solo Servicio de Salud | Mantener / reducir | Menos superficie de acceso y menos configuración. El revisor ve todo el Servicio; el encargado ve lo asignado |
+| 2026-11-13 | D-022 | **Servicio único:** Osorno, código MINSAL `23`. La importación filtra los establecimientos por ese código | Multi-servicio / servicio único | El portal sirve a la Unidad de Estadísticas de Osorno. El código 23 está confirmado en `SetServicio` |
+
 ## Decisiones abiertas
 
 Tomadas de `MODULO_M7_PROFUNDIZADO.md` §18. Ninguna se cierra por inferencia: las cierra negocio o TI.
 
 > **Actualización 2026-11-10:** **D-STACK cerrada (C-010)**. Opción B canon. **D1, D2, D3, D4, D5, D6, D7, D8, D9, D10 resueltas**. **D11** resuelta (quedarse en PHP 7.4 / Laravel 8). **D12, D13, D14** pendientes con TI.
 > El estado vigente está en `stack/decision-stack.md`.
+>
+> **Actualización 2026-11-13 — MVP v2:** D-002 (aprobación mixta) queda superada por D-018; D-007 (puente ZIP) por D-020; D-010 (2FA) por D-021. D-008 se mantiene con la implementación actual: notificación en base de datos y correo. El alcance vigente es `specs/MVP_V2.md`.
+>
+> **Actualización 2026-11-14 — alineación con `MVP_V2.md` (versión 2):** C-018 redefine el alcance. Se retiran reapertura y anulación (D-023), el correo de notificación (D-024, revisa D-008), los snapshots e importador de catálogo (D-025), las excepciones V8 (D-026) y la exportación, el drill-down, la UI de auditoría y `rem:simular-mes` (C-018). Se restaura el catálogo de servicios (D-027, revisa D-021) y el plazo queda sin valor por defecto (D-028, revisa D-017). D4 vuelve a abierta.
 
 | ID | Decisión | Opciones | Recomendación del diseño | Bloquea | Estado |
 |---|---|---|---|---|---|
@@ -70,6 +86,22 @@ Tomadas de `MODULO_M7_PROFUNDIZADO.md` §18. Ninguna se cierra por inferencia: l
 | **D14** | Migración histórica | No / parcial / total | Proyecto aparte tras el MVP | Reportes históricos | Pendiente |
 | **D15** | Riesgo de Laravel 8.83 en EOL | Aceptar con mitigaciones / exigir PHP 8.2 | — | ✅ **Resuelta (C-014): no se acepta.** Se reabre D-STACK y se pide PHP 8.1+ a TI | |
 | **D16** | Lector de Excel | A: PhpSpreadsheet 1.30.8 con ruta del servidor · B: conversión externa · C: exigir PHP 8.1 | F2 | ✅ **Resuelta: 1.30.8.** Sin avisos abiertos y compatible con PHP 7.4.3 y 8.1+. Regla: el lector recibe una ruta generada por el servidor, nunca el nombre que subió el usuario | |
+
+### Alineación v2.0 (2026-11-14)
+
+| Fecha | ID | Decisión | Opciones | Motivo |
+|---|---|---|---|---|
+| 2026-11-14 | C-018 | **Alcance v2.0:** se adopta `specs/MVP_V2.md` del 14-11 como única fuente de verdad y se recorta la superficie a lo que ese documento incluye. Fuera: reabrir, anular, correo de notificación, snapshots e importador de catálogo, excepciones V8, exportación y drill-down de completitud, panel por rol, UI de auditoría con filtros, `rem:simular-mes`. Vuelve el catálogo de servicios | Mantener el alcance del 13-11 / adoptar el del 14-11 | El documento del 14-11 es la versión revisada del alcance: deja el MVP en recibir, validar, revisar y aprobar, sin operaciones de excepción ni infraestructura que no se usa en el corte |
+| 2026-11-14 | D-023 | **Sin reapertura ni anulación:** la máquina de estados termina en `aprobado` y solo tiene las transiciones persona→`en_revision`, `observado`, `aprobado` | Mantener reabrir/anular / retirarlos | Toda operación de excepción agrega motivos, permisos y pantallas. v2.0 las deja para v2.1; los envíos ya aprobados no se corrigen en el corte |
+| 2026-11-14 | D-024 | **Notificaciones solo en BD:** se retira el correo de avisos y se muestra una campana en la cabecera. `MAIL_*` se conserva por la recuperación de contraseña | Correo + BD / solo BD | Sin colas garantizadas el correo es una dependencia frágil; la campana se ve al entrar y no depende de un servidor saliente |
+| 2026-11-14 | D-025 | **Catálogo sin snapshots ni importador:** las tablas de catálogo son las vivas; se cargan con `CatalogoSeeder` desde el mismo ZIP/CSV de `01-TOOLS/rem-export` descomprimido en `REM_CATALOGO_DIR` | Snapshots versionados / catálogo vivo sembrado | El snapshot por archivo agregaba una tabla y una pantalla que el MVP no usa. Se conserva el resultado de la validación (`validaciones`, `validado_en`) como evidencia; se pierde la reproducción exacta por versión de catálogo |
+| 2026-11-14 | D-026 | **Sin excepciones (V8):** se retira la regla, el modelo y la tabla `excepciones` | Mantener V8 / retirarla | No hay datos de excepciones en el catálogo del corte; vuelve en v2.1 si D6 (SAX) la necesita |
+| 2026-11-14 | D-027 | **Catálogo de servicios restaurado:** tabla `servicios`, CRUD (RF-007) y `servicio_id` en usuarios y establecimientos, con un registro activo (Osorno `23`). V4 compara el Servicio del usuario con el del establecimiento | Un solo Servicio fijo / catálogo restaurado | El documento del 14-11 conserva RF-007 y la separación revisor/Servicio. El catálogo mantiene el modelo coherente con el histórico y no obliga a hardcodear el `23` |
+| 2026-11-14 | D-028 | **Plazo sin valor por defecto:** se conserva la marca «fuera de plazo» cuando el período declara `fecha_limite`; no se inventa un día 10 | Día 10 por defecto / sin defecto | D4 sigue abierta (§8 del documento). Fijar el día 10 en código cerraba la decisión por la puerta de atrás |
+
+> **Estado de D4 (2026-11-14):** vuelve a *abierta*. El documento vigente no fija
+> día y el código no tiene plazo por defecto. Bloquea el cierre automático de
+> período, no la recepción de envíos.
 
 ## Cómo se cierra una decisión
 

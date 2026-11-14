@@ -1,5 +1,7 @@
 # PLAN.md — Plan técnico del MVP (Portal M7)
 
+> **HISTÓRICO.** Reemplazado por `specs/MVP_V2.md` el 2026-11-13. No usar para el MVP v2.
+
 > **Ubicación canónica:** `specs/PLAN.md`
 > **Fuentes:** `specs/AGENT.md`, `specs/SPECS.md`, `backup_documentacion/MODULO_M7_PROFUNDIZADO.md`, `02-DOCS/wiki/sdd/constitution.md` v3.1.0, `02-DOCS/wiki/sdd/decisions.md`, `02-DOCS/wiki/dominio/validacion-rem.md`, `02-DOCS/wiki/stack/*`, `REVIEW.md`.
 > **Estado:** base técnica de la implementación. **D-STACK cerrada (C-015):** Laravel **12.72** + PHP **8.2** + MySQL 8.0.42 + AdminLTE 3.2.

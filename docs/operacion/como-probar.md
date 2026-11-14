@@ -9,7 +9,7 @@ escrita para alguien que llega al repositorio sin la máquina preparada.
 |---|---|---|
 | XAMPP | con **PHP 8.2** | El portal no corre en PHP 7.4 |
 | Composer | 2.x | Para instalar dependencias |
-| MariaDB o MySQL | 10.4 / 8.0 | La base se crea sola con las migraciones |
+| MariaDB o MySQL | 10.4 / 8.0 | La base se crea con las migraciones |
 
 Verificación rápida: `php -v` debe decir 8.2 o superior.
 
@@ -20,13 +20,13 @@ cosas viven fuera de git y hay que copiarlas aparte:
 
 | Qué | Dónde está | Tamaño |
 |---|---|---|
-| Snapshot del catálogo | `C:\xampp\_snapshot_m7\` (10 CSV + `manifest.json`) | ~27 MB |
+| Catálogo del Minsal (CSV) | `C:\xampp\_snapshot_m7\` (CSV + `manifest.json`) | ~23 MB |
 | Archivos REM de prueba | `portal\archivos\` (los `.xlsm`) | ~1,5 MB cada uno |
 
-Sin el snapshot no se pueden validar archivos: sin catálogo no hay
-diccionario, plantillas ni hojas, y el portal lo dice con `APP-ENV-004`.
+El catálogo se siembra con `CatalogoSeeder`. Si falta, el portal arranca igual
+pero la validación reporta bloqueantes de plantilla y diccionario.
 
-Si no tenés el snapshot a mano pero sí la instalación de Cargas REM, se
+Si no tenés el catálogo a mano pero sí la instalación de Cargas REM, se
 regenera con el exportador:
 
 ```bat
@@ -46,8 +46,8 @@ copy .env.example .env
 php artisan key:generate
 ```
 
-Revisá en `.env` que la base se llame `cargas_rem` y que el usuario de MySQL
-coincida con el tuyo:
+Revisá en `.env` que la base se llame `cargas_rem`, que el usuario de MySQL
+coincida con el tuyo y que `REM_CATALOGO_DIR` apunte al catálogo:
 
 ```
 DB_CONNECTION=mysql
@@ -56,6 +56,8 @@ DB_PORT=3306
 DB_DATABASE=cargas_rem
 DB_USERNAME=root
 DB_PASSWORD=
+
+REM_CATALOGO_DIR=C:\xampp\_snapshot_m7
 ```
 
 ## 4. Crear la base y cargar datos
@@ -65,15 +67,22 @@ DB_PASSWORD=
 C:\xampp\mysql\bin\mysql.exe -u root -e "CREATE DATABASE IF NOT EXISTS cargas_rem CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
 php artisan migrate --seed
-php artisan catalogos:importar C:\xampp\_snapshot_m7 --activar
 ```
 
-El `--seed` crea los roles, los 18 permisos y el juego mínimo de datos:
-7 establecimientos de la provincia de Osorno, 6 series, 6 períodos y 4
-usuarios de prueba.
+El `--seed` crea los roles, los 16 permisos, el Servicio Osorno `23` y el juego
+mínimo de datos: 7 establecimientos de la provincia de Osorno, 6 series, 6
+períodos y 4 usuarios de prueba.
 
-La importación tarda unos 20 segundos y deja **185.526** prestaciones en el
-diccionario. Al terminar, el catálogo queda activo.
+Si `REM_CATALOGO_DIR` tiene los CSV, el mismo `--seed` carga además el catálogo:
+series, establecimientos, plantillas, hojas y **185.526** prestaciones en el
+diccionario. Tarda un par de minutos.
+
+Si hace falta recargar solo el catálogo después:
+
+```bat
+set REM_CATALOGO_DIR=C:\xampp\_snapshot_m7
+php artisan db:seed --class=CatalogoSeeder
+```
 
 ## 5. Levantar el sistema
 
@@ -136,15 +145,15 @@ registro existente en lugar de chocar con la protección de duplicados.
 Menú **Envíos** → crear un envío → abrirlo → subir el Excel de una serie.
 La validación corre sola y el detalle muestra los hallazgos.
 
-### Simular un mes completo
+### Generar un mes de prueba
 
 ```bat
-php artisan rem:simular-mes --establecimientos=2 --observar=1
+php artisan rem:probar --serie=A
 ```
 
-Recorre el ciclo entero con datos reales: carga, validación, revisión,
-observación, corrección y carga confirmada. Sirve para ver el sistema con datos
-y para llegar al UAT con algo probado a escala.
+Crea un envío, arma un Excel con la forma del catálogo y muestra el reporte.
+No simula el ciclo completo: eso se recorre a mano desde el navegador
+(encargado → revisor).
 
 ## 7. Correr los tests
 
@@ -152,7 +161,7 @@ y para llegar al UAT con algo probado a escala.
 php artisan test
 ```
 
-Deben pasar **164 tests**. Los tests usan su propia base (`cargas_rem_test`),
+Deben pasar **234 tests**. Los tests usan su propia base (`cargas_rem_test`),
 que se destruye y recrea en cada corrida: no tocan los datos de desarrollo.
 
 Si faltan tests por base inexistente:
@@ -165,7 +174,7 @@ C:\xampp\mysql\bin\mysql.exe -u root -e "CREATE DATABASE IF NOT EXISTS cargas_re
 
 | Síntoma | Causa | Solución |
 |---|---|---|
-| `No hay catálogo activo` | Falta importar | `php artisan catalogos:importar ... --activar` |
+| La validación dice que falta la plantilla | Catálogo no sembrado | `php artisan db:seed --class=CatalogoSeeder` con `REM_CATALOGO_DIR` |
 | `/health` devuelve 503 | Base caída o credenciales | Revisar `.env` y que MariaDB esté encendido |
 | Un archivo tarda ~35 s | Se abre un Excel de 1,5 MB y 30 hojas | Es lo esperado hoy; el límite es 90 s |
 | `Unknown database 'cargas_rem'` | No se creó la base | Paso 4, la creación es manual |
@@ -174,7 +183,8 @@ C:\xampp\mysql\bin\mysql.exe -u root -e "CREATE DATABASE IF NOT EXISTS cargas_re
 ## 9. Llevarse el proyecto a otra máquina
 
 El repositorio no lleva datos reales ni configuración local. Al cambiar de
-computadora hay que copiar aparte cuatro cosas y volver a clonar.
+computadora hay que copiar aparte el catálogo, los archivos de prueba y la
+configuración.
 
 ### Lo que viaja por GitHub
 
@@ -182,20 +192,16 @@ computadora hay que copiar aparte cuatro cosas y volver a clonar.
 git clone https://github.com/rogarces85/CargaREM.git
 ```
 
-Todo el código, la documentación, los tests y los manuales. `main` es la rama
-publicada.
+Todo el código, la documentación, los tests y los manuales.
 
 ### Lo que hay que copiar a mano
 
 | Qué | Dónde está acá | Tamaño | Para qué |
 |---|---|---|---|
-| Snapshot del catálogo | `C:\xampp\_snapshot_m7\` | 22 MB | Importar los 185.526 registros |
+| Catálogo del Minsal | `C:\xampp\_snapshot_m7\` | 23 MB | Sembrar los 185.526 registros |
 | Archivos REM de prueba | `portal\archivos\` | 8 MB | Validar y comparar paridad |
-| Configuración | `portal\.env` | 1 KB | Base, correo, URL |
-| Respaldo de la base | `C:\xampp\_backup_test\` | 81 MB | Alternativa a reimportar |
-
-Los dos últimos son opcionales si se sigue el camino largo: crear el `.env` desde
-`.env.example` y reimportar el catálogo.
+| Configuración | `portal\.env` | 1 KB | Base, correo, URL, `REM_CATALOGO_DIR` |
+| Respaldo de la base | `C:\xampp\_backup_test\` | 81 MB | Alternativa a sembrar |
 
 ### Camino corto: restaurar el respaldo
 
@@ -203,22 +209,21 @@ Con el `.sql` copiado, en la máquina nueva:
 
 ```bat
 C:\xampp\mysql\bin\mysql.exe -u root -e "CREATE DATABASE cargas_rem CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-C:\xampp\mysql\bin\mysql.exe -u root cargas_rem < ruta\db_2026-11-12_1018.sql
+C:\xampp\mysql\bin\mysql.exe -u root cargas_rem < ruta\db_2026-11-14_1200.sql
 ```
 
 Y los archivos subidos, si hacen falta:
 
 ```bat
-tar -xzf storage_2026-11-12_1018.tar.gz -C portal\storage\app\private
+tar -xzf storage_2026-11-14_1200.tar.gz -C portal\storage\app\private
 ```
 
 Después `php artisan migrate --force` por si el respaldo es anterior a alguna
-migración nueva, y `php artisan storage:link` no hace falta (los archivos no se
-sirven desde `public`).
+migración nueva.
 
 ### Camino largo: de cero
 
-Los pasos 1 a 4 de esta guía, más `php artisan catalogos:importar`.
+Los pasos 1 a 4 de esta guía, con `REM_CATALOGO_DIR` apuntando al catálogo.
 
 ### Comprobar que quedó bien
 
@@ -226,5 +231,5 @@ Los pasos 1 a 4 de esta guía, más `php artisan catalogos:importar`.
 php artisan test
 ```
 
-Deben pasar **246 tests**. El conteo no depende de los datos: los tests usan su
+Deben pasar **234 tests**. El conteo no depende de los datos: los tests usan su
 propia base.

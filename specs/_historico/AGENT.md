@@ -1,5 +1,7 @@
 # AGENT.md — Contexto General del Proyecto Cargas REM
 
+> **HISTÓRICO.** Reemplazado por `specs/MVP_V2.md` el 2026-11-13. No usar para el MVP v2.
+
 > Ubicación canónica: `specs/AGENT.md`
 > Fuente de verdad para agentes de IA y desarrolladores.
 > No contiene especificaciones funcionales detalladas ni decisiones técnicas prematuras.

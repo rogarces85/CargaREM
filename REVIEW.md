@@ -9,8 +9,10 @@ Un cambio no se aprueba si comete alguno de estos, aunque "funcione":
 
 1. **Consulta sin alcance de establecimiento.** El filtro está solo en la vista o en el `where`
    del listado, no en la consulta que entrega o descarga el archivo (RN-ENV-1, principio 18).
+   El revisor solo ve su Servicio; el encargado solo lo asignado.
 2. **Estado escrito fuera del servicio de transición.** Un controlador, modelo o seeder escribe
-   `estado`, o permite una transición que §5.4 declara prohibida (principio 7).
+   `estado`, o permite una transición que §5.3 de `specs/MVP_V2.md` declara prohibida
+   (principio 7). `aprobado` es el estado final: no hay reapertura ni anulación.
 3. **Sobrescritura en vez de versión.** Un reenvío borra o reemplaza el archivo anterior en lugar
    de crear una versión nueva y marcar la anterior como `reemplazado` (P2, RN-ENV-8).
 4. **Regla de validación sin código o con severidad equivocada.** Una regla bloqueante tratada

@@ -70,9 +70,9 @@ para edición hasta que el revisor responda.
 
 ### Si lo observan
 
-Llega un correo y el envío aparece «observado». Abrir el detalle muestra la
-observación. Corregir el archivo y volver a subirlo: **la observación se
-resuelve sola** si era de esa serie.
+El envío aparece «observado» y la campana de la cabecera muestra el aviso. Abrir
+el detalle muestra la observación. Corregir el archivo y volver a subirlo: **la
+observación se resuelve sola** si era de esa serie.
 
 ---
 
@@ -108,19 +108,11 @@ vuelve a comprobarlo:
 
 Si algo falta, el mensaje dice qué.
 
-### Confirmar la carga
-
-Después de aprobar, **Confirmar carga** deja constancia de que los datos ya
-están en el sistema institucional. Se puede anotar una referencia (número de
-acta o folio): queda en el historial y es lo que permite rastrear después.
-
 ### La matriz de completitud
 
 Menú **Completitud**: una tabla con los establecimientos en filas y las series
-en columnas. Cada celda dice si esa serie llegó y en qué estado.
-
-Un clic en una celda abre el envío correspondiente. Se puede exportar a CSV o
-Excel.
+en columnas. Cada celda dice si esa serie llegó y en qué estado, y la fila marca
+los envíos fuera de plazo.
 
 ---
 
@@ -130,20 +122,19 @@ Además de todo lo anterior:
 
 | Dónde | Qué se hace |
 |---|---|
-| **Catálogos** | Importar un ZIP del catálogo y activarlo |
 | **Servicios / Establecimientos / Series / Períodos** | Datos maestros |
 | **Matriz de series** | Qué series exige cada establecimiento |
-| **Plantillas** | Consulta de las hojas por serie y año |
+| **Plantillas** | Alta y edición de la versión esperada por año, mes y serie, con sus hojas |
 | **Usuarios** | Altas, roles, desactivación |
-| **Auditoría** | Todo lo que pasó, sin poder editarse |
+| **Catálogo sembrado** | Se carga con `CatalogoSeeder` desde los CSV del Minsal |
 
 ### Reglas que el sistema impone
 
 - No puede desactivarse a sí mismo.
 - No puede quitarse el rol de administrador.
 - No puede resetear su propia clave: se cambia desde su perfil.
-- Un catálogo importado no se borra: se activa otro.
-- Un envío no se borra: se anula, con motivo.
+- Un envío no se borra ni se anula: la aprobación es el estado final.
+- Las series exigidas no se reescriben desde la matriz sin dejar la vigencia.
 
 ---
 
@@ -160,9 +151,9 @@ administrador ajusta la matriz.
 El contenido es idéntico a una versión anterior. Si no cambió nada, no hace
 falta subirlo.
 
-**El correo no llegó.**
-El aviso también queda en el portal. Y en desarrollo el correo se escribe en
-`storage/logs/laravel-*.log`.
+**No vi el aviso.**
+Los avisos viven en la campana de la cabecera, no en el correo. La campana
+muestra los que no se han leído y lleva al envío al abrirlos.
 
 **Olvidé la clave.**
 Usar «Recuperar contraseña» en el login. Si no llega el correo, el

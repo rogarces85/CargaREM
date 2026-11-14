@@ -27,17 +27,15 @@ topic: index
 
 | Documento | Qué contiene |
 |---|---|
-| [`AGENT.md`](../../specs/AGENT.md) | Contexto, alcance, actores y stack canon (C-010) |
-| [`SPECS.md`](../../specs/SPECS.md) | Requisitos funcionales, reglas de negocio y criterios de aceptación |
-| [`PLAN.md`](../../specs/PLAN.md) | Arquitectura, módulos técnicos MOD-01 a MOD-11, modelo de datos y flujos |
-| [`TASK.md`](../../specs/TASK.md) | **112 tareas atómicas** en 7 fases, cada una con verificación y DoD |
+| [`MVP_V2.md`](../../specs/MVP_V2.md) | **Alcance vigente v2.0 (14-11-2026):** actores, requisitos, reglas, estados, permisos y criterios de aceptación |
+| [`_historico/`](../../specs/_historico/) | Especificaciones anteriores (v1 y el corte del 13-11). Trazabilidad, no fuente |
 
 ## sdd/ — reglas y decisiones
 
 | Artículo | Qué contiene |
 |---|---|
-| [`sdd/constitution.md`](sdd/constitution.md) | Constitución **v4.0.0**: **D-STACK cerrada (C-015)** con canon Laravel **12.72** + PHP **8.2**, 28 principios y Definition of Done. |
-| [`sdd/decisions.md`](sdd/decisions.md) | Registro append-only de decisiones, incluidas D-STACK cerrada (C-010) y D1/D4/D5/D6/D10 pendientes |
+| [`sdd/constitution.md`](sdd/constitution.md) | Constitución **v4.2.0**: canon Laravel **12.72** + PHP **8.2**, 28 principios y Definition of Done. |
+| [`sdd/decisions.md`](sdd/decisions.md) | Registro append-only de decisiones: D-STACK (C-015), alcance v2 (C-017), alineación v2.0 (C-018) y D1/D4/D5/D6 abiertas |
 
 ## stack/ — entorno y decisión **reabierta (C-014)**
 
@@ -89,11 +87,17 @@ topic: index
 4. Toda decisión relevante se agrega a [`sdd/decisions.md`](sdd/decisions.md). Es append-only: no se reescribe una entrada, se agrega la que la reemplaza.
 5. Todo cambio de la wiki se anota con una línea en [`log.md`](log.md).
 6. **Las fuentes originales no se copian aquí:** se enlazan desde su ruta canónica. La wiki sintetiza, no duplica (Constitución, principio 27).
+
+## docs/ — guías operativas
+
+| Documento | Qué contiene |
+|---|---|
+| [`docs/reestructuracion/matriz-funcionalidades.md`](../../docs/reestructuracion/matriz-funcionalidades.md) | Matriz funcional del alcance v2.0: qué queda, qué se adapta y qué se retira |
 | [`docs/operacion/como-probar.md`](../../docs/operacion/como-probar.md) | Puesta en marcha desde cero y cómo validar archivos REM reales |
 | [`docs/operacion/paridad.md`](../../docs/operacion/paridad.md) | Cómo se mide la paridad contra el ValidadorRem y qué formato tiene el resultado esperado |
-| [`docs/uat/guion-uat.md`](../../docs/uat/guion-uat.md) | 24 escenarios de aceptación para validar con usuarios reales |
+| [`docs/uat/guion-uat.md`](../../docs/uat/guion-uat.md) | Escenarios de aceptación para validar con usuarios reales |
 | [`docs/manual/manual-usuario.md`](../../docs/manual/manual-usuario.md) | Guía de uso por rol: encargado, revisor y administrador |
 | [`docs/manual/manual-operacion.md`](../../docs/manual/manual-operacion.md) | Despliegue, respaldos, registros y problemas comunes |
-| [`docs/decisiones/pendientes-de-firma.md`](../../docs/decisiones/pendientes-de-firma.md) | Las cuatro decisiones de F0 con recomendación: matriz de series, severidad, plazos y 2FA |
+| [`docs/decisiones/pendientes-de-firma.md`](../../docs/decisiones/pendientes-de-firma.md) | Decisiones abiertas con recomendación: D1 identidad, D4 plazo, D5 series y D6 SAX |
 | [`docs/entrega/estado-del-proyecto.md`](../../docs/entrega/estado-del-proyecto.md) | Resumen de entrega: qué está hecho, qué falta, riesgos vivos y números del sistema |
-| [`docs/operacion/matriz-paridad-catalogo.md`](../../docs/operacion/matriz-paridad-catalogo.md) | Contraste de las 32 reglas implementadas contra el catálogo documentado, con las desviaciones justificadas |
+| [`docs/operacion/matriz-paridad-catalogo.md`](../../docs/operacion/matriz-paridad-catalogo.md) | Contraste de las reglas implementadas contra el catálogo documentado, con las desviaciones justificadas |

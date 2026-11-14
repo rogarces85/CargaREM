@@ -24,10 +24,9 @@ composer install --no-dev --optimize-autoloader
 cp .env.example .env
 php artisan key:generate
 
-# Editar .env: base, correo, URL, PAQUETE_HMAC_KEY
+# Editar .env: base, correo (recuperación de clave), URL, REM_CATALOGO_DIR
 php artisan migrate --force
-php artisan db:seed --force          # roles, permisos y datos mínimos
-php artisan catalogos:importar /ruta/al/snapshot --activar
+php artisan db:seed --force          # roles, permisos, Servicio y catálogo si hay CSV
 
 php artisan config:cache
 php artisan route:cache
@@ -42,8 +41,8 @@ php artisan view:cache
 | `APP_DEBUG` | `false` |
 | `APP_URL` | `https://estadisticas.ssosorno.cl/cargas` |
 | `DB_DATABASE` | `cargas_rem` |
-| `MAIL_MAILER` | `smtp` |
-| `PAQUETE_HMAC_KEY` | una cadena larga y secreta |
+| `MAIL_MAILER` | `smtp` (solo para recuperación de contraseña) |
+| `REM_CATALOGO_DIR` | ruta a los CSV del Minsal para sembrar el catálogo |
 
 ## Despliegue por FTP
 
@@ -90,8 +89,8 @@ tar -xzf backup/storage_2026-11-12_0215.tar.gz -C portal/storage/app/private
 php artisan migrate:status   # todas las migraciones deben figurar como Ran
 ```
 
-**Probado:** restaurar el respaldo real tomó 21 s y dejó las 33 tablas con sus
-filas.
+**Probado:** restaurar el respaldo real tomó 21 s y dejó las tablas con sus
+filas (el esquema v2.0 tiene 31 tablas).
 
 ## Registros
 
@@ -99,8 +98,7 @@ filas.
 |---|---|---|
 | `validacion` | `storage/logs/validacion-*.log` | Cada validación: envío, serie, códigos |
 | `seguridad` | `storage/logs/seguridad-*.log` | Accesos fallidos, bloqueos |
-| `correo` | `storage/logs/correo-*.log` | Avisos enviados y fallidos |
-| general | `storage/logs/laravel-*.log` | Errores |
+| general | `storage/logs/laravel-*.log` | Errores y avisos del portal |
 
 Rotan por día y se conservan 90 días. **No guardan contenido de celdas ni el
 texto de las observaciones**: solo identificadores y códigos.
@@ -118,11 +116,11 @@ texto de las observaciones**: solo identificadores y códigos.
 |---|---|---|
 | `/health` da 503 | Base caída o credenciales | Revisar `.env` y el servicio de MySQL |
 | 500 en todas las páginas | `storage/` o `bootstrap/cache/` sin permiso de escritura | `chown -R www-data:www-data storage bootstrap/cache` |
-| «No hay catálogo activo» | Falta importar | `php artisan catalogos:importar ... --activar` |
+| «La validación pide plantilla» | Catálogo no sembrado | `php artisan db:seed --class=CatalogoSeeder` con `REM_CATALOGO_DIR` |
 | Una validación tarda ~35 s | Excel de 1,5 MB y 30 hojas | Es el comportamiento esperado; el límite es 90 s |
 | «Hay 2 validaciones en curso» | Semáforo lleno | Reintentar; el límite protege la memoria |
-| Los correos no salen | SMTP mal configurado | Probar con `MAIL_MAILER=log` y mirar el registro |
-| El disco crece | Catálogos importados y antiguos | Revisar `catalogo_snapshots`: cada importación guarda su diccionario |
+| No llega el correo de recuperación | SMTP mal configurado | Probar con `MAIL_MAILER=log` y mirar el registro; el administrador puede asignar clave |
+| El disco crece por el diccionario | La carga del catálogo reemplaza 185.526 filas | No se acumulan snapshots: `diccionario` es una sola tabla |
 
 ## Contactos
 
@@ -138,5 +136,5 @@ texto de las observaciones**: solo identificadores y códigos.
 |---|---|
 
 | Paridad con el ValidadorRem sin verificar | El motor aplica las reglas documentadas, pero no está probado que coincida con el sistema anterior |
-| Cada importación guarda su diccionario completo | El respaldo crece: conviene purgar snapshots viejos |
+| Sin snapshot de catálogo por archivo | Revalidar usa el catálogo vigente; se conservan hallazgos, hash y `validado_en` |
 | CSP permite estilos y scripts en línea | Se mitiga moviendo el JavaScript a archivos propios |

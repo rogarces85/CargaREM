@@ -12,7 +12,7 @@ Documentación técnica de **Cargas REM** (el sistema que existe hoy) y especifi
 
 Hoy los establecimientos envían sus archivos por correo y la Unidad los revisa y carga a mano. El **Portal M7** propone un portal donde cada encargado sube sus archivos, recibe validación inmediata y sigue el estado de su envío, con revisión y aprobación por la Unidad.
 
-El portal **no reemplaza** a Cargas REM en su primera versión: valida, ordena la revisión y entrega un paquete aprobado. La generación del archivo MINSAL queda fuera del MVP.
+El portal **no reemplaza** a Cargas REM: recibe, valida, ordena la revisión y aprueba la estadística mensual. La generación del archivo MINSAL y la integración automática quedan fuera del MVP. La especificación vigente es [`specs/MVP_V2.md`](specs/MVP_V2.md).
 
 ---
 
@@ -21,7 +21,7 @@ El portal **no reemplaza** a Cargas REM en su primera versión: valida, ordena l
 | Ruta | Qué contiene |
 |---|---|
 | [`portal/`](portal/) | **La aplicación.** Laravel **12.72.0** sobre PHP **8.2**, fijado en Composer. MySQL 8 en producción, MariaDB 10.4 en local. AdminLTE 3.2 en `public/assets` |
-| [`specs/`](specs/) | **La especificación operativa del MVP.** Cuatro documentos, ~178 KB: [`AGENT.md`](specs/AGENT.md) (contexto), [`SPECS.md`](specs/SPECS.md) (requisitos funcionales y criterios de aceptación), [`PLAN.md`](specs/PLAN.md) (arquitectura, 11 módulos técnicos, modelo de datos), [`TASK.md`](specs/TASK.md) (**112 tareas atómicas** en 7 fases) |
+| [`specs/`](specs/) | **La especificación vigente:** [`MVP_V2.md`](specs/MVP_V2.md) (alcance v2.0, 14-11-2026). El alcance anterior queda en [`specs/_historico/`](specs/_historico/) para trazabilidad |
 | [`02-DOCS/wiki/`](02-DOCS/wiki/) | Wiki del proyecto: [`sdd/constitution.md`](02-DOCS/wiki/sdd/constitution.md) (Constitución **v3.1.0**, 28 principios), [`sdd/decisions.md`](02-DOCS/wiki/sdd/decisions.md) (registro append-only de decisiones), `stack/` (entorno y decisión de stack), `dominio/` (pipeline V0–V11). Puerta de entrada: [`index.md`](02-DOCS/wiki/index.md) |
 | [`informe.md`](informe.md) | Informe técnico completo de Cargas REM: arquitectura, módulos M1–M6, reglas de negocio, flujos, §2.10 del módulo de envío, pendientes P1–P13 |
 | [`backup_documentacion/`](backup_documentacion/) | Documentación profundizada por módulo (M1–M7). El diseño funcional y técnico del portal está en [`MODULO_M7_PROFUNDIZADO.md`](backup_documentacion/MODULO_M7_PROFUNDIZADO.md) (81 KB) |
@@ -68,28 +68,28 @@ Otras restricciones confirmadas: `upload_max_filesize=2M`, `post_max_size=8M`, s
 
 ## Estado del proyecto
 
-El plan son **112 tareas atómicas** en 7 fases. Estado real hoy:
+El alcance está cerrado en [`specs/MVP_V2.md`](specs/MVP_V2.md) (v2.0, 14-11-2026) y el portal está construido sobre ese corte:
 
-| Fase | Alcance | Marcadas como hechas |
+| Módulo | Qué hay | Estado |
 |---|---|---|
-| **F0** Descubrimiento y paridad | *Golden files*, decisiones, catálogo `ENV-###` | **7 de 10** (3 esperan personas) |
-| **F1** Base L1 | Laravel, auth, RBAC, catálogos, auditoría, seed | **31 de 31** |
-| **F2** Carga y validación (L2) | Subida, versionado, V0–V11, reporte, estados | **30 de 31** (paridad bloqueada por insumos) |
-| **F3** Revisión L3 | Observaciones, aprobación, bandeja, notificaciones | **14 de 14** |
-| **F4** Completitud | Matriz semáforo, totales, exportación, drill-down | **5 de 5** |
-| **F5** Puente | ZIP con manifiesto firmado, confirmación de carga | **5 de 5** |
-| **F6** Endurecimiento | Seguridad, rendimiento, respaldo, manuales | **15 de 16** (UAT pendiente de personas) |
+| **MOD-01** Identidad y usuarios | Login, logout, recuperación, 3 roles, permisos, CRUD usuarios y asignación a establecimientos | ✅ |
+| **MOD-02** Catálogos | Servicios, establecimientos, series, períodos, matriz establecimiento-serie, plantillas y diccionario sembrado | ✅ |
+| **MOD-03** Envíos y archivos | Crear envío, subir, versionar, revalidar, descargar original y reporte | ✅ |
+| **MOD-04** Validación | V0–V11 (sin V8) con hallazgos y severidad | ✅ (paridad con *golden files* pendiente de insumos) |
+| **MOD-05** Estados | `recibido → validado / con_errores → en_revision → observado / aprobado` | ✅ |
+| **MOD-06** Revisión | Bandeja con filtros, observaciones por serie, aprobación completa | ✅ |
+| **MOD-07** Completitud | Matriz con semáforo, totales y atraso | ✅ |
+| **MOD-08** Auditoría | Append-only en tabla, servicios y observers; sin pantalla de consulta | ✅ |
+| **MOD-09** Notificaciones | Aviso en base de datos + campana en la cabecera | ✅ |
+| **MOD-11** Seguridad | Cabeceras, CSRF, rate limit, health check, logs, validación real de archivo | ✅ |
 
-Las **12 decisiones de diseño están cerradas** (D1–D11 + D-STACK). Solo quedan abiertas D12 (antivirus), D13 (respaldos) y D14 (migración histórica), y ninguna bloquea el desarrollo. Detalle por tarea: [`specs/TASK.md`](specs/TASK.md).
+Fuera del corte: paquete ZIP y confirmación de carga (v3), correo de aviso, snapshots de catálogo, excepciones V8, exportación y drill-down de completitud, panel por rol y UI de auditoría (v2.1), 2FA y rol `consulta` (v2.1), multi-servicio (v3). El detalle está en [`docs/reestructuracion/matriz-funcionalidades.md`](docs/reestructuracion/matriz-funcionalidades.md).
 
-### Lo que queda de F0
+### Lo que espera a personas
 
-Tres tareas humanas que corren en paralelo al código. **No bloquean nada del
-portal**: todo lo demás está construido.
-
-1. **`T-F0-02/03` — *golden files*:** archivos Excel reales anonimizados y su salida del ValidadorRem. La estructura existe en [`tests/Parity/fixtures/`](tests/Parity/fixtures/README.md); falta poblarla. La comparación ya está armada: `php artisan rem:paridad`.
-2. **`T-F0-05` — firma de la política de severidad.** Las [cuatro decisiones](docs/decisiones/pendientes-de-firma.md) están escritas con recomendación y justificación.
-3. **`T-F0-06/07/08` — matriz de series, reglas de cierre e identidad/2FA**, redactadas y esperando confirmación de negocio.
+1. **Paridad con *golden files*:** archivos Excel reales anonimizados y su salida del ValidadorRem. La estructura existe en [`tests/Parity/fixtures/`](tests/Parity/fixtures/README.md); la comparación está armada: `php artisan rem:paridad`.
+2. **Decisiones abiertas** (§8 de la especificación): fuente de identidad (D1), plazo mensual (D4), series obligatorias (D5) y tratamiento de SAX (D6).
+3. **UAT formal** del flujo encargado → revisor: [`docs/uat/guion-uat.md`](docs/uat/guion-uat.md).
 
 ---
 
@@ -188,13 +188,17 @@ composer install
 
 C:\xampp\mysql\bin\mysql.exe -u root -e "CREATE DATABASE IF NOT EXISTS cargas_rem CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
+set REM_CATALOGO_DIR=C:\xampp\_snapshot_m7
 php artisan migrate --seed
-php artisan catalogos:importar C:\xampp\_snapshot_m7 --activar
 ```
+
+`migrate --seed` crea los usuarios y permisos, el Servicio Osorno `23` y, si
+`REM_CATALOGO_DIR` apunta a la exportación, siembra el catálogo de validación
+(series, establecimientos, plantillas, hojas y diccionario).
 
 **4. Restaurar el respaldo (alternativa al paso 3, más rápido)**
 
-Si se trae el `.sql`, en vez de sembrar e importar:
+Si se trae el `.sql`, en vez de sembrar:
 
 ```bat
 C:\xampp\mysql\bin\mysql.exe -u root cargas_rem < RUTA\db_AAAA-MM-DD_HHMM.sql
@@ -220,7 +224,7 @@ clave `Portal2026!`.
 php artisan test
 ```
 
-Deben pasar **246 tests**. Usan su propia base (`cargas_rem_test`) y no tocan los
+Deben pasar **234 tests**. Usan su propia base (`cargas_rem_test`) y no tocan los
 datos de trabajo.
 
 La guía detallada, con problemas comunes y cómo validar archivos REM:
@@ -230,8 +234,6 @@ La guía detallada, con problemas comunes y cómo validar archivos REM:
 Guía paso a paso, incluido cómo probar archivos REM reales:
 [`docs/operacion/como-probar.md`](docs/operacion/como-probar.md).
 
-O más rápido: doble clic en **`iniciar.bat`**, que verifica PHP, crea la base, migra, siembra, importa el catálogo si hace falta y abre el navegador. Para probar archivos: **`probar-archivos.bat`**.
+O más rápido: doble clic en **`iniciar.bat`**, que verifica PHP, crea la base, migra, siembra, carga el catálogo si hace falta y abre el navegador. Para probar archivos: **`probar-archivos.bat`**.
 
-Resumen manual: `composer install` → `.env` → `php artisan migrate --seed` →
-`php artisan catalogos:importar <snapshot> --activar` → entrar por
-`http://localhost/Cargas/portal/public/login`.
+Resumen manual: `composer install` → `.env` con `REM_CATALOGO_DIR` → `php artisan migrate --seed` → entrar por `http://localhost/Cargas/portal/public/login`.

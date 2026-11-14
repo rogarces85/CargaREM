@@ -11,7 +11,11 @@ source: backup_documentacion/MODULO_M7_PROFUNDIZADO.md §20.1 (líneas 1461-1492
 # Catálogo de errores ENV-###
 
 > **Fuente canónica:** `backup_documentacion/MODULO_M7_PROFUNDIZADO.md` §20.1 (líneas 1461-1492).
-> **Principio 6 (Constitución v3.1.0):** Toda regla de validación V0–V11 tiene un código `ENV-###` único, una severidad asignada y al menos un test que la dispare.
+> **Principio 6 (Constitución v4.2.0):** Toda regla de validación V0–V11 tiene un código `ENV-###` único, una severidad asignada y al menos un test que la dispare.
+>
+> **Alcance v2.0 (14-11-2026):** `ENV-022` (V8, excepciones) no se emite porque
+> la tabla `excepciones` salió del corte; `ENV-032` (antivirus) no aplica. El
+> resto de los códigos sigue vigente.
 > **Referencia:** SPECS.md §10 (Casos límite y errores).
 
 ## V0 — Archivo (existencia, tamaño, extensión, tipo real, integridad)

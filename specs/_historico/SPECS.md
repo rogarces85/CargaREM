@@ -1,5 +1,7 @@
 # SPECS.md — Especificaciones Funcionales del MVP (Portal M7)
 
+> **HISTÓRICO.** Reemplazado por `specs/MVP_V2.md` el 2026-11-13. Las funciones de paquete, 2FA, rol consulta y multi-servicio quedaron fuera del MVP v2.
+
 > **Ubicación canónica:** `specs/SPECS.md`
 > **Fuente:** `specs/AGENT.md` + `backup_documentacion/MODULO_M7_PROFUNDIZADO.md` + Constitución v3.1.0
 > **Stack canon (C-015):** Laravel 12.72 + PHP 8.2 + MySQL 8.0.42 + AdminLTE 3.2 (Bootstrap 4). Ver §0 de la Constitución.
