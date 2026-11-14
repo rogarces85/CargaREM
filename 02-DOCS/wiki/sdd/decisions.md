@@ -99,6 +99,7 @@ Tomadas de `MODULO_M7_PROFUNDIZADO.md` §18. Ninguna se cierra por inferencia: l
 | 2026-11-14 | D-027 | **Catálogo de servicios restaurado:** tabla `servicios`, CRUD (RF-007) y `servicio_id` en usuarios y establecimientos, con un registro activo (Osorno `23`). V4 compara el Servicio del usuario con el del establecimiento | Un solo Servicio fijo / catálogo restaurado | El documento del 14-11 conserva RF-007 y la separación revisor/Servicio. El catálogo mantiene el modelo coherente con el histórico y no obliga a hardcodear el `23` |
 | 2026-11-14 | D-028 | **Plazo sin valor por defecto:** se conserva la marca «fuera de plazo» cuando el período declara `fecha_limite`; no se inventa un día 10 | Día 10 por defecto / sin defecto | D4 sigue abierta (§8 del documento). Fijar el día 10 en código cerraba la decisión por la puerta de atrás |
 | 2026-11-14 | D-029 | **D4 resuelta — calendario de plazos:** un período se recibe hasta el fin del **quinto día hábil del mes siguiente** (23:59:59 de `America/Santiago`). No cuentan sábados, domingos ni feriados. Los feriados se mantienen por año en `feriados` (semilla con los 16 nacionales de 2026, Ley 19.973) y el administrador los gestiona. El cierre del período sigue siendo manual; una fecha manual por excepción (`fecha_limite_manual`) se respeta | Día 10 fijo / quinto día hábil con calendario / fecha por período sin cálculo | La Unidad de Estadísticas recibe hasta el quinto día hábil del mes siguiente. El cálculo con feriados evita adelantar plazos en Semana Santa, mayo y septiembre. La pantalla **Calendario de plazos** y `rem:calendario` muestran el año completo |
+| 2026-11-14 | D-030 | **D1 resuelta — identidad:** cuentas locales que **crea el administrador**; el correo lo fija él y basta con que sea válido (sin dominio obligatorio). La contraseña la **restablece el administrador**; no hay recuperación por correo ni token. Cada usuario cambia la suya en **Mi cuenta** (`/perfil`). Fortify queda solo para login/logout. Esto rectifica la mención de D-024 sobre conservar el correo: el portal ya no envía correo | Local + reset por administrador / correo institucional / directorio SS | La Unidad no tiene directorio ni SMTP garantizado; el administrador ya da de alta las cuentas. Sin enlace por correo desaparece una dependencia y una vía de recuperación que nadie podía mantener. El costo es que toda clave olvidada pasa por el administrador |
 
 > **Estado de D4 (2026-11-14):** vuelve a *abierta*. El documento vigente no fija
 > día y el código no tiene plazo por defecto. Bloquea el cierre automático de
@@ -108,6 +109,11 @@ Tomadas de `MODULO_M7_PROFUNDIZADO.md` §18. Ninguna se cierra por inferencia: l
 > regla — **quinto día hábil del mes siguiente**, con calendario de feriados de
 > Chile — y queda implementada como D-029. Ver
 > `docs/validacion/reglas-cierre-periodo.md`.
+>
+> **Cierre de D1 (2026-11-14):** la Unidad confirmó cuentas locales creadas por
+> el administrador, correo válido sin dominio obligatorio y reset por el
+> administrador (D-030). El portal ya no envía correo: se retiró la recuperación
+> por enlace.
 
 ## Cómo se cierra una decisión
 

@@ -52,17 +52,13 @@ class AuthHardeningTest extends TestCase
         $this->assertGuest();
     }
 
-    public function test_se_puede_pedir_el_enlace_de_recuperacion(): void
+    public function test_no_hay_recuperacion_de_clave_por_correo(): void
     {
-        $usuario = User::factory()->create(['email' => 'recupera@ssosorno.cl']);
-
-        $this->post('/forgot-password', ['email' => $usuario->email])
-            ->assertSessionHasNoErrors();
-
-        $this->assertNotNull(
-            \Illuminate\Support\Facades\DB::table('password_reset_tokens')->where('email', $usuario->email)->first(),
-            'Debe quedar un token de un solo uso (R-ID-11)'
-        );
+        // D-030: el reset lo hace el administrador. Las rutas de recuperación
+        // por correo ya no existen.
+        $this->get('/forgot-password')->assertNotFound();
+        $this->post('/forgot-password', ['email' => 'alguien@example.com'])->assertNotFound();
+        $this->get('/reset-password/token-falso')->assertNotFound();
     }
 
     /**

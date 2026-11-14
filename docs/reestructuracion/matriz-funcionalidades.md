@@ -25,7 +25,7 @@ quedó archivada en [`docs/_historico/`](../_historico/).
 
 | # | Funcionalidad | Evidencia | Decisión | Acción |
 |---|---|---|---|---|
-| 1 | Login, logout, recuperación de contraseña | `portal/config/fortify.php`, `resources/views/auth/` | Queda | Sin cambios. |
+| 1 | Login, logout, cuenta propia y reset por el administrador | `portal/config/fortify.php`, `PerfilController`, `Admin\UsuarioController` | Adaptar | Sin recuperación por correo: el administrador crea la cuenta, fija el correo y restablece la contraseña (D-030). |
 | 2 | Catálogo `servicios` y CRUD (RF-007) | `servicios`, `portal/app/Http/Controllers/Admin/ServicioController.php`, `admin/servicios` | Queda | Restaurado con un registro activo (Osorno `23`); el revisor se acota por Servicio. |
 | 3 | 2FA TOTP y passkeys | `config/fortify.php` features | Eliminar | Fuera desde C-017. |
 | 4 | Rol `consulta` y multi-servicio | `RolePermissionSeeder`, `Envio::scopeForUser` | Eliminar | Tres roles; un Servicio. |
@@ -64,6 +64,6 @@ quedó archivada en [`docs/_historico/`](../_historico/).
 ## 4. Pendientes de verificación
 
 - [x] `php artisan migrate:fresh --seed` en la base de pruebas.
-- [x] Suite completa en verde (252 tests).
+- [x] Suite completa en verde (257 tests).
 - [ ] Barrido de referencias activas en README y manuales.
 - [x] Recorrido encargado → revisor con el catálogo sembrado ([resultado](../uat/resultado-2026-11-14.md)); falta la UAT con personas.

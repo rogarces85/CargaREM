@@ -127,14 +127,14 @@ Además de todo lo anterior:
 | **Feriados** | Altas y correcciones de feriados (nacionales o regionales) |
 | **Matriz de series** | Qué series exige cada establecimiento |
 | **Plantillas** | Alta y edición de la versión esperada por año, mes y serie, con sus hojas |
-| **Usuarios** | Altas, roles, desactivación |
+| **Usuarios** | Altas, roles, desactivación y **restablecer la contraseña** |
 | **Catálogo sembrado** | Se carga con `CatalogoSeeder` desde los CSV del Minsal |
 
 ### Reglas que el sistema impone
 
 - No puede desactivarse a sí mismo.
 - No puede quitarse el rol de administrador.
-- No puede resetear su propia clave: se cambia desde su perfil.
+- No puede resetear su propia clave desde el listado: la cambia en **Mi cuenta**.
 - Un envío no se borra ni se anula: la aprobación es el estado final.
 - Las series exigidas no se reescriben desde la matriz sin dejar la vigencia.
 
@@ -164,5 +164,13 @@ Los avisos viven en la campana de la cabecera, no en el correo. La campana
 muestra los que no se han leído y lleva al envío al abrirlos.
 
 **Olvidé la clave.**
-Usar «Recuperar contraseña» en el login. Si no llega el correo, el
-administrador puede asignar una nueva.
+No hay recuperación por correo: pídale al administrador que la restablezca. Si
+la recuerda y quiere cambiarla, use **Mi cuenta** (clic en su nombre, arriba a la
+derecha).
+
+**¿Puedo cambiar mi correo?**
+No. El correo lo administra el portal; pídale el cambio al administrador.
+
+**¿Qué hay en Mi cuenta?**
+Su nombre y el cambio de contraseña. La contraseña nueva necesita al menos 12
+caracteres y se confirma escribiéndola dos veces.

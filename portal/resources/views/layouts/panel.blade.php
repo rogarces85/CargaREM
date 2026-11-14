@@ -22,11 +22,11 @@
             <ul class="navbar-nav ml-auto">
                 @include('partials.campana')
                 <li class="nav-item">
-                    <span class="nav-link">
+                    <a class="nav-link" href="{{ route('perfil.edit') }}" title="Mi cuenta">
                         <i class="fas fa-user"></i>
                         {{ auth()->user()->name }}
                         <span class="badge badge-secondary">{{ auth()->user()->getRoleNames()->first() ?? 'sin rol' }}</span>
-                    </span>
+                    </a>
                 </li>
                 <li class="nav-item">
                     <form method="POST" action="{{ route('logout') }}" class="d-inline">

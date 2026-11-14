@@ -61,14 +61,8 @@
                 </div>
             </form>
 
-            @if (Route::has('password.request'))
-                <p class="mt-3 mb-0">
-                    <a href="{{ route('password.request') }}">¿Olvidó su contraseña?</a>
-                </p>
-            @endif
-
-            <p class="mt-2 mb-0 text-muted small">
-                Las cuentas las crea el administrador del portal.
+            <p class="mt-3 mb-0 text-muted small">
+                Las cuentas las crea el administrador del portal. Si olvidó su contraseña, pídale que la restablezca.
             </p>
         </div>
     </div>

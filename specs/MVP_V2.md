@@ -47,7 +47,7 @@ El catálogo `servicios` se conserva con el registro único de Osorno (código M
 
 | Capacidad | Módulo |
 |---|---|
-| Login, logout, recuperación de contraseña | MOD-01 |
+| Login, logout, cuenta propia y restablecimiento de contraseña por el administrador | MOD-01 |
 | 3 roles, permisos, CRUD usuarios, asignación a establecimientos | MOD-01 |
 | CRUD servicios, establecimientos, series, períodos, plantillas, matriz establecimiento-serie, diccionario | MOD-02 |
 | Calendario de plazos: quinto día hábil del mes siguiente, con feriados de Chile | MOD-02/MOD-11 |
@@ -92,7 +92,7 @@ El `diccionario` no tiene pantalla de edición: se carga con `CatalogoSeeder` y 
 ### Autenticación
 - RF-001 Login (throttle 5/1)
 - RF-002 Logout
-- RF-004 Recuperación de contraseña
+- RF-004 Restablecimiento de contraseña (lo hace el administrador; no hay recuperación por correo)
 
 ### Usuarios
 - RF-013 CRUD usuarios (12+ chars, mayúscula, número)
@@ -176,13 +176,17 @@ Revisor abre bandeja → filtra → abre detalle → observa (con texto obligato
 
 | ID | Decisión | Bloquea |
 |---|---|---|
-| D1 | Fuente de identidad (cuentas locales / correo institucional) | Login |
 | D5 | Series obligatorias (todas / por tipo / histórico+override) | V11 y completitud |
 | D6 | Tratamiento SAX (serie normal / especial / fuera) | Plantillas y matriz |
 
-**D4 (plazo) quedó resuelta el 2026-11-14:** quinto día hábil del mes siguiente,
-con calendario de feriados de Chile (D-029). El cierre del período sigue siendo
-manual y lo declara el administrador.
+**D1 (identidad) quedó resuelta el 2026-11-14 (D-030):** cuentas locales que
+crea el administrador, con un correo válido cualquiera, y contraseña
+restablecida por el administrador. No hay recuperación por correo; cada usuario
+cambia la suya en **Mi cuenta**.
+
+**D4 (plazo) quedó resuelta el 2026-11-14 (D-029):** quinto día hábil del mes
+siguiente, con calendario de feriados de Chile. El cierre del período sigue
+siendo manual y lo declara el administrador.
 
 D12, D13, D14 y todo lo demás: fuera de v2.0.
 
@@ -191,7 +195,7 @@ D12, D13, D14 y todo lo demás: fuera de v2.0.
 ## 9. Criterios de aceptación
 
 Se conservan del histórico: CA-001, 002, 004, 005 (CRUD equivalente), 007–014, 017–024, 026–028, 032, 033, 034, 037.
-Se eliminan: CA-003, 006 (importador/snapshot), 015–016 (perfil/reset), 025 (reabrir), 029–031 (reabrir/anular/cargar), 035–036 (export/drill-down), 038–039 (correo/paquete).
+Se eliminan: CA-003, 006 (importador/snapshot), 025 (reabrir), 029–031 (reabrir/anular/cargar), 035–036 (export/drill-down), 038–039 (correo/paquete). El perfil propio y el reset por el administrador quedan cubiertos por RF-004.
 
 Además, del calendario de plazos (D-029):
 

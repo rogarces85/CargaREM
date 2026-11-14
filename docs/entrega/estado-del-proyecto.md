@@ -11,7 +11,7 @@ portal se ocupa de que lleguen, se validen, se revisen y queden registrados.
 
 | Módulo | Qué entrega | Estado |
 |---|---|---|
-| **MOD-01** | Login, logout, recuperación, 3 roles, 16 permisos, usuarios y asignaciones | ✅ |
+| **MOD-01** | Login, logout, cuenta propia, 3 roles, 16 permisos, alta de usuarios y reset por el administrador | ✅ |
 | **MOD-02** | Catálogos: servicios, establecimientos, series, períodos, matriz, plantillas, diccionario sembrado y calendario de plazos con feriados | ✅ |
 | **MOD-03** | Envío mensual, versiones, hash, revalidación y descargas | ✅ |
 | **MOD-04** | Validación V0–V11 (sin V8) y reporte de hallazgos | ✅ |
@@ -43,7 +43,7 @@ Ninguna es código pendiente del corte:
 | Tema | Qué necesita | Quién |
 |---|---|---|
 | Paridad con *golden files* | El reporte del **ValidadorRem** sobre los archivos de prueba | Referente de Estadísticas |
-| Decisiones §8 | D1 identidad, D5 series obligatorias, D6 SAX | Jefatura + TI |
+| Decisiones §8 | D5 series obligatorias, D6 SAX | Jefatura + TI |
 | UAT | 2 encargados, 1 revisor y 1 admin usando el portal | Unidad de Estadísticas |
 
 Las decisiones están en [`docs/decisiones/pendientes-de-firma.md`](../decisiones/pendientes-de-firma.md)
@@ -90,7 +90,7 @@ Después: [`docs/operacion/como-probar.md`](../operacion/como-probar.md).
 
 ## Números
 
-- **252 tests, 626 aserciones, 0 fallos.**
+- **257 tests, 644 aserciones, 0 fallos.**
 - **3 roles y 16 permisos.**
 - **185.526 prestaciones** en el catálogo del Minsal sembrado.
 - Bandeja con 100 envíos: **0,72 s**. Matriz 30×7: **0,31 s**.

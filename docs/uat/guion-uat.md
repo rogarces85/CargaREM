@@ -59,6 +59,8 @@ no coincide con la realidad.
 | A3b | Revisar el calendario de plazos | Los doce vencimientos del año coinciden con el quinto día hábil del mes siguiente |
 | A3c | Cargar un feriado y volver al calendario | La fecha del período afectado se corre al siguiente día hábil |
 | A4 | Crear un usuario con un rol | Puede entrar y ve lo que su rol permite |
+| A4b | Restablecer la contraseña de otro usuario | Entra con la nueva y la anterior deja de servir |
+| A4c | Intentar usar «recuperar contraseña» | No existe la opción en el login |
 | A5 | Intentar desactivarse a sí mismo | Se rechaza |
 | A6 | Editar una plantilla y sus hojas | La validación usa la versión nueva |
 | A7 | Confirmar que un envío aprobado no se reabre ni se anula | No hay botón ni ruta; el estado final es «aprobado» |

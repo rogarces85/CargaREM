@@ -14,6 +14,7 @@ use App\Http\Controllers\CompletitudController;
 use App\Http\Controllers\EnvioController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\NotificacionController;
+use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\RevisionController;
 use Illuminate\Support\Facades\Route;
 
@@ -37,6 +38,9 @@ Route::get('/health', HealthController::class)->name('health');
 
 Route::middleware('auth')->group(function () {
     Route::get('/panel', fn () => view('panel'))->name('panel');
+
+    Route::get('perfil', [PerfilController::class, 'edit'])->name('perfil.edit');
+    Route::put('perfil', [PerfilController::class, 'update'])->name('perfil.update');
 });
 
 /*

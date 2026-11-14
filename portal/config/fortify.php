@@ -1,7 +1,5 @@
 <?php
 
-use Laravel\Fortify\Features;
-
 return [
     'guard' => 'web',
     'middleware' => ['web'],
@@ -50,17 +48,13 @@ return [
         'password-reset' => null,
     ],
     /*
-     * Funciones activas del portal (D-001).
+     * Funciones activas del portal (D-030).
      *
-     * Sin registro público: los usuarios los crea el administrador.
-     * Sin verificación de correo: no hay servidor de correo saliente y la
-     * identidad la valida el administrador al crear la cuenta.
-     * Sin segundo factor: el MVP v2 no lo usa (D-021).
+     * Fortify solo cubre login y logout. Las cuentas las crea el administrador
+     * y la contraseña la restablece él: no hay recuperación por correo ni
+     * registro público. El cambio de la propia contraseña vive en /perfil.
+     * Sin verificación de correo ni segundo factor.
      */
-    'features' => [
-        Features::resetPasswords(),
-        Features::updateProfileInformation(),
-        Features::updatePasswords(),
-    ],
+    'features' => [],
 ];
 

@@ -5,8 +5,10 @@ recomendación técnica con su justificación, la consecuencia de adoptarla y qu
 cambiaría si se rechaza.
 
 **D4 (plazo) quedó resuelta el 2026-11-14:** quinto día hábil del mes siguiente,
-con calendario de feriados de Chile (D-029). Las que siguen abiertas son D1
-(identidad), D5 (matriz de series) y D6 (SAX).
+con calendario de feriados de Chile (D-029). **D1 (identidad) quedó resuelta el
+2026-11-14:** cuentas locales creadas por el administrador, correo válido sin
+dominio obligatorio y reset por el administrador (D-030). Las que siguen
+abiertas son D5 (matriz de series) y D6 (SAX).
 
 Están **adoptadas técnicamente** para no detener el desarrollo: el sistema ya se
 comporta como se describe aquí. Falta la firma del referente para que dejen de
@@ -96,27 +98,36 @@ con la fecha manual) y si se cargan feriados regionales de Los Lagos.
 
 ---
 
-## D1 y D10 — Identidad y segundo factor
+## D1 y D10 — Identidad y segundo factor — RESUELTA (D-030)
 
-**Recomendación para v2.0:**
+**Decisión (14-11-2026):**
 
-| Rol | Cuenta | 2FA |
-|---|---|---|
-| Administrador | local, creada por otro administrador | **fuera de v2.0** (v2.1) |
-| Revisor | local, creada por el administrador | **fuera de v2.0** (v2.1) |
-| Encargado | local, creada por el administrador | fuera de v2.0 |
+| Tema | Decisión |
+|---|---|
+| Alta de cuentas | Solo el administrador, en `/admin/usuarios` |
+| Correo | Lo fija el administrador; cualquier correo válido, sin dominio obligatorio |
+| Cambio de correo | Solo el administrador |
+| Reset de contraseña | **Lo hace el administrador**; no hay recuperación por correo |
+| Contraseña propia | Cada usuario la cambia en **Mi cuenta** (`/perfil`), con la actual |
+| 2FA | Fuera de v2.0 (v2.1) |
 
 **Por qué local y no directorio institucional.** El servidor no tiene LDAP ni
 SSO confirmado, y esperar esa integración deja el portal sin usuarios. Las
 cuentas locales son reversibles: cuando exista directorio, se migra.
 
-**Por qué el 2FA queda para v2.1.** El documento vigente lo deja fuera del corte
-(§4). La recomendación de exigirlo por rol sigue en pie para cuando vuelva:
-un administrador comprometido afecta a todo el Servicio.
+**Por qué sin recuperación por correo.** La Unidad no tiene un SMTP garantizado
+y el reset del administrador ya existía. Quitarlo simplifica el sistema y evita
+una vía de recuperación que nadie podía sostener. El costo: toda clave olvidada
+pasa por el administrador.
 
-**Estado en el sistema.** Fortify cubre login, logout y recuperación de
-contraseña. El 2FA está retirado de la configuración; volver a activarlo es una
-decisión aparte (v2.1), no una deuda oculta.
+**Por qué el 2FA queda para v2.1.** El documento vigente lo deja fuera del corte
+(§4). La recomendación de exigirlo por rol sigue en pie para cuando vuelva: un
+administrador comprometido afecta a todo el Servicio.
+
+**Estado en el sistema.** Fortify cubre solo login y logout. La recuperación por
+correo, el registro público y el 2FA están retirados de la configuración. Ver
+[`../auth/decision-identidad.md`](../auth/decision-identidad.md).
 
 **Si se rechaza:** si TI confirma que hay directorio, cambia el origen de las
-cuentas pero no el resto del modelo.
+cuentas pero no el resto del modelo. Si se quisiera autoservicio de clave,
+habría que habilitar correo saliente y volver a Fortify.

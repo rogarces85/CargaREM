@@ -24,7 +24,7 @@ composer install --no-dev --optimize-autoloader
 cp .env.example .env
 php artisan key:generate
 
-# Editar .env: base, correo (recuperación de clave), URL, REM_CATALOGO_DIR
+# Editar .env: base, URL y REM_CATALOGO_DIR
 php artisan migrate --force
 php artisan db:seed --force          # roles, permisos, Servicio y catálogo si hay CSV
 
@@ -41,7 +41,7 @@ php artisan view:cache
 | `APP_DEBUG` | `false` |
 | `APP_URL` | `https://estadisticas.ssosorno.cl/cargas` |
 | `DB_DATABASE` | `cargas_rem` |
-| `MAIL_MAILER` | `smtp` (solo para recuperación de contraseña) |
+| `MAIL_MAILER` | no se usa: el portal no envía correo |
 | `REM_CATALOGO_DIR` | ruta a los CSV del Minsal para sembrar el catálogo |
 
 ## Despliegue por FTP
@@ -135,7 +135,7 @@ semana y puede quedar 1 o 2 días más largo. Los feriados se cargan a mano
 | «La validación pide plantilla» | Catálogo no sembrado | `php artisan db:seed --class=CatalogoSeeder` con `REM_CATALOGO_DIR` |
 | Una validación tarda ~35 s | Excel de 1,5 MB y 30 hojas | Es el comportamiento esperado; el límite es 90 s |
 | «Hay 2 validaciones en curso» | Semáforo lleno | Reintentar; el límite protege la memoria |
-| No llega el correo de recuperación | SMTP mal configurado | Probar con `MAIL_MAILER=log` y mirar el registro; el administrador puede asignar clave |
+| Un usuario olvidó su clave | No hay recuperación por correo | El administrador la restablece en **Usuarios** |
 | El disco crece por el diccionario | La carga del catálogo reemplaza 185.526 filas | No se acumulan snapshots: `diccionario` es una sola tabla |
 
 ## Contactos
