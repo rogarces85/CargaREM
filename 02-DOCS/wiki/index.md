@@ -96,6 +96,7 @@ topic: index
 | [`docs/operacion/como-probar.md`](../../docs/operacion/como-probar.md) | Puesta en marcha desde cero y cómo validar archivos REM reales |
 | [`docs/operacion/paridad.md`](../../docs/operacion/paridad.md) | Cómo se mide la paridad contra el ValidadorRem y qué formato tiene el resultado esperado |
 | [`docs/uat/guion-uat.md`](../../docs/uat/guion-uat.md) | Escenarios de aceptación para validar con usuarios reales |
+| [`docs/uat/resultado-2026-11-14.md`](../../docs/uat/resultado-2026-11-14.md) | Recorrido técnico encargado → revisor → admin con el catálogo sembrado, con incidencias y pendientes |
 | [`docs/manual/manual-usuario.md`](../../docs/manual/manual-usuario.md) | Guía de uso por rol: encargado, revisor y administrador |
 | [`docs/manual/manual-operacion.md`](../../docs/manual/manual-operacion.md) | Despliegue, respaldos, registros y problemas comunes |
 | [`docs/decisiones/pendientes-de-firma.md`](../../docs/decisiones/pendientes-de-firma.md) | Decisiones abiertas con recomendación: D1 identidad, D4 plazo, D5 series y D6 SAX |

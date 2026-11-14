@@ -51,20 +51,20 @@ class EnvioWebTest extends TestCase
         $this->establecimiento->series()->attach($this->serie->id, ['obligatoria' => true]);
     }
 
-    private function excel(): UploadedFile
+    private function excel(string $nombre = '123100A09.xlsx'): UploadedFile
     {
         $libro = new Spreadsheet();
-        $nombre = $libro->getActiveSheet();
-        $nombre->setTitle('NOMBRE');
+        $hoja = $libro->getActiveSheet();
+        $hoja->setTitle('NOMBRE');
         foreach (['C3' => '123100', 'C6' => '09', 'B7' => '2026', 'B17' => 'SERIE A', 'A9' => 'Version 1.2'] as $c => $v) {
-            $nombre->setCellValue($c, $v);
+            $hoja->setCellValue($c, $v);
         }
 
         $tmp = tempnam(sys_get_temp_dir(), 'web').'.xlsx';
         (new Xlsx($libro))->save($tmp);
         $libro->disconnectWorksheets();
 
-        return UploadedFile::fake()->createWithContent('123100A09.xlsx', file_get_contents($tmp));
+        return UploadedFile::fake()->createWithContent($nombre, file_get_contents($tmp));
     }
 
     public function test_el_encargado_ve_su_tablero(): void
@@ -142,6 +142,24 @@ class EnvioWebTest extends TestCase
             ->assertSessionHasErrors('archivo');
 
         $this->assertSame(0, $envio->archivos()->count());
+    }
+
+    public function test_un_archivo_con_bloqueantes_avisa_del_problema(): void
+    {
+        $envio = app(EnvioService::class)->crear($this->establecimiento, 2026, 9, $this->encargado);
+
+        // El nombre no corresponde al establecimiento del envío: V1 deja un
+        // bloqueante. El archivo se guarda, pero el mensaje no puede decir
+        // «validado».
+        $respuesta = $this->actingAs($this->encargado)
+            ->post("/envios/{$envio->id}/archivos", [
+                'serie_id' => $this->serie->id,
+                'archivo'  => $this->excel('999999A09.xlsx'),
+            ]);
+
+        $respuesta->assertSessionHasErrors('archivo');
+        $this->assertSame(1, $envio->archivos()->count());
+        $this->assertSame(Envio::CON_ERRORES, $envio->fresh()->estado);
     }
 
     public function test_descarga_el_archivo_subido(): void

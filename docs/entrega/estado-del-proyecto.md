@@ -90,7 +90,7 @@ Después: [`docs/operacion/como-probar.md`](../operacion/como-probar.md).
 
 ## Números
 
-- **234 tests, 583 aserciones, 0 fallos.**
+- **235 tests, 587 aserciones, 0 fallos.**
 - **3 roles y 16 permisos.**
 - **185.526 prestaciones** en el catálogo del Minsal sembrado.
 - Bandeja con 100 envíos: **0,72 s**. Matriz 30×7: **0,31 s**.

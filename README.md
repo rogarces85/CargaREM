@@ -224,7 +224,7 @@ clave `Portal2026!`.
 php artisan test
 ```
 
-Deben pasar **234 tests**. Usan su propia base (`cargas_rem_test`) y no tocan los
+Deben pasar **235 tests**. Usan su propia base (`cargas_rem_test`) y no tocan los
 datos de trabajo.
 
 La guía detallada, con problemas comunes y cómo validar archivos REM:

@@ -117,6 +117,19 @@ class EnvioController extends Controller
         $this->envios->revalidar($envio);
         $this->estados->recalcular($envio->fresh());
 
+        $registro->refresh();
+
+        // El archivo se guarda siempre (la validación corre después), pero si
+        // la cadena dejó bloqueantes el mensaje no puede decir «validado»: el
+        // usuario tiene que saber que ese archivo no sirve y por qué.
+        $bloqueantes = $registro->validaciones()->where('severidad', 'bloqueante')->count();
+
+        if ($bloqueantes > 0) {
+            return redirect()
+                ->route('envios.show', $envio)
+                ->withErrors(['archivo' => "Archivo de la serie {$serie->codigo} guardado, pero la validación encontró {$bloqueantes} bloqueante(s). Revise los hallazgos antes de enviar a revisión."]);
+        }
+
         return redirect()
             ->route('envios.show', $envio)
             ->with('ok', "Archivo de la serie {$serie->codigo} subido y validado.");

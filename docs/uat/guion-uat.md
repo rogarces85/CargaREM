@@ -3,8 +3,13 @@
 Para validar el portal con personas reales antes de publicarlo. Cada rol
 ejecuta su recorrido y registra si pasa o no.
 
-**Preparación:** un período abierto, el catálogo importado y los usuarios de
+**Preparación:** un período abierto, el catálogo sembrado y los usuarios de
 prueba creados. Duración estimada: 2 horas por rol.
+
+> **Antecedente:** el recorrido técnico del 14-11-2026 está en
+> [`resultado-2026-11-14.md`](resultado-2026-11-14.md). Cubrió el flujo y las
+> reglas por HTTP; falta la sesión con personas (visual, accesibilidad y
+> tiempos percibidos).
 
 ---
 

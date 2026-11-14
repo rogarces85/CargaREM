@@ -161,7 +161,7 @@ No simula el ciclo completo: eso se recorre a mano desde el navegador
 php artisan test
 ```
 
-Deben pasar **234 tests**. Los tests usan su propia base (`cargas_rem_test`),
+Deben pasar **235 tests**. Los tests usan su propia base (`cargas_rem_test`),
 que se destruye y recrea en cada corrida: no tocan los datos de desarrollo.
 
 Si faltan tests por base inexistente:
@@ -231,5 +231,5 @@ Los pasos 1 a 4 de esta guía, con `REM_CATALOGO_DIR` apuntando al catálogo.
 php artisan test
 ```
 
-Deben pasar **234 tests**. El conteo no depende de los datos: los tests usan su
+Deben pasar **235 tests**. El conteo no depende de los datos: los tests usan su
 propia base.
