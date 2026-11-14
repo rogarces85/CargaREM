@@ -65,15 +65,16 @@ class PlazoTest extends TestCase
         return app(EstadoEnvioService::class)->transicionar($envio->fresh(), Envio::EN_REVISION, $this->encargado);
     }
 
-    public function test_sin_fecha_limite_no_hay_marca(): void
+    public function test_sin_fecha_manual_el_calendario_fija_el_plazo(): void
     {
         $envio = $this->envio(null);
 
-        $this->assertNull($envio->fecha_limite, 'El período no declaró fecha: no se inventa');
+        // 09/2026: el quinto día hábil de octubre de 2026 es el 7.
+        $this->assertSame('2026-10-07', $envio->fecha_limite->toDateString());
 
         $envio = $this->aRevision($envio);
 
-        $this->assertNull($envio->fuera_de_plazo, 'Sin fecha no hay atraso que marcar');
+        $this->assertTrue($envio->fuera_de_plazo, 'Hoy (14-11) ya pasó el plazo del período 09/2026');
     }
 
     public function test_un_envio_tarde_queda_marcado(): void

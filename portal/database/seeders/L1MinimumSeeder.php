@@ -99,9 +99,11 @@ class L1MinimumSeeder extends Seeder
         }
 
         foreach (self::PERIODOS as $datos) {
+            // Sin fecha explícita: el modelo la calcula con el calendario
+            // (quinto día hábil del mes siguiente, D-029).
             Periodo::updateOrCreate(
                 ['anio' => $datos['anio'], 'mes' => $datos['mes']],
-                ['estado' => $datos['estado'], 'fecha_limite' => now()->setDate($datos['anio'], $datos['mes'], 10)->addMonth()->toDateString()]
+                ['estado' => $datos['estado']]
             );
         }
 

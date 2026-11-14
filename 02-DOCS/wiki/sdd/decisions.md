@@ -98,10 +98,16 @@ Tomadas de `MODULO_M7_PROFUNDIZADO.md` §18. Ninguna se cierra por inferencia: l
 | 2026-11-14 | D-026 | **Sin excepciones (V8):** se retira la regla, el modelo y la tabla `excepciones` | Mantener V8 / retirarla | No hay datos de excepciones en el catálogo del corte; vuelve en v2.1 si D6 (SAX) la necesita |
 | 2026-11-14 | D-027 | **Catálogo de servicios restaurado:** tabla `servicios`, CRUD (RF-007) y `servicio_id` en usuarios y establecimientos, con un registro activo (Osorno `23`). V4 compara el Servicio del usuario con el del establecimiento | Un solo Servicio fijo / catálogo restaurado | El documento del 14-11 conserva RF-007 y la separación revisor/Servicio. El catálogo mantiene el modelo coherente con el histórico y no obliga a hardcodear el `23` |
 | 2026-11-14 | D-028 | **Plazo sin valor por defecto:** se conserva la marca «fuera de plazo» cuando el período declara `fecha_limite`; no se inventa un día 10 | Día 10 por defecto / sin defecto | D4 sigue abierta (§8 del documento). Fijar el día 10 en código cerraba la decisión por la puerta de atrás |
+| 2026-11-14 | D-029 | **D4 resuelta — calendario de plazos:** un período se recibe hasta el fin del **quinto día hábil del mes siguiente** (23:59:59 de `America/Santiago`). No cuentan sábados, domingos ni feriados. Los feriados se mantienen por año en `feriados` (semilla con los 16 nacionales de 2026, Ley 19.973) y el administrador los gestiona. El cierre del período sigue siendo manual; una fecha manual por excepción (`fecha_limite_manual`) se respeta | Día 10 fijo / quinto día hábil con calendario / fecha por período sin cálculo | La Unidad de Estadísticas recibe hasta el quinto día hábil del mes siguiente. El cálculo con feriados evita adelantar plazos en Semana Santa, mayo y septiembre. La pantalla **Calendario de plazos** y `rem:calendario` muestran el año completo |
 
 > **Estado de D4 (2026-11-14):** vuelve a *abierta*. El documento vigente no fija
 > día y el código no tiene plazo por defecto. Bloquea el cierre automático de
 > período, no la recepción de envíos.
+>
+> **Cierre de D4 (2026-11-14, misma fecha):** la Unidad de Estadísticas fijó la
+> regla — **quinto día hábil del mes siguiente**, con calendario de feriados de
+> Chile — y queda implementada como D-029. Ver
+> `docs/validacion/reglas-cierre-periodo.md`.
 
 ## Cómo se cierra una decisión
 

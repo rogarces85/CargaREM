@@ -50,6 +50,7 @@ El catálogo `servicios` se conserva con el registro único de Osorno (código M
 | Login, logout, recuperación de contraseña | MOD-01 |
 | 3 roles, permisos, CRUD usuarios, asignación a establecimientos | MOD-01 |
 | CRUD servicios, establecimientos, series, períodos, plantillas, matriz establecimiento-serie, diccionario | MOD-02 |
+| Calendario de plazos: quinto día hábil del mes siguiente, con feriados de Chile | MOD-02/MOD-11 |
 | Crear envío, subir archivo, versionar, revalidar, descargar original y reporte | MOD-03 |
 | Validación V0–V11 | MOD-04 |
 | Máquina de estados: recibido → validado / con_errores → en_revision → observado / aprobado | MOD-05 |
@@ -139,6 +140,15 @@ El `diccionario` no tiene pantalla de edición: se carga con `CatalogoSeeder` y 
 ### Puente
 - *(RF-039 paquete: fuera)*
 
+### Plazo
+- La fecha límite de un período es el **fin del quinto día hábil del mes siguiente** (a las 23:59:59 de `America/Santiago`).
+- No cuentan sábados, domingos ni feriados. Los feriados se mantienen por año en la tabla `feriados`; el administrador los carga y corrige.
+- El administrador puede fijar una fecha distinta por excepción; el sistema la respeta y no la recalcula.
+- El envío copia la fecha del período al crearse. La marca «fuera de plazo» se calcula una sola vez, al llegar a revisión, y el envío se acepta mientras el período esté abierto.
+- El administrador ve los doce plazos del año, con sus feriados, en la pantalla **Calendario de plazos**.
+
+Detalle y reglas de cierre: [`02-DOCS/wiki/dominio/`](../02-DOCS/wiki/dominio/) y [`docs/validacion/reglas-cierre-periodo.md`](../docs/validacion/reglas-cierre-periodo.md).
+
 ---
 
 ## 6. Reglas de validación
@@ -167,9 +177,12 @@ Revisor abre bandeja → filtra → abre detalle → observa (con texto obligato
 | ID | Decisión | Bloquea |
 |---|---|---|
 | D1 | Fuente de identidad (cuentas locales / correo institucional) | Login |
-| D4 | Plazo mensual (día 5/10/15/variable) | Cierre de período |
 | D5 | Series obligatorias (todas / por tipo / histórico+override) | V11 y completitud |
 | D6 | Tratamiento SAX (serie normal / especial / fuera) | Plantillas y matriz |
+
+**D4 (plazo) quedó resuelta el 2026-11-14:** quinto día hábil del mes siguiente,
+con calendario de feriados de Chile (D-029). El cierre del período sigue siendo
+manual y lo declara el administrador.
 
 D12, D13, D14 y todo lo demás: fuera de v2.0.
 
@@ -179,6 +192,12 @@ D12, D13, D14 y todo lo demás: fuera de v2.0.
 
 Se conservan del histórico: CA-001, 002, 004, 005 (CRUD equivalente), 007–014, 017–024, 026–028, 032, 033, 034, 037.
 Se eliminan: CA-003, 006 (importador/snapshot), 015–016 (perfil/reset), 025 (reabrir), 029–031 (reabrir/anular/cargar), 035–036 (export/drill-down), 038–039 (correo/paquete).
+
+Además, del calendario de plazos (D-029):
+
+- La fecha límite de cada período se calcula con el quinto día hábil del mes siguiente y el administrador la ve en **Calendario de plazos**.
+- Un feriado cargado corre la fecha; una fecha manual se respeta y se distingue como tal.
+- Un envío creado copia la fecha del período y se marca «fuera de plazo» una sola vez al llegar a revisión.
 
 ---
 

@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Admin\EstablecimientoController;
+use App\Http\Controllers\Admin\CalendarioController;
+use App\Http\Controllers\Admin\FeriadoController;
 use App\Http\Controllers\Admin\MatrizController;
 use App\Http\Controllers\Admin\PeriodoController;
 use App\Http\Controllers\Admin\PlantillaController;
@@ -51,6 +53,11 @@ Route::middleware(['auth', 'permission:catalogos.gestionar'])
         Route::resource('establecimientos', EstablecimientoController::class)->except(['show', 'destroy']);
         Route::resource('series', SerieController::class)->except(['show', 'destroy']);
         Route::resource('periodos', PeriodoController::class)->except(['show', 'destroy']);
+
+        Route::resource('feriados', FeriadoController::class)->except(['show', 'destroy']);
+
+        Route::get('calendario', [CalendarioController::class, 'index'])->name('calendario.index');
+        Route::post('calendario/aplicar', [CalendarioController::class, 'aplicar'])->name('calendario.aplicar');
 
         Route::resource('plantillas', PlantillaController::class)->except(['show', 'destroy']);
 

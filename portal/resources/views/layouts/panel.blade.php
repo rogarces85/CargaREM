@@ -113,6 +113,18 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a href="{{ route('admin.calendario.index') }}" class="nav-link">
+                                <i class="nav-icon fas fa-calendar-check"></i>
+                                <p>Calendario de plazos</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('admin.feriados.index') }}" class="nav-link">
+                                <i class="nav-icon fas fa-calendar-day"></i>
+                                <p>Feriados</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="{{ route('admin.plantillas.index') }}" class="nav-link">
                                 <i class="nav-icon fas fa-file-excel"></i>
                                 <p>Plantillas</p>

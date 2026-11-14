@@ -12,11 +12,12 @@ class PeriodoController extends CatalogoController
     protected string $ruta = 'admin.periodos';
     protected string $titulo = 'Períodos';
 
-    protected array $columnas = ['Año' => 'anio', 'Mes' => 'mes', 'Fecha límite' => 'fecha_limite', 'Estado' => 'estado'];
+    protected array $columnas = ['Año' => 'anio', 'Mes' => 'mes', 'Fecha límite' => 'fecha_limite', 'Manual' => 'fecha_limite_manual', 'Estado' => 'estado'];
 
     protected array $campos = [
         ['name' => 'anio', 'label' => 'Año', 'type' => 'number', 'required' => true],
         ['name' => 'mes', 'label' => 'Mes', 'type' => 'number', 'required' => true],
+        ['name' => 'fecha_limite_manual', 'label' => 'Fecha límite manual (excepción)', 'type' => 'checkbox'],
         ['name' => 'fecha_limite', 'label' => 'Fecha límite', 'type' => 'date'],
         ['name' => 'estado', 'label' => 'Estado', 'type' => 'select'],
     ];
@@ -25,10 +26,10 @@ class PeriodoController extends CatalogoController
     {
         $campos = $this->campos;
 
-        $campos[3]['options'] = [
-            Periodo::ABIERTO    => 'Abierto',
+        $campos[4]['options'] = [
+            Periodo::ABIERTO     => 'Abierto',
             Periodo::EN_REVISION => 'En revisión',
-            Periodo::CERRADO    => 'Cerrado',
+            Periodo::CERRADO     => 'Cerrado',
         ];
 
         return $campos;
@@ -37,7 +38,7 @@ class PeriodoController extends CatalogoController
     protected function reglas(?Model $registro): array
     {
         return [
-            'anio'         => ['required', 'integer', 'min:2010', 'max:2100'],
+            'anio'                => ['required', 'integer', 'min:2010', 'max:2100'],
             // El período es único por (año, mes). Sin esta regla, el duplicado
             // llegaba a la base y salía como error 500 en vez de validación.
             'mes' => [
@@ -46,8 +47,11 @@ class PeriodoController extends CatalogoController
                     ->where(fn ($query) => $query->where('anio', request('anio')))
                     ->ignore($registro?->getKey()),
             ],
-            'fecha_limite' => ['nullable', 'date'],
-            'estado'       => ['required', Rule::in([Periodo::ABIERTO, Periodo::EN_REVISION, Periodo::CERRADO])],
+            // Sin override manual, el modelo calcula el quinto día hábil del
+            // mes siguiente (D-029).
+            'fecha_limite_manual' => ['boolean'],
+            'fecha_limite'        => ['nullable', 'date'],
+            'estado'              => ['required', Rule::in([Periodo::ABIERTO, Periodo::EN_REVISION, Periodo::CERRADO])],
         ];
     }
 }

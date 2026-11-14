@@ -123,6 +123,8 @@ Además de todo lo anterior:
 | Dónde | Qué se hace |
 |---|---|
 | **Servicios / Establecimientos / Series / Períodos** | Datos maestros |
+| **Calendario de plazos** | Los doce vencimientos del año y los feriados usados; crea o corrige los períodos |
+| **Feriados** | Altas y correcciones de feriados (nacionales o regionales) |
 | **Matriz de series** | Qué series exige cada establecimiento |
 | **Plantillas** | Alta y edición de la versión esperada por año, mes y serie, con sus hojas |
 | **Usuarios** | Altas, roles, desactivación |
@@ -150,6 +152,12 @@ administrador ajusta la matriz.
 **«Ese mismo archivo ya se subió».**
 El contenido es idéntico a una versión anterior. Si no cambió nada, no hace
 falta subirlo.
+
+**¿Hasta cuándo tengo para subir?**
+Hasta el final del **quinto día hábil del mes siguiente**, sin contar sábados,
+domingos ni feriados. El detalle del envío muestra la fecha límite y, si llegaste
+tarde, la marca «Fuera de plazo». El envío se acepta igual mientras el período
+siga abierto.
 
 **No vi el aviso.**
 Los avisos viven en la campana de la cabecera, no en el correo. La campana

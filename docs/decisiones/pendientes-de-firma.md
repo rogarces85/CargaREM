@@ -1,8 +1,12 @@
 # Decisiones pendientes de firma
 
-Cuatro decisiones de F0 que bloquean el cierre del proyecto. Cada una trae una
+Decisiones de F0 que bloquean el cierre del proyecto. Cada una trae una
 recomendación técnica con su justificación, la consecuencia de adoptarla y qué
 cambiaría si se rechaza.
+
+**D4 (plazo) quedó resuelta el 2026-11-14:** quinto día hábil del mes siguiente,
+con calendario de feriados de Chile (D-029). Las que siguen abiertas son D1
+(identidad), D5 (matriz de series) y D6 (SAX).
 
 Están **adoptadas técnicamente** para no detener el desarrollo: el sistema ya se
 comporta como se describe aquí. Falta la firma del referente para que dejen de
@@ -61,32 +65,34 @@ criterio.
 
 ---
 
-## D4 — Plazos y reglas de cierre
+## D4 — Plazos y reglas de cierre — RESUELTA (D-029)
 
-**Recomendación (sigue abierta al 14-11-2026):**
+**Decisión (14-11-2026):**
 
-| Regla | Valor propuesto |
+| Regla | Valor |
 |---|---|
-| Plazo de entrega | **día 10** del mes siguiente al período, declarado en `periodos.fecha_limite` |
-| Cierre del período | **manual**, por el administrador, después del plazo |
+| Plazo de entrega | **quinto día hábil del mes siguiente**, a las 23:59:59 de `America/Santiago` |
+| Días no hábiles | sábados, domingos y feriados de la tabla `feriados` (nacionales; 16 semilla de 2026, Ley 19.973) |
+| Cierre del período | **manual**, por el administrador |
 | Envíos atrasados | se aceptan igual, marcados «fuera de plazo» |
+| Excepción | el administrador puede fijar una fecha manual por período; el sistema la respeta y la marca como tal |
 
-**Por qué manual y no automático.** Un cierre automático el día 10 deja afuera a
-quien estaba cargando a las 23:59, y obliga a corregir el período. Con cierre
-manual, el administrador cierra cuando el Servicio ya no espera nada —normalmente
-dos o tres días después del plazo— y la decisión queda registrada con su nombre.
+**Por qué manual y no automático.** Un cierre automático el día del plazo deja
+afuera a quien estaba cargando a las 23:59, y obliga a corregir el período. Con
+cierre manual, el administrador cierra cuando el Servicio ya no espera nada y la
+decisión queda registrada con su nombre.
 
 **Por qué se aceptan atrasados.** El objetivo del portal es que el dato llegue,
 no castigar. Un envío fuera de plazo es información útil para la jefatura; un
 envío rechazado es un dato que no existe.
 
-**Estado en el sistema.** El período tiene estado (abierto, en revisión, cerrado)
-y fecha límite editable. El envío copia la fecha y marca «fuera de plazo» al
-llegar a revisión. **No hay día por defecto:** si el período no declara fecha,
-no se marca atraso y D4 sigue abierta.
+**Estado en el sistema.** Implementado: `CalendarioService`, columna
+`periodos.fecha_limite_manual`, tabla `feriados`, pantalla **Calendario de
+plazos** y comando `php artisan rem:calendario <año> [--actualizar]`. Reglas
+completas en [`../validacion/reglas-cierre-periodo.md`](../validacion/reglas-cierre-periodo.md).
 
-**Si se rechaza:** hay que fijar otro plazo y decidir si el cierre es automático
-o no. Lo primero no cambia código; lo segundo sí.
+**Pendiente de negocio:** confirmar si hay excepciones por convenio (se cubren
+con la fecha manual) y si se cargan feriados regionales de Los Lagos.
 
 ---
 

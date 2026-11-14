@@ -56,6 +56,8 @@ no coincide con la realidad.
 | A1 | Sembrar el catálogo desde `REM_CATALOGO_DIR` | Los conteos cuadran y la validación deja de pedir plantilla |
 | A2 | Editar un establecimiento y asignarle Servicio | El cambio se refleja en la matriz |
 | A3 | Asignar series a un establecimiento | Las columnas de la matriz se ajustan |
+| A3b | Revisar el calendario de plazos | Los doce vencimientos del año coinciden con el quinto día hábil del mes siguiente |
+| A3c | Cargar un feriado y volver al calendario | La fecha del período afectado se corre al siguiente día hábil |
 | A4 | Crear un usuario con un rol | Puede entrar y ve lo que su rol permite |
 | A5 | Intentar desactivarse a sí mismo | Se rechaza |
 | A6 | Editar una plantilla y sus hojas | La validación usa la versión nueva |

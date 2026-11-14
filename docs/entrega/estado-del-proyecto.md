@@ -12,7 +12,7 @@ portal se ocupa de que lleguen, se validen, se revisen y queden registrados.
 | Módulo | Qué entrega | Estado |
 |---|---|---|
 | **MOD-01** | Login, logout, recuperación, 3 roles, 16 permisos, usuarios y asignaciones | ✅ |
-| **MOD-02** | Catálogos: servicios, establecimientos, series, períodos, matriz, plantillas y diccionario sembrado | ✅ |
+| **MOD-02** | Catálogos: servicios, establecimientos, series, períodos, matriz, plantillas, diccionario sembrado y calendario de plazos con feriados | ✅ |
 | **MOD-03** | Envío mensual, versiones, hash, revalidación y descargas | ✅ |
 | **MOD-04** | Validación V0–V11 (sin V8) y reporte de hallazgos | ✅ |
 | **MOD-05** | Máquina de estados con `aprobado` como final | ✅ |
@@ -43,7 +43,7 @@ Ninguna es código pendiente del corte:
 | Tema | Qué necesita | Quién |
 |---|---|---|
 | Paridad con *golden files* | El reporte del **ValidadorRem** sobre los archivos de prueba | Referente de Estadísticas |
-| Decisiones §8 | D1 identidad, D4 plazo, D5 series obligatorias, D6 SAX | Jefatura + TI |
+| Decisiones §8 | D1 identidad, D5 series obligatorias, D6 SAX | Jefatura + TI |
 | UAT | 2 encargados, 1 revisor y 1 admin usando el portal | Unidad de Estadísticas |
 
 Las decisiones están en [`docs/decisiones/pendientes-de-firma.md`](../decisiones/pendientes-de-firma.md)
@@ -65,7 +65,7 @@ anterior». La primera está probada; la segunda, no.
 |---|---|---|
 | Paridad sin verificar | Un archivo podría aprobarse aquí y rechazarse en el sistema anterior | Correr `rem:paridad` en cuanto lleguen los esperados |
 | Sin snapshot de catálogo por archivo | Revalidar usa el catálogo vigente, no el de la fecha de carga | Decisión D-025: se conservan hallazgos, `validado_en` y hash |
-| Plazo sin valor por defecto | Un período sin `fecha_limite` no marca atraso | D4 abierta; el administrador declara la fecha en el período |
+| Feriados sin cargar para un año | El plazo se calcula solo con fines de semana y puede quedar 1 o 2 días más largo | La pantalla de calendario y `rem:calendario` avisan; se cargan en Feriados |
 | UAT sin hacer | Mensajes o pantallas confusas que ningún test detecta | El guion está listo; falta ejecutarlo |
 | Validación lenta (35 s por archivo de 1,5 MB) | Un archivo del doble de tamaño se acerca al límite de 90 s | Medido y documentado; optimizable |
 
@@ -90,7 +90,7 @@ Después: [`docs/operacion/como-probar.md`](../operacion/como-probar.md).
 
 ## Números
 
-- **235 tests, 587 aserciones, 0 fallos.**
+- **252 tests, 626 aserciones, 0 fallos.**
 - **3 roles y 16 permisos.**
 - **185.526 prestaciones** en el catálogo del Minsal sembrado.
 - Bandeja con 100 envíos: **0,72 s**. Matriz 30×7: **0,31 s**.

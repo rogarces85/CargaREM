@@ -108,7 +108,23 @@ texto de las observaciones**: solo identificadores y códigos.
 | Tarea | Frecuencia | Efecto |
 |---|---|---|
 | Respaldo | diaria | Copia base y archivos |
+| Feriados del año siguiente | anual, antes de enero | Cargarlos en **Feriados** y revisar **Calendario de plazos** |
 | `queue:work` | no aplica | El portal no usa colas |
+
+### Calendario de plazos
+
+El plazo de cada período es el **quinto día hábil del mes siguiente** (D-029).
+Los días no hábiles son sábados, domingos y los feriados de la tabla `feriados`.
+
+```bash
+php artisan rem:calendario 2026              # muestra los doce plazos del año
+php artisan rem:calendario 2026 --actualizar # crea los períodos que faltan y corrige fechas
+```
+
+Si un año no tiene feriados cargados, el comando lo advierte y la pantalla
+**Calendario de plazos** muestra el aviso: el plazo se calcula solo con fines de
+semana y puede quedar 1 o 2 días más largo. Los feriados se cargan a mano
+(pantalla **Feriados**) porque la lista oficial cambia cada año.
 
 ## Problemas comunes
 

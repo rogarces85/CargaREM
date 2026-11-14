@@ -39,7 +39,7 @@ quedó archivada en [`docs/_historico/`](../_historico/).
 | 12 | Estados y transiciones | `EstadoEnvioService` | Adaptar | `aprobado` es final; fuera reabrir, anular, `cargado`. |
 | 13 | Revisión y observaciones | `RevisionController`, `ObservacionService` | Queda | Sin botones de reabrir/anular. |
 | 14 | Aprobación | `EstadoEnvioService::aprobar` | Queda | Guardas completas; marca los archivos vigentes. |
-| 15 | Plazo | `envios.fecha_limite`, `envios.fuera_de_plazo`, `Periodo` | Adaptar | Se marca al llegar a revisión, sin valor por defecto (D4 abierta). |
+| 15 | Plazo | `CalendarioService`, `periodos.fecha_limite`, `feriados` | Adaptar | Quinto día hábil del mes siguiente con feriados de Chile (D-029); override manual por excepción; la marca se calcula al llegar a revisión. |
 | 16 | Completitud | `CompletitudService`, `completitud/index` | Adaptar | Semáforo, totales y atraso; sin exportación ni drill-down. |
 | 17 | Auditoría append-only | `AuditoriaService`, observers, listeners de acceso | Adaptar | Sin pantalla de consulta; ahora audita también el CRUD de usuarios y catálogos. |
 | 18 | Notificaciones | `Notificador`, `EnvioNotificacion`, campana | Adaptar | Solo base de datos + campana en la cabecera; sin correo. |
@@ -47,6 +47,7 @@ quedó archivada en [`docs/_historico/`](../_historico/).
 | 20 | Panel por rol (dashboard) | `resources/views/panel.blade.php` | Fuera | El panel es un índice de navegación; sin tablero por rol. |
 | 21 | UI de auditoría con filtros | `admin/auditoria` | Eliminar | Fuera de v2.0. |
 | 22 | Simulación de mes | `rem:simular-mes` | Eliminar | Comando borrado. |
+| 23 | Calendario de plazos y feriados | `CalendarioService`, `feriados`, `admin/calendario`, `admin/feriados`, `rem:calendario` | Nuevo (D-029) | Quinto día hábil del mes siguiente con feriados de Chile; override manual; aviso si falta el año. |
 
 ---
 
@@ -63,6 +64,6 @@ quedó archivada en [`docs/_historico/`](../_historico/).
 ## 4. Pendientes de verificación
 
 - [x] `php artisan migrate:fresh --seed` en la base de pruebas.
-- [x] Suite completa en verde (235 tests).
+- [x] Suite completa en verde (252 tests).
 - [ ] Barrido de referencias activas en README y manuales.
 - [x] Recorrido encargado → revisor con el catálogo sembrado ([resultado](../uat/resultado-2026-11-14.md)); falta la UAT con personas.

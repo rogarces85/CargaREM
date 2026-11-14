@@ -84,6 +84,13 @@ set REM_CATALOGO_DIR=C:\xampp\_snapshot_m7
 php artisan db:seed --class=CatalogoSeeder
 ```
 
+Los plazos se calculan con el calendario chileno (quinto día hábil del mes
+siguiente). Para revisarlos o corregir los períodos del año:
+
+```bat
+php artisan rem:calendario 2026 --actualizar
+```
+
 ## 5. Levantar el sistema
 
 **Con Apache encendido** (el botón Start de XAMPP), el portal ya está servido:
@@ -161,7 +168,7 @@ No simula el ciclo completo: eso se recorre a mano desde el navegador
 php artisan test
 ```
 
-Deben pasar **235 tests**. Los tests usan su propia base (`cargas_rem_test`),
+Deben pasar **252 tests**. Los tests usan su propia base (`cargas_rem_test`),
 que se destruye y recrea en cada corrida: no tocan los datos de desarrollo.
 
 Si faltan tests por base inexistente:
@@ -231,5 +238,5 @@ Los pasos 1 a 4 de esta guía, con `REM_CATALOGO_DIR` apuntando al catálogo.
 php artisan test
 ```
 
-Deben pasar **235 tests**. El conteo no depende de los datos: los tests usan su
+Deben pasar **252 tests**. El conteo no depende de los datos: los tests usan su
 propia base.

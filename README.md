@@ -73,7 +73,7 @@ El alcance está cerrado en [`specs/MVP_V2.md`](specs/MVP_V2.md) (v2.0, 14-11-20
 | Módulo | Qué hay | Estado |
 |---|---|---|
 | **MOD-01** Identidad y usuarios | Login, logout, recuperación, 3 roles, permisos, CRUD usuarios y asignación a establecimientos | ✅ |
-| **MOD-02** Catálogos | Servicios, establecimientos, series, períodos, matriz establecimiento-serie, plantillas y diccionario sembrado | ✅ |
+| **MOD-02** Catálogos | Servicios, establecimientos, series, períodos, matriz establecimiento-serie, plantillas, diccionario sembrado, calendario de plazos y feriados | ✅ |
 | **MOD-03** Envíos y archivos | Crear envío, subir, versionar, revalidar, descargar original y reporte | ✅ |
 | **MOD-04** Validación | V0–V11 (sin V8) con hallazgos y severidad | ✅ (paridad con *golden files* pendiente de insumos) |
 | **MOD-05** Estados | `recibido → validado / con_errores → en_revision → observado / aprobado` | ✅ |
@@ -88,7 +88,7 @@ Fuera del corte: paquete ZIP y confirmación de carga (v3), correo de aviso, sna
 ### Lo que espera a personas
 
 1. **Paridad con *golden files*:** archivos Excel reales anonimizados y su salida del ValidadorRem. La estructura existe en [`tests/Parity/fixtures/`](tests/Parity/fixtures/README.md); la comparación está armada: `php artisan rem:paridad`.
-2. **Decisiones abiertas** (§8 de la especificación): fuente de identidad (D1), plazo mensual (D4), series obligatorias (D5) y tratamiento de SAX (D6).
+2. **Decisiones abiertas** (§8 de la especificación): fuente de identidad (D1), series obligatorias (D5) y tratamiento de SAX (D6). El plazo quedó resuelto (D-029): quinto día hábil del mes siguiente con calendario de feriados.
 3. **UAT formal** del flujo encargado → revisor: [`docs/uat/guion-uat.md`](docs/uat/guion-uat.md).
 
 ---
@@ -224,7 +224,7 @@ clave `Portal2026!`.
 php artisan test
 ```
 
-Deben pasar **235 tests**. Usan su propia base (`cargas_rem_test`) y no tocan los
+Deben pasar **252 tests**. Usan su propia base (`cargas_rem_test`) y no tocan los
 datos de trabajo.
 
 La guía detallada, con problemas comunes y cómo validar archivos REM:

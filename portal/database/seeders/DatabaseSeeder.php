@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             RolePermissionSeeder::class,
+            FeriadosSeeder::class,
             L1MinimumSeeder::class,
             CatalogoSeeder::class,
         ]);

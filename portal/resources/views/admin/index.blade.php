@@ -33,7 +33,16 @@
                     @forelse ($filas as $fila)
                         <tr>
                             @foreach ($columnas as $campo)
-                                <td>{{ data_get($fila, $campo) }}</td>
+                                @php $valor = data_get($fila, $campo); @endphp
+                                <td>
+                                    @if ($valor instanceof \DateTimeInterface)
+                                        {{ $valor->format('d-m-Y') }}
+                                    @elseif (is_bool($valor))
+                                        {{ $valor ? 'Sí' : 'No' }}
+                                    @else
+                                        {{ $valor }}
+                                    @endif
+                                </td>
                             @endforeach
                             <td class="text-right">
                                 <a href="{{ route($ruta.'.edit', $fila) }}" class="btn btn-sm btn-outline-secondary">
