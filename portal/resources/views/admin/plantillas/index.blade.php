@@ -3,13 +3,19 @@
 @section('titulo', 'Plantillas')
 
 @section('contenido')
-    <div class="content-header px-0">
-        <h1 class="m-0">Plantillas</h1>
-        <p class="text-muted mb-0">
-            Versión de formato esperada por año, mes y serie. Vienen del catálogo del Minsal y se
-            reemplazan importando un snapshot; no se editan a mano.
-        </p>
+    <div class="content-header px-0 d-flex justify-content-between align-items-start">
+        <div>
+            <h1 class="m-0">Plantillas</h1>
+            <p class="text-muted mb-0">
+                Versión de formato esperada por año, mes y serie. Las hojas se editan por año y serie interna.
+            </p>
+        </div>
+        <a href="{{ route('admin.plantillas.create') }}" class="btn btn-primary">Nueva plantilla</a>
     </div>
+
+    @if (session('ok'))
+        <div class="alert alert-success mt-3">{{ session('ok') }}</div>
+    @endif
 
     <div class="card mt-3">
         <div class="card-body table-responsive p-0">
@@ -21,7 +27,7 @@
                         <th>Serie</th>
                         <th>Serie del Excel</th>
                         <th>Versión</th>
-                        <th>Snapshot</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -32,11 +38,15 @@
                             <td>{{ $plantilla->serie?->codigo }}</td>
                             <td>{{ $plantilla->serie_excel }}</td>
                             <td>{{ $plantilla->version }}</td>
-                            <td>{{ $plantilla->snapshot_id }}</td>
+                            <td class="text-right">
+                                <a href="{{ route('admin.plantillas.edit', $plantilla) }}" class="btn btn-sm btn-outline-primary">
+                                    Editar
+                                </a>
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center text-muted py-4">Sin plantillas importadas.</td>
+                            <td colspan="6" class="text-center text-muted py-4">Sin plantillas cargadas.</td>
                         </tr>
                     @endforelse
                 </tbody>

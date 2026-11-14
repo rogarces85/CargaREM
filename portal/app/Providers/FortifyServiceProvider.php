@@ -18,7 +18,6 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::loginView(fn () => view('auth.login'));
         Fortify::requestPasswordResetLinkView(fn () => view('auth.forgot-password'));
         Fortify::resetPasswordView(fn ($request) => view('auth.reset-password', ['request' => $request]));
-        Fortify::twoFactorChallengeView(fn () => view('auth.two-factor-challenge'));
 
         /*
          * R-ID-04: un usuario desactivado no entra, aunque su contraseña sea

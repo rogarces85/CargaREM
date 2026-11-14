@@ -95,8 +95,9 @@ class AuthTest extends TestCase
     {
         $this->seed(RolePermissionSeeder::class);
 
-        $this->assertSame(4, Role::count());
+        $this->assertSame(3, Role::count());
         $this->assertSame(count(RolePermissionSeeder::MATRIZ), Permission::count());
+        $this->assertFalse(Role::where('name', 'consulta')->exists());
 
         foreach (RolePermissionSeeder::ROLES as $rol) {
             $this->assertTrue(Role::where('name', $rol)->exists(), "Falta el rol {$rol}");
@@ -106,7 +107,6 @@ class AuthTest extends TestCase
         $this->assertTrue(Role::findByName('admin')->hasPermissionTo('envios.reabrir'));
         $this->assertFalse(Role::findByName('revisor')->hasPermissionTo('envios.reabrir'));
         $this->assertFalse(Role::findByName('encargado')->hasPermissionTo('envios.aprobar'));
-        $this->assertTrue(Role::findByName('consulta')->hasPermissionTo('completitud.ver'));
-        $this->assertFalse(Role::findByName('consulta')->hasPermissionTo('envios.crear'));
+        $this->assertFalse(Role::findByName('revisor')->hasPermissionTo('envios.crear'));
     }
 }

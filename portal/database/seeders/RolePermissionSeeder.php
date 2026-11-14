@@ -25,17 +25,15 @@ class RolePermissionSeeder extends Seeder
     public const MATRIZ = [
         'envios.crear'         => ['encargado', 'admin'],
         'envios.ver.propio'    => ['encargado', 'admin'],
-        'envios.ver.ss'        => ['revisor', 'admin', 'consulta'],
+        'envios.ver.ss'        => ['revisor', 'admin'],
         'envios.enviar'        => ['encargado', 'admin'],
         'envios.observar'      => ['revisor', 'admin'],
         'envios.aprobar'       => ['revisor', 'admin'],
-        'envios.cargar'        => ['revisor', 'admin'],
         'envios.reabrir'       => ['admin'],
         'envios.anular'        => ['admin'],
-        'archivos.descargar'   => ['encargado', 'revisor', 'admin', 'consulta'],
-        'reportes.descargar'   => ['encargado', 'revisor', 'admin', 'consulta'],
-        'completitud.ver'      => ['encargado', 'revisor', 'admin', 'consulta'],
-        'paquetes.generar'     => ['revisor', 'admin'],
+        'archivos.descargar'   => ['encargado', 'revisor', 'admin'],
+        'reportes.descargar'   => ['encargado', 'revisor', 'admin'],
+        'completitud.ver'      => ['encargado', 'revisor', 'admin'],
         'catalogos.importar'   => ['admin'],
         'catalogos.gestionar'  => ['admin'],
         'usuarios.gestionar'   => ['admin'],
@@ -44,11 +42,15 @@ class RolePermissionSeeder extends Seeder
     ];
 
     /** @var list<string> */
-    public const ROLES = ['encargado', 'revisor', 'admin', 'consulta'];
+    public const ROLES = ['encargado', 'revisor', 'admin'];
 
     public function run(): void
     {
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
+
+        // Limpieza de roles y permisos del alcance anterior.
+        Permission::whereIn('name', ['envios.cargar', 'paquetes.generar'])->delete();
+        Role::where('name', 'consulta')->delete();
 
         foreach (array_keys(self::MATRIZ) as $permiso) {
             Permission::firstOrCreate(['name' => $permiso, 'guard_name' => 'web']);

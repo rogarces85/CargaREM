@@ -92,41 +92,9 @@ class EnvioPolicy
         return true;
     }
 
-    public function cargar(User $usuario, Envio $envio): bool
-    {
-        return $usuario->can('envios.cargar')
-            && $envio->estado === Envio::APROBADO
-            && $this->view($usuario, $envio);
-    }
-
-    public function reabrir(User $usuario, Envio $envio): bool
-    {
-        return $usuario->can('envios.reabrir')
-            && in_array($envio->estado, [Envio::APROBADO, Envio::CARGADO], true);
-    }
-
-    public function anular(User $usuario, Envio $envio): bool
-    {
-        return $usuario->can('envios.anular')
-            && in_array($envio->estado, [Envio::RECIBIDO, Envio::CON_ERRORES, Envio::OBSERVADO], true);
-    }
-
-    /**
-     * Descarga del paquete (T-F5-03).
-     *
-     * Solo de un envío aprobado o cargado: el paquete es el entregable final,
-     * no un borrador.
-     */
-    public function paquete(User $usuario, Envio $envio): bool
-    {
-        return $usuario->can('archivos.descargar')
-            && in_array($envio->estado, [Envio::APROBADO, Envio::CARGADO], true)
-            && $this->view($usuario, $envio);
-    }
-
     public function delete(User $usuario, Envio $envio): bool
     {
-        // Un envío no se borra: se anula con motivo y queda auditado.
+        // Un envío no se borra: queda auditado.
         return false;
     }
 }

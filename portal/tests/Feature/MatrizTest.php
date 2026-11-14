@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\Establecimiento;
 use App\Models\Serie;
-use App\Models\Servicio;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -33,12 +32,9 @@ class MatrizTest extends TestCase
 
     private function establecimiento(): Establecimiento
     {
-        $servicio = Servicio::create(['codigo' => '23', 'nombre' => 'Osorno']);
-
         return Establecimiento::create([
-            'codigo'      => '123100',
-            'nombre'      => 'Hospital Base',
-            'servicio_id' => $servicio->id,
+            'codigo' => '123100',
+            'nombre' => 'Hospital Base',
         ]);
     }
 

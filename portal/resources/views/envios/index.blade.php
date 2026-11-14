@@ -89,9 +89,12 @@
                                 <span class="text-muted d-block small">{{ $envio->establecimiento->nombre }}</span>
                             </td>
                             <td>
-                                <span class="badge badge-{{ $envio->estado === 'aprobado' || $envio->estado === 'cargado' ? 'success' : ($envio->estado === 'con_errores' || $envio->estado === 'anulado' ? 'danger' : 'info') }}">
+                                <span class="badge badge-{{ $envio->estado === 'aprobado' ? 'success' : ($envio->estado === 'con_errores' ? 'danger' : 'info') }}">
                                     {{ str_replace('_', ' ', $envio->estado) }}
                                 </span>
+                                @if ($envio->estaFueraDePlazo())
+                                    <span class="badge badge-danger d-block mt-1">Fuera de plazo</span>
+                                @endif
                             </td>
                             <td class="text-center">{{ $envio->archivosVigentes->count() }}</td>
                             <td>{{ $envio->updated_at?->format('d-m-Y H:i') }}</td>

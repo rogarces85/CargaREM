@@ -18,14 +18,13 @@ class EnvioArchivo extends Model
     public const CON_ERRORES = 'con_errores';
     public const OBSERVADO   = 'observado';
     public const APROBADO    = 'aprobado';
-    public const CARGADO     = 'cargado';
     public const REEMPLAZADO = 'reemplazado';
 
     protected $table = 'envio_archivos';
 
     protected $fillable = [
         'envio_id', 'serie_id', 'version', 'es_vigente', 'nombre_original', 'ruta', 'disco',
-        'sha256', 'tamano_bytes', 'mime', 'estado', 'plantilla_id', 'snapshot_id',
+        'sha256', 'tamano_bytes', 'mime', 'estado', 'plantilla_id',
         'filas_leidas', 'filas_validas', 'filas_error', 'validado_en', 'subido_por',
     ];
 
@@ -58,11 +57,6 @@ class EnvioArchivo extends Model
     public function plantilla(): BelongsTo
     {
         return $this->belongsTo(Plantilla::class);
-    }
-
-    public function snapshot(): BelongsTo
-    {
-        return $this->belongsTo(CatalogoSnapshot::class, 'snapshot_id');
     }
 
     public function subidoPor(): BelongsTo

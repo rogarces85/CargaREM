@@ -2,17 +2,14 @@
 
 namespace Tests\Feature;
 
-use App\Models\CatalogoSnapshot;
 use App\Models\Diccionario;
 use App\Models\Envio;
 use App\Models\EnvioArchivo;
 use App\Models\Establecimiento;
-use App\Models\Excepcion;
 use App\Models\Periodo;
 use App\Models\Plantilla;
 use App\Models\PlantillaHoja;
 use App\Models\Serie;
-use App\Models\Servicio;
 use App\Models\User;
 use App\Services\EnvioService;
 use App\Validacion\ValidadorArchivo;
@@ -32,7 +29,6 @@ class ValidadorV610Test extends TestCase
 
     private Envio $envio;
     private Serie $serie;
-    private CatalogoSnapshot $snapshot;
     private User $usuario;
 
     protected function setUp(): void
@@ -41,12 +37,10 @@ class ValidadorV610Test extends TestCase
         $this->seed(RolePermissionSeeder::class);
         Storage::fake('local');
 
-        $servicio = Servicio::create(['codigo' => '23', 'nombre' => 'Osorno']);
         $establecimiento = Establecimiento::create([
-            'codigo' => '123100', 'nombre' => 'Hospital Base', 'servicio_id' => $servicio->id,
+            'codigo' => '123100', 'nombre' => 'Hospital Base',
         ]);
         Periodo::create(['anio' => 2026, 'mes' => 9, 'estado' => Periodo::ABIERTO]);
-        $this->snapshot = CatalogoSnapshot::create(['origen' => 'prueba', 'activo' => true]);
 
         $this->usuario = User::factory()->create(['activo' => true]);
         $this->usuario->assignRole('encargado');
@@ -63,7 +57,7 @@ class ValidadorV610Test extends TestCase
         Plantilla::create([
             'anio' => 2026, 'mes' => 9, 'serie_id' => $this->serie->id,
             'serie_excel' => 'SERIE A', 'serie_interna' => 'SERIE A1',
-            'version' => '1.2', 'snapshot_id' => $this->snapshot->id,
+            'version' => '1.2',
         ]);
         PlantillaHoja::create([
             'anio' => 2026, 'serie_interna' => 'SERIE A1', 'hoja' => 'NOMBRE', 'obligatoria' => true,
@@ -76,7 +70,6 @@ class ValidadorV610Test extends TestCase
     private function prestacion(string $codigo, int $linea, string $inicio = 'C', string $fin = 'D'): Diccionario
     {
         return Diccionario::create([
-            'snapshot_id' => $this->snapshot->id,
             'anio'        => 2026,
             'mes'         => null,
             'serie'       => 'SERIE A1',
@@ -125,7 +118,6 @@ class ValidadorV610Test extends TestCase
             'tamano_bytes'    => strlen($contenido),
             'mime'            => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             'estado'          => EnvioArchivo::SUBIDO,
-            'snapshot_id'     => $this->snapshot->id,
             'subido_por'      => $this->usuario->id,
         ]);
     }
@@ -204,29 +196,22 @@ class ValidadorV610Test extends TestCase
             'nombre_original' => '123100BS09.xlsx', 'ruta' => $ruta, 'disco' => 'local',
             'sha256' => hash('sha256', $contenido), 'tamano_bytes' => strlen($contenido),
             'mime' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'estado' => EnvioArchivo::SUBIDO, 'snapshot_id' => $this->snapshot->id,
+            'estado' => EnvioArchivo::SUBIDO,
             'subido_por' => $this->usuario->id,
         ]);
 
         $this->assertSame([], $this->codigos($archivo));
     }
 
-    public function test_v8_avisa_una_columna_que_no_aplica_con_valor(): void
+    public function test_v8_ya_no_existe_en_v2_0(): void
     {
         $this->prestacion('01010100', 5);
 
-        Excepcion::create([
-            'snapshot_id' => $this->snapshot->id,
-            'anio'        => 2026,
-            'mes'         => null,
-            'serie'       => 'SERIE A1',
-            'hoja'        => 'A01',
-            'codigo_prestacion' => '01010100',
-            'columna'     => 'C',
-            'motivo'      => 'No aplica',
-        ]);
+        // La tabla `excepciones` salió del alcance: una columna marcada como
+        // «no aplica» ya no se revisa.
+        $this->assertFalse(\Illuminate\Support\Facades\Schema::hasTable('excepciones'));
 
-        $this->assertSame(['ENV-022'], $this->codigos($this->archivo(['C5' => 7, 'D5' => 2])));
+        $this->assertSame([], $this->codigos($this->archivo(['C5' => 7, 'D5' => 2])));
     }
 
     public function test_v9_avisa_de_una_prestacion_duplicada(): void

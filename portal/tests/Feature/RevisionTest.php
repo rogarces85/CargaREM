@@ -2,12 +2,10 @@
 
 namespace Tests\Feature;
 
-use App\Models\CatalogoSnapshot;
 use App\Models\Envio;
 use App\Models\Establecimiento;
 use App\Models\Periodo;
 use App\Models\Serie;
-use App\Models\Servicio;
 use App\Models\User;
 use App\Services\EnvioService;
 use App\Services\EstadoEnvioService;
@@ -29,7 +27,6 @@ class RevisionTest extends TestCase
     private User $revisor;
     private Serie $serie;
     private Envio $envio;
-    private CatalogoSnapshot $snapshot;
 
     protected function setUp(): void
     {
@@ -37,18 +34,16 @@ class RevisionTest extends TestCase
         $this->seed(RolePermissionSeeder::class);
         Storage::fake('local');
 
-        $servicio = Servicio::create(['codigo' => '23', 'nombre' => 'Osorno']);
         $this->establecimiento = Establecimiento::create([
-            'codigo' => '123100', 'nombre' => 'Hospital Base', 'servicio_id' => $servicio->id,
+            'codigo' => '123100', 'nombre' => 'Hospital Base',
         ]);
         Periodo::create(['anio' => 2026, 'mes' => 9, 'estado' => Periodo::ABIERTO]);
-        $this->snapshot = CatalogoSnapshot::create(['origen' => 'prueba', 'activo' => true]);
 
         $this->encargado = User::factory()->create(['activo' => true]);
         $this->encargado->assignRole('encargado');
         $this->encargado->establecimientos()->attach($this->establecimiento->id);
 
-        $this->revisor = User::factory()->create(['activo' => true, 'servicio_id' => $servicio->id]);
+        $this->revisor = User::factory()->create(['activo' => true]);
         $this->revisor->assignRole('revisor');
 
         $this->serie = Serie::create(['codigo' => 'A', 'nombre' => 'SERIE A']);
@@ -123,7 +118,7 @@ class RevisionTest extends TestCase
             'serie_id' => $this->serie->id, 'version' => 1, 'es_vigente' => true,
             'nombre_original' => '123100A09.xlsx', 'ruta' => 'envios/x.xlsx', 'disco' => 'local',
             'sha256' => str_repeat('c', 64), 'tamano_bytes' => 100, 'mime' => 'application/vnd.ms-excel',
-            'estado' => \App\Models\EnvioArchivo::VALIDO, 'snapshot_id' => $this->snapshot->id,
+            'estado' => \App\Models\EnvioArchivo::VALIDO,
             'subido_por' => $this->encargado->id,
         ]);
     }
@@ -157,21 +152,10 @@ class RevisionTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_confirmar_la_carga_despues_de_aprobar(): void
-    {
-        app(EstadoEnvioService::class)->transicionar($this->envio, Envio::APROBADO, $this->revisor);
-
-        $this->actingAs($this->revisor)
-            ->post("/revision/{$this->envio->id}/cargar")
-            ->assertRedirect(route('revision.index'));
-
-        $this->assertSame(Envio::CARGADO, $this->envio->fresh()->estado);
-    }
-
-    public function test_no_se_confirma_la_carga_sin_aprobar(): void
+    public function test_la_ruta_de_carga_ya_no_existe(): void
     {
         $this->actingAs($this->revisor)
             ->post("/revision/{$this->envio->id}/cargar")
-            ->assertForbidden();
+            ->assertNotFound();
     }
 }

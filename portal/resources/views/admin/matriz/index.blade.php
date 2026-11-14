@@ -21,7 +21,6 @@
                     <tr>
                         <th>Código</th>
                         <th>Establecimiento</th>
-                        <th>Servicio</th>
                         <th class="text-right">Series exigidas</th>
                         <th class="text-right">Acciones</th>
                     </tr>
@@ -31,7 +30,6 @@
                         <tr>
                             <td>{{ $establecimiento->codigo }}</td>
                             <td>{{ $establecimiento->nombre }}</td>
-                            <td>{{ $establecimiento->servicio?->nombre }}</td>
                             <td class="text-right">{{ $establecimiento->series_count }}</td>
                             <td class="text-right">
                                 <a href="{{ route('admin.matriz.edit', $establecimiento) }}"
@@ -40,7 +38,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="text-center text-muted py-4">Sin establecimientos importados.</td>
+                            <td colspan="4" class="text-center text-muted py-4">Sin establecimientos importados.</td>
                         </tr>
                     @endforelse
                 </tbody>

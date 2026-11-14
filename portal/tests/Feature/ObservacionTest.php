@@ -3,14 +3,12 @@
 namespace Tests\Feature;
 
 use App\Exceptions\EnvioInvalidoException;
-use App\Models\CatalogoSnapshot;
 use App\Models\Envio;
 use App\Models\EnvioArchivo;
 use App\Models\Establecimiento;
 use App\Models\Observacion;
 use App\Models\Periodo;
 use App\Models\Serie;
-use App\Models\Servicio;
 use App\Models\User;
 use App\Services\EnvioService;
 use App\Services\ObservacionService;
@@ -42,18 +40,16 @@ class ObservacionTest extends TestCase
         $this->seed(RolePermissionSeeder::class);
         Storage::fake('local');
 
-        $servicio = Servicio::create(['codigo' => '23', 'nombre' => 'Osorno']);
         $establecimiento = Establecimiento::create([
-            'codigo' => '123100', 'nombre' => 'Hospital Base', 'servicio_id' => $servicio->id,
+            'codigo' => '123100', 'nombre' => 'Hospital Base',
         ]);
         Periodo::create(['anio' => 2026, 'mes' => 9, 'estado' => Periodo::ABIERTO]);
-        $snapshot = CatalogoSnapshot::create(['origen' => 'prueba', 'activo' => true]);
 
         $this->encargado = User::factory()->create(['activo' => true]);
         $this->encargado->assignRole('encargado');
         $this->encargado->establecimientos()->attach($establecimiento->id);
 
-        $this->revisor = User::factory()->create(['activo' => true, 'servicio_id' => $servicio->id]);
+        $this->revisor = User::factory()->create(['activo' => true]);
         $this->revisor->assignRole('revisor');
 
         $this->serieA = Serie::create(['codigo' => 'A', 'nombre' => 'SERIE A']);
@@ -66,7 +62,7 @@ class ObservacionTest extends TestCase
             'serie_id' => $this->serieA->id, 'version' => 1, 'es_vigente' => true,
             'nombre_original' => '123100A09.xlsx', 'ruta' => 'envios/x.xlsx', 'disco' => 'local',
             'sha256' => str_repeat('a', 64), 'tamano_bytes' => 100, 'mime' => 'application/vnd.ms-excel',
-            'estado' => EnvioArchivo::VALIDO, 'snapshot_id' => $snapshot->id,
+            'estado' => EnvioArchivo::VALIDO,
             'subido_por' => $this->encargado->id,
         ]);
     }

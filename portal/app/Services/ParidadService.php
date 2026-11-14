@@ -3,12 +3,11 @@
 namespace App\Services;
 
 use App\Excel\LectorCabecera;
-use App\Models\CatalogoSnapshot;
 use App\Models\Envio;
 use App\Models\Establecimiento;
 use App\Models\Periodo;
+use App\Models\Plantilla;
 use App\Models\Serie;
-use App\Models\Servicio;
 use App\Models\User;
 use App\Validacion\ResultadoValidacion;
 use App\Validacion\ValidadorArchivo;
@@ -37,10 +36,8 @@ class ParidadService
      */
     public function validarArchivo(string $ruta): array
     {
-        $snapshot = CatalogoSnapshot::activo()->latest('id')->first();
-
-        if ($snapshot === null) {
-            throw new \RuntimeException('No hay catálogo activo. Importe uno con: php artisan catalogos:importar <ruta> --activar');
+        if (! Plantilla::query()->exists()) {
+            throw new \RuntimeException('No hay catálogo cargado. Ejecute: php artisan db:seed --class=CatalogoSeeder');
         }
 
         $cabecera = $this->cabeceras->leer($ruta);
@@ -52,14 +49,9 @@ class ParidadService
         $serie = Serie::where('codigo', strtoupper((string) $cabecera->serie))->first()
             ?? throw new \RuntimeException("La serie {$cabecera->serie} no está en el catálogo.");
 
-        $servicio = Servicio::firstOrCreate(
-            ['codigo' => '99'],
-            ['nombre' => 'Servicio de prueba', 'activo' => true]
-        );
-
         $establecimiento = Establecimiento::firstOrCreate(
             ['codigo' => (string) $cabecera->establecimiento],
-            ['nombre' => "Establecimiento {$cabecera->establecimiento}", 'servicio_id' => $servicio->id, 'activo' => true]
+            ['nombre' => "Establecimiento {$cabecera->establecimiento}", 'activo' => true]
         );
 
         // Solo la serie del archivo: la completitud no debe tapar el resultado.

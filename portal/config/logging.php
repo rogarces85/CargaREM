@@ -75,10 +75,9 @@ return [
 
         /*
          * Canales del dominio REM. Se separan porque tienen dueños distintos:
-         * validación la lee quien depura el motor, seguridad la lee quien
-         * audita accesos y correo quien revisa notificaciones.
-         * Retención de 90 días; el detalle legal vive en la política de
-         * privacidad, no aquí.
+         * validación la lee quien depura el motor y seguridad quien audita
+         * accesos. Retención de 90 días; el detalle legal vive en la política
+         * de privacidad, no aquí.
          */
         'validacion' => [
             'driver' => 'daily',
@@ -91,14 +90,6 @@ return [
         'seguridad' => [
             'driver' => 'daily',
             'path' => storage_path('logs/seguridad.log'),
-            'level' => env('LOG_LEVEL', 'debug'),
-            'days' => 90,
-            'replace_placeholders' => true,
-        ],
-
-        'correo' => [
-            'driver' => 'daily',
-            'path' => storage_path('logs/correo.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'days' => 90,
             'replace_placeholders' => true,

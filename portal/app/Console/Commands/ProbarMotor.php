@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Models\CatalogoSnapshot;
 use App\Models\Diccionario;
 use App\Models\Envio;
 use App\Models\Establecimiento;
@@ -41,11 +40,9 @@ class ProbarMotor extends Command
 
     public function handle(): int
     {
-        $snapshot = CatalogoSnapshot::activo()->latest('id')->first();
-
-        if ($snapshot === null) {
-            $this->error('No hay catálogo activo. Importe uno primero:');
-            $this->line('  php artisan catalogos:importar <ruta> --activar');
+        if (! Plantilla::query()->exists()) {
+            $this->error('No hay catálogo cargado. Siémbrelo primero:');
+            $this->line('  php artisan db:seed --class=CatalogoSeeder');
 
             return self::FAILURE;
         }
@@ -168,14 +165,9 @@ class ProbarMotor extends Command
     {
         $codigo = (string) ($this->option('establecimiento') ?: '999999');
 
-        $servicio = \App\Models\Servicio::firstOrCreate(
-            ['codigo' => '99'],
-            ['nombre' => 'Servicio de prueba', 'activo' => true]
-        );
-
         $establecimiento = Establecimiento::firstOrCreate(
             ['codigo' => $codigo],
-            ['nombre' => "Establecimiento de prueba {$codigo}", 'servicio_id' => $servicio->id, 'activo' => true]
+            ['nombre' => "Establecimiento de prueba {$codigo}", 'activo' => true]
         );
 
         if ($codigo === '999999') {
@@ -219,8 +211,7 @@ class ProbarMotor extends Command
             $hoja = $libro->createSheet();
             $hoja->setTitle(mb_substr((string) $nombreHoja, 0, 31));
 
-            $filas = Diccionario::where('snapshot_id', $plantilla->snapshot_id)
-                ->where('anio', $anio)
+            $filas = Diccionario::where('anio', $anio)
                 ->where('serie', $plantilla->serie_interna)
                 ->where('hoja', $nombreHoja)
                 ->orderBy('linea')

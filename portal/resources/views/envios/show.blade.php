@@ -11,8 +11,6 @@
             'en_revision' => 'warning',
             'observado'   => 'warning',
             'aprobado'    => 'success',
-            'cargado'     => 'success',
-            'anulado'     => 'dark',
         ];
         $color = $colores[$envio->estado] ?? 'secondary';
         $bloqueantes = $envio->archivos->sum(fn ($a) => $a->validaciones->where('severidad', 'bloqueante')->count())
@@ -29,17 +27,19 @@
                     Código {{ $envio->establecimiento->codigo }} ·
                     Período {{ sprintf('%02d/%d', $envio->mes, $envio->anio) }} ·
                     <span class="badge badge-{{ $color }}">{{ str_replace('_', ' ', $envio->estado) }}</span>
+                    @if ($envio->estaFueraDePlazo())
+                        <span class="badge badge-danger">Fuera de plazo</span>
+                    @endif
+                </p>
+                <p class="text-muted small mb-0">
+                    Fecha límite:
+                    {{ $envio->fecha_limite?->format('d-m-Y') ?? 'sin plazo configurado' }}
                 </p>
             </div>
             <div>
                 <a href="{{ route('envios.reporte', $envio) }}" class="btn btn-outline-success">
                     <i class="fas fa-file-excel"></i> Descargar reporte
                 </a>
-                @can('paquete', $envio)
-                    <a href="{{ route('envios.paquete', $envio) }}" class="btn btn-outline-dark">
-                        <i class="fas fa-file-archive"></i> Descargar paquete
-                    </a>
-                @endcan
                 <a href="{{ route('envios.index') }}" class="btn btn-link">Volver</a>
             </div>
         </div>
@@ -247,10 +247,8 @@
                     @php
                         $acciones = [
                             ['accion' => 'enviar', 'hab' => 'enviar', 'texto' => 'Enviar a revisión', 'clase' => 'primary'],
-                            ['accion' => 'aprobar', 'hab' => 'aprobar', 'texto' => 'Aprobar', 'clase' => 'success'],
+                            ['accion' => 'aprobar', 'hab' => 'aprobar', 'texto' => 'Aprobar estadística', 'clase' => 'success'],
                             ['accion' => 'observar', 'hab' => 'observar', 'texto' => 'Observar', 'clase' => 'warning'],
-                            ['accion' => 'cargar', 'hab' => 'cargar', 'texto' => 'Marcar como cargado', 'clase' => 'info'],
-                            ['accion' => 'reabrir', 'hab' => 'reabrir', 'texto' => 'Reabrir', 'clase' => 'secondary'],
                         ];
                         $disponibles = array_values(array_filter(
                             $acciones,
@@ -269,39 +267,6 @@
                     @empty
                         <p class="text-muted mb-0">No hay acciones disponibles en el estado actual.</p>
                     @endforelse
-
-                    @can('cargar', $envio)
-                        <form method="POST" action="{{ route('envios.transicion', $envio) }}" class="mt-2">
-                            @csrf
-                            <input type="hidden" name="accion" value="cargar">
-                            <div class="form-row align-items-end">
-                                <div class="form-group col-md-8 mb-0">
-                                    <label for="referencia">Confirmar carga · referencia (opcional)</label>
-                                    <input type="text" name="referencia" id="referencia" class="form-control"
-                                           maxlength="100" placeholder="N° de acta o folio">
-                                </div>
-                                <div class="form-group col-md-4 mb-0">
-                                    <button type="submit" class="btn btn-info btn-block">Confirmar carga</button>
-                                </div>
-                            </div>
-                        </form>
-                    @endcan
-
-                    @can('anular', $envio)
-                        <form method="POST" action="{{ route('envios.transicion', $envio) }}" class="mt-2">
-                            @csrf
-                            <input type="hidden" name="accion" value="anular">
-                            <div class="form-row align-items-end">
-                                <div class="form-group col-md-8 mb-0">
-                                    <label for="motivo">Motivo para anular</label>
-                                    <input type="text" name="motivo" id="motivo" class="form-control" required>
-                                </div>
-                                <div class="form-group col-md-4 mb-0">
-                                    <button type="submit" class="btn btn-danger btn-block">Anular</button>
-                                </div>
-                            </div>
-                        </form>
-                    @endcan
                 </div>
             </div>
         </div>

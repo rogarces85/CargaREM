@@ -57,7 +57,6 @@ class LectorDatos
                 }
 
                 $filas = Diccionario::query()
-                    ->where('snapshot_id', $contexto->snapshotId)
                     ->where('anio', $contexto->anio())
                     ->where('serie', $serieInterna)
                     ->where('hoja', $nombreHoja)

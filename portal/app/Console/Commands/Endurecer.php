@@ -45,10 +45,6 @@ class Endurecer extends Command
             $problemas[] = 'APP_ENV no es production.';
         }
 
-        if (blank(config('rem.paquete.hmac_key'))) {
-            $problemas[] = 'PAQUETE_HMAC_KEY está vacía: los paquetes se entregan sin firma.';
-        }
-
         $this->newLine();
         $this->line('Archivos en public/ que no deben estar');
 

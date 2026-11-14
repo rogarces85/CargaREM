@@ -19,7 +19,7 @@ class Diccionario extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'snapshot_id', 'anio', 'mes', 'serie', 'hoja', 'codigo_prestacion',
+        'anio', 'mes', 'serie', 'hoja', 'codigo_prestacion',
         'texto_prestacion', 'linea', 'inicio', 'fin', 'posicion', 'tipo_dato',
     ];
 
@@ -33,16 +33,10 @@ class Diccionario extends Model
         ];
     }
 
-    public function scopeDeHoja(Builder $query, int $snapshotId, int $anio, string $serie, string $hoja): Builder
+    public function scopeDeHoja(Builder $query, int $anio, string $serie, string $hoja): Builder
     {
-        return $query->where('snapshot_id', $snapshotId)
-            ->where('anio', $anio)
+        return $query->where('anio', $anio)
             ->where('serie', $serie)
             ->where('hoja', $hoja);
-    }
-
-    public function snapshot(): BelongsTo
-    {
-        return $this->belongsTo(CatalogoSnapshot::class, 'snapshot_id');
     }
 }

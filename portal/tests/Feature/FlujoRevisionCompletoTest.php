@@ -2,12 +2,10 @@
 
 namespace Tests\Feature;
 
-use App\Models\CatalogoSnapshot;
 use App\Models\Envio;
 use App\Models\Establecimiento;
 use App\Models\Periodo;
 use App\Models\Serie;
-use App\Models\Servicio;
 use App\Models\User;
 use App\Notifications\EnvioNotificacion;
 use Database\Seeders\RolePermissionSeeder;
@@ -44,21 +42,19 @@ class FlujoRevisionCompletoTest extends TestCase
         Storage::fake('local');
         Notification::fake();
 
-        $servicio = Servicio::create(['codigo' => '23', 'nombre' => 'Osorno']);
         $this->establecimiento = Establecimiento::create([
-            'codigo' => '123100', 'nombre' => 'Hospital Base San José', 'servicio_id' => $servicio->id,
+            'codigo' => '123100', 'nombre' => 'Hospital Base San José',
         ]);
         Periodo::create(['anio' => 2026, 'mes' => 9, 'estado' => Periodo::ABIERTO]);
-        CatalogoSnapshot::create(['origen' => 'prueba', 'activo' => true]);
 
         $this->encargado = User::factory()->create(['activo' => true]);
         $this->encargado->assignRole('encargado');
         $this->encargado->establecimientos()->attach($this->establecimiento->id);
 
-        $this->revisor = User::factory()->create(['activo' => true, 'servicio_id' => $servicio->id]);
+        $this->revisor = User::factory()->create(['activo' => true]);
         $this->revisor->assignRole('revisor');
 
-        $this->admin = User::factory()->create(['activo' => true, 'servicio_id' => $servicio->id]);
+        $this->admin = User::factory()->create(['activo' => true]);
         $this->admin->assignRole('admin');
 
         $this->serieA = Serie::create(['codigo' => 'A', 'nombre' => 'SERIE A', 'orden' => 1]);
@@ -166,16 +162,9 @@ class FlujoRevisionCompletoTest extends TestCase
         $this->assertSame(Envio::APROBADO, $envio->fresh()->estado);
         Notification::assertSentTo($this->encargado, EnvioNotificacion::class, fn ($n) => $n->evento === 'aprobado');
 
-        // 8. Se confirma la carga en el sistema institucional.
-        $this->actingAs($this->revisor)
-            ->post("/revision/{$envio->id}/cargar", ['referencia' => 'ACTA-2026-114'])
-            ->assertRedirect();
-
         $envio = $envio->fresh();
-        $this->assertSame(Envio::CARGADO, $envio->estado);
-        $this->assertNotNull($envio->fecha_carga);
 
-        // 9. La historia completa, sin saltos.
+        // 8. La historia completa, sin saltos.
         $this->assertSame(
             [
                 'recibido',    // se creó
@@ -188,23 +177,21 @@ class FlujoRevisionCompletoTest extends TestCase
                 'validado',    // revalidado y completo
                 'en_revision', // lo reenvió
                 'aprobado',
-                'cargado',
             ],
             $envio->transiciones()->orderBy('id')->pluck('estado_nuevo')->all()
         );
 
-        // 10. Todo quedó auditado.
+        // 9. Todo quedó auditado.
         foreach (['envio.creado', 'archivo.subido', 'envio.transicion', 'envio.observado', 'envio.notificado'] as $evento) {
             $this->assertDatabaseHas('auditoria', ['evento' => $evento]);
         }
 
-        // 11. El administrador puede reabrir si hubo un error.
+        // 10. Aprobado es el final: ya no hay ruta de reapertura.
         $this->actingAs($this->admin)
-            ->post("/revision/{$envio->id}/reaperturar", ['motivo' => 'Se cargó el acta equivocada'])
-            ->assertRedirect();
+            ->post("/revision/{$envio->id}/reaperturar", ['motivo' => 'Se aprobó el período equivocado'])
+            ->assertNotFound();
 
-        $this->assertSame(Envio::EN_REVISION, $envio->fresh()->estado);
-        $this->assertSame(12, $envio->fresh()->transiciones()->count());
+        $this->assertSame(Envio::APROBADO, $envio->fresh()->estado);
     }
 
     public function test_el_encargado_no_puede_saltarse_la_revision(): void

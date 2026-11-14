@@ -7,15 +7,14 @@ use App\Models\Periodo;
 use App\Services\CompletitudService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Matriz de completitud del Servicio de Salud (T-F4-03).
  *
  * Responde una pregunta concreta: qué establecimientos entregaron lo que se
  * les exige, en qué estado, y qué falta. El encargado ve lo suyo; el revisor
- * y la consulta, todo su Servicio de Salud.
+ * y el admin ven todo el Servicio. En v2.0 no hay exportación: la pantalla es
+ * la única salida.
  */
 class CompletitudController extends Controller
 {
@@ -48,47 +47,6 @@ class CompletitudController extends Controller
         ]);
     }
 
-    /**
-     * Exporta la misma matriz (T-F4-02).
-     */
-    public function exportar(Request $request): StreamedResponse
-    {
-        $usuario = $request->user();
-
-        abort_unless($usuario->can('reportes.descargar'), 403);
-
-        [$anio, $mes] = $this->periodo($request);
-
-        $matriz = $this->completitud->matriz(
-            $anio,
-            $mes,
-            $usuario,
-            $request->filled('establecimiento_id') ? $request->integer('establecimiento_id') : null
-        );
-
-        $nombreBase = sprintf('completitud-%d-%02d', $anio, $mes);
-
-        if ($request->query('formato') === 'xlsx') {
-            $libro = $this->completitud->aExcel($matriz, $anio, $mes);
-
-            return response()->streamDownload(function () use ($libro) {
-                (new Xlsx($libro))->save('php://output');
-            }, $nombreBase.'.xlsx', [
-                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                'X-Content-Type-Options' => 'nosniff',
-            ]);
-        }
-
-        $csv = $this->completitud->aCsv($matriz, $anio, $mes);
-
-        return response()->streamDownload(function () use ($csv) {
-            echo $csv;
-        }, $nombreBase.'.csv', [
-            'Content-Type' => 'text/csv; charset=UTF-8',
-            'X-Content-Type-Options' => 'nosniff',
-        ]);
-    }
-
     /** @return array{0: int, 1: int} */
     private function periodo(Request $request): array
     {
@@ -107,15 +65,8 @@ class CompletitudController extends Controller
     {
         $usuario = $request->user();
 
-        if ($usuario->hasRole('admin')) {
+        if ($usuario->hasRole('admin') || $usuario->hasRole('revisor')) {
             return Establecimiento::where('activo', true)->orderBy('nombre')->get();
-        }
-
-        if ($usuario->servicio_id !== null) {
-            return Establecimiento::where('activo', true)
-                ->where('servicio_id', $usuario->servicio_id)
-                ->orderBy('nombre')
-                ->get();
         }
 
         return $usuario->establecimientos()->where('activo', true)->orderBy('nombre')->get();

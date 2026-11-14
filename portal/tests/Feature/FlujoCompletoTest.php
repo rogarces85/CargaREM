@@ -2,12 +2,10 @@
 
 namespace Tests\Feature;
 
-use App\Models\CatalogoSnapshot;
 use App\Models\Envio;
 use App\Models\Establecimiento;
 use App\Models\Periodo;
 use App\Models\Serie;
-use App\Models\Servicio;
 use App\Models\User;
 use App\Services\EnvioService;
 use App\Services\EstadoEnvioService;
@@ -37,7 +35,6 @@ class FlujoCompletoTest extends TestCase
     private User $revisor;
     private Serie $serieA;
     private Serie $serieBS;
-    private CatalogoSnapshot $snapshot;
 
     protected function setUp(): void
     {
@@ -45,18 +42,16 @@ class FlujoCompletoTest extends TestCase
         $this->seed(RolePermissionSeeder::class);
         Storage::fake('local');
 
-        $servicio = Servicio::create(['codigo' => '23', 'nombre' => 'Osorno']);
         $this->establecimiento = Establecimiento::create([
-            'codigo' => '123100', 'nombre' => 'Hospital Base', 'servicio_id' => $servicio->id,
+            'codigo' => '123100', 'nombre' => 'Hospital Base',
         ]);
         Periodo::create(['anio' => 2026, 'mes' => 9, 'estado' => Periodo::ABIERTO]);
-        $this->snapshot = CatalogoSnapshot::create(['origen' => 'prueba', 'activo' => true]);
 
         $this->encargado = User::factory()->create(['activo' => true]);
         $this->encargado->assignRole('encargado');
         $this->encargado->establecimientos()->attach($this->establecimiento->id);
 
-        $this->revisor = User::factory()->create(['activo' => true, 'servicio_id' => $servicio->id]);
+        $this->revisor = User::factory()->create(['activo' => true]);
         $this->revisor->assignRole('revisor');
 
         $this->serieA = Serie::create(['codigo' => 'A', 'nombre' => 'SERIE A', 'orden' => 1]);
@@ -149,28 +144,20 @@ class FlujoCompletoTest extends TestCase
             ->post("/envios/{$envio->id}/transicion", ['accion' => 'aprobar'])
             ->assertRedirect();
 
-        $this->assertSame(Envio::APROBADO, $envio->fresh()->estado);
-
-        // 8. Se marca como cargado.
-        $this->actingAs($this->revisor)
-            ->post("/envios/{$envio->id}/transicion", ['accion' => 'cargar'])
-            ->assertRedirect();
-
         $envio = $envio->fresh();
 
-        $this->assertSame(Envio::CARGADO, $envio->estado);
+        $this->assertSame(Envio::APROBADO, $envio->estado);
         $this->assertNotNull($envio->fecha_aprobacion);
-        $this->assertNotNull($envio->fecha_carga);
 
-        // 9. La historia completa queda registrada.
+        // 8. La historia completa queda registrada.
         $historia = $envio->transiciones()->orderBy('id')->pluck('estado_nuevo')->all();
 
         $this->assertSame(
-            ['recibido', 'con_errores', 'recibido', 'validado', 'en_revision', 'observado', 'recibido', 'validado', 'en_revision', 'aprobado', 'cargado'],
+            ['recibido', 'con_errores', 'recibido', 'validado', 'en_revision', 'observado', 'recibido', 'validado', 'en_revision', 'aprobado'],
             $historia
         );
 
-        // 10. El reporte se puede descargar al final del recorrido.
+        // 9. El reporte se puede descargar al final del recorrido.
         $this->actingAs($this->revisor)
             ->get("/envios/{$envio->id}/reporte")
             ->assertOk();

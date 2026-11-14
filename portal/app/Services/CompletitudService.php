@@ -108,6 +108,7 @@ class CompletitudService
                 'celdas'          => $celdas,
                 'aprobadas'       => $aprobadas,
                 'exigidas'        => $exigidas->count(),
+                'fuera_de_plazo'  => $envio?->fuera_de_plazo === true,
             ];
         }
 
@@ -142,7 +143,7 @@ class CompletitudService
             return self::CON_ERRORES;
         }
 
-        if (in_array($envio->estado, [Envio::APROBADO, Envio::CARGADO], true)) {
+        if ($envio->estado === Envio::APROBADO) {
             return self::APROBADO;
         }
 
@@ -178,136 +179,15 @@ class CompletitudService
             $consulta->whereKey($establecimientoId);
         }
 
-        if (! $usuario->hasRole('admin')) {
-            if ($usuario->servicio_id !== null && ($usuario->hasRole('revisor') || $usuario->hasRole('consulta'))) {
+        if ($usuario->hasRole('revisor')) {
+            // El revisor ve su Servicio; si no lo tiene declarado, ve todo.
+            if ($usuario->servicio_id !== null) {
                 $consulta->where('servicio_id', $usuario->servicio_id);
-            } else {
-                $consulta->whereIn('id', $usuario->establecimientos()->select('establecimientos.id'));
             }
+        } elseif (! $usuario->hasRole('admin')) {
+            $consulta->whereIn('id', $usuario->establecimientos()->select('establecimientos.id'));
         }
 
         return $consulta->get();
-    }
-/**
-     * Exporta la matriz a CSV (T-F4-02, OP-10).
-     *
-     * Se genera desde la misma estructura que la pantalla: si el CSV y la
-     * vista se construyeran por caminos distintos, con el tiempo dirían cosas
-     * distintas.
-     *
-     * @param  array<string, mixed>  $matriz
-     */
-    public function aCsv(array $matriz, int $anio, int $mes): string
-    {
-        $memoria = fopen('php://temp', 'r+');
-
-        fwrite($memoria, "\xEF\xBB\xBF"); // BOM: Excel abre el UTF-8 bien
-
-        $encabezado = ['Establecimiento', 'Código'];
-
-        foreach ($matriz['series'] as $serie) {
-            $encabezado[] = $serie->codigo;
-        }
-
-        $encabezado[] = 'Aprobadas';
-        $encabezado[] = 'Exigidas';
-
-        fputcsv($memoria, $encabezado, ';');
-
-        foreach ($matriz['filas'] as $fila) {
-            $linea = [$fila['establecimiento']->nombre, $fila['establecimiento']->codigo];
-
-            foreach ($matriz['series'] as $serie) {
-                $estado = $fila['celdas'][$serie->id]['estado'] ?? 'no_aplica';
-                $linea[] = $estado === 'no_aplica' ? '' : (self::ETIQUETAS[$estado] ?? $estado);
-            }
-
-            $linea[] = $fila['aprobadas'];
-            $linea[] = $fila['exigidas'];
-
-            fputcsv($memoria, $linea, ';');
-        }
-
-        fputcsv($memoria, [], ';');
-        fputcsv($memoria, ['Período', sprintf('%02d/%d', $mes, $anio)], ';');
-        fputcsv($memoria, ['Establecimientos', $matriz['resumen']['establecimientos']], ';');
-        fputcsv($memoria, ['Aprobadas', $matriz['resumen']['aprobadas']], ';');
-        fputcsv($memoria, ['Exigidas', $matriz['resumen']['exigidas']], ';');
-
-        rewind($memoria);
-        $contenido = (string) stream_get_contents($memoria);
-        fclose($memoria);
-
-        return $contenido;
-    }
-
-    /**
-     * Misma matriz como libro de Excel.
-     *
-     * @param  array<string, mixed>  $matriz
-     */
-    public function aExcel(array $matriz, int $anio, int $mes): \PhpOffice\PhpSpreadsheet\Spreadsheet
-    {
-        $libro = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
-        $hoja = $libro->getActiveSheet();
-        $hoja->setTitle('Completitud');
-
-        $hoja->setCellValue('A1', 'Completitud del período');
-        $hoja->setCellValue('A2', sprintf('Período %02d/%d · %d establecimientos', $mes, $anio, $matriz['resumen']['establecimientos']));
-        $hoja->getStyle('A1')->getFont()->setBold(true)->setSize(14);
-
-        $fila = 4;
-        $columna = 3;
-
-        $hoja->setCellValue('A'.$fila, 'Establecimiento');
-        $hoja->setCellValue('B'.$fila, 'Código');
-
-        foreach ($matriz['series'] as $serie) {
-            $hoja->setCellValue(\PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($columna).$fila, $serie->codigo);
-            $columna++;
-        }
-
-        $hoja->setCellValue(\PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($columna).$fila, 'Aprobadas');
-        $hoja->setCellValue(\PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($columna + 1).$fila, 'Exigidas');
-        $hoja->getStyle('A'.$fila.':'. \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($columna + 1).$fila)->getFont()->setBold(true);
-
-        $colores = [
-            self::SIN_ENVIO   => 'FFE2E3E5',
-            self::SIN_ARCHIVO => 'FFF8F9FA',
-            self::CON_ERRORES => 'FFF8D7DA',
-            self::EN_PROCESO  => 'FFFFF3CD',
-            self::APROBADO    => 'FFD4EDDA',
-        ];
-
-        foreach ($matriz['filas'] as $indice => $filaDatos) {
-            $fila++;
-            $hoja->setCellValue('A'.$fila, $filaDatos['establecimiento']->nombre);
-            $hoja->setCellValue('B'.$fila, $filaDatos['establecimiento']->codigo);
-
-            $columna = 3;
-
-            foreach ($matriz['series'] as $serie) {
-                $estado = $filaDatos['celdas'][$serie->id]['estado'] ?? 'no_aplica';
-                $celda = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($columna).$fila;
-
-                if ($estado !== 'no_aplica') {
-                    $hoja->setCellValue($celda, self::ETIQUETAS[$estado] ?? $estado);
-                    $hoja->getStyle($celda)->getFill()
-                        ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
-                        ->getStartColor()->setARGB($colores[$estado] ?? 'FFFFFFFF');
-                }
-
-                $columna++;
-            }
-
-            $hoja->setCellValue(\PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($columna).$fila, $filaDatos['aprobadas']);
-            $hoja->setCellValue(\PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($columna + 1).$fila, $filaDatos['exigidas']);
-        }
-
-        foreach (['A' => 40, 'B' => 12] as $letra => $ancho) {
-            $hoja->getColumnDimension($letra)->setWidth($ancho);
-        }
-
-        return $libro;
     }
 }

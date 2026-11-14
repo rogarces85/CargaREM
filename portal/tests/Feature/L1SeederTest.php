@@ -23,7 +23,6 @@ class L1SeederTest extends TestCase
     {
         $this->seed(DatabaseSeeder::class);
 
-        $this->assertSame(1, Servicio::where('codigo', L1MinimumSeeder::SERVICIO['codigo'])->count());
         $this->assertSame(count(L1MinimumSeeder::ESTABLECIMIENTOS), Establecimiento::count());
         $this->assertSame(count(L1MinimumSeeder::SERIES), Serie::count());
         $this->assertSame(count(L1MinimumSeeder::PERIODOS), Periodo::count());
@@ -69,6 +68,17 @@ class L1SeederTest extends TestCase
         $this->assertTrue($hospital->hasRole('encargado'));
         $this->assertTrue(User::where('email', 'revisor@ssosorno.cl')->first()->hasRole('revisor'));
         $this->assertTrue(User::where('email', 'admin@ssosorno.cl')->first()->hasRole('admin'));
+    }
+
+    public function test_siembra_el_servicio_unico_y_lo_asigna(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+
+        $servicio = Servicio::where('codigo', L1MinimumSeeder::SERVICIO['codigo'])->first();
+
+        $this->assertNotNull($servicio, 'El MVP sirve a un solo Servicio (D-022)');
+        $this->assertSame(0, Establecimiento::whereNull('servicio_id')->count());
+        $this->assertSame(0, User::whereNull('servicio_id')->count());
     }
 
     public function test_correrlo_dos_veces_no_duplica_nada(): void

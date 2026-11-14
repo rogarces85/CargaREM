@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
@@ -30,8 +29,6 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
-        'two_factor_secret',
-        'two_factor_recovery_codes',
     ];
 
     /**
@@ -48,10 +45,9 @@ class User extends Authenticatable
     }
 
     /**
-     * Servicio de Salud del usuario. Define el alcance de revisor y consulta
-     * (RN-ENV-1).
+     * Servicio de Salud del usuario. Define el alcance del revisor (RN-ENV-1).
      */
-    public function servicio(): BelongsTo
+    public function servicio(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Servicio::class);
     }

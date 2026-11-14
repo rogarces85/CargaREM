@@ -22,7 +22,6 @@ final class ContextoValidacion
         public readonly Serie $serie,
         public readonly string $rutaAbsoluta,
         public readonly ?Plantilla $plantilla = null,
-        public readonly int $snapshotId = 0,
     ) {
     }
 

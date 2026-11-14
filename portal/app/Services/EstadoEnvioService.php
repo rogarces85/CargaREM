@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Exceptions\EnvioInvalidoException;
 use App\Models\Envio;
+use App\Models\EnvioArchivo;
 use App\Models\User;
 use App\Services\Notificador;
 use Illuminate\Support\Facades\DB;
@@ -26,17 +27,16 @@ class EstadoEnvioService
      * Transiciones que una persona puede ejecutar.
      *
      * Lo que no está aquí no ocurre: no hay estado «aprobado» sin pasar por
-     * revisión, ni «cargado» sin aprobación.
+     * revisión. `aprobado` es el estado final del MVP v2: no hay reapertura ni
+     * anulación.
      */
     private const PERMITIDAS = [
-        Envio::RECIBIDO    => [Envio::EN_REVISION, Envio::ANULADO],
-        Envio::VALIDADO    => [Envio::EN_REVISION, Envio::ANULADO],
-        Envio::CON_ERRORES => [Envio::ANULADO],
+        Envio::RECIBIDO    => [Envio::EN_REVISION],
+        Envio::VALIDADO    => [Envio::EN_REVISION],
+        Envio::CON_ERRORES => [],
         Envio::EN_REVISION => [Envio::OBSERVADO, Envio::APROBADO],
-        Envio::OBSERVADO   => [Envio::RECIBIDO, Envio::ANULADO],
-        Envio::APROBADO    => [Envio::CARGADO, Envio::ANULADO],
-        Envio::CARGADO     => [Envio::EN_REVISION],
-        Envio::ANULADO     => [],
+        Envio::OBSERVADO   => [Envio::RECIBIDO],
+        Envio::APROBADO    => [],
     ];
 
     /**
@@ -88,10 +88,6 @@ class EstadoEnvioService
             throw EnvioInvalidoException::transicionNoPermitida($envio->estado, $nuevo);
         }
 
-        if ($nuevo === Envio::ANULADO && trim((string) $motivo) === '') {
-            throw EnvioInvalidoException::motivoRequerido('anular');
-        }
-
         $envio = DB::transaction(function () use ($envio, $nuevo, $actor, $motivo) {
             $anterior = $envio->estado;
 
@@ -100,14 +96,29 @@ class EstadoEnvioService
                 ? $actor->id
                 : $envio->revisor_id;
 
+            // El plazo se evalúa una sola vez: cuando el envío llega por
+            // primera vez a revisión. Sin fecha límite en el período, la marca
+            // queda en null (D4 abierta).
+            if ($nuevo === Envio::EN_REVISION
+                && $envio->fecha_limite !== null
+                && $envio->fuera_de_plazo === null
+                && in_array($anterior, [Envio::RECIBIDO, Envio::VALIDADO, Envio::CON_ERRORES], true)) {
+                $envio->fuera_de_plazo = $this->fueraDePlazo($envio);
+            }
+
             match ($nuevo) {
                 Envio::EN_REVISION => $envio->fecha_revision = now(),
                 Envio::APROBADO    => $envio->fecha_aprobacion = now(),
-                Envio::CARGADO     => $envio->fecha_carga = now(),
                 default            => null,
             };
 
             $envio->save();
+
+            // El estado del archivo acompaña al del envío: aprobar cierra
+            // también los archivos vigentes.
+            if ($nuevo === Envio::APROBADO) {
+                $envio->archivosVigentes()->update(['estado' => EnvioArchivo::APROBADO]);
+            }
 
             $envio->transiciones()->create([
                 'estado_anterior' => $anterior,
@@ -143,7 +154,6 @@ class EstadoEnvioService
             Envio::EN_REVISION => 'enviado_a_revision',
             Envio::OBSERVADO   => 'observado',
             Envio::APROBADO    => 'aprobado',
-            Envio::CARGADO     => 'cargado',
             default            => null,
         };
 
@@ -171,62 +181,6 @@ class EstadoEnvioService
         $this->verificarGuardas($envio);
 
         return $this->transicionar($envio, Envio::APROBADO, $actor, $motivo ?? 'Aprobado sin observaciones.');
-    }
-
-    /**
-     * Confirma la carga en el sistema institucional (T-F3-07, MVP manual).
-     *
-     * En el MVP no hay integración: alguien carga los datos en el sistema de
-     * estadísticas y vuelve a confirmarlo aquí. La referencia —número de acta,
-     * folio, lo que use el Servicio— queda en el historial, porque es lo que
-     * permite rastrear después.
-     */
-    public function confirmarCarga(Envio $envio, User $actor, ?string $referencia = null): Envio
-    {
-        if ($envio->estado !== Envio::APROBADO) {
-            throw EnvioInvalidoException::transicionNoPermitida($envio->estado, Envio::CARGADO);
-        }
-
-        $referencia = trim((string) $referencia);
-
-        $motivo = $referencia === ''
-            ? 'Carga confirmada manualmente.'
-            : "Carga confirmada. Referencia: {$referencia}";
-
-        return $this->transicionar($envio, Envio::CARGADO, $actor, $motivo);
-    }
-
-    /**
-     * Reabre un envío ya aprobado o cargado (T-F3-08, solo administración).
-     *
-     * Vuelve a revisión sin borrar la aprobación anterior: queda en el
-     * historial quién reabrió, cuándo y por qué.
-     */
-    public function reaperturar(Envio $envio, User $actor, string $motivo): Envio
-    {
-        if (trim($motivo) === '') {
-            throw EnvioInvalidoException::motivoRequerido('reaperturar');
-        }
-
-        if (! in_array($envio->estado, [Envio::APROBADO, Envio::CARGADO], true)) {
-            throw EnvioInvalidoException::transicionNoPermitida($envio->estado, Envio::EN_REVISION);
-        }
-
-        return $this->transicionar($envio, Envio::EN_REVISION, $actor, "Reapertura: {$motivo}");
-    }
-
-    /**
-     * Anula un envío (T-F3-08, solo administración).
-     *
-     * Un envío anulado no se borra: deja de contar y queda el motivo.
-     */
-    public function anular(Envio $envio, User $actor, string $motivo): Envio
-    {
-        if (trim($motivo) === '') {
-            throw EnvioInvalidoException::motivoRequerido('anular');
-        }
-
-        return $this->transicionar($envio, Envio::ANULADO, $actor, $motivo);
     }
 
     private function verificarGuardas(Envio $envio): void
@@ -300,6 +254,16 @@ class EstadoEnvioService
 
             return Envio::RECIBIDO;
         });
+    }
+
+    /** ¿El envío llegó a revisión después de la fecha límite? */
+    private function fueraDePlazo(Envio $envio): bool
+    {
+        if ($envio->fecha_limite === null) {
+            return false;
+        }
+
+        return now()->toDateString() > $envio->fecha_limite->toDateString();
     }
 
     private function fijar(Envio $envio, string $nuevo, ?string $motivo = null): string

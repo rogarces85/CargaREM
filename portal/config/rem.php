@@ -37,6 +37,26 @@ return [
     ],
 
     /*
+    | Servicio de Salud del MVP (D-022).
+    |
+    | El portal sirve a un solo Servicio. La importación de catálogos filtra
+    | los establecimientos por este código MINSAL.
+    */
+    'servicio' => [
+        'codigo' => env('REM_SERVICIO_CODIGO', '23'),
+    ],
+
+    /*
+    | Catálogo de validación (T-F1-20).
+    |
+    | Directorio con los CSV que genera 01-TOOLS/rem-export. Lo lee
+    | `CatalogoSeeder`: en v2.0 el catálogo se siembra, no se importa por ZIP.
+    */
+    'catalogo' => [
+        'ruta' => env('REM_CATALOGO_DIR', database_path('data')),
+    ],
+
+    /*
     | Series del REM.
     |
     | `codigos` son las externas (las que el establecimiento ve en el
@@ -45,23 +65,6 @@ return [
     'series' => [
         'codigos' => ['A', 'BS', 'BM', 'D', 'P', 'F'],
         'locales' => [],
-    ],
-
-    /*
-    | Puente con CARGAS REM (D-007: opción A, descarga manual).
-    */
-    'paquete' => [
-        'manifiesto' => 'manifiesto.json',
-        'algoritmo'  => 'sha256',
-        'formato'    => 'zip',
-
-        /*
-         * Clave para firmar el manifiesto. Vacía = paquete sin HMAC.
-         *
-         * Una firma con una clave inventada no protege de nada y da una falsa
-         * sensación de integridad. Sin clave, el manifiesto lo dice.
-         */
-        'hmac_key' => env('PAQUETE_HMAC_KEY'),
     ],
 
 ];

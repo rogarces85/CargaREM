@@ -25,7 +25,7 @@ class CatalogoInvalidoException extends RuntimeException
         return new self(
             'APP-CAT-001',
             "Falta el archivo obligatorio «{$archivo}».",
-            'Genere el snapshot con 01-TOOLS/rem-export y vuelva a subirlo completo.',
+            'Genere la exportación con 01-TOOLS/rem-export y vuelva a cargar el catálogo completo.',
         );
     }
 
@@ -61,7 +61,7 @@ class CatalogoInvalidoException extends RuntimeException
         return new self(
             'APP-CAT-005',
             "«{$archivo}» declara {$esperado} filas en el manifiesto pero trae {$encontrado}.",
-            'El snapshot está incompleto o se mezclaron versiones. Genérelo de nuevo.',
+            'El catálogo está incompleto o se mezclaron versiones. Genérelo de nuevo.',
         );
     }
 
@@ -69,8 +69,17 @@ class CatalogoInvalidoException extends RuntimeException
     {
         return new self(
             'APP-CAT-006',
-            'No hay series en el snapshot.',
+            'No hay series en el catálogo.',
             'Revise que series.csv traiga los pares Serie/SerieExcel.',
+        );
+    }
+
+    public static function servicioNoEncontrado(string $codigo): self
+    {
+        return new self(
+            'APP-CAT-008',
+            "El catálogo no trae el Servicio de Salud {$codigo}.",
+            'Revise REM_SERVICIO_CODIGO o genere la exportación con el servicio correcto.',
         );
     }
 }

@@ -8,7 +8,7 @@ use App\Validacion\ReglaValidacion;
 use App\Validacion\Severidad;
 
 /**
- * V4 — pertenencia al Servicio de Salud (ENV-015).
+ * V4 — pertenencia del establecimiento al usuario (ENV-015).
  *
  * Se revalida quién subió el archivo: la autorización se comprobó al subir,
  * pero un cambio de asignación posterior dejaría en el sistema un archivo
@@ -34,13 +34,15 @@ final class ReglaV4Pertenencia implements ReglaValidacion
         }
 
         $establecimiento = $contexto->envio->establecimiento;
-        $servicioDelEnvio = $establecimiento->servicio_id;
 
         if ($usuario->hasRole('admin')) {
             return [];
         }
 
-        $porServicio = $usuario->servicio_id !== null && (int) $usuario->servicio_id === (int) $servicioDelEnvio;
+        // Vale por pertenencia al Servicio de Salud o por asignación explícita.
+        $porServicio = $usuario->servicio_id !== null
+            && $establecimiento->servicio_id !== null
+            && (int) $usuario->servicio_id === (int) $establecimiento->servicio_id;
 
         $porAsignacion = $usuario->establecimientos()
             ->whereKey($establecimiento->getKey())
@@ -52,7 +54,7 @@ final class ReglaV4Pertenencia implements ReglaValidacion
 
         return [new Hallazgo(
             'V4', 'ENV-015', Severidad::BLOQUEANTE,
-            'El establecimiento no pertenece al Servicio de Salud del usuario que subió el archivo.',
+            'El establecimiento no pertenece al Servicio de Salud del usuario que subió el archivo ni está asignado a él.',
             null, null, (string) $establecimiento->codigo, 'R-V4-02'
         )];
     }

@@ -22,7 +22,13 @@ use Illuminate\Support\Facades\Hash;
  */
 class L1MinimumSeeder extends Seeder
 {
-    public const SERVICIO = ['codigo' => '23', 'nombre' => 'Servicio de Salud Osorno', 'region' => 'Los Lagos'];
+    /** El único Servicio del MVP v2 (D-022). */
+    public const SERVICIO = [
+        'codigo' => '23',
+        'nombre' => 'Servicio de Salud Osorno',
+        'region' => 'Los Lagos',
+        'activo' => true,
+    ];
 
     /** Comunas de la provincia de Osorno, una por establecimiento. */
     public const ESTABLECIMIENTOS = [
@@ -62,7 +68,11 @@ class L1MinimumSeeder extends Seeder
     {
         $servicio = Servicio::updateOrCreate(
             ['codigo' => self::SERVICIO['codigo']],
-            ['nombre' => self::SERVICIO['nombre'], 'region' => self::SERVICIO['region'], 'activo' => true]
+            [
+                'nombre' => self::SERVICIO['nombre'],
+                'region' => self::SERVICIO['region'],
+                'activo' => self::SERVICIO['activo'],
+            ]
         );
 
         $establecimientos = [];
@@ -72,9 +82,9 @@ class L1MinimumSeeder extends Seeder
                 ['codigo' => $datos['codigo']],
                 [
                     'nombre'      => $datos['nombre'],
-                    'servicio_id' => $servicio->id,
                     'comuna'      => $datos['comuna'],
                     'activo'      => true,
+                    'servicio_id' => $servicio->id,
                 ]
             );
         }
@@ -113,31 +123,32 @@ class L1MinimumSeeder extends Seeder
             }
         });
 
-        $this->usuarios($establecimientos);
+        $this->usuarios($establecimientos, $servicio);
     }
 
-    /** @param list<Establecimiento> $establecimientos */
-    private function usuarios(array $establecimientos): void
+    /**
+     * Los usuarios de prueba pertenecen al Servicio sembrado: sin eso el
+     * revisor no vería ningún envío.
+     *
+     * @param list<Establecimiento> $establecimientos
+     */
+    private function usuarios(array $establecimientos, Servicio $servicio): void
     {
-        // El revisor ve todo su Servicio de Salud: sin este dato, su bandeja
-        // y la matriz de completitud salen vacías.
-        $servicio = Servicio::where('codigo', self::SERVICIO['codigo'])->first();
-
         $admin = User::updateOrCreate(
             ['email' => 'admin@ssosorno.cl'],
-            ['name' => 'Administrador REM', 'password' => Hash::make(self::CLAVE), 'activo' => true, 'servicio_id' => $servicio?->id]
+            ['name' => 'Administrador REM', 'password' => Hash::make(self::CLAVE), 'activo' => true, 'servicio_id' => $servicio->id]
         );
         $admin->syncRoles(['admin']);
 
         $revisor = User::updateOrCreate(
             ['email' => 'revisor@ssosorno.cl'],
-            ['name' => 'Revisor Unidad de Estadísticas', 'password' => Hash::make(self::CLAVE), 'activo' => true, 'servicio_id' => $servicio?->id]
+            ['name' => 'Revisor Unidad de Estadísticas', 'password' => Hash::make(self::CLAVE), 'activo' => true, 'servicio_id' => $servicio->id]
         );
         $revisor->syncRoles(['revisor']);
 
         $encargado1 = User::updateOrCreate(
             ['email' => 'encargado.hospital@ssosorno.cl'],
-            ['name' => 'Encargado Hospital Base', 'password' => Hash::make(self::CLAVE), 'activo' => true, 'servicio_id' => $servicio?->id]
+            ['name' => 'Encargado Hospital Base', 'password' => Hash::make(self::CLAVE), 'activo' => true, 'servicio_id' => $servicio->id]
         );
         $encargado1->syncRoles(['encargado']);
         $encargado1->establecimientos()->sync(
@@ -146,7 +157,7 @@ class L1MinimumSeeder extends Seeder
 
         $encargado2 = User::updateOrCreate(
             ['email' => 'encargado.postas@ssosorno.cl'],
-            ['name' => 'Encargado Postas Rurales', 'password' => Hash::make(self::CLAVE), 'activo' => true, 'servicio_id' => $servicio?->id]
+            ['name' => 'Encargado Postas Rurales', 'password' => Hash::make(self::CLAVE), 'activo' => true, 'servicio_id' => $servicio->id]
         );
         $encargado2->syncRoles(['encargado']);
         $encargado2->establecimientos()->sync(

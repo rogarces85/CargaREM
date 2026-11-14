@@ -16,13 +16,14 @@ class Establecimiento extends Model
     /** Un registro nuevo está activo salvo que se diga lo contrario (default de la columna). */
     protected $attributes = ['activo' => true];
 
-    protected $fillable = ['codigo', 'nombre', 'servicio_id', 'comuna', 'dependencia', 'id_comuna', 'id_dependencia', 'tipo', 'activo'];
+    protected $fillable = ['codigo', 'nombre', 'comuna', 'dependencia', 'id_comuna', 'id_dependencia', 'tipo', 'activo', 'servicio_id'];
 
     protected function casts(): array
     {
         return ['activo' => 'boolean'];
     }
 
+    /** Servicio de Salud al que pertenece (RN-ENV-1). */
     public function servicio(): BelongsTo
     {
         return $this->belongsTo(Servicio::class);

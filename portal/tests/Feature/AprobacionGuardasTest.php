@@ -3,13 +3,11 @@
 namespace Tests\Feature;
 
 use App\Exceptions\EnvioInvalidoException;
-use App\Models\CatalogoSnapshot;
 use App\Models\Envio;
 use App\Models\EnvioArchivo;
 use App\Models\Establecimiento;
 use App\Models\Periodo;
 use App\Models\Serie;
-use App\Models\Servicio;
 use App\Models\User;
 use App\Services\EnvioService;
 use App\Services\EstadoEnvioService;
@@ -34,7 +32,6 @@ class AprobacionGuardasTest extends TestCase
     private User $encargado;
     private Serie $serieA;
     private Serie $serieBS;
-    private CatalogoSnapshot $snapshot;
 
     protected function setUp(): void
     {
@@ -42,18 +39,16 @@ class AprobacionGuardasTest extends TestCase
         $this->seed(RolePermissionSeeder::class);
         Storage::fake('local');
 
-        $servicio = Servicio::create(['codigo' => '23', 'nombre' => 'Osorno']);
         $establecimiento = Establecimiento::create([
-            'codigo' => '123100', 'nombre' => 'Hospital Base', 'servicio_id' => $servicio->id,
+            'codigo' => '123100', 'nombre' => 'Hospital Base',
         ]);
         Periodo::create(['anio' => 2026, 'mes' => 9, 'estado' => Periodo::ABIERTO]);
-        $this->snapshot = CatalogoSnapshot::create(['origen' => 'prueba', 'activo' => true]);
 
         $this->encargado = User::factory()->create(['activo' => true]);
         $this->encargado->assignRole('encargado');
         $this->encargado->establecimientos()->attach($establecimiento->id);
 
-        $this->revisor = User::factory()->create(['activo' => true, 'servicio_id' => $servicio->id]);
+        $this->revisor = User::factory()->create(['activo' => true]);
         $this->revisor->assignRole('revisor');
 
         $this->serieA = Serie::create(['codigo' => 'A', 'nombre' => 'SERIE A']);
@@ -74,7 +69,7 @@ class AprobacionGuardasTest extends TestCase
             'nombre_original' => '123100'.$serie->codigo.'09.xlsx',
             'ruta' => 'envios/x.xlsx', 'disco' => 'local',
             'sha256' => str_repeat('b', 64), 'tamano_bytes' => 100, 'mime' => 'application/vnd.ms-excel',
-            'estado' => $estado, 'snapshot_id' => $this->snapshot->id,
+            'estado' => $estado,
             'subido_por' => $this->encargado->id,
         ]);
     }

@@ -2,13 +2,11 @@
 
 namespace Tests\Feature;
 
-use App\Models\CatalogoSnapshot;
 use App\Models\Envio;
 use App\Models\EnvioArchivo;
 use App\Models\Establecimiento;
 use App\Models\Periodo;
 use App\Models\Serie;
-use App\Models\Servicio;
 use App\Models\User;
 use App\Notifications\EnvioNotificacion;
 use App\Services\EnvioService;
@@ -30,7 +28,6 @@ class NotificacionTest extends TestCase
     private Envio $envio;
     private User $encargado;
     private User $revisor;
-    private User $otroRevisor;
     private User $admin;
 
     protected function setUp(): void
@@ -40,26 +37,19 @@ class NotificacionTest extends TestCase
         Storage::fake('local');
         Notification::fake();
 
-        $servicio = Servicio::create(['codigo' => '23', 'nombre' => 'Osorno']);
-        $otroServicio = Servicio::create(['codigo' => '24', 'nombre' => 'Otro SS']);
-
         $establecimiento = Establecimiento::create([
-            'codigo' => '123100', 'nombre' => 'Hospital Base', 'servicio_id' => $servicio->id,
+            'codigo' => '123100', 'nombre' => 'Hospital Base',
         ]);
         Periodo::create(['anio' => 2026, 'mes' => 9, 'estado' => Periodo::ABIERTO]);
-        $snapshot = CatalogoSnapshot::create(['origen' => 'prueba', 'activo' => true]);
 
         $this->encargado = User::factory()->create(['activo' => true]);
         $this->encargado->assignRole('encargado');
         $this->encargado->establecimientos()->attach($establecimiento->id);
 
-        $this->revisor = User::factory()->create(['activo' => true, 'servicio_id' => $servicio->id]);
+        $this->revisor = User::factory()->create(['activo' => true]);
         $this->revisor->assignRole('revisor');
 
-        $this->otroRevisor = User::factory()->create(['activo' => true, 'servicio_id' => $otroServicio->id]);
-        $this->otroRevisor->assignRole('revisor');
-
-        $this->admin = User::factory()->create(['activo' => true, 'servicio_id' => $servicio->id]);
+        $this->admin = User::factory()->create(['activo' => true]);
         $this->admin->assignRole('admin');
 
         $serie = Serie::create(['codigo' => 'A', 'nombre' => 'SERIE A']);
@@ -72,7 +62,7 @@ class NotificacionTest extends TestCase
             'serie_id' => $serie->id, 'version' => 1, 'es_vigente' => true,
             'nombre_original' => '123100A09.xlsx', 'ruta' => 'envios/x.xlsx', 'disco' => 'local',
             'sha256' => str_repeat('e', 64), 'tamano_bytes' => 100, 'mime' => 'application/vnd.ms-excel',
-            'estado' => EnvioArchivo::VALIDO, 'snapshot_id' => $snapshot->id,
+            'estado' => EnvioArchivo::VALIDO,
             'subido_por' => $this->encargado->id,
         ]);
     }
@@ -82,14 +72,13 @@ class NotificacionTest extends TestCase
         return app(EstadoEnvioService::class);
     }
 
-    public function test_al_enviar_a_revision_avisa_a_los_revisores_del_servicio(): void
+    public function test_al_enviar_a_revision_avisa_a_los_revisores(): void
     {
         $this->envio->update(['estado' => Envio::VALIDADO]);
 
         $this->estados()->transicionar($this->envio->fresh(), Envio::EN_REVISION, $this->encargado);
 
         Notification::assertSentTo($this->revisor, EnvioNotificacion::class);
-        Notification::assertNotSentTo($this->otroRevisor, EnvioNotificacion::class);
         Notification::assertNotSentTo($this->encargado, EnvioNotificacion::class);
     }
 
@@ -113,18 +102,6 @@ class NotificacionTest extends TestCase
 
         Notification::assertSentTo($this->encargado, EnvioNotificacion::class, function (EnvioNotificacion $n) {
             return $n->evento === 'aprobado';
-        });
-    }
-
-    public function test_al_confirmar_la_carga_avisa_al_encargado(): void
-    {
-        $this->envio->update(['estado' => Envio::EN_REVISION]);
-        $aprobado = $this->estados()->aprobar($this->envio->fresh(), $this->revisor);
-
-        $this->estados()->confirmarCarga($aprobado, $this->revisor, 'ACTA-9');
-
-        Notification::assertSentTo($this->encargado, EnvioNotificacion::class, function (EnvioNotificacion $n) {
-            return $n->evento === 'cargado';
         });
     }
 
@@ -156,7 +133,7 @@ class NotificacionTest extends TestCase
         $this->assertDatabaseHas('auditoria', ['evento' => 'envio.notificado']);
     }
 
-    public function test_un_fallo_del_correo_no_rompe_la_transicion(): void
+    public function test_un_fallo_del_notificador_no_rompe_la_transicion(): void
     {
         $this->envio->update(['estado' => Envio::EN_REVISION]);
 
@@ -165,7 +142,7 @@ class NotificacionTest extends TestCase
             return new class extends Notificador {
                 public function enviar(Envio $envio, string $evento, ?User $actor = null): array
                 {
-                    throw new \RuntimeException('el correo está caído');
+                    throw new \RuntimeException('la notificación falló');
                 }
             };
         });
@@ -175,17 +152,15 @@ class NotificacionTest extends TestCase
         $this->assertSame(Envio::OBSERVADO, $this->envio->fresh()->estado);
     }
 
-    public function test_el_aviso_va_por_correo_y_queda_en_la_tabla(): void
+    public function test_el_aviso_queda_solo_en_la_base_de_datos(): void
     {
         $this->envio->update(['estado' => Envio::EN_REVISION]);
 
         $this->estados()->transicionar($this->envio->fresh(), Envio::OBSERVADO, $this->revisor, 'motivo');
 
-        // El canal `database` es el respaldo: si el correo falla, el aviso
-        // sigue estando en el portal.
+        // En v2.0 no hay correo de avisos: el canal es la tabla del portal.
         Notification::assertSentTo($this->encargado, EnvioNotificacion::class, function (EnvioNotificacion $n) {
-            return in_array('mail', $n->via($this->encargado), true)
-                && in_array('database', $n->via($this->encargado), true);
+            return $n->via($this->encargado) === ['database'];
         });
     }
 }

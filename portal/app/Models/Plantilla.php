@@ -13,7 +13,7 @@ class Plantilla extends Model
 
     protected $table = 'plantillas';
 
-    protected $fillable = ['anio', 'mes', 'serie_id', 'serie_excel', 'serie_interna', 'version', 'snapshot_id'];
+    protected $fillable = ['anio', 'mes', 'serie_id', 'serie_excel', 'serie_interna', 'version'];
 
     protected function casts(): array
     {
@@ -24,12 +24,6 @@ class Plantilla extends Model
     {
         return $this->belongsTo(Serie::class);
     }
-
-    public function snapshot(): BelongsTo
-    {
-        return $this->belongsTo(CatalogoSnapshot::class, 'snapshot_id');
-    }
-
 
     public function cabecera(): HasMany
     {

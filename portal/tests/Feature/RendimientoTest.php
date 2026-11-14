@@ -2,13 +2,11 @@
 
 namespace Tests\Feature;
 
-use App\Models\CatalogoSnapshot;
 use App\Models\Envio;
 use App\Models\EnvioArchivo;
 use App\Models\Establecimiento;
 use App\Models\Periodo;
 use App\Models\Serie;
-use App\Models\Servicio;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -24,7 +22,9 @@ class RendimientoTest extends TestCase
 
     public function test_los_canales_de_registro_tienen_retencion(): void
     {
-        foreach (['validacion', 'seguridad', 'correo'] as $canal) {
+        // En v2.0 no hay canal `correo`: los avisos viven en la tabla del
+        // portal y no se envían por correo.
+        foreach (['validacion', 'seguridad'] as $canal) {
             $config = config("logging.channels.{$canal}");
 
             $this->assertNotNull($config, "Falta el canal {$canal}");
@@ -75,11 +75,9 @@ class RendimientoTest extends TestCase
         $this->seed(RolePermissionSeeder::class);
         Storage::fake('local');
 
-        $servicio = Servicio::create(['codigo' => '23', 'nombre' => 'Osorno']);
         Periodo::create(['anio' => 2026, 'mes' => 9, 'estado' => Periodo::ABIERTO]);
-        $snapshot = CatalogoSnapshot::create(['origen' => 'prueba', 'activo' => true]);
 
-        $revisor = User::factory()->create(['activo' => true, 'servicio_id' => $servicio->id]);
+        $revisor = User::factory()->create(['activo' => true]);
         $revisor->assignRole('revisor');
 
         $encargado = User::factory()->create(['activo' => true]);
@@ -92,7 +90,6 @@ class RendimientoTest extends TestCase
             $establecimiento = Establecimiento::create([
                 'codigo' => '8000'.str_pad((string) $i, 2, '0', STR_PAD_LEFT),
                 'nombre' => "Establecimiento {$i}",
-                'servicio_id' => $servicio->id,
             ]);
 
             $establecimiento->series()->attach($serie->id, ['obligatoria' => true]);
@@ -107,7 +104,7 @@ class RendimientoTest extends TestCase
                 'serie_id' => $serie->id, 'version' => 1, 'es_vigente' => true,
                 'nombre_original' => 'x.xlsx', 'ruta' => 'envios/x.xlsx', 'disco' => 'local',
                 'sha256' => str_repeat('a', 64), 'tamano_bytes' => 100, 'mime' => 'application/vnd.ms-excel',
-                'estado' => EnvioArchivo::VALIDO, 'snapshot_id' => $snapshot->id,
+                'estado' => EnvioArchivo::VALIDO,
                 'subido_por' => $encargado->id,
             ]);
         }

@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Exceptions\ArchivoRechazadoException;
 use App\Exceptions\EnvioInvalidoException;
-use App\Models\CatalogoSnapshot;
 use App\Models\Envio;
 use App\Models\EnvioArchivo;
 use App\Models\Establecimiento;
@@ -46,6 +45,10 @@ class EnvioService
             throw EnvioInvalidoException::periodoCerrado($anio, $mes, $periodo->estado);
         }
 
+        if ($periodo->estado === Periodo::EN_REVISION && ! $usuario->hasRole('admin')) {
+            throw EnvioInvalidoException::periodoEnRevision($anio, $mes);
+        }
+
         $existente = Envio::where('establecimiento_id', $establecimiento->id)
             ->where('anio', $anio)
             ->where('mes', $mes)
@@ -55,7 +58,7 @@ class EnvioService
             throw EnvioInvalidoException::envioDuplicado($establecimiento->codigo, $anio, $mes);
         }
 
-        return DB::transaction(function () use ($establecimiento, $anio, $mes, $usuario) {
+        return DB::transaction(function () use ($establecimiento, $anio, $mes, $usuario, $periodo) {
             $envio = Envio::create([
                 'establecimiento_id' => $establecimiento->id,
                 'anio'               => $anio,
@@ -63,6 +66,9 @@ class EnvioService
                 'estado'             => Envio::RECIBIDO,
                 'enviado_por'        => $usuario->id,
                 'fecha_envio'        => now(),
+                // Sin fecha en el período no hay plazo que marcar: D4 sigue
+                // abierta y el sistema no inventa un día por defecto.
+                'fecha_limite'       => $periodo->fecha_limite?->toDateString(),
             ]);
 
             // La primera transición también se registra: sin ella, la historia
@@ -95,10 +101,20 @@ class EnvioService
             throw EnvioInvalidoException::serieNoAplicable($serie->codigo);
         }
 
-        $snapshot = CatalogoSnapshot::activo()->latest('id')->first();
+        $periodo = Periodo::where('anio', $envio->anio)->where('mes', $envio->mes)->first();
 
-        if ($snapshot === null) {
-            throw EnvioInvalidoException::sinCatalogo();
+        if ($periodo === null) {
+            throw EnvioInvalidoException::periodoNoExiste($envio->anio, $envio->mes);
+        }
+
+        if ($periodo->estado === Periodo::CERRADO) {
+            throw EnvioInvalidoException::periodoCerrado($envio->anio, $envio->mes, $periodo->estado);
+        }
+
+        if ($periodo->estado === Periodo::EN_REVISION
+            && $envio->estado !== Envio::OBSERVADO
+            && ! $usuario->hasRole('admin')) {
+            throw EnvioInvalidoException::periodoEnRevision($envio->anio, $envio->mes);
         }
 
         // ENV-029: el mismo contenido dos veces en el mismo envío es un error
@@ -111,7 +127,7 @@ class EnvioService
             throw ArchivoRechazadoException::duplicado();
         }
 
-        return DB::transaction(function () use ($envio, $serie, $archivo, $usuario, $snapshot) {
+        return DB::transaction(function () use ($envio, $serie, $archivo, $usuario) {
             $version = ((int) $envio->archivos()->where('serie_id', $serie->id)->max('version')) + 1;
 
             // La versión anterior deja de ser la vigente, pero no se borra.
@@ -136,7 +152,6 @@ class EnvioService
                 'tamano_bytes'    => $almacenado['tamano_bytes'],
                 'mime'            => $almacenado['mime'],
                 'estado'          => EnvioArchivo::SUBIDO,
-                'snapshot_id'     => $snapshot->id,
                 'subido_por'      => $usuario->id,
             ]);
 

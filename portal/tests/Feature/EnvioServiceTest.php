@@ -4,13 +4,11 @@ namespace Tests\Feature;
 
 use App\Exceptions\ArchivoRechazadoException;
 use App\Exceptions\EnvioInvalidoException;
-use App\Models\CatalogoSnapshot;
 use App\Models\Envio;
 use App\Models\EnvioArchivo;
 use App\Models\Establecimiento;
 use App\Models\Periodo;
 use App\Models\Serie;
-use App\Models\Servicio;
 use App\Models\User;
 use App\Services\EnvioService;
 use Database\Seeders\RolePermissionSeeder;
@@ -36,10 +34,8 @@ class EnvioServiceTest extends TestCase
         $this->seed(RolePermissionSeeder::class);
         Storage::fake('local');
 
-        $servicio = Servicio::create(['codigo' => '23', 'nombre' => 'Osorno']);
-
         $this->establecimiento = Establecimiento::create([
-            'codigo' => '123100', 'nombre' => 'Hospital Base', 'servicio_id' => $servicio->id,
+            'codigo' => '123100', 'nombre' => 'Hospital Base',
         ]);
 
         $this->encargado = User::factory()->create(['activo' => true]);
@@ -121,7 +117,6 @@ class EnvioServiceTest extends TestCase
         $this->periodo();
         $envio = $this->servicio()->crear($this->establecimiento, 2026, 9, $this->encargado);
         $serie = Serie::create(['codigo' => 'A', 'nombre' => 'SERIE A']);
-        CatalogoSnapshot::create(['origen' => 'prueba', 'activo' => true]);
 
         $registro = $this->servicio()->subirVersion($envio, $serie, $this->excel(), $this->encargado);
 
@@ -138,7 +133,6 @@ class EnvioServiceTest extends TestCase
         $this->periodo();
         $envio = $this->servicio()->crear($this->establecimiento, 2026, 9, $this->encargado);
         $serie = Serie::create(['codigo' => 'A', 'nombre' => 'SERIE A']);
-        CatalogoSnapshot::create(['origen' => 'prueba', 'activo' => true]);
 
         $v1 = $this->servicio()->subirVersion($envio, $serie, $this->excel(), $this->encargado);
         $v2 = $this->servicio()->subirVersion(
@@ -157,7 +151,6 @@ class EnvioServiceTest extends TestCase
         $this->periodo();
         $envio = $this->servicio()->crear($this->establecimiento, 2026, 9, $this->encargado);
         $serie = Serie::create(['codigo' => 'A', 'nombre' => 'SERIE A']);
-        CatalogoSnapshot::create(['origen' => 'prueba', 'activo' => true]);
 
         try {
             $this->servicio()->subirVersion($envio, $serie, $this->excel('123100A09.xlsx', 2100), $this->encargado);
@@ -172,7 +165,6 @@ class EnvioServiceTest extends TestCase
         $this->periodo();
         $envio = $this->servicio()->crear($this->establecimiento, 2026, 9, $this->encargado);
         $serie = Serie::create(['codigo' => 'A', 'nombre' => 'SERIE A']);
-        CatalogoSnapshot::create(['origen' => 'prueba', 'activo' => true]);
 
         try {
             $this->servicio()->subirVersion($envio, $serie, $this->archivo('malware.exe', "PK\x03\x04xxxx"), $this->encargado);
@@ -187,7 +179,6 @@ class EnvioServiceTest extends TestCase
         $this->periodo();
         $envio = $this->servicio()->crear($this->establecimiento, 2026, 9, $this->encargado);
         $serie = Serie::create(['codigo' => 'A', 'nombre' => 'SERIE A']);
-        CatalogoSnapshot::create(['origen' => 'prueba', 'activo' => true]);
 
         try {
             $this->servicio()->subirVersion($envio, $serie, $this->archivo('123100A09.xlsx', '%PDF-1.7 falso'), $this->encargado);
@@ -202,7 +193,6 @@ class EnvioServiceTest extends TestCase
         $this->periodo();
         $envio = $this->servicio()->crear($this->establecimiento, 2026, 9, $this->encargado);
         $serie = Serie::create(['codigo' => 'A', 'nombre' => 'SERIE A']);
-        CatalogoSnapshot::create(['origen' => 'prueba', 'activo' => true]);
 
         $this->servicio()->subirVersion($envio, $serie, $this->excel(), $this->encargado);
 
@@ -214,18 +204,17 @@ class EnvioServiceTest extends TestCase
         }
     }
 
-    public function test_sin_catalogo_activo_no_se_puede_subir(): void
+    public function test_sin_catalogo_el_archivo_se_sube_y_la_validacion_reporta_bloqueantes(): void
     {
         $this->periodo();
         $envio = $this->servicio()->crear($this->establecimiento, 2026, 9, $this->encargado);
         $serie = Serie::create(['codigo' => 'A', 'nombre' => 'SERIE A']);
 
-        try {
-            $this->servicio()->subirVersion($envio, $serie, $this->excel(), $this->encargado);
-            $this->fail('Debería exigir catálogo activo');
-        } catch (EnvioInvalidoException $e) {
-            $this->assertSame('APP-ENV-004', $e->codigo);
-        }
+        // Sin snapshots, el catálogo ausente no bloquea la subida: la cadena
+        // V0–V11 reporta ENV-014/ENV-016/ENV-018 como bloqueantes.
+        $registro = $this->servicio()->subirVersion($envio, $serie, $this->excel(), $this->encargado);
+
+        $this->assertSame(\App\Models\EnvioArchivo::SUBIDO, $registro->estado);
     }
 
     public function test_un_reenvio_devuelve_el_envio_a_recibido(): void
@@ -233,7 +222,6 @@ class EnvioServiceTest extends TestCase
         $this->periodo();
         $envio = $this->servicio()->crear($this->establecimiento, 2026, 9, $this->encargado);
         $serie = Serie::create(['codigo' => 'A', 'nombre' => 'SERIE A']);
-        CatalogoSnapshot::create(['origen' => 'prueba', 'activo' => true]);
 
         $envio->update(['estado' => Envio::OBSERVADO]);
 

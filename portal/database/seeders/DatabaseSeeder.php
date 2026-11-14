@@ -8,13 +8,15 @@ class DatabaseSeeder extends Seeder
 {
     /**
      * Orden obligatorio: los permisos existen antes que los usuarios que los
-     * reciben, y las series antes que la matriz que las referencia.
+     * reciben, las series antes que la matriz que las referencia y el Servicio
+     * antes de la matriz de completitud.
      */
     public function run(): void
     {
         $this->call([
             RolePermissionSeeder::class,
             L1MinimumSeeder::class,
+            CatalogoSeeder::class,
         ]);
     }
 }

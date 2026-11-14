@@ -2,9 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\CatalogoSnapshot;
+use App\Models\Establecimiento;
 use App\Models\Periodo;
-use App\Models\Servicio;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -43,24 +42,24 @@ class AdminCatalogoTest extends TestCase
 
     public function test_un_invitado_va_al_login(): void
     {
-        $this->get('/admin/servicios')->assertRedirect('/login');
+        $this->get('/admin/establecimientos')->assertRedirect('/login');
     }
 
     public function test_un_encargado_no_entra_a_la_administracion(): void
     {
         $this->actingAs($this->encargado())
-            ->get('/admin/servicios')
+            ->get('/admin/establecimientos')
             ->assertForbidden();
     }
 
     public function test_el_admin_ve_el_listado(): void
     {
-        Servicio::create(['codigo' => '23', 'nombre' => 'Osorno']);
+        Establecimiento::create(['codigo' => '123100', 'nombre' => 'Hospital Base']);
 
         $this->actingAs($this->admin())
-            ->get('/admin/servicios')
+            ->get('/admin/establecimientos')
             ->assertOk()
-            ->assertSee('Osorno');
+            ->assertSee('Hospital Base');
     }
 
     public function test_el_admin_crea_un_periodo(): void
@@ -91,47 +90,59 @@ class AdminCatalogoTest extends TestCase
         $this->assertSame(1, Periodo::count());
     }
 
-    public function test_valida_los_datos_del_servicio(): void
+    public function test_valida_los_datos_del_establecimiento(): void
     {
         $this->actingAs($this->admin())
-            ->post('/admin/servicios', ['codigo' => '', 'nombre' => ''])
+            ->post('/admin/establecimientos', ['codigo' => '', 'nombre' => ''])
             ->assertSessionHasErrors(['codigo', 'nombre']);
     }
 
-    public function test_el_admin_edita_un_servicio(): void
+    public function test_el_admin_edita_un_establecimiento(): void
     {
-        $servicio = Servicio::create(['codigo' => '23', 'nombre' => 'Osorno']);
+        $establecimiento = Establecimiento::create(['codigo' => '123100', 'nombre' => 'Hospital Base']);
 
         $this->actingAs($this->admin())
-            ->put("/admin/servicios/{$servicio->id}", [
+            ->put("/admin/establecimientos/{$establecimiento->id}", [
+                'codigo' => '123100',
+                'nombre' => 'Hospital Base San José',
+                'activo' => 1,
+            ])
+            ->assertRedirect(route('admin.establecimientos.index'));
+
+        $this->assertSame('Hospital Base San José', $establecimiento->fresh()->nombre);
+    }
+
+    public function test_el_admin_gestiona_servicios(): void
+    {
+        $this->actingAs($this->admin())
+            ->post('/admin/servicios', [
                 'codigo' => '23',
                 'nombre' => 'Servicio de Salud Osorno',
+                'region' => 'Los Lagos',
                 'activo' => 1,
             ])
             ->assertRedirect(route('admin.servicios.index'));
 
-        $this->assertSame('Servicio de Salud Osorno', $servicio->fresh()->nombre);
-    }
-
-    public function test_el_admin_ve_los_snapshots_importados(): void
-    {
-        CatalogoSnapshot::create(['origen' => 'snapshot de prueba', 'activo' => true]);
+        $this->assertDatabaseHas('servicios', ['codigo' => '23', 'nombre' => 'Servicio de Salud Osorno']);
 
         $this->actingAs($this->admin())
-            ->get('/admin/snapshots')
+            ->get('/admin/servicios')
             ->assertOk()
-            ->assertSee('snapshot de prueba')
-            ->assertSee('activo');
+            ->assertSee('Servicio de Salud Osorno');
     }
 
-    public function test_un_encargado_no_puede_activar_un_snapshot(): void
+    public function test_un_encargado_no_gestiona_servicios(): void
     {
-        $snapshot = CatalogoSnapshot::create(['origen' => 'prueba']);
-
         $this->actingAs($this->encargado())
-            ->post("/admin/snapshots/{$snapshot->id}/activar")
+            ->post('/admin/servicios', ['codigo' => '23', 'nombre' => 'Otro'])
             ->assertForbidden();
 
-        $this->assertFalse($snapshot->fresh()->activo);
+        $this->assertDatabaseCount('servicios', 0);
+    }
+
+    public function test_ya_no_existen_las_pantallas_de_snapshots_ni_auditoria(): void
+    {
+        $this->actingAs($this->admin())->get('/admin/snapshots')->assertNotFound();
+        $this->actingAs($this->admin())->get('/admin/auditoria')->assertNotFound();
     }
 }

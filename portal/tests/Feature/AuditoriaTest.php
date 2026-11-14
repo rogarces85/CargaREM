@@ -3,10 +3,9 @@
 namespace Tests\Feature;
 
 use App\Models\Auditoria;
-use App\Models\CatalogoSnapshot;
+use App\Models\Periodo;
 use App\Models\User;
 use App\Services\AuditoriaService;
-use App\Services\CatalogoService;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -98,49 +97,33 @@ class AuditoriaTest extends TestCase
         $this->assertSame('noexiste@ssosorno.cl', $fila->datos['email']);
     }
 
-    public function test_importar_y_activar_un_catalogo_queda_registrado(): void
-    {
-        $servicio = app(CatalogoService::class);
-
-        $snapshot = $servicio->importarDirectorio(base_path('tests/fixtures/catalogo'));
-        $servicio->activar($snapshot);
-
-        $this->assertDatabaseHas('auditoria', ['evento' => 'catalogo.importado']);
-        $this->assertDatabaseHas('auditoria', ['evento' => 'catalogo.activado']);
-    }
-
-    public function test_el_admin_ve_la_auditoria(): void
+    public function test_el_crud_de_catalogos_queda_registrado(): void
     {
         $admin = $this->usuario();
-        AuditoriaService::registrar('prueba.visible');
+        $this->actingAs($admin);
 
-        $this->actingAs($admin)
-            ->get('/admin/auditoria')
-            ->assertOk()
-            ->assertSee('prueba.visible')
-            ->assertDontSee('Editar');
+        $periodo = Periodo::create(['anio' => 2026, 'mes' => 12, 'estado' => Periodo::ABIERTO]);
+
+        $this->assertDatabaseHas('auditoria', [
+            'evento'  => 'catalogo.creado',
+            'entidad' => 'Periodo',
+        ]);
+
+        $periodo->update(['estado' => Periodo::CERRADO]);
+
+        $this->assertDatabaseHas('auditoria', [
+            'evento'  => 'catalogo.actualizado',
+            'entidad' => 'Periodo',
+        ]);
     }
 
-    public function test_un_encargado_no_ve_la_auditoria(): void
+    public function test_no_existe_pantalla_de_auditoria_en_v2(): void
     {
-        $this->actingAs($this->usuario('encargado'))
+        // La UI de auditoría quedó fuera de v2.0: la bitácora se consulta en
+        // base de datos y la pantalla no existe.
+        $this->actingAs($this->usuario())
             ->get('/admin/auditoria')
-            ->assertForbidden();
-    }
-
-    public function test_filtra_por_evento(): void
-    {
-        $admin = $this->usuario();
-        AuditoriaService::registrar('uno.de.dos');
-        AuditoriaService::registrar('el.otro');
-
-        // El filtro no se comprueba por texto: la lista de eventos del
-        // formulario contiene todos los nombres. Se mira el paginador.
-        $this->actingAs($admin)
-            ->get('/admin/auditoria?evento=uno.de.dos')
-            ->assertOk()
-            ->assertSee('uno.de.dos')
-            ->assertViewHas('registros', fn ($pagina) => $pagina->total() === 1);
+            ->assertNotFound();
     }
 
     public function test_la_auditoria_no_guarda_el_contenido_de_las_celdas(): void
@@ -151,15 +134,5 @@ class AuditoriaTest extends TestCase
 
         $this->assertSame(['codigo' => '01010100'], $fila->datos);
         $this->assertStringNotContainsString('col01', json_encode($fila->datos));
-    }
-
-    public function test_el_observador_no_audita_actualizaciones_sin_cambio_de_estado(): void
-    {
-        $snapshot = CatalogoSnapshot::create(['origen' => 'sin activar']);
-        $antes = Auditoria::count();
-
-        $snapshot->update(['filas_diccionario' => 10]);
-
-        $this->assertSame($antes, Auditoria::count(), 'Solo importar y activar generan fila');
     }
 }

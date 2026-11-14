@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\CatalogoSnapshot;
 use App\Models\Envio;
 use App\Models\EnvioArchivo;
 use App\Models\Establecimiento;
@@ -10,7 +9,6 @@ use App\Models\Periodo;
 use App\Models\Plantilla;
 use App\Models\PlantillaHoja;
 use App\Models\Serie;
-use App\Models\Servicio;
 use App\Models\User;
 use App\Services\EnvioService;
 use App\Validacion\ValidadorArchivo;
@@ -32,7 +30,6 @@ class ValidadorV345Test extends TestCase
     private Serie $serie;
     private Establecimiento $establecimiento;
     private User $usuario;
-    private CatalogoSnapshot $snapshot;
 
     protected function setUp(): void
     {
@@ -40,12 +37,10 @@ class ValidadorV345Test extends TestCase
         $this->seed(RolePermissionSeeder::class);
         Storage::fake('local');
 
-        $servicio = Servicio::create(['codigo' => '23', 'nombre' => 'Osorno']);
         $this->establecimiento = Establecimiento::create([
-            'codigo' => '123100', 'nombre' => 'Hospital Base', 'servicio_id' => $servicio->id,
+            'codigo' => '123100', 'nombre' => 'Hospital Base',
         ]);
         Periodo::create(['anio' => 2026, 'mes' => 9, 'estado' => Periodo::ABIERTO]);
-        $this->snapshot = CatalogoSnapshot::create(['origen' => 'prueba', 'activo' => true]);
 
         $this->usuario = User::factory()->create(['activo' => true]);
         $this->usuario->assignRole('encargado');
@@ -69,7 +64,6 @@ class ValidadorV345Test extends TestCase
             'serie_excel'   => 'SERIE A',
             'serie_interna' => $serieInterna,
             'version'       => $version,
-            'snapshot_id'   => $this->snapshot->id,
         ]);
     }
 
@@ -116,7 +110,6 @@ class ValidadorV345Test extends TestCase
             'tamano_bytes'    => strlen($contenido),
             'mime'            => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             'estado'          => EnvioArchivo::SUBIDO,
-            'snapshot_id'     => $this->snapshot->id,
             'subido_por'      => ($subidoPor ?? $this->usuario)->id,
         ]);
     }
@@ -160,7 +153,7 @@ class ValidadorV345Test extends TestCase
 
         $antiguo = User::factory()->create(['activo' => true]);
         $antiguo->assignRole('encargado');
-        // Sin establecimientos asignados ni servicio: perdió el alcance.
+        // Sin establecimientos asignados: perdió el alcance.
 
         $this->assertSame(['ENV-015'], $this->codigos($this->archivo($this->excel(), $antiguo)));
     }

@@ -18,19 +18,18 @@ class Envio extends Model
     public const EN_REVISION = 'en_revision';
     public const OBSERVADO   = 'observado';
     public const APROBADO    = 'aprobado';
-    public const CARGADO     = 'cargado';
-    public const ANULADO     = 'anulado';
 
     public const ESTADOS = [
         self::RECIBIDO, self::VALIDADO, self::CON_ERRORES, self::EN_REVISION,
-        self::OBSERVADO, self::APROBADO, self::CARGADO, self::ANULADO,
+        self::OBSERVADO, self::APROBADO,
     ];
 
     protected $table = 'envios';
 
     protected $fillable = [
         'establecimiento_id', 'anio', 'mes', 'estado', 'enviado_por', 'revisor_id',
-        'observacion_general', 'fecha_envio', 'fecha_revision', 'fecha_aprobacion', 'fecha_carga',
+        'observacion_general', 'fecha_envio', 'fecha_revision', 'fecha_aprobacion',
+        'fecha_limite', 'fuera_de_plazo',
     ];
 
     protected function casts(): array
@@ -41,7 +40,8 @@ class Envio extends Model
             'fecha_envio'      => 'datetime',
             'fecha_revision'   => 'datetime',
             'fecha_aprobacion' => 'datetime',
-            'fecha_carga'      => 'datetime',
+            'fecha_limite'     => 'date',
+            'fuera_de_plazo'   => 'boolean',
         ];
     }
 
@@ -50,7 +50,7 @@ class Envio extends Model
      * principio 18).
      *
      * - admin: todo.
-     * - revisor y consulta: su Servicio de Salud.
+     * - revisor: su Servicio de Salud.
      * - encargado: sus establecimientos asignados.
      */
     public function scopeForUser(Builder $query, User $usuario): Builder
@@ -59,8 +59,13 @@ class Envio extends Model
             return $query;
         }
 
-        if ($usuario->servicio_id !== null
-            && ($usuario->hasRole('revisor') || $usuario->hasRole('consulta'))) {
+        if ($usuario->hasRole('revisor')) {
+            // Sin Servicio declarado (dato viejo) el revisor ve todo, igual que
+            // antes de recuperar el catálogo de servicios.
+            if ($usuario->servicio_id === null) {
+                return $query;
+            }
+
             return $query->whereHas('establecimiento', function (Builder $establecimiento) use ($usuario) {
                 $establecimiento->where('servicio_id', $usuario->servicio_id);
             });
@@ -116,5 +121,11 @@ class Envio extends Model
     public function estaAbierto(): bool
     {
         return in_array($this->estado, [self::RECIBIDO, self::VALIDADO, self::CON_ERRORES, self::OBSERVADO], true);
+    }
+
+    /** El plazo ya se evaluó y el envío llegó tarde. */
+    public function estaFueraDePlazo(): bool
+    {
+        return $this->fuera_de_plazo === true;
     }
 }

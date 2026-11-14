@@ -123,43 +123,31 @@ class EnvioController extends Controller
     }
 
     /**
-     * Cambia el estado del envío (enviar, observar, aprobar, cargar, reabrir, anular).
+     * Cambia el estado del envío (enviar, observar, aprobar).
      */
     public function transicion(Request $request, Envio $envio): RedirectResponse
     {
         $datos = $request->validate([
-            'accion'     => ['required', 'string', 'in:enviar,observar,aprobar,cargar,reabrir,anular'],
+            'accion'     => ['required', 'string', 'in:enviar,observar,aprobar'],
             'motivo'     => ['nullable', 'string', 'max:500'],
-            'referencia' => ['nullable', 'string', 'max:100'],
         ]);
 
         $destino = match ($datos['accion']) {
             'enviar'   => Envio::EN_REVISION,
             'observar' => Envio::OBSERVADO,
             'aprobar'  => Envio::APROBADO,
-            'cargar'   => Envio::CARGADO,
-            'reabrir'  => Envio::EN_REVISION,
-            'anular'   => Envio::ANULADO,
         };
 
         $habilidad = match ($datos['accion']) {
-            'enviar', 'reabrir' => $datos['accion'],
-            'observar'          => 'observar',
-            'aprobar'           => 'aprobar',
-            'cargar'            => 'cargar',
-            'anular'            => 'anular',
+            'enviar'   => 'enviar',
+            'observar' => 'observar',
+            'aprobar'  => 'aprobar',
         };
 
         $this->authorize($habilidad, $envio);
 
         try {
-            // La carga tiene su propio camino: guarda la referencia y valida
-            // que el envío esté aprobado (T-F5-04).
-            if ($datos['accion'] === 'cargar') {
-                $this->estados->confirmarCarga($envio, $request->user(), $datos['referencia'] ?? null);
-            } else {
-                $this->estados->transicionar($envio, $destino, $request->user(), $datos['motivo'] ?? null);
-            }
+            $this->estados->transicionar($envio, $destino, $request->user(), $datos['motivo'] ?? null);
         } catch (EnvioInvalidoException $e) {
             return back()->withErrors(['transicion' => $e->getMessage()]);
         }

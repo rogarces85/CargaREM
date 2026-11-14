@@ -91,10 +91,6 @@
                 </div>
                 <div class="form-group col-md-4">
                     <button type="submit" class="btn btn-primary">Ver</button>
-                    <a href="{{ route('completitud.exportar', array_merge(request()->query(), ['formato' => 'csv'])) }}"
-                       class="btn btn-outline-secondary">CSV</a>
-                    <a href="{{ route('completitud.exportar', array_merge(request()->query(), ['formato' => 'xlsx'])) }}"
-                       class="btn btn-outline-success">Excel</a>
                 </div>
             </form>
         </div>
@@ -118,6 +114,9 @@
                             <td class="text-left">
                                 <strong>{{ $fila['establecimiento']->codigo }}</strong>
                                 <span class="text-muted small d-block">{{ $fila['establecimiento']->nombre }}</span>
+                                @if ($fila['fuera_de_plazo'])
+                                    <span class="badge badge-danger mt-1">Fuera de plazo</span>
+                                @endif
                             </td>
                             @foreach ($matriz['series'] as $serie)
                                 @php
@@ -125,17 +124,9 @@
                                     $c = $colores[$celda['estado']] ?? $colores['no_aplica'];
                                 @endphp
                                 <td style="background:{{ $c['bg'] }};color:{{ $c['texto'] }};"
-                                    @if ($celda['envio_id']) title="{{ $c['titulo'] }} — abrir el envío" @endif>
+                                    title="{{ $c['titulo'] }}">
                                     @if ($celda['estado'] !== 'no_aplica')
-                                        @if ($celda['envio_id'])
-                                            <a href="{{ route('envios.show', $celda['envio_id']) }}"
-                                               style="color:{{ $c['texto'] }};text-decoration:none;font-weight:bold;"
-                                               title="{{ $c['titulo'] }}">
-                                                {{ $c['icono'] }}
-                                            </a>
-                                        @else
-                                            <span title="{{ $c['titulo'] }}">{{ $c['icono'] }}</span>
-                                        @endif
+                                        <span style="color:{{ $c['texto'] }};font-weight:bold;">{{ $c['icono'] }}</span>
                                     @endif
                                 </td>
                             @endforeach

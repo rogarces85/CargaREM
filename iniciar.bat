@@ -110,22 +110,23 @@ if "!USUARIOS!"=="0" (
 )
 
 rem --- Catálogo -------------------------------------------------------
-set "TMPS=%TEMP%\rem_snapshots.txt"
-"%MYSQL%" -u root -N -e "SELECT COUNT(*) FROM %DB%.catalogo_snapshots WHERE activo=1;" > "%TMPS%" 2>nul
-set "SNAPSHOTS="
-if exist "%TMPS%" set /p SNAPSHOTS=<"%TMPS%"
+set "TMPS=%TEMP%\rem_diccionario.txt"
+"%MYSQL%" -u root -N -e "SELECT COUNT(*) FROM %DB%.diccionario;" > "%TMPS%" 2>nul
+set "FILAS="
+if exist "%TMPS%" set /p FILAS=<"%TMPS%"
 
-if "!SNAPSHOTS!"=="0" (
-    if exist "%SNAPSHOT%\manifest.json" (
-        echo  [6/6] Importando el catálogo desde %SNAPSHOT%...
-        "%PHP%" artisan catalogos:importar "%SNAPSHOT%" --activar
+if "!FILAS!"=="0" (
+    if exist "%SNAPSHOT%\series.csv" (
+        echo  [6/6] Sembrando el catálogo desde %SNAPSHOT%...
+        set "REM_CATALOGO_DIR=%SNAPSHOT%"
+        "%PHP%" artisan db:seed --class=CatalogoSeeder --force
     ) else (
-        echo  [6/6] Sin catálogo activo y sin snapshot en %SNAPSHOT%
+        echo  [6/6] Sin catálogo cargado y sin CSV en %SNAPSHOT%
         echo        El portal abre, pero no podrá validar archivos.
         echo        Para regenerarlo: 01-TOOLS\rem-export\export-mdb.ps1
     )
 ) else (
-    echo  [6/6] Catálogo activo.
+    echo  [6/6] Catálogo cargado ^(!FILAS! filas de diccionario^).
 )
 
 rem --- Servidor -------------------------------------------------------

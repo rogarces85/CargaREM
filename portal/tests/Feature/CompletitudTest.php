@@ -2,13 +2,11 @@
 
 namespace Tests\Feature;
 
-use App\Models\CatalogoSnapshot;
 use App\Models\Envio;
 use App\Models\EnvioArchivo;
 use App\Models\Establecimiento;
 use App\Models\Periodo;
 use App\Models\Serie;
-use App\Models\Servicio;
 use App\Models\User;
 use App\Services\CompletitudService;
 use Database\Seeders\RolePermissionSeeder;
@@ -24,12 +22,10 @@ class CompletitudTest extends TestCase
 {
     use RefreshDatabase;
 
-    private Servicio $servicio;
     private User $revisor;
     private User $encargado;
     private Serie $serieA;
     private Serie $serieBS;
-    private CatalogoSnapshot $snapshot;
     private Establecimiento $hosp1;
     private Establecimiento $hosp2;
 
@@ -39,11 +35,9 @@ class CompletitudTest extends TestCase
         $this->seed(RolePermissionSeeder::class);
         Storage::fake('local');
 
-        $this->servicio = Servicio::create(['codigo' => '23', 'nombre' => 'Osorno']);
         Periodo::create(['anio' => 2026, 'mes' => 9, 'estado' => Periodo::ABIERTO]);
-        $this->snapshot = CatalogoSnapshot::create(['origen' => 'prueba', 'activo' => true]);
 
-        $this->revisor = User::factory()->create(['activo' => true, 'servicio_id' => $this->servicio->id]);
+        $this->revisor = User::factory()->create(['activo' => true]);
         $this->revisor->assignRole('revisor');
 
         $this->encargado = User::factory()->create(['activo' => true]);
@@ -53,10 +47,10 @@ class CompletitudTest extends TestCase
         $this->serieBS = Serie::create(['codigo' => 'BS', 'nombre' => 'SERIE BS', 'orden' => 2]);
 
         $this->hosp1 = Establecimiento::create([
-            'codigo' => '123100', 'nombre' => 'Hospital Base', 'servicio_id' => $this->servicio->id,
+            'codigo' => '123100', 'nombre' => 'Hospital Base',
         ]);
         $this->hosp2 = Establecimiento::create([
-            'codigo' => '123101', 'nombre' => 'Hospital de Río Negro', 'servicio_id' => $this->servicio->id,
+            'codigo' => '123101', 'nombre' => 'Hospital de Río Negro',
         ]);
 
         foreach ([$this->hosp1, $this->hosp2] as $establecimiento) {
@@ -83,7 +77,7 @@ class CompletitudTest extends TestCase
                 'serie_id' => $serieId, 'version' => 1, 'es_vigente' => true,
                 'nombre_original' => 'x.xlsx', 'ruta' => 'envios/x.xlsx', 'disco' => 'local',
                 'sha256' => str_repeat('f', 64), 'tamano_bytes' => 100, 'mime' => 'application/vnd.ms-excel',
-                'estado' => $estadoArchivo, 'snapshot_id' => $this->snapshot->id,
+                'estado' => $estadoArchivo,
                 'subido_por' => $this->encargado->id,
             ]);
         }
@@ -130,7 +124,7 @@ class CompletitudTest extends TestCase
 
     public function test_un_envio_aprobado_pinta_verde_sus_series(): void
     {
-        $this->envio($this->hosp1, Envio::CARGADO, [
+        $this->envio($this->hosp1, Envio::APROBADO, [
             $this->serieA->id  => EnvioArchivo::VALIDO,
             $this->serieBS->id => EnvioArchivo::VALIDO,
         ]);
@@ -149,7 +143,7 @@ class CompletitudTest extends TestCase
         $this->assertSame($this->hosp1->id, $matriz['filas'][0]['establecimiento']->id);
     }
 
-    public function test_el_revisor_ve_todo_su_servicio(): void
+    public function test_el_revisor_ve_todos_los_establecimientos(): void
     {
         $matriz = $this->matriz($this->revisor);
 
@@ -169,7 +163,7 @@ class CompletitudTest extends TestCase
             ->assertSee('Hospital Base');
     }
 
-    public function test_el_drill_down_lleva_al_envio(): void
+    public function test_la_celda_ya_no_lleva_al_envio(): void
     {
         $envio = $this->envio($this->hosp1, Envio::APROBADO, [
             $this->serieA->id => EnvioArchivo::VALIDO,
@@ -178,50 +172,21 @@ class CompletitudTest extends TestCase
         $respuesta = $this->actingAs($this->revisor)->get('/completitud?anio=2026&mes=9');
 
         $respuesta->assertOk();
-        $respuesta->assertSee(route('envios.show', $envio), false);
+        $respuesta->assertDontSee(route('envios.show', $envio), false);
     }
 
-    public function test_exporta_csv_con_encabezados_y_datos(): void
+    public function test_no_existe_la_exportacion_de_completitud(): void
     {
-        $this->envio($this->hosp1, Envio::APROBADO, [
-            $this->serieA->id => EnvioArchivo::VALIDO,
-        ]);
-
-        $respuesta = $this->actingAs($this->revisor)
-            ->get('/completitud/exportar?anio=2026&mes=9&formato=csv');
-
-        $respuesta->assertOk();
-        $this->assertStringContainsString('text/csv', $respuesta->headers->get('content-type'));
-        $this->assertStringContainsString('completitud-2026-09.csv', $respuesta->headers->get('content-disposition'));
-
-        $contenido = $respuesta->streamedContent();
-
-        $this->assertStringContainsString('Establecimiento', $contenido);
-        $this->assertStringContainsString('Hospital Base', $contenido);
-        $this->assertStringContainsString('Aprobado', $contenido);
+        $this->actingAs($this->revisor)
+            ->get('/completitud/exportar?anio=2026&mes=9&formato=csv')
+            ->assertNotFound();
     }
 
-    public function test_exporta_excel(): void
-    {
-        $this->envio($this->hosp1, Envio::APROBADO, [
-            $this->serieA->id => EnvioArchivo::VALIDO,
-        ]);
-
-        $respuesta = $this->actingAs($this->revisor)
-            ->get('/completitud/exportar?anio=2026&mes=9&formato=xlsx');
-
-        $respuesta->assertOk();
-        $this->assertStringContainsString('spreadsheetml', $respuesta->headers->get('content-type'));
-        $this->assertStringContainsString('completitud-2026-09.xlsx', $respuesta->headers->get('content-disposition'));
-    }
-
-    public function test_un_usuario_sin_alcance_de_envios_no_entra(): void
+    public function test_un_usuario_sin_rol_no_entra(): void
     {
         $ajeno = User::factory()->create(['activo' => true]);
-        $ajeno->assignRole('consulta');
 
-        // consulta tiene envios.ver.ss pero sin servicio no ve nada; entra igual.
-        $this->actingAs($ajeno)->get('/completitud')->assertOk();
+        $this->actingAs($ajeno)->get('/completitud')->assertForbidden();
     }
 
     public function test_la_matriz_carga_rapido_con_muchos_establecimientos(): void
@@ -235,7 +200,7 @@ class CompletitudTest extends TestCase
 
         for ($i = 3; $i <= 30; $i++) {
             $establecimiento = Establecimiento::create([
-                'codigo' => '9000'.$i, 'nombre' => "Establecimiento {$i}", 'servicio_id' => $this->servicio->id,
+                'codigo' => '9000'.$i, 'nombre' => "Establecimiento {$i}",
             ]);
 
             foreach ($series as $serie) {

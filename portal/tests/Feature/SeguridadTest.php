@@ -178,16 +178,6 @@ class SeguridadTest extends TestCase
         $this->assertContains('throttle:10,60', $ruta->gatherMiddleware());
     }
 
-    public function test_la_descarga_de_paquetes_tiene_limite(): void
-    {
-        $ruta = collect(app('router')->getRoutes())->first(
-            fn ($r) => $r->getName() === 'envios.paquete'
-        );
-
-        $this->assertNotNull($ruta);
-        $this->assertContains('throttle:10,1', $ruta->gatherMiddleware());
-    }
-
     public function test_el_login_limita_los_intentos(): void
     {
         // Fortify aplica el límite por su propio controlador, no por middleware

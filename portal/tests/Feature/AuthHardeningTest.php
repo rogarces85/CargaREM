@@ -67,7 +67,7 @@ class AuthHardeningTest extends TestCase
 
     /**
      * Principio 8: cada permiso de la matriz tiene su comprobación positiva y
-     * negativa. Se recorre la matriz completa (18 permisos × 4 roles = 72
+     * negativa. Se recorre la matriz completa (16 permisos × 3 roles = 48
      * comprobaciones) contra el fixture, que es la fuente declarada.
      */
     public function test_cada_permiso_de_la_matriz_se_comporta_como_declara_el_fixture(): void
@@ -106,7 +106,7 @@ class AuthHardeningTest extends TestCase
         sort($nombresSeeder);
 
         $this->assertSame($nombresFixture, $nombresSeeder, 'El fixture y el seeder deben declarar los mismos permisos');
-        $this->assertCount(18, $nombresSeeder);
-        $this->assertSame(18, Permission::count());
+        $this->assertCount(16, $nombresSeeder);
+        $this->assertSame(16, Permission::count());
     }
 }

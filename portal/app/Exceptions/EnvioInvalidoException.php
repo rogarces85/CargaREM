@@ -29,19 +29,19 @@ class EnvioInvalidoException extends RuntimeException
         return new self('APP-ENV-002', "El período {$mes}/{$anio} está «{$estado}» y no acepta cargas nuevas.");
     }
 
+    public static function periodoEnRevision(int $anio, int $mes): self
+    {
+        return new self(
+            'APP-ENV-012',
+            "El período {$mes}/{$anio} está en revisión: solo se aceptan correcciones de envíos observados."
+        );
+    }
+
     public static function envioDuplicado(string $codigoEstablecimiento, int $anio, int $mes): self
     {
         return new self(
             'APP-ENV-003',
             "Ya existe un envío del establecimiento {$codigoEstablecimiento} para {$mes}/{$anio}."
-        );
-    }
-
-    public static function sinCatalogo(): self
-    {
-        return new self(
-            'APP-ENV-004',
-            'No hay catálogo activo. Sin catálogo no se puede validar: pida al administrador que importe uno.'
         );
     }
 
@@ -57,10 +57,6 @@ public static function transicionNoPermitida(string $desde, string $hacia): self
         );
     }
 
-    public static function motivoRequerido(string $accion): self
-    {
-        return new self('APP-ENV-007', "Para {$accion} hace falta un motivo: queda en la bitácora.");
-    }
 public static function observacionVacia(): self
     {
         return new self('APP-OBS-001', 'La observación no puede estar vacía.');
@@ -88,12 +84,5 @@ public static function aprobacionConObservaciones(int $abiertas): self
     public static function aprobacionIncompleta(int $faltantes): self
     {
         return new self('APP-ENV-011', "Falta(n) {$faltantes} serie(s) exigida(s) por la matriz: el envío no está completo.");
-    }
-public static function paqueteNoDisponible(string $estado): self
-    {
-        return new self(
-            'APP-PAQ-001',
-            "El paquete solo se genera de un envío aprobado o cargado. Este está «{$estado}»."
-        );
     }
 }

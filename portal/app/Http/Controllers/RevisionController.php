@@ -60,11 +60,15 @@ class RevisionController extends Controller
             $consulta->where('fecha_envio', '<=', now()->subDays($request->integer('dias')));
         }
 
+        if ($request->filled('fuera_de_plazo')) {
+            $consulta->where('fuera_de_plazo', true);
+        }
+
         $consulta->orderBy('fecha_envio')->orderBy('id');
 
         return view('revision.index', [
             'envios' => $consulta->paginate(25)->withQueryString(),
-            'establecimientos' => Establecimiento::orderBy('nombre')->get(),
+            'establecimientos' => $this->establecimientosDelAlcance($request),
             'estados' => [
                 Envio::EN_REVISION => 'En revisión',
                 Envio::OBSERVADO   => 'Observado',
@@ -72,10 +76,9 @@ class RevisionController extends Controller
                 Envio::APROBADO    => 'Aprobado',
                 Envio::RECIBIDO    => 'Recibido',
                 Envio::CON_ERRORES => 'Con errores',
-                Envio::CARGADO     => 'Cargado',
                 ''                 => 'Todos',
             ],
-            'filtros' => $request->only(['estado', 'establecimiento_id', 'anio', 'mes', 'dias']),
+            'filtros' => $request->only(['estado', 'establecimiento_id', 'anio', 'mes', 'dias', 'fuera_de_plazo']),
         ]);
     }
 
@@ -138,72 +141,18 @@ class RevisionController extends Controller
     }
 
     /**
-     * Confirma la carga en el sistema institucional (T-F3-07, MVP manual).
+     * Establecimientos que el revisor puede filtrar: los de su Servicio.
      */
-    public function cargar(Request $request, Envio $envio): RedirectResponse
+    private function establecimientosDelAlcance(Request $request): \Illuminate\Database\Eloquent\Collection
     {
-        $this->authorize('cargar', $envio);
+        $usuario = $request->user();
 
-        $datos = $request->validate([
-            'referencia' => ['nullable', 'string', 'max:100'],
-        ]);
+        $consulta = Establecimiento::query()->orderBy('nombre');
 
-        try {
-            $this->estados->confirmarCarga($envio, $request->user(), $datos['referencia'] ?? null);
-        } catch (EnvioInvalidoException $e) {
-            return back()->withErrors(['cargar' => $e->getMessage()]);
+        if ($usuario->hasRole('revisor') && $usuario->servicio_id !== null) {
+            $consulta->where('servicio_id', $usuario->servicio_id);
         }
 
-        return redirect()
-            ->route('revision.index')
-            ->with('ok', 'Carga confirmada.');
-    }
-
-    /**
-     * Reabre un envío aprobado o cargado (T-F3-08, solo administración).
-     */
-    public function reaperturar(Request $request, Envio $envio): RedirectResponse
-    {
-        $this->authorize('reabrir', $envio);
-
-        $datos = $request->validate([
-            'motivo' => ['required', 'string', 'max:500'],
-        ], [
-            'motivo.required' => 'Escriba por qué se reabre: queda en el historial.',
-        ]);
-
-        try {
-            $this->estados->reaperturar($envio, $request->user(), $datos['motivo']);
-        } catch (EnvioInvalidoException $e) {
-            return back()->withErrors(['reaperturar' => $e->getMessage()]);
-        }
-
-        return redirect()
-            ->route('revision.index')
-            ->with('ok', 'Envío reabierto: vuelve a revisión.');
-    }
-
-    /**
-     * Anula un envío (T-F3-08, solo administración).
-     */
-    public function anular(Request $request, Envio $envio): RedirectResponse
-    {
-        $this->authorize('anular', $envio);
-
-        $datos = $request->validate([
-            'motivo' => ['required', 'string', 'max:500'],
-        ], [
-            'motivo.required' => 'Escriba el motivo de la anulación: queda en el historial.',
-        ]);
-
-        try {
-            $this->estados->anular($envio, $request->user(), $datos['motivo']);
-        } catch (EnvioInvalidoException $e) {
-            return back()->withErrors(['anular' => $e->getMessage()]);
-        }
-
-        return redirect()
-            ->route('revision.index')
-            ->with('ok', 'Envío anulado.');
+        return $consulta->get();
     }
 }

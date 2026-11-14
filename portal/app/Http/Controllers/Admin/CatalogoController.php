@@ -100,11 +100,6 @@ abstract class CatalogoController extends Controller
         return $this->campos;
     }
 
-    protected function opcionesServicios(): array
-    {
-        return \App\Models\Servicio::orderBy('nombre')->pluck('nombre', 'id')->all();
-    }
-
     protected function opcionesSeries(): array
     {
         return \App\Models\Serie::orderBy('codigo')->pluck('codigo', 'id')->all();

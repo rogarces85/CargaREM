@@ -2,8 +2,13 @@
 
 namespace App\Providers;
 
-use App\Models\CatalogoSnapshot;
-use App\Observers\CatalogoSnapshotObserver;
+use App\Models\Establecimiento;
+use App\Models\Periodo;
+use App\Models\Plantilla;
+use App\Models\Serie;
+use App\Models\Servicio;
+use App\Models\User;
+use App\Observers\AuditoriaCatalogoObserver;
 use App\Services\AuditoriaService;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Login;
@@ -43,6 +48,8 @@ class AppServiceProvider extends ServiceProvider
             ]);
         });
 
-        CatalogoSnapshot::observe(CatalogoSnapshotObserver::class);
+        foreach ([Servicio::class, Establecimiento::class, Serie::class, Periodo::class, Plantilla::class, User::class] as $modelo) {
+            $modelo::observe(AuditoriaCatalogoObserver::class);
+        }
     }
 }

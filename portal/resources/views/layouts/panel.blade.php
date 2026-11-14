@@ -20,6 +20,7 @@
 
         @auth
             <ul class="navbar-nav ml-auto">
+                @include('partials.campana')
                 <li class="nav-item">
                     <span class="nav-link">
                         <i class="fas fa-user"></i>
@@ -82,12 +83,6 @@
                     @can('catalogos.gestionar')
                         <li class="nav-header">ADMINISTRACIÓN</li>
                         <li class="nav-item">
-                            <a href="{{ route('admin.snapshots.index') }}" class="nav-link">
-                                <i class="nav-icon fas fa-database"></i>
-                                <p>Catálogos</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
                             <a href="{{ route('admin.servicios.index') }}" class="nav-link">
                                 <i class="nav-icon fas fa-hospital"></i>
                                 <p>Servicios</p>
@@ -130,16 +125,6 @@
                             <a href="{{ route('admin.usuarios.index') }}" class="nav-link">
                                 <i class="nav-icon fas fa-users"></i>
                                 <p>Usuarios</p>
-                            </a>
-                        </li>
-                    @endcan
-
-                    @can('auditoria.ver')
-                        <li class="nav-header">CONTROL</li>
-                        <li class="nav-item">
-                            <a href="{{ route('admin.auditoria.index') }}" class="nav-link">
-                                <i class="nav-icon fas fa-clipboard-list"></i>
-                                <p>Auditoría</p>
                             </a>
                         </li>
                     @endcan

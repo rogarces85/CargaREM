@@ -9,12 +9,12 @@ use Illuminate\Support\Facades\Log;
 use Throwable;
 
 /**
- * Avisos por correo de los movimientos del envío (T-F3-10, OP-17).
+ * Avisos de los movimientos del envío (T-F3-10, OP-17).
  *
  * Reglas:
  * 1. Nunca se avisa a quien provocó el cambio.
- * 2. Un fallo de correo no puede tumbar la operación: el estado ya cambió y
- *    la notificación es un extra. Se registra y se sigue.
+ * 2. El aviso vive en la tabla `notifications`: la campana de la cabecera lo
+ *    muestra. En v2.0 no hay correo de notificación.
  * 3. Si no hay a quién avisar, no es un error: se deja constancia.
  */
 class Notificador
@@ -29,7 +29,7 @@ class Notificador
         $destinatarios = $this->destinatarios($envio, $evento, $actor);
 
         if ($destinatarios === []) {
-            Log::channel('correo')->info('Sin destinatarios para la notificación.', [
+            Log::info('Sin destinatarios para la notificación.', [
                 'envio' => $envio->id,
                 'evento' => $evento,
             ]);
@@ -38,17 +38,17 @@ class Notificador
         }
 
         $enviados = 0;
-        $correos = [];
+        $avisados = [];
 
         foreach ($destinatarios as $usuario) {
             try {
                 $usuario->notify(new EnvioNotificacion($envio, $evento, $actor));
                 $enviados++;
-                $correos[] = $usuario->email;
+                $avisados[] = $usuario->email;
             } catch (Throwable $e) {
                 // El estado ya cambió; el aviso es secundario.
                 report($e);
-                Log::channel('correo')->warning('No se pudo enviar la notificación.', [
+                Log::warning('No se pudo registrar la notificación.', [
                     'envio'  => $envio->id,
                     'evento' => $evento,
                     'para'   => $usuario->email,
@@ -59,10 +59,10 @@ class Notificador
 
         AuditoriaService::registrarSobre('envio.notificado', $envio, [
             'evento'        => $evento,
-            'destinatarios' => count($correos),
+            'destinatarios' => count($avisados),
         ]);
 
-        return ['enviados' => $enviados, 'destinatarios' => $correos];
+        return ['enviados' => $enviados, 'destinatarios' => $avisados];
     }
 
     /**
@@ -73,10 +73,10 @@ class Notificador
     public function destinatarios(Envio $envio, string $evento, ?User $actor = null): array
     {
         $usuarios = match ($evento) {
-            // A revisión: los revisores del mismo Servicio de Salud.
-            'enviado_a_revision' => $this->revisoresDelServicio($envio),
+            // A revisión: todos los revisores del Servicio único.
+            'enviado_a_revision' => $this->revisores($envio),
 
-            // Observado, aprobado o cargado: quienes cargaron el envío.
+            // Observado o aprobado: quienes cargaron el envío.
             default => $this->encargadosDelEnvio($envio),
         };
 
@@ -87,15 +87,20 @@ class Notificador
     }
 
     /** @return list<User> */
-    private function revisoresDelServicio(Envio $envio): array
+    private function revisores(Envio $envio): array
     {
-        $servicioId = $envio->establecimiento->servicio_id;
+        $servicioId = $envio->establecimiento?->servicio_id;
 
-        $revisores = User::role('revisor')
-            ->where('activo', true)
-            ->where('servicio_id', $servicioId)
-            ->get()
-            ->all();
+        $consulta = User::role('revisor')
+            ->where('activo', true);
+
+        // Se avisa a los revisores del Servicio del envío. Sin Servicio
+        // declarado no se filtra: es preferible un aviso de más a ninguno.
+        if ($servicioId !== null) {
+            $consulta->where('servicio_id', $servicioId);
+        }
+
+        $revisores = $consulta->get()->all();
 
         // Sin revisor asignado, el aviso no puede quedarse sin destinatario.
         if ($revisores === []) {

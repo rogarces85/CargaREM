@@ -1,19 +1,17 @@
 <?php
 
-use App\Http\Controllers\Admin\AuditoriaController;
-use App\Http\Controllers\Admin\CatalogoSnapshotController;
 use App\Http\Controllers\Admin\EstablecimientoController;
 use App\Http\Controllers\Admin\MatrizController;
 use App\Http\Controllers\Admin\PeriodoController;
 use App\Http\Controllers\Admin\PlantillaController;
 use App\Http\Controllers\Admin\SerieController;
-use App\Http\Controllers\Admin\UsuarioController;
 use App\Http\Controllers\Admin\ServicioController;
+use App\Http\Controllers\Admin\UsuarioController;
 use App\Http\Controllers\ArchivoController;
 use App\Http\Controllers\CompletitudController;
 use App\Http\Controllers\EnvioController;
 use App\Http\Controllers\HealthController;
-use App\Http\Controllers\PaqueteController;
+use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\RevisionController;
 use Illuminate\Support\Facades\Route;
 
@@ -28,7 +26,9 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return auth()->check()
+        ? redirect()->route('panel')
+        : redirect()->route('login');
 })->name('inicio');
 
 Route::get('/health', HealthController::class)->name('health');
@@ -52,23 +52,13 @@ Route::middleware(['auth', 'permission:catalogos.gestionar'])
         Route::resource('series', SerieController::class)->except(['show', 'destroy']);
         Route::resource('periodos', PeriodoController::class)->except(['show', 'destroy']);
 
-        Route::get('plantillas', [PlantillaController::class, 'index'])->name('plantillas.index');
+        Route::resource('plantillas', PlantillaController::class)->except(['show', 'destroy']);
 
         Route::get('matriz', [MatrizController::class, 'index'])->name('matriz.index');
         Route::get('matriz/{establecimiento}/edit', [MatrizController::class, 'edit'])->name('matriz.edit');
         Route::put('matriz/{establecimiento}', [MatrizController::class, 'update'])->name('matriz.update');
-
-        Route::get('snapshots', [CatalogoSnapshotController::class, 'index'])->name('snapshots.index');
-        Route::post('snapshots/importar', [CatalogoSnapshotController::class, 'importar'])->name('snapshots.importar');
-        Route::post('snapshots/{snapshot}/activar', [CatalogoSnapshotController::class, 'activar'])->name('snapshots.activar');
     });
 
-/*
- * Auditoría: permiso propio, no el de catálogos.
- */
-Route::middleware(['auth', 'permission:auditoria.ver'])
-    ->get('admin/auditoria', [AuditoriaController::class, 'index'])
-    ->name('admin.auditoria.index');
 /*
  * Usuarios: permiso propio usuarios.gestionar.
  */
@@ -88,25 +78,23 @@ Route::middleware(['auth'])->group(function () {
     Route::post('envios/{envio}/archivos', [EnvioController::class, 'subir'])->name('envios.subir')->middleware('throttle:10,60');
     Route::post('envios/{envio}/transicion', [EnvioController::class, 'transicion'])->name('envios.transicion');
     Route::get('envios/{envio}/reporte', [EnvioController::class, 'reporte'])->name('envios.reporte')->middleware('throttle:30,1');
-    Route::get('envios/{envio}/paquete', [PaqueteController::class, 'descargar'])->name('envios.paquete')->middleware('throttle:10,1');
     Route::get('envios/{envio}/archivos/{archivo}/descargar', [ArchivoController::class, 'descargar'])
         ->name('envios.archivo.descargar')->middleware('throttle:30,1');
+
+    Route::post('notificaciones/{notificacion}/leer', [NotificacionController::class, 'leer'])->name('notificaciones.leer');
+    Route::post('notificaciones/leer-todas', [NotificacionController::class, 'leerTodas'])->name('notificaciones.leer-todas');
 });
 /*
- * Bandeja de revisión: revisor, admin y consulta del Servicio de Salud.
+ * Bandeja de revisión: revisor y admin del Servicio de Salud.
  */
 Route::middleware(['auth', 'permission:envios.ver.ss'])->prefix('revision')->name('revision.')->group(function () {
     Route::get('/', [RevisionController::class, 'index'])->name('index');
     Route::post('{envio}/observar', [RevisionController::class, 'observar'])->name('observar');
     Route::post('{envio}/aprobar', [RevisionController::class, 'aprobar'])->name('aprobar');
-    Route::post('{envio}/cargar', [RevisionController::class, 'cargar'])->name('cargar');
-    Route::post('{envio}/reaperturar', [RevisionController::class, 'reaperturar'])->name('reaperturar');
-    Route::post('{envio}/anular', [RevisionController::class, 'anular'])->name('anular');
 });
 /*
- * Completitud del Servicio de Salud: matriz y exportación.
+ * Completitud del Servicio de Salud: matriz con semáforo y totales.
  */
 Route::middleware(['auth'])->prefix('completitud')->name('completitud.')->group(function () {
     Route::get('/', [CompletitudController::class, 'index'])->name('index');
-    Route::get('exportar', [CompletitudController::class, 'exportar'])->name('exportar');
 });

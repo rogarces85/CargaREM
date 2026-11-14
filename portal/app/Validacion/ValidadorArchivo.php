@@ -12,7 +12,6 @@ use App\Validacion\Reglas\ReglaV4Pertenencia;
 use App\Validacion\Reglas\ReglaV5Hojas;
 use App\Validacion\Reglas\ReglaV6Datos;
 use App\Validacion\Reglas\ReglaV7TipoDato;
-use App\Validacion\Reglas\ReglaV8Excepciones;
 use App\Validacion\Reglas\ReglaV9Duplicados;
 use App\Validacion\Reglas\ReglaV10RegistroValido;
 use App\Validacion\Reglas\ReglaV11Completitud;
@@ -27,6 +26,8 @@ use Illuminate\Support\Facades\Storage;
  *    un archivo cuya cabecera no se pudo leer.
  * 2. V11 (completitud del envío) siempre se ejecuta, porque no depende del
  *    archivo sino del conjunto.
+ *
+ * En v2.0 no hay V8: la tabla `excepciones` no existe.
  */
 class ValidadorArchivo
 {
@@ -40,7 +41,6 @@ class ValidadorArchivo
         ReglaV5Hojas::class,
         ReglaV6Datos::class,
         ReglaV7TipoDato::class,
-        ReglaV8Excepciones::class,
         ReglaV9Duplicados::class,
         ReglaV10RegistroValido::class,
         ReglaV11Completitud::class,
@@ -92,7 +92,6 @@ class ValidadorArchivo
             serie: $archivo->serie,
             rutaAbsoluta: $ruta,
             plantilla: $plantilla,
-            snapshotId: (int) $archivo->snapshot_id,
         );
 
         $hallazgos = [];

@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\CatalogoSnapshot;
 use App\Models\Envio;
 use App\Models\EnvioArchivo;
 use App\Models\Establecimiento;
@@ -10,7 +9,6 @@ use App\Models\Periodo;
 use App\Models\Plantilla;
 use App\Models\PlantillaHoja;
 use App\Models\Serie;
-use App\Models\Servicio;
 use App\Models\User;
 use App\Services\EnvioService;
 use App\Validacion\ValidadorArchivo;
@@ -37,12 +35,10 @@ class ValidadorV2Test extends TestCase
         $this->seed(RolePermissionSeeder::class);
         Storage::fake('local');
 
-        $servicio = Servicio::create(['codigo' => '23', 'nombre' => 'Osorno']);
         $establecimiento = Establecimiento::create([
-            'codigo' => '123100', 'nombre' => 'Hospital Base', 'servicio_id' => $servicio->id,
+            'codigo' => '123100', 'nombre' => 'Hospital Base',
         ]);
         Periodo::create(['anio' => 2026, 'mes' => 9, 'estado' => Periodo::ABIERTO]);
-        CatalogoSnapshot::create(['origen' => 'prueba', 'activo' => true]);
 
         $usuario = User::factory()->create(['activo' => true]);
         $usuario->assignRole('encargado');
@@ -60,7 +56,6 @@ class ValidadorV2Test extends TestCase
             'serie_excel'   => 'SERIE A',
             'serie_interna' => 'SERIE A1',
             'version'       => '1.2',
-            'snapshot_id'   => \App\Models\CatalogoSnapshot::activo()->first()->id,
         ]);
         PlantillaHoja::create([
             'anio' => 2026, 'serie_interna' => 'SERIE A1', 'hoja' => 'NOMBRE', 'obligatoria' => true,
@@ -112,7 +107,6 @@ class ValidadorV2Test extends TestCase
             'tamano_bytes'    => strlen($contenido),
             'mime'            => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             'estado'          => EnvioArchivo::SUBIDO,
-            'snapshot_id'     => CatalogoSnapshot::activo()->first()->id,
             'subido_por'      => auth()->id(),
         ]);
     }
