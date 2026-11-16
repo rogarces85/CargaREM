@@ -22,12 +22,12 @@
                 <div class="mt-4 grid gap-4 sm:grid-cols-2">
                     <x-ui.field nombre="name" etiqueta="Nombre" :error="$errors->first('name')" requerido>
                         <input type="text" name="name" id="name" value="{{ old('name', $usuario->name) }}"
-                               maxlength="150" required class="input"
+                               maxlength="150" required class="input" autocomplete="name"
                                @error('name') aria-invalid="true" aria-describedby="name-error" @enderror>
                     </x-ui.field>
 
                     <x-ui.field nombre="email" etiqueta="Correo" ayuda="Lo fija el administrador.">
-                        <input type="email" id="email" value="{{ $usuario->email }}" disabled class="input">
+                        <input type="email" id="email" value="{{ $usuario->email }}" disabled class="input" autocomplete="username">
                     </x-ui.field>
                 </div>
             </x-ui.card>
