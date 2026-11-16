@@ -261,50 +261,65 @@ Verificado el 2026-11-16 antes de tocar nada:
 | **D10** | Se agrega `portal/scripts/contraste.mjs` (`npm run check:contraste`) | Las desviaciones D7 y D8 se encontraron midiendo. Sin el script, el próximo ajuste de color las reintroduce en silencio. También vigila la paridad de los dos bloques oscuros |
 | **D11** | **`portal/public/build/` pasa a versionarse** (se quita del `.gitignore`) | Laravel lo ignora por defecto porque asume un servidor con Node. Aquí no hay Node y el despliegue es por FTP: sin el artefacto en el repositorio, un clon no sirve la interfaz. Es la misma convención que ya traía el proyecto, que versionaba 16 MB de assets de AdminLTE; el build pesa 12 archivos |
 
-### Fase 2 — Componentes Blade (primitivas)
-- [ ] **2.1** `card`, `stat`, `badge` (variantes de estado), `button`, `avatar`
-- [ ] **2.2** `table` (con `scope="col"`, `divide-y`, columnas responsivas), `pagination`
-- [ ] **2.3** `field` (label + input/select/checkbox/date/file + error + `aria-describedby`)
-- [ ] **2.4** `tabs`, `breadcrumb`, `page-header`, `empty`, `timeline`, `progress`
-- [ ] **2.5** `modal` sobre `<dialog>` nativo con focus trap y `Escape`
-- [ ] **2.6** `alert` / toast de sesión
-- [ ] **2.7** Galería local `/componentes` (solo `APP_ENV=local`) para revisar todas las variantes sin tocar producción
+### Fase 2 — Componentes Blade (primitivas) — **hecha 2026-11-16**
+- [x] **2.1** `card`, `stat`, `badge` (tono cerrado: ok/info/warn/danger/idle/none), `estado`, `avatar`, `icon`
+- [x] **2.2** `table` (con `scope="col"` y `caption`) + vista de paginación propia en `resources/views/vendor/pagination/tailwind.blade.php`
+- [x] **2.3** `field` (label + `aria-describedby` + error/ayuda)
+- [x] **2.4** `page-header` (con migas y `aria-current`), `tablist`, `empty`, `timeline` + `timeline-item`, `progress`, `alert`, `navegación` (`nav-link`)
+- [x] **2.5** `modal` sobre `<dialog>` nativo + `ui/modal.js`
+- [x] **2.6** `partials/avisos.blade.php` + Notyf
+- [x] **2.7** Galería `/componentes` (creada en la Fase 1)
 
-### Fase 3 — Shell
-- [ ] **3.1** `layouts/panel.blade.php`: sidebar (grupos + rail + overlay + `aria-current`), header, skip-link, footer, campana
-- [ ] **3.2** `layouts/auth.blade.php` + `auth/login.blade.php`
-- [ ] **3.3** `partials/campana.blade.php` como dropdown accesible
+**Decisión de diseño:** donde hay variantes se usa componente (`badge`, `estado`, `stat`); donde hay maquetación se usan utilidades y una clase semántica (`.tabla`, `.btn`, `.input`, `.select`). Sin esas clases, cada una de las diez tablas repetiría nueve utilidades por celda.
 
-### Fase 4 — Vistas, de mayor a menor impacto
-| # | Vista | Alcance | Tamaño |
-|---|---|---|---|
-| 4.1 | `completitud/index` | matriz de celdas + 4 KPIs + leyenda + progreso | **L** — es la pantalla que más gana |
-| 4.2 | `envios/show` | 4 KPIs + tabs (Resumen/Series/Hallazgos/Historial) + timeline + acordeón | **L** — 302 líneas hoy |
-| 4.3 | `panel` | KPIs + 1–2 gráficos + accesos por rol | **M** |
-| 4.4 | `envios/index` | form de alta + tabla + badges | **M** |
-| 4.5 | `revision/index` | filtros + tabla + 2 modales | **M** |
-| 4.6 | `admin/index` + `admin/form` | genéricos: cubren **5 catálogos** (servicios, establecimientos, series, períodos, feriados) | **M** — una vez, cinco pantallas |
-| 4.7 | `admin/matriz/index` + `form` | tabla + grid de checkboxes + fechas | **M** |
-| 4.8 | `admin/calendario/index` | filtro año + 3 tablas + avisos | **S/M** |
-| 4.9 | `admin/plantillas/index` + `form` | tabla + form con archivo | **S** |
-| 4.10 | `admin/usuarios/form` | form con select de rol y toggle activo | **S** |
-| 4.11 | `perfil` | tabs datos/contraseña | **S** |
-| 4.12 | `errors/404`, `errors/500` | nuevo | **S** |
+**`App\Support\EstadoUi`** centraliza el mapeo estado del dominio → etiqueta y tono. 18 estados cubiertos (envío, archivo, completitud, severidad, período). Un estado nuevo se agrega en un archivo, no en cinco tablas.
 
-Total: **18 archivos Blade** (2 layouts + 1 partial + 15 vistas).
+### Fase 3 — Shell — **hecha 2026-11-16**
+- [x] **3.1** `layouts/panel.blade.php`: barra lateral con grupos, colapso a riel y capa móvil; cabecera con tema, campana y cuenta; skip-link; pie; `aria-current` en el enlace activo
+- [x] **3.2** `layouts/auth.blade.php` + `auth/login.blade.php`
+- [x] **3.3** `partials/campana.blade.php` con `<details>` nativo (abre sin JavaScript, anuncia el estado expandido)
 
-### Fase 5 — Accesibilidad y verificación
-- [ ] **5.1** WCAG 2.2 AA: `aria-current`, `scope="col"`, labels asociados, foco visible, contraste ≥ 4.5:1 en `--muted-foreground` sobre `--card`
-- [ ] **5.2** Teclado: tabs, modal (focus trap + `Escape` + foco devuelto), sidebar móvil
-- [ ] **5.3** Tres anchos: 1440 / 768 / 390 px
-- [ ] **5.4** `./vendor/bin/phpunit` — suite completa en verde
-- [ ] **5.5** Checklist de textos que los tests afirman (ver §6)
+### Fase 4 — Vistas — **hecha 2026-11-16**
 
-### Fase 6 — Retiro y limpieza
-- [ ] **6.1** Borrar `portal/public/assets/adminlte/`, `adminlte.v3.backup/`, `adminlte4_extracted/`
-- [ ] **6.2** Retirar `yajra/laravel-datatables-oracle` de `composer.json` (**0 referencias en `portal/app`**, verificado)
-- [ ] **6.3** Actualizar `docs/manual/manual-usuario.md` con capturas de la nueva UI
-- [ ] **6.4** Actualizar `02-DOCS/wiki/stack/decision-stack.md`
+Las 18 vistas migradas. Cero clases de Bootstrap en `resources/views`, verificado con búsqueda.
+
+| # | Vista | Resultado |
+|---|---|---|
+| 4.1 | `completitud/index` | 4 indicadores + progreso + matriz de celdas con leyenda y `aria-label` por celda |
+| 4.2 | `envios/show` | 4 indicadores + series + hallazgos + acciones + historial como línea de tiempo |
+| 4.3 | `panel` | accesos por rol + «cómo funciona»; **sin cifras inventadas** (ver D12) |
+| 4.4 | `envios/index` | alta + tabla + estados + vacío + paginación |
+| 4.5 | `revision/index` | filtros + tabla + 2 diálogos sobre `<dialog>` |
+| 4.6 | `admin/index` + `admin/form` | genéricos: **5 catálogos** (servicios, establecimientos, series, períodos, feriados) |
+| 4.7 | `admin/matriz/index` + `form` | tabla + casillas y fechas por serie |
+| 4.8 | `admin/calendario/index` | avisos + tabla de períodos + feriados |
+| 4.9 | `admin/plantillas/index` + `form` | tabla + formulario |
+| 4.10 | `admin/usuarios/form` | nombre, correo, contraseña, rol, activo |
+| 4.11 | `perfil` | datos + contraseña en dos bloques, un solo formulario |
+| 4.12 | `errors/404`, `errors/500` | página propia sin layout de panel (un error puede ocurrir sin sesión) |
+
+### Fase 5 — Accesibilidad y verificación — **hecha 2026-11-16**
+- [x] **5.1** `aria-current` en navegación y migas, `scope="col"` y `caption` en todas las tablas, etiquetas asociadas, foco visible global, contraste AA medido
+- [x] **5.2** Teclado comprobado: flechas/Home/End en pestañas, `Escape` cierra el panel móvil y devuelve el foco, `<dialog>` con foco atrapado nativo, `aria-pressed` en los controles de tema
+- [x] **5.3** 1360×900, 390×844 y tabla con scroll interno en móvil; sin scroll horizontal de página (medido: `scrollWidth === innerWidth`)
+- [x] **5.4** `php vendor/bin/phpunit` → **OK (257 tests, 644 assertions)**
+- [x] **5.5** Textos que afirman los tests: conservados todos salvo `'sin archivo'` → `'Sin archivo'` (ver D13)
+
+### Fase 6 — Retiro y limpieza — **hecha 2026-11-16**
+- [x] **6.1** `git rm -r portal/public/assets/adminlte/` (430 archivos). Los respaldos `adminlte.v3.backup/`, `adminlte4_extracted/` y `adminlte4.zip` están ignorados y quedan **en disco**: son copias locales del usuario, no del repositorio
+- [x] **6.2** `composer remove yajra/laravel-datatables-oracle` → `composer audit` sin avisos
+- [x] **6.3** `02-DOCS/wiki/stack/decision-stack.md` marcado como superado, con tabla de contraste contra el canon vigente
+- [ ] **6.4** `docs/manual/manual-usuario.md` con capturas: **pendiente**, requiere que el usuario apruebe las pantallas finales
+
+#### Desviaciones de las fases 2 a 6
+
+| # | Qué cambió | Por qué |
+|---|---|---|
+| **D12** | El Panel **no muestra cifras**: son accesos por rol y una explicación del flujo | Los indicadores reales exigirían un `PanelController` y cambiar rutas, que el alcance de esta FTD excluye. Poner números fijos en la portada los vuelve mentira que nadie verifica |
+| **D13** | Se actualiza **una** afirmación de test: `'sin archivo'` → `'Sin archivo'` | La etiqueta del estado se unificó con el resto del vocabulario. Es un cambio de presentación; el test sigue comprobando lo mismo: que la fila sin archivo muestre ese estado |
+| **D14** | La matriz de completitud **no enlaza** las celdas | El drill-down quedó fuera del alcance v2.0 (C-018) y `CompletitudTest::test_la_celda_ya_no_lleva_al_envio` lo exige. El subtítulo anterior prometía ese clic y no era cierto |
+| **D15** | No se usan pestañas en `envios/show`; el contenido va en secciones | Esconder «Series» detrás de una pestaña en la pantalla de trabajo principal agrega un clic a la tarea más frecuente. Las pestañas quedan disponibles (`tablist`) para cuando aporten |
+| **D16** | Los diálogos usan `<dialog>` + `form="id"` en el botón del pie | Permite que el botón de envío viva en el pie del componente sin que el formulario lo envuelva. Es HTML válido y evita duplicar el formulario |
 
 ---
 

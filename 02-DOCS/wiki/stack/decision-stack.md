@@ -1,16 +1,30 @@
 ---
 type: stack
-title: D-STACK — decisión de stack del portal (cerrada C-010)
-description: Decisión final: Laravel 8.83 + PHP 7.4.3 + MySQL 8 + AdminLTE 3.2. TI confirmó que no hay PHP-FPM 8.3 ni actualización de servidor.
-tags: [stack, decision, cerrada, laravel, php, c-010]
-timestamp: 2026-11-10T12:30:00Z
+title: D-STACK — decisión de stack del portal (cerrada C-010, superada)
+description: Registro histórico de C-010 (Laravel 8.83 + PHP 7.4.3 + MySQL 8 + AdminLTE 3.2). Superado por C-015 y C-019. El canon vigente está en la Constitución v5.0.0.
+tags: [stack, decision, superada, laravel, php, c-010]
+timestamp: 2026-11-16T17:00:00Z
 topic: stack
-status: closed
+status: superseded
 ---
 
 # D-STACK — decisión de stack del portal
 
-> **Estado: CERRADA el 2026-11-10 (C-010).**
+> ⚠️ **Documento superado. No es el canon vigente.**
+>
+> Este archivo conserva la evidencia de por qué se eligió C-010 el 2026-11-10. Ese canon ya no rige:
+>
+> | Capa | C-010 (aquí) | Vigente |
+> |---|---|---|
+> | Framework | Laravel 8.83 | **Laravel 12.72** (C-015) |
+> | PHP | 7.4.3 | **8.2** (C-015) |
+> | UI | AdminLTE 3.2 (Bootstrap 4) | **Tailwind CSS v4 + componentes Blade propios** (C-019) |
+> | Iconos | FontAwesome | **Lucide** (C-019) |
+> | DataTables | `yajra/laravel-datatables-oracle` | **retirado**: 0 referencias en `portal/app` |
+>
+> **Fuente de verdad:** `02-DOCS/wiki/sdd/constitution.md` v5.0.0, §0. Registro de decisiones: `02-DOCS/wiki/sdd/decisions.md`.
+
+> **Estado del registro original: CERRADA el 2026-11-10 (C-010).**
 > El diagnóstico del servidor confirmó **PHP 7.4.3** en el vhost principal (`mod_php`).
 > TI confirmó que **no hay PHP-FPM 8.3** ni actualización de servidor prevista.
 > Se adopta **Opción B** como canon: Laravel 8.83 + PHP 7.4.3 + MySQL 8 + AdminLTE 3.2.

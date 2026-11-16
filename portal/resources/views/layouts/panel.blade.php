@@ -15,8 +15,10 @@
 
 <a href="#main-content" class="skip-link">Saltar al contenido</a>
 
-{{-- Capa oscura del panel móvil. Solo existe por debajo de 64rem. --}}
-<div data-sidebar-overlay class="fixed inset-0 z-40 hidden bg-black/50 lg:hidden"></div>
+{{-- Capa oscura del panel móvil. Su visibilidad la resuelve app.css según
+     `html.sidebar-open`; no lleva utilidad `hidden` porque esa utilidad gana
+     sobre la capa de componentes y la dejaría siempre oculta. --}}
+<div data-sidebar-overlay class="fixed inset-0 z-40 bg-black/50"></div>
 
 {{-- ====================== Barra lateral ====================== --}}
 <aside data-sidebar class="fixed inset-y-0 start-0 z-50 flex flex-col border-e border-sidebar-border bg-sidebar">
