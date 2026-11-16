@@ -250,3 +250,43 @@ deshabilita una serie y cómo se vuelve a agregar.
 > (con 1 de 5 series). No es una incoherencia visible — V11 lo marca como bloqueante en cuanto
 > se valida un archivo, así que en la práctica no ocurre. Pero la guarda al enviar es más
 > débil que la de aprobar. Está explicado en la Propuesta 1 del análisis.
+
+---
+
+## 8. Preparar la demo: datos de ejemplo
+
+Con la base recién sembrada no hay actividad: el mes 10 se ve gris y vacío. Para mostrarlo con
+color hay un seeder aparte, que **no** corre con un `db:seed` normal:
+
+```bash
+cd portal
+php artisan db:seed --class=DemoSeeder
+```
+
+Deja el período **10/2026** con seis envíos repartidos por los cinco estados:
+
+| Establecimiento | Estado | Series | Qué muestra |
+|---|---|---|---|
+| 123100 Hospital Base San José | aprobado | 6/6 | El caso completo y cerrado |
+| 123101 Hospital de Puerto Octay | en revisión | 6/6 | El trabajo pendiente del revisor |
+| 123102 Hospital de Purranque | con errores | 4/6 | Envío incompleto: `ENV-025`, faltan P y F |
+| 123103 Hospital de Río Negro | con errores | 6/6 | Un archivo con bloqueante: `ENV-016` |
+| 123104 Posta Puyehue | observado | 6/6 | **Fuera de plazo**, con observación abierta |
+| 123105 Posta San Pablo | validado | 6/6 | Listo para enviar a revisión |
+| 123106 Posta San Juan de la Costa | — | — | Sin envío, a propósito |
+
+Con eso, cada barra del gráfico tiene cuatro o cinco segmentos de color y la matriz muestra los
+cinco estados del semáforo.
+
+**Propiedades del seeder:**
+
+- Solo corre si `APP_ENV=local`. En cualquier otro entorno se niega y no hace nada.
+- Es **idempotente**: antes de crear, borra solo los envíos que él mismo marcó. Los envíos
+  reales no se tocan.
+- Los archivos son reales y pequeños (205 KB en total), así que el botón «Descargar» del
+  detalle funciona durante la demostración.
+- Las transiciones, los hallazgos y la observación son coherentes con el estado de cada envío:
+  el historial y la tabla de hallazgos muestran algo real, no una pantalla vacía.
+
+Para retirar los datos, se vuelve a ejecutar el seeder (los reemplaza) o se borran los envíos
+cuya `observacion_general` sea la marca `Datos de demostración. No son estadísticas reales.`
