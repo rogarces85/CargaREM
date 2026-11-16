@@ -8,20 +8,22 @@
         $avance = $resumen['exigidas'] > 0 ? (int) round($resumen['aprobadas'] * 100 / $resumen['exigidas']) : 0;
 
         /*
-         * Cuántos establecimientos exigen cada serie. Sale de las celdas que no
-         * son «no aplica»: así el gráfico compara contra lo que de verdad se
-         * pide, no contra el total del Servicio. Un establecimiento al que no se
-         * le exige la serie no debe contar como atraso de esa serie.
+         * Cuántas celdas hay de cada estado, por serie. Solo cuentan las celdas
+         * que no son «no aplica»: así el gráfico compara contra lo que de verdad
+         * se pide. Un establecimiento al que no se le exige la serie no debe
+         * contar como atraso de esa serie.
          */
-        $exigidasPorSerie = [];
+        $conteosPorSerie = [];
 
         foreach ($matriz['filas'] as $fila) {
             foreach ($matriz['series'] as $serie) {
                 $estado = $fila['celdas'][$serie->id]['estado'] ?? 'no_aplica';
 
-                if ($estado !== 'no_aplica') {
-                    $exigidasPorSerie[$serie->id] = ($exigidasPorSerie[$serie->id] ?? 0) + 1;
+                if ($estado === 'no_aplica') {
+                    continue;
                 }
+
+                $conteosPorSerie[$serie->id][$estado] = ($conteosPorSerie[$serie->id][$estado] ?? 0) + 1;
             }
         }
 
@@ -29,39 +31,51 @@
          * Estilos por estado de celda. Clases completas, nunca construidas: el
          * escáner de Tailwind lee el archivo como texto y no resuelve
          * `bg-status-{{ $x }}` (constitución, principio 29).
+         *
+         * `relleno` es el mismo estado en versión sólida, para los segmentos de
+         * la barra apilada. El orden de este mapa es el orden de apilado.
          */
         $celdas = [
             'aprobado' => [
                 'clase' => 'border-status-ok/35 bg-status-ok/15 text-status-ok-fg',
+                'relleno' => 'bg-status-ok',
                 'icono' => 'check',
                 'texto' => 'Aprobado',
             ],
             'en_proceso' => [
                 'clase' => 'border-status-warn/35 bg-status-warn/15 text-status-warn-fg',
+                'relleno' => 'bg-status-warn',
                 'icono' => 'clock',
                 'texto' => 'En proceso',
             ],
             'con_errores' => [
                 'clase' => 'border-status-danger/35 bg-status-danger/15 text-status-danger-fg',
+                'relleno' => 'bg-status-danger',
                 'icono' => 'x',
                 'texto' => 'Con errores',
             ],
             'sin_archivo' => [
                 'clase' => 'border-status-idle/35 bg-status-idle/10 text-status-idle-fg',
+                'relleno' => 'bg-status-idle/75',
                 'icono' => 'minus',
                 'texto' => 'Sin archivo',
             ],
             'sin_envio' => [
                 'clase' => 'border-border bg-muted/60 text-muted-foreground',
+                'relleno' => 'bg-status-idle/35',
                 'icono' => 'minus',
                 'texto' => 'Sin envío',
             ],
             'no_aplica' => [
                 'clase' => 'border-transparent text-muted-foreground/30',
+                'relleno' => null,
                 'icono' => null,
                 'texto' => 'No aplica',
             ],
         ];
+
+        // Estados que se apilan en el gráfico: todos menos «no aplica».
+        $apilables = array_filter($celdas, fn (array $c) => $c['relleno'] !== null);
     @endphp
 
     <div class="mx-auto max-w-6xl space-y-6">
@@ -138,20 +152,36 @@
                     <div>
                         <h2 class="text-sm font-semibold">Avance por serie</h2>
                         <p class="mt-1 text-xs text-muted-foreground">
-                            Aprobadas sobre exigidas, serie por serie. Cada barra cuenta solo los
-                            establecimientos a los que esa serie les corresponde.
+                            Estado de cada serie entre los establecimientos a los que se les exige.
+                            Cada barra se compone de los cinco estados del semáforo.
                         </p>
                     </div>
 
                     <x-ui.icon name="chart-column" class="size-4 shrink-0 text-muted-foreground" />
                 </div>
 
+                {{-- Leyenda: única para el gráfico y para la matriz de abajo. --}}
+                <ul class="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5">
+                    @foreach ($apilables as $clave => $definicion)
+                        <li class="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+                            <span class="size-2.5 shrink-0 rounded-sm {{ $definicion['relleno'] }}" aria-hidden="true"></span>
+                            {{ $definicion['texto'] }}
+                        </li>
+                    @endforeach
+                </ul>
+
                 <ul class="mt-4 space-y-3">
                     @foreach ($matriz['series'] as $serie)
                         @php
-                            $exigidasSerie = $exigidasPorSerie[$serie->id] ?? 0;
-                            $aprobadasSerie = $matriz['totales'][$serie->id] ?? 0;
+                            $conteo = $conteosPorSerie[$serie->id] ?? [];
+                            $exigidasSerie = array_sum($conteo);
+                            $aprobadasSerie = $conteo['aprobado'] ?? 0;
                             $pctSerie = $exigidasSerie > 0 ? (int) round($aprobadasSerie * 100 / $exigidasSerie) : 0;
+
+                            // Desglose en texto: el color no puede ser la única señal (principio 30).
+                            $desglose = collect($apilables)
+                                ->map(fn (array $definicion, string $estado) => $definicion['texto'] . ' ' . ($conteo[$estado] ?? 0))
+                                ->implode(', ');
                         @endphp
 
                         <li>
@@ -162,13 +192,28 @@
                                 </span>
                             </div>
 
-                            <x-ui.progress
-                                :valor="$aprobadasSerie"
-                                :max="max(1, $exigidasSerie)"
-                                :tono="$pctSerie >= 100 ? 'ok' : ($pctSerie >= 50 ? 'warn' : 'danger')"
-                                etiqueta="Serie {{ $serie->codigo }}: {{ $pctSerie }} por ciento"
-                                class="mt-1.5"
-                            />
+                            {{--
+                                Barra apilada. Sin componente propio a propósito: se usa una
+                                vez. Si aparece una segunda, se extrae a `x-ui.chart-barra`.
+                                El ancho va en `style` porque Tailwind no resuelve anchos
+                                calculados; las clases de color sí son literales.
+                            --}}
+                            <div class="mt-1.5 flex h-2.5 overflow-hidden rounded-full bg-muted"
+                                 role="img"
+                                 aria-label="Serie {{ $serie->codigo }}: {{ $desglose }}, de {{ $exigidasSerie }} exigidas">
+                                @foreach ($apilables as $estado => $definicion)
+                                    @php
+                                        $cantidad = $conteo[$estado] ?? 0;
+                                        $ancho = $exigidasSerie > 0 ? round($cantidad * 100 / $exigidasSerie, 2) : 0;
+                                    @endphp
+
+                                    @if ($cantidad > 0)
+                                        <div class="h-full {{ $definicion['relleno'] }}"
+                                             style="width: {{ $ancho }}%"
+                                             title="{{ $definicion['texto'] }}: {{ $cantidad }} de {{ $exigidasSerie }}"></div>
+                                    @endif
+                                @endforeach
+                            </div>
                         </li>
                     @endforeach
                 </ul>
@@ -250,20 +295,12 @@
                 </tfoot>
             </x-ui.table>
 
-            {{-- Leyenda: el color no es la única señal, cada celda trae su texto
-                 en `title` y en `aria-label`. --}}
-            <div class="flex flex-wrap items-center gap-2">
-                @foreach (['aprobado', 'en_proceso', 'con_errores', 'sin_archivo', 'sin_envio'] as $clave)
-                    <span class="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-                        <span class="inline-flex size-5 items-center justify-center rounded border {{ $celdas[$clave]['clase'] }}">
-                            @if ($celdas[$clave]['icono'])
-                                <x-ui.icon :name="$celdas[$clave]['icono']" class="size-3" />
-                            @endif
-                        </span>
-                        {{ $celdas[$clave]['texto'] }}
-                    </span>
-                @endforeach
-            </div>
+            {{--
+                La leyenda de estados vive en la tarjeta «Avance por serie», que va
+                justo arriba. Repetirla acá era la misma información dos veces en
+                una pantalla. Cada celda conserva su texto en `title` y en
+                `aria-label`, así que sigue sin depender del color (principio 30).
+            --}}
         @endif
 
     </div>

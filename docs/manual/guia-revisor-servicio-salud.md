@@ -116,9 +116,10 @@ aprobados.
 Cuando ya no queda nada en la bandeja:
 
 1. Menú **Completitud**. Elige año y mes.
-2. Mira el bloque **Avance por serie**: una barra por serie, con cuántos establecimientos ya
-   la tienen aprobada sobre los que la tienen exigida. Es la lectura rápida de qué serie está
-   frenando el mes.
+2. Mira el bloque **Avance por serie**. Cada serie tiene una barra apilada con los cinco
+   estados del semáforo: verde aprobado, ámbar en proceso, rojo con errores, gris oscuro sin
+   archivo y gris claro sin envío. De un vistazo se ve qué serie está frenando el mes y en qué
+   punto está trabada.
 3. Revisa la matriz: una fila por establecimiento, una columna por serie.
 4. La columna **Avance** te dice `aprobadas / exigidas` por establecimiento.
 5. El porcentaje de arriba es el del Servicio completo.
@@ -126,8 +127,12 @@ Cuando ya no queda nada en la bandeja:
 Ahí ves de un golpe quién no entregó y qué serie se está quedando atrás. Es el argumento para
 llamarlos.
 
-> La barra de una serie cuenta solo los establecimientos a los que esa serie les corresponde.
-> Una serie exigida a 4 establecimientos no se compara contra los 7 del Servicio.
+> Cada barra cuenta solo los establecimientos a los que esa serie les corresponde. Una serie
+> exigida a 4 establecimientos no se compara contra los 7 del Servicio.
+
+> **Sin envío** y **sin archivo** no son lo mismo: «sin envío» significa que ese
+> establecimiento no creó el envío del mes; «sin archivo» significa que el envío existe pero
+> le falta esa serie. El primero es un problema de gestión, el segundo de carga.
 
 > La pantalla de completitud **no exporta** en esta versión. Si necesitas el dato en otro
 > lado, es una conversación pendiente, no un botón escondido.

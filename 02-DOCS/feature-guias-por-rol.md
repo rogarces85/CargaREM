@@ -56,7 +56,7 @@ módulos simplificar después.
 | 7 | Corregir el botón «Enviar a revisión» en estado `con_errores` | El botón deja de ofrecerse cuando la máquina de estados no admite la transición |
 | 8 | Suite verde y build | `php vendor/bin/phpunit` OK y `npm run build` sin errores |
 | 9 | Red de seguridad: una serie desactivada no se exige | V11 no la reclama y la aprobación no la cuenta como faltante; dos tests lo prueban |
-| 10 | Icono de estadísticas y gráfico de avance por serie | La pantalla de Completitud muestra una barra por serie con sus cifras |
+| 10 | Icono de estadísticas y gráfico de avance por serie | La pantalla de Completitud muestra una barra apilada por serie con los cinco estados |
 
 ## Evidence
 
@@ -67,7 +67,7 @@ módulos simplificar después.
 | 7 | `EnvioPolicy::enviar` quedó con la misma lista de estados que `EstadoEnvioService::PERMITIDAS` (sin `con_errores`) y exige al menos un archivo vigente. Dos tests nuevos en `EnvioPolicyTest`. |
 | 8 | `php vendor/bin/phpunit` → **OK (261 tests, 649 assertions)**. `npm run build` → limpio. |
 | 9 | Filtro `series.activo` aplicado en `ReglaV11Completitud`, `EstadoEnvioService::verificarGuardas`, `CompletitudService` y `EnvioController::show`. Tests `test_una_serie_desactivada_no_se_exige` y `test_una_serie_reactivada_vuelve_a_exigirse` en verde. La matriz quedó con F activa en los 7 establecimientos tras `db:seed --class=L1MinimumSeeder`. |
-| 10 | En `/completitud?anio=2026&mes=10` la página muestra 6 barras (A, BS, BM, D, P, F) con `0 / 7 · 0 %`, y la matriz confirma 6 × 7 = 42 series exigidas. Icono `chart-column` visible en la barra lateral y en la tarjeta del panel. Cero errores de consola. |
+| 10 | En `?anio=2026&mes=10` la tarjeta muestra una barra apilada por serie con los cinco estados del semáforo (aprobado, en proceso, con errores, sin archivo, sin envío) y una leyenda única. Verificado con datos temporales en los tres colores y en los dos temas; el `aria-label` de cada barra trae el desglose completo («Serie A: Aprobado 1, En proceso 1, …»). Los datos temporales se borraron: queda solo el envío #1. La leyenda duplicada al pie de la matriz se retiró. |
 
 > Nota: en una corrida intermedia falló `RendimientoTest::test_la_bandeja_responde_rapido_con_cien_envios`
 > con 2,03 s contra un umbral de 2,0 s. Se repitió tres veces aislado y pasó las tres; la
