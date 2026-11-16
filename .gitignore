@@ -116,3 +116,6 @@ portal/public/assets/*.zip
 
 # Estado local de herramientas de automatización de navegador.
 .playwright-cli/
+
+# Capturas de verificacion (evidencia de trabajo, no fuente).
+/shots/

@@ -31,12 +31,14 @@ módulos simplificar después.
 - `docs/manual/guia-administrador.md` — guía de uso del rol admin.
 - `docs/manual/analisis-simplificacion.md` — hallazgos con evidencia y propuestas.
 - Corrección de los dos defectos que impiden demostrar el flujo (ver Checklist).
+- Red de seguridad: una serie desactivada deja de exigirse, para que el interruptor del
+  catálogo sea reversible y no deje envíos bloqueados.
+- Icono de estadísticas (`chart-column`) y gráfico de avance por serie en Completitud.
 
 **Fuera:**
 
 - Cambiar reglas de negocio, severidades o el pipeline de validación.
-- Decidir si la serie F se exige o no: es dato del catálogo y lo decide la Unidad de
-  Estadísticas con el usuario.
+- Retirar la serie F del catálogo: se conserva como pieza de demostración.
 - Fusionar o retirar módulos. El análisis propone; la decisión no es del agente.
 - Capturas de pantalla. Las guías se escriben antes de congelar la interfaz.
 - Reemplazar `docs/manual/manual-usuario.md`: las guías lo complementan, no lo sustituyen.
@@ -53,15 +55,19 @@ módulos simplificar después.
 | 6 | Corregir la URL absoluta de `revision/index` | Las acciones Observar/Aprobar apuntan a la ruta con prefijo del subdirectorio; probado en navegador |
 | 7 | Corregir el botón «Enviar a revisión» en estado `con_errores` | El botón deja de ofrecerse cuando la máquina de estados no admite la transición |
 | 8 | Suite verde y build | `php vendor/bin/phpunit` OK y `npm run build` sin errores |
+| 9 | Red de seguridad: una serie desactivada no se exige | V11 no la reclama y la aprobación no la cuenta como faltante; dos tests lo prueban |
+| 10 | Icono de estadísticas y gráfico de avance por serie | La pantalla de Completitud muestra una barra por serie con sus cifras |
 
 ## Evidence
 
 | # | Evidencia observada |
 |---|---|
-| 1-5 | Escritos y commiteados. Las cifras de catálogo (7 establecimientos, series A/BS/BM/D/P activas, F inactiva exigida en 4, período 10/2026 con límite 06-11-2026 vencido) salen de consultar la base de desarrollo, no de suponer. |
-| 6 | Con el envío #1 en `en_revision`, la bandeja renderiza `data-url="http://localhost/Cargas/portal/public/revision/1/observar"` y, al abrir el diálogo, `formObservar.action` es esa misma dirección. Antes el JavaScript armaba `'/revision/1/observar'`, que apunta a `http://localhost/revision/1/observar` y da 404 en el subdirectorio. Estado del envío restaurado a `con_errores` después de la prueba. |
-| 7 | `EnvioPolicy::enviar` quedó con la misma lista de estados que `EstadoEnvioService::PERMITIDAS` (sin `con_errores`) y exige al menos un archivo vigente. Dos tests nuevos en `EnvioPolicyTest`: `test_no_se_envia_un_envio_con_errores` y `test_no_se_envia_un_envio_sin_archivos`. |
-| 8 | `php vendor/bin/phpunit` → **OK (259 tests, 647 assertions)**. `npm run build` → limpio. |
+| 1-5 | Escritos y commiteados. Las cifras de catálogo (7 establecimientos, series A/BS/BM/D/P/F activas, período 10/2026 con límite 06-11-2026 vencido) salen de consultar la base de desarrollo, no de suponer. |
+| 6 | Con el envío #1 en `en_revision`, la bandeja renderiza `data-url="http://localhost/Cargas/portal/public/revision/1/observar"` y, al abrir el diálogo, `formObservar.action` es esa misma dirección. Estado del envío restaurado a `con_errores` después de la prueba. |
+| 7 | `EnvioPolicy::enviar` quedó con la misma lista de estados que `EstadoEnvioService::PERMITIDAS` (sin `con_errores`) y exige al menos un archivo vigente. Dos tests nuevos en `EnvioPolicyTest`. |
+| 8 | `php vendor/bin/phpunit` → **OK (261 tests, 649 assertions)**. `npm run build` → limpio. |
+| 9 | Filtro `series.activo` aplicado en `ReglaV11Completitud`, `EstadoEnvioService::verificarGuardas`, `CompletitudService` y `EnvioController::show`. Tests `test_una_serie_desactivada_no_se_exige` y `test_una_serie_reactivada_vuelve_a_exigirse` en verde. La matriz quedó con F activa en los 7 establecimientos tras `db:seed --class=L1MinimumSeeder`. |
+| 10 | En `/completitud?anio=2026&mes=10` la página muestra 6 barras (A, BS, BM, D, P, F) con `0 / 7 · 0 %`, y la matriz confirma 6 × 7 = 42 series exigidas. Icono `chart-column` visible en la barra lateral y en la tarjeta del panel. Cero errores de consola. |
 
 > Nota: en una corrida intermedia falló `RendimientoTest::test_la_bandeja_responde_rapido_con_cien_envios`
 > con 2,03 s contra un umbral de 2,0 s. Se repitió tres veces aislado y pasó las tres; la
@@ -70,5 +76,4 @@ módulos simplificar después.
 
 ## Next
 
-Decidir la serie F (opción A, B o C del análisis) antes de la demostración. Es lo único que
-impide que 4 de los 7 establecimientos recorran el flujo completo.
+Commit, push y merge a `main`.

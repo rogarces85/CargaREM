@@ -44,7 +44,7 @@
             if (auth()->user()->canAny(['envios.ver.propio', 'envios.ver.ss'])) {
                 $accesos[] = [
                     'href' => route('completitud.index'),
-                    'icono' => 'grid-3x3',
+                    'icono' => 'chart-column',
                     'tono' => 'ok',
                     'titulo' => 'Completitud',
                     'texto' => 'Qué entregó cada establecimiento, serie por serie, y cuánto falta para cerrar el período.',

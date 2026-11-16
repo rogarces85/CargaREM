@@ -8,6 +8,24 @@
         $avance = $resumen['exigidas'] > 0 ? (int) round($resumen['aprobadas'] * 100 / $resumen['exigidas']) : 0;
 
         /*
+         * Cuántos establecimientos exigen cada serie. Sale de las celdas que no
+         * son «no aplica»: así el gráfico compara contra lo que de verdad se
+         * pide, no contra el total del Servicio. Un establecimiento al que no se
+         * le exige la serie no debe contar como atraso de esa serie.
+         */
+        $exigidasPorSerie = [];
+
+        foreach ($matriz['filas'] as $fila) {
+            foreach ($matriz['series'] as $serie) {
+                $estado = $fila['celdas'][$serie->id]['estado'] ?? 'no_aplica';
+
+                if ($estado !== 'no_aplica') {
+                    $exigidasPorSerie[$serie->id] = ($exigidasPorSerie[$serie->id] ?? 0) + 1;
+                }
+            }
+        }
+
+        /*
          * Estilos por estado de celda. Clases completas, nunca construidas: el
          * escáner de Tailwind lee el archivo como texto y no resuelve
          * `bg-status-{{ $x }}` (constitución, principio 29).
@@ -112,6 +130,50 @@
                 </button>
             </form>
         </x-ui.card>
+
+        {{-- Avance por serie: la lectura de un vistazo antes del detalle de la matriz. --}}
+        @unless ($matriz['series']->isEmpty())
+            <x-ui.card class="p-5">
+                <div class="flex items-start justify-between gap-3">
+                    <div>
+                        <h2 class="text-sm font-semibold">Avance por serie</h2>
+                        <p class="mt-1 text-xs text-muted-foreground">
+                            Aprobadas sobre exigidas, serie por serie. Cada barra cuenta solo los
+                            establecimientos a los que esa serie les corresponde.
+                        </p>
+                    </div>
+
+                    <x-ui.icon name="chart-column" class="size-4 shrink-0 text-muted-foreground" />
+                </div>
+
+                <ul class="mt-4 space-y-3">
+                    @foreach ($matriz['series'] as $serie)
+                        @php
+                            $exigidasSerie = $exigidasPorSerie[$serie->id] ?? 0;
+                            $aprobadasSerie = $matriz['totales'][$serie->id] ?? 0;
+                            $pctSerie = $exigidasSerie > 0 ? (int) round($aprobadasSerie * 100 / $exigidasSerie) : 0;
+                        @endphp
+
+                        <li>
+                            <div class="flex items-baseline justify-between gap-3">
+                                <span class="text-sm font-medium">{{ $serie->codigo }}</span>
+                                <span class="tabular text-xs text-muted-foreground">
+                                    {{ $aprobadasSerie }} / {{ $exigidasSerie }} · {{ $pctSerie }}%
+                                </span>
+                            </div>
+
+                            <x-ui.progress
+                                :valor="$aprobadasSerie"
+                                :max="max(1, $exigidasSerie)"
+                                :tono="$pctSerie >= 100 ? 'ok' : ($pctSerie >= 50 ? 'warn' : 'danger')"
+                                etiqueta="Serie {{ $serie->codigo }}: {{ $pctSerie }} por ciento"
+                                class="mt-1.5"
+                            />
+                        </li>
+                    @endforeach
+                </ul>
+            </x-ui.card>
+        @endunless
 
         {{-- Matriz --}}
         @if ($matriz['series']->isEmpty())

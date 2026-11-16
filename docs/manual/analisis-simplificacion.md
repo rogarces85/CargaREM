@@ -10,7 +10,7 @@
 
 | # | Hallazgo | Estado |
 |---|---|---|
-| H1 | Serie F inactiva y todavía exigida | **Abierto.** Necesita una decisión de negocio |
+| H1 | Serie F inactiva y todavía exigida | **Resuelto.** F vuelve a estar activa y una serie desactivada ya no se exige |
 | H2 | Acciones de Revisión con URL sin subdirectorio | **Corregido** el 2026-11-16 |
 | H3 | «Enviar a revisión» ofrecido en `con_errores` | **Corregido** el 2026-11-16 |
 | H4 | Enviar a revisión sin ningún archivo | **Corregido** el 2026-11-16 |
@@ -24,45 +24,63 @@ Se corrigieron sin tocar ninguna regla de negocio.
 
 ---
 
-### H1 · La serie F está inactiva y la matriz todavía la exige — **ABIERTO**
+### H1 · La serie F estaba inactiva y la matriz la seguía exigiendo — **RESUELTO**
 
-**Es el bloqueo más grave.** Deja 4 de los 7 establecimientos sin poder llegar a aprobación.
+**Qué se decidió:** la serie F **no existe en la realidad desde hace años**, pero se conserva
+como pieza de demostración: sirve para mostrar, dentro del sistema, cómo se deshabilita una
+serie y cómo se vuelve a agregar.
 
-**Qué dice el dato**
+**El problema original**
 
 ```
 series.activo = 0            -> serie F
-establecimiento_serie        -> obligatoria = 1 en:
-     123102 Hospital de Purranque
-     123103 Hospital de Río Negro
-     123104 Posta de Salud Rural Puyehue
-     123106 Posta de Salud Rural San Juan de la Costa
+establecimiento_serie        -> obligatoria = 1 en 4 establecimientos
 ```
 
-**Por qué se traba**
+Ese estado era imposible de resolver para el usuario:
 
-| Paso | Código | Qué hace |
+| Paso | Código | Qué hacía |
 |---|---|---|
-| Desplegable de subida | `EnvioController.php:95` | Solo lista series con `activo = true`. **F no aparece** |
-| Guarda de subida | `EnvioService.php:100` | Rechaza subir una serie inactiva |
-| Validación V11 | `ReglaV11Completitud.php:35` | Exige la serie según el pivote `obligatoria`, **sin mirar `activo`** → emite `ENV-025` **bloqueante**: «Falta el archivo de la serie F» |
-| Guarda de aprobación | `EstadoEnvioService.php:214` | Misma consulta, mismo resultado: faltante |
+| Desplegable de subida | `EnvioController.php:95` | Solo lista series activas. **F no aparecía** |
+| Guarda de subida | `EnvioService.php:100` | Rechazaba subir una serie inactiva |
+| Validación V11 | `ReglaV11Completitud.php` | Exigía la serie según la matriz, **sin mirar `activo`** → `ENV-025` **bloqueante** |
+| Guarda de aprobación | `EstadoEnvioService.php` | Misma consulta, mismo bloqueo |
 
-**Resultado:** V11 deja un bloqueante permanente. El envío se queda en `con_errores` para
-siempre. No se puede enviar a revisión, y aunque se enviara, no se podría aprobar.
+El envío quedaba en `con_errores` para siempre, sin acción posible por parte del encargado.
 
-**Las tres salidas posibles**
+**Las dos cosas que se hicieron**
 
-| Opción | Qué se toca | Riesgo |
-|---|---|---|
-| A | Poner `obligatoria = 0` para F en esos 4 establecimientos | Ninguno. Es corregir el dato si F ya no se exige |
-| B | Reactivar la serie F | Ninguno, si F **sí** se sigue exigiendo. Corrige el dato al revés |
-| C | Filtrar `activo` en V11, en la guarda de aprobación y en la matriz | Cambia el código. Añade una regla implícita: «una serie inactiva nunca se exige», aunque la matriz diga lo contrario |
+1. **Se restauró el estado de demostración.** La serie F está **activa** y la matriz la exige
+   en los 7 establecimientos, igual que en `L1MinimumSeeder`. Ojo: el seeder **ya la definía
+   activa**; fue la base de desarrollo la que quedó modificada a mano tras probar el panel de
+   Series. Ahora el estado se reproduce con `php artisan db:seed --class=L1MinimumSeeder`.
 
-**Recomendación:** A o B, según si F se exige o no. Es una pregunta para la Unidad de
-Estadísticas, no para el código. **La opción C conviene igual**, como red de seguridad: si
-alguien vuelve a desactivar una serie sin tocar la matriz, el sistema no debería quedar
-trabado.
+2. **Se agregó la red de seguridad (opción C del análisis anterior).** Una serie desactivada
+   **deja de exigirse**, aunque la matriz conserve la fila. Cuatro lugares aplican el mismo
+   criterio:
+
+   | Archivo | Qué hace |
+   |---|---|
+   | `App\Validacion\Reglas\ReglaV11Completitud` | No reclama series inactivas |
+   | `App\Services\EstadoEnvioService` | No cuenta series inactivas como faltantes al aprobar |
+   | `App\Services\CompletitudService` | No muestra columna de serie inactiva |
+   | `App\Http\Controllers\EnvioController` | No lista serie inactiva como exigida |
+
+**Qué permite ahora la demostración**
+
+| Acción en el panel | Resultado en el acto |
+|---|---|
+| Series → desmarcar **Activa** en F | F desaparece del desplegable de subida y de la matriz de completitud. Los envíos que la tenían **no se bloquean** |
+| Series → volver a marcar **Activa** | F vuelve a exigirse donde la matriz la tenga |
+
+Es reversible y no deja estados imposibles. Dos tests lo cubren:
+`test_una_serie_desactivada_no_se_exige` y `test_una_serie_reactivada_vuelve_a_exigirse`.
+
+> **Lo que sigue siendo cierto:** la matriz conserva la fila `obligatoria` aunque la serie esté
+> inactiva. Es a propósito — así reactivarla no pierde la configuración. Pero significa que
+> **desactivar una serie no la quita de la matriz**: el estado del catálogo es el que manda
+> mientras esté inactiva. Si algún día se quiere que la matriz mande, hay que invertir la regla
+> y volver a la opción A o B.
 
 ---
 
@@ -272,7 +290,7 @@ registre quién cerró y con qué pendientes.
 
 | # | Qué | Tipo | Prioridad |
 |---|---|---|---|
-| H1 | Serie F inactiva y exigida | Dato + red de seguridad en código | **Antes de la demo.** Necesita tu decisión |
+| ~~H1~~ | ~~Serie F inactiva y exigida~~ | Dato + red de seguridad | **Resuelto.** F activa para la demo y serie inactiva ya no se exige |
 | ~~H2~~ | ~~URL sin subdirectorio en Revisión~~ | Defecto | **Corregido** |
 | ~~H3~~ | ~~Botón «Enviar» en estado imposible~~ | Defecto | **Corregido** |
 | ~~H4~~ | ~~Enviar sin archivos~~ | Defecto de coherencia | **Corregido** (queda el caso parcial, ver P1) |

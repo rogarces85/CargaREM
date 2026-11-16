@@ -219,19 +219,32 @@ entra al portal, no se enteró.
 
 ---
 
-## 7. Lo que hoy no funciona como debería
+## 7. Estado de los bloqueos encontrados
 
-Esto no es parte del manual. Es lo que hay que revisar antes de mostrar el sistema.
-El detalle y la propuesta están en `analisis-simplificacion.md`.
+Esto no es parte del manual. Es el registro de lo que se corrigió antes de mostrar el sistema.
+El detalle está en `analisis-simplificacion.md`.
 
 | # | Qué | Estado |
 |---|---|---|
-| 1 | La serie **F está inactiva pero la matriz la sigue exigiendo** en 4 de 7 establecimientos | **Abierto.** Esos 4 nunca llegan a `validado`: no se puede subir F y V11 la reclama |
+| 1 | La serie **F estaba inactiva y la matriz la seguía exigiendo** en 4 de 7 establecimientos | **Resuelto.** F está activa para la demo y una serie desactivada ya no se exige |
 | 2 | Las acciones **Observar** y **Aprobar** de la bandeja usaban una URL sin el prefijo del subdirectorio | Corregido el 2026-11-16 |
 | 3 | El botón **«Enviar a revisión»** se ofrecía en estado `con_errores`, donde la máquina de estados lo rechaza | Corregido el 2026-11-16 |
 | 4 | Un envío **sin ningún archivo** se podía enviar a revisión | Corregido el 2026-11-16 |
 
-Queda **uno** abierto: el de la serie F. Necesita una decisión de negocio, no de código.
+### La serie F es una pieza de demostración
+
+En la realidad, la serie F no se usa desde hace años. Se conserva **activa** dentro de las
+demos por una razón concreta: permite mostrar, en vivo y en el propio sistema, cómo se
+deshabilita una serie y cómo se vuelve a agregar.
+
+| Acción en el panel de Series | Qué se ve |
+|---|---|
+| Desmarcar **Activa** | F desaparece del desplegable de subida y de la matriz. Los envíos que la tenían **no se bloquean** |
+| Volver a marcarla | F vuelve a exigirse donde la matriz la tenga |
+
+> Nota técnica: el estado se reproduce con `php artisan db:seed --class=L1MinimumSeeder`.
+> Desactivar una serie **no** borra su fila de la matriz: mientras esté inactiva, el catálogo
+> manda y la serie no se exige. Reactivarla devuelve la configuración intacta.
 
 > Nota de honestidad: el sistema sigue permitiendo enviar a revisión un envío **incompleto**
 > (con 1 de 5 series). No es una incoherencia visible — V11 lo marca como bloqueante en cuanto

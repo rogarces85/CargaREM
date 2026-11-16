@@ -81,7 +81,7 @@
                     @endcan
 
                     <li>
-                        <x-ui.nav-link :href="route('completitud.index')" icono="grid-3x3" :activo="request()->routeIs('completitud.*')">Completitud</x-ui.nav-link>
+                        <x-ui.nav-link :href="route('completitud.index')" icono="chart-column" :activo="request()->routeIs('completitud.*')">Completitud</x-ui.nav-link>
                     </li>
                 </ul>
             </div>

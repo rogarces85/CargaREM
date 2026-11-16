@@ -132,10 +132,10 @@ listado, **Nuevo**, y edición por fila. Todos tienen **Guardar** y **Cancelar**
 | Orden | El orden en que aparecen en la matriz |
 | **Activa** | Si la desmarcas, deja de ofrecerse al subir |
 
-> **Cuidado con desactivar una serie.** Desactivarla **no** la quita de la matriz. Si sigue
-> exigida ahí, los establecimientos quedan con una serie que deben entregar y no pueden
-> subir. **Desactiva y corrige la matriz en el mismo momento.** Es lo que pasó con la serie F
-> (ver `analisis-simplificacion.md`).
+> **Qué pasa al desactivar una serie.** Deja de ofrecerse al subir y deja de exigirse, aunque
+> la matriz conserve su fila. Los envíos en curso **no se bloquean**. Al volver a marcarla,
+> la configuración de la matriz sigue intacta y la serie se exige otra vez. Es reversible en
+> los dos sentidos, y por eso es seguro probarlo.
 
 ### Períodos
 
@@ -177,5 +177,16 @@ están en una sola manos.
 2. **El cierre del período es manual.** Decirlo en voz alta evita la pregunta incómoda.
 3. **El mes 10 está vencido desde el 06-11.** Demostrar con octubre es demostrar el camino
    del atraso. Es válido, pero hay que decirlo.
-4. **La serie F está inactiva y todavía se exige en 4 establecimientos.** Mientras no se
-   corrija, esos cuatro no pueden llegar a aprobación.
+4. **La serie F es la pieza de demostración.** En la realidad no se usa desde hace años, pero
+   queda activa para mostrar en vivo cómo se deshabilita una serie y cómo se vuelve a agregar.
+   - Desmarcar **Activa** en Series: F desaparece del desplegable de subida y de la matriz de
+     completitud. Los envíos que la tenían **no se bloquean**.
+   - Volver a marcarla: F vuelve a exigirse donde la matriz la tenga.
+
+   Es reversible. El estado inicial se reproduce con
+   `php artisan db:seed --class=L1MinimumSeeder`.
+
+> **Lo que hay que subrayar en la demostración:** desactivar una serie no borra su fila de la
+> matriz. Mientras la serie esté inactiva, el catálogo manda y la serie no se exige; al
+> reactivarla, la configuración de la matriz sigue intacta. Eso es lo que hace que el
+> interruptor sea seguro.
