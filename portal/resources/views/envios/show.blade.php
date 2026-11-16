@@ -10,6 +10,8 @@
         $advertencias = $envio->archivos->sum(fn ($a) => $a->validaciones->where('severidad', '!=', 'bloqueante')->count())
             + $envio->validaciones->where('severidad', '!=', 'bloqueante')->count();
 
+        $observacionesAbiertas = $envio->observaciones->where('resuelta', false)->count();
+
         // Acciones disponibles según el estado y el permiso del usuario. Se
         // calcula en la vista porque es presentación; el servicio de transición
         // vuelve a validar cada una en el servidor.
@@ -238,6 +240,53 @@
             </div>
         @endif
 
+        {{-- Observaciones del revisor --}}
+        @if ($envio->observaciones->isNotEmpty())
+            <div class="space-y-2">
+                <h2 class="text-sm font-semibold">
+                    Observaciones
+                    <span class="ml-1 font-normal text-muted-foreground">
+                        @if ($observacionesAbiertas > 0)
+                            {{ $observacionesAbiertas }} sin resolver
+                        @else
+                            todas resueltas
+                        @endif
+                    </span>
+                </h2>
+
+                {{--
+                    El texto de la observación vivía solo en el historial, como
+                    motivo de la transición. El encargado tiene que poder leer qué
+                    le pidieron corregir sin interpretar una línea de bitácora.
+                --}}
+                <x-ui.card class="divide-y divide-border">
+                    @foreach ($envio->observaciones->sortByDesc('created_at') as $observacion)
+                        <div class="flex gap-3 p-4">
+                            <x-ui.icon
+                                :name="$observacion->resuelta ? 'circle-check' : 'circle-exclamation-point'"
+                                class="mt-0.5 size-4 shrink-0 {{ $observacion->resuelta ? 'text-status-ok-fg' : 'text-status-warn-fg' }}"
+                            />
+
+                            <div class="min-w-0">
+                                <p class="text-sm">{{ $observacion->texto }}</p>
+
+                                <p class="mt-1 text-xs text-muted-foreground">
+                                    {{ $observacion->autor?->name ?? 'Servicio de Salud' }}
+                                    · {{ $observacion->created_at?->format('d-m-Y H:i') }}
+
+                                    @if ($observacion->resuelta)
+                                        · Resuelta {{ $observacion->resuelta_en?->format('d-m-Y') ?? 'al subir la corrección' }}
+                                    @else
+                                        · <span class="font-medium text-status-warn-fg">Sin resolver</span>
+                                    @endif
+                                </p>
+                            </div>
+                        </div>
+                    @endforeach
+                </x-ui.card>
+            </div>
+        @endif
+
         <div class="grid gap-4 lg:grid-cols-2">
 
             {{-- Acciones --}}
@@ -254,9 +303,16 @@
                         </button>
                     </form>
                 @empty
-                    <p class="mt-4 text-sm text-muted-foreground">
-                        No hay acciones disponibles en el estado actual.
-                    </p>
+                    @if ($observacionesAbiertas > 0 && auth()->user()->can('update', $envio))
+                        <p class="mt-4 text-sm text-muted-foreground">
+                            Suba la corrección en la tarjeta de arriba. Al reemplazar el archivo la
+                            observación se resuelve sola y el envío vuelve a «Recibido».
+                        </p>
+                    @else
+                        <p class="mt-4 text-sm text-muted-foreground">
+                            No hay acciones disponibles en el estado actual.
+                        </p>
+                    @endif
                 @endforelse
             </x-ui.card>
 
