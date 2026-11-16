@@ -129,4 +129,39 @@ class EnvioPolicyTest extends TestCase
 
         $this->assertFalse($admin->can('delete', $envio));
     }
+
+    /**
+     * La policy y `EstadoEnvioService::PERMITIDAS` tienen que decir lo mismo.
+     *
+     * Cuando la policy admitía `con_errores`, la pantalla pintaba un botón
+     * «Enviar a revisión» que el servicio rechazaba siempre: el usuario veía una
+     * acción y recibía «transición no permitida».
+     */
+    public function test_no_se_envia_un_envio_con_errores(): void
+    {
+        $establecimiento = $this->establecimiento('A1');
+        $envio = $this->envio($establecimiento);
+        $envio->update(['estado' => Envio::CON_ERRORES]);
+
+        $encargado = $this->usuario('encargado');
+        $encargado->establecimientos()->attach($establecimiento->id);
+
+        $this->assertFalse($encargado->can('enviar', $envio), 'con_errores no tiene salida en la máquina de estados');
+    }
+
+    /**
+     * Un envío recién creado no tiene nada que revisar. Antes se podía mandar a
+     * revisión vacío y el revisor recibía un envío que no podía aprobar.
+     */
+    public function test_no_se_envia_un_envio_sin_archivos(): void
+    {
+        $establecimiento = $this->establecimiento('A1');
+        $envio = $this->envio($establecimiento);
+
+        $encargado = $this->usuario('encargado');
+        $encargado->establecimientos()->attach($establecimiento->id);
+
+        $this->assertTrue($envio->archivosVigentes()->doesntExist());
+        $this->assertFalse($encargado->can('enviar', $envio));
+    }
 }

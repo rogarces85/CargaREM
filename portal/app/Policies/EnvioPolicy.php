@@ -55,10 +55,21 @@ class EnvioPolicy
             && $this->view($usuario, $envio);
     }
 
+    /**
+     * Enviar a revisión.
+     *
+     * Los estados son los mismos desde los que `EstadoEnvioService::PERMITIDAS`
+     * admite la transición. Cuando la policy ofrecía `con_errores`, la vista
+     * pintaba un botón que el servicio rechazaba siempre: un envío con
+     * bloqueantes no se manda, se corrige.
+     *
+     * Tampoco se manda un envío vacío: sin archivos no hay nada que revisar.
+     */
     public function enviar(User $usuario, Envio $envio): bool
     {
         return $usuario->can('envios.enviar')
-            && in_array($envio->estado, [Envio::RECIBIDO, Envio::VALIDADO, Envio::CON_ERRORES], true)
+            && in_array($envio->estado, [Envio::RECIBIDO, Envio::VALIDADO], true)
+            && $envio->archivosVigentes()->exists()
             && $this->view($usuario, $envio);
     }
 

@@ -31,7 +31,14 @@ final class ReglaV11Completitud implements ReglaValidacion
         $envio = $contexto->envio;
 
         // Series que la matriz exige y que hoy están vigentes.
+        //
+        // También tienen que estar activas: una serie desactivada en el catálogo
+        // no se puede subir (`EnvioService::subirVersion` la rechaza y la vista
+        // ni la ofrece), así que exigirla dejaría el envío bloqueado para
+        // siempre, sin que el encargado pueda hacer nada. La matriz conserva la
+        // fila; el que manda es el estado del catálogo.
         $exigidas = $envio->establecimiento->series()
+            ->where('series.activo', true)
             ->wherePivot('obligatoria', true)
             ->where(function ($q) {
                 $q->whereNull('establecimiento_serie.vigente_desde')

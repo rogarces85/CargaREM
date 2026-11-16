@@ -1,0 +1,8 @@
+IdEstablecimiento,NEstablecimiento,Direccion,Telefono,Fax,IdServicio,IdComuna,IdDependencia,IdTipo,ElimID,Propiedad
+123100,Hospital Base San José,Av. del Valle 1234,642345678,642345679,23,10101,1,1,0,1
+123101,Hospital de Puerto Octay,Calle Principal 123,642345670,,23,10102,1,1,0,1
+123102,Hospital de Purranque,Av. San Martín 456,642345671,,23,10103,1,1,0,1
+123103,Hospital de Río Negro,Los Carrera 789,642345672,,23,10104,1,1,0,1
+123104,Posta de Salud Rural Puyehue,Carr. Internacional Km 5,642345673,,23,10105,1,2,0,1
+123105,Posta de Salud Rural San Pablo,Calle Central 100,642345674,,23,10106,1,2,0,1
+123106,Posta de Salud Rural San Juan de la Costa,Ruta 5 Sur Km 10,642345675,,23,10107,1,2,0,1

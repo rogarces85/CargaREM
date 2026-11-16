@@ -1,0 +1,390 @@
+# FTD — Rediseño de UI del portal M7 con el sistema visual Clinova
+
+> **Estado:** Propuesto — pendiente de aprobación
+> **Rama objetivo:** `feature/rediseno-ui-clinova` (por crear)
+> **Fecha:** 2026-11-16
+> **Autor:** Equipo M7
+> **Reemplaza a:** `02-DOCS/feature-adminlte4-bootstrap5-migration.md` (ejecutado: AdminLTE 4.10.2 ya está en `public/assets/adminlte/`)
+
+---
+
+## 1. Intención
+
+Reemplazar la capa visual del portal M7 —hoy **AdminLTE 4.10.2 / Bootstrap 5 + FontAwesome**, servida como assets estáticos— por el sistema visual de la plantilla de referencia `demo.dashboardpack.com/hospital-html/` (**"Clinova"**): **Tailwind CSS v4 + tokens oklch semánticos + Lucide + componentes propios**, compilado con Vite.
+
+**Por qué ahora.**
+
+1. El portal ya tiene Tailwind v4 instalado y compilando, y **no lo usa**. `portal/resources/css/app.css` importa `tailwindcss` y `portal/public/build/assets/app-CEftQMAG.css` (43 KB) se genera en cada build, pero ningún layout lo referencia: los layouts cargan `asset('assets/adminlte/...')`. Hay una capa compilada desperdiciada en cada build.
+2. La UI actual no tiene jerarquía: `info-box` (40 usos), `card` (66) y `table` (90) ocupan el 90 % de la interfaz sin un sistema de estados. Los estados del dominio (6 de envío, 6 de completitud) se pintan con clases hardcodeadas y hex literales.
+3. La plantilla resuelve exactamente los tres problemas que tenemos: **estados con tokens semánticos**, **patrón de matriz de celdas** (que es nuestra pantalla de Completitud) y **detalle con pestañas + timeline** (que es `envios/show`, hoy 302 líneas en una sola columna).
+
+**Lo que NO cambia.** Controladores, servicios, modelos, migraciones, reglas de validación, permisos, rutas y contrato de descargas. Cero.
+
+---
+
+## 2. Qué trae la plantilla (verificado, no supuesto)
+
+31 páginas HTML estáticas descargadas y verificadas con `200`. Stack real, según su propio `docs.html` y confirmado en los bundles:
+
+| Pieza | Detalle | Evidencia |
+|---|---|---|
+| Build | Vite 6, multi-página | `./assets/main-DwU2CWaz.js` + `main-DMKZ8uJS.css` |
+| CSS | **Tailwind CSS v4.3.3** con tokens `oklch` en `:root` y `.dark` | `/*! tailwindcss v4.3.3 \| MIT License */` |
+| JS | **Vanilla ES modules**, 65 KB, sin framework | entry de 65.477 B |
+| Iconos | **Lucide** como SVG inyectado (88 iconos en el mapa `C={...}`) | `createIcons({icons:C})`, `data-lucide="activity"` |
+| Gráficos | **ApexCharts** en chunk diferido de **567.014 B** | `import('./apexcharts.esm-D4HfopFb.js')` |
+| Toasts | **Notyf** en chunk diferido de 7.652 B | `import('./notyf.es-C0j8MW-P.js')` |
+| Tipografía | **Inter Variable** self-hosted, 7 subsets `woff2` | `@font-face{font-family:Inter Variable;...format("woff2-variations")` |
+| Tablas | **motor propio** (`table[data-datatable]`): búsqueda, facetas, selector de columnas, paginación y export CSV escritos a mano | `document.querySelectorAll('table[data-datatable]').forEach(rn)` |
+
+> Nota de precisión: `docs.html` afirma que las tablas son `simple-datatables`. **Es falso en este build**: 0 coincidencias de esa librería en el bundle. El motor es propio. Es mejor noticia: no arrastramos una dependencia más.
+
+### 2.1 Tokens que vamos a adoptar literalmente
+
+Neutro cálido en hue **90**, primario teal en hue **195**, y cuatro estados clínicos:
+
+```css
+:root{
+  --primary:oklch(55% .09 195);        --primary-foreground:oklch(99% .005 90);
+  --background:oklch(98.5% .004 90);   --foreground:oklch(21% .01 90);
+  --card:oklch(100% 0 0);              --muted:oklch(96% .006 90);
+  --muted-foreground:oklch(52% .012 90); --border:oklch(90% .006 90);
+  --ring:oklch(55% .09 195);           --radius:.5rem;
+  --status-stable:oklch(60% .12 155);      /* verde  */
+  --status-observation:oklch(75% .13 80);  /* ámbar  */
+  --status-critical:oklch(55% .2 25);      /* rojo   */
+  --status-discharged:oklch(62% .008 90);  /* gris   */
+  --chart-1:oklch(55% .09 195); --chart-2:oklch(55% .1 235);
+  --chart-3:oklch(60% .11 155); --chart-4:oklch(75% .12 80); --chart-5:oklch(50% .03 260);
+}
+```
+
+Los cuatro `--status-*` mapean **uno a uno** con nuestros estados del dominio. Ese es el argumento central del rediseño: hoy esos estados se escriben como `bg-success` / `bg-danger` / hex literales en `completitud/index.blade.php:8-13`.
+
+### 2.2 Medidas del chrome
+
+| Medida | Valor |
+|---|---|
+| Sidebar | `--sidebar-w: 260px`; colapsado a rail `4.5rem` (72 px) |
+| Header | `h-16` = 64 px, `sticky top-0`, `backdrop-blur-xl` |
+| Card | `rounded-xl` = `calc(--radius + 4px)` = 12 px |
+| Escala base | `--spacing: .25rem` |
+| Breakpoints | Tailwind por defecto (640 / 768 / 1024 / 1280 / 1536) |
+
+---
+
+## 3. Lista de lo que ocupamos, módulo por módulo
+
+Esta es la lista pedida: qué pieza de la plantilla entra en qué pantalla nuestra.
+
+### 3.1 Chrome y navegación
+
+| Pieza Clinova | Dónde entra | Nuestro archivo |
+|---|---|---|
+| Sidebar con grupos colapsables (`data-group-toggle`) | menú Operación / Administración / Usuarios | `portal/resources/views/layouts/panel.blade.php:56-153` |
+| Colapso a rail + overlay móvil + `aria-expanded` | toda la app | idem |
+| Header sticky con campana, avatar y menú de cuenta | header actual con FontAwesome | `layouts/panel.blade.php:15-44` |
+| Breadcrumb con `chevron-right` | reemplaza el `<h1>` suelto en 11 vistas | todas las vistas con `content-header` |
+| Campana con dropdown, badge de no leídos y "marcar todas" | `partials/campana.blade.php` (ya tiene la lógica) | `portal/resources/views/partials/campana.blade.php` |
+| Página de notificaciones con `divide-y` y contador dinámico | opcional: página dedicada de avisos | — |
+| Login card centrada sin chrome | `auth/login.blade.php` | `portal/resources/views/auth/login.blade.php`, `layouts/auth.blade.php` |
+| Páginas 404 / 500 centradas | hoy Laravel muestra su página por defecto | `portal/resources/views/errors/` (nuevo) |
+
+### 3.2 Componentes de datos
+
+| Pieza Clinova | Dónde entra | Nuestro archivo |
+|---|---|---|
+| **Card KPI con delta** (icono en `size-9` + cifra `text-2xl` + variación) | Panel; 4 KPIs de `envios/show`; 4 KPIs de `completitud` | `panel.blade.php`, `envios/show.blade.php:62-99`, `completitud/index.blade.php:26-63` |
+| **Stat compacta** (icono + cifra + etiqueta) | donde no hay serie temporal (nuestro caso: no tenemos histórico) | idem |
+| **Badge de estado con punto** (`bg-status-X/12` + `ring-status-X/25` + dot) | 6 estados de envío, 6 estados de completitud, "fuera de plazo", severidad de hallazgos | `envios/index:92-97`, `envios/show:29-32,169-174`, `revision/index:113-118` |
+| **Tabla con toolbar**: búsqueda, facetas, selector de columnas, orden por clic, paginación, export CSV | catálogos admin (pocas filas), bandeja de revisión | `admin/index.blade.php`, `revision/index.blade.php` |
+| **Tabla simple** con columnas que se ocultan por breakpoint (`hidden sm:table-cell`) | tablas de detalle | `envios/show.blade.php:144-190`, `admin/matriz/index.blade.php` |
+| **Mapa de celdas en grid** (`grid-cols-6 … sm:grid-cols-10`, celda `aspect-square` con color de estado) | **matriz de Completitud** — es el mismo patrón, hoy una `<table>` de 6 colores con `style="background:#d4edda"` | `completitud/index.blade.php:99-158` |
+| **Barra de progreso** (`h-2 rounded-full bg-muted` + relleno por estado) | avance por establecimiento; avance global del período | `completitud/index.blade.php` (columna Avance), `panel.blade.php` |
+| **Timeline vertical** (`ol` + línea `w-px` + nodo `ring-4`) | **historial de transiciones** — hoy un `list-group` plano | `envios/show.blade.php:276-301` |
+| **Tabs** (`data-tab` / `data-panel`, con teclado) | `envios/show`: Resumen · Series · Hallazgos · Historial. Hoy son 4 tarjetas apiladas en una página de 302 líneas | `envios/show.blade.php` |
+| **Empty state** centrado con CTA | "Todavía no hay envíos", "No hay registros", "Sin movimientos" | 6 vistas |
+| **Avatar con iniciales** | usuario en header; establecimiento en tablas (hoy código en negrita) | header, `envios/index`, `revision/index` |
+| **Acordeón nativo** `<details>/<summary>` | hallazgos de validación agrupados por serie | `envios/show.blade.php:193-240` |
+
+### 3.3 Formularios
+
+| Pieza Clinova | Dónde entra | Nuestro archivo |
+|---|---|---|
+| Select, input, checkbox, date, file — con estado inválido | 5 catálogos admin + matriz + usuarios + perfil | `admin/form.blade.php`, `admin/usuarios/form.blade.php`, `admin/matriz/form.blade.php`, `perfil.blade.php` |
+| Toggle de preferencias (`type="checkbox"` estilizado) | "activo" en usuarios | `admin/usuarios/form.blade.php` |
+| **Wizard de 4 pasos** con `checkValidity()` por paso | "Nuevo envío" hoy es un `<form>` de 3 campos en una fila; el wizard es *opcional*, no necesario | `envios/index.blade.php:27-68` |
+| **Tabs de Settings** (Profile / Preferences / Appearance) | `perfil.blade.php` (datos + contraseña) | `perfil.blade.php` |
+| Input de archivo con `accept` y ayuda bajo el campo | subida de serie; subida de plantilla | `envios/show.blade.php:107-134`, `admin/plantillas/form.blade.php` |
+
+### 3.4 Retroalimentación
+
+| Pieza Clinova | Dónde entra | Nuestro archivo |
+|---|---|---|
+| **Toasts (Notyf)** | reemplaza los `alert alert-success` / `alert-danger` de sesión | `session('ok')` en 8 vistas; `$errors` en 6 |
+| Banner de alerta con borde de estado | avisos persistentes: "fuera de plazo", "hay feriados sin cargar" (`admin/calendario/index.blade.php` ya tiene 2 `alert-warning`) | `admin/calendario/index.blade.php` |
+
+### 3.5 Gráficos (solo donde aportan)
+
+| Gráfico | Uso propuesto | Justificación |
+|---|---|---|
+| `area` / `bar` | envíos por período (últimos 12 meses) en el Panel | es el único dato histórico que ya tenemos (`updated_at`, `periodos`) |
+| `radial` (gauge) | % de avance del período en curso | reemplaza el `info-box` "Avance 72 %" |
+| `bar` horizontal | avance por establecimiento en Completitud | reemplaza la columna "Aprobadas / Exigidas" |
+| `donut` | distribución de estados de las series | una sola mirada del semáforo global |
+
+No proponemos gráficos en vista de detalle ni en admin.
+
+### 3.6 Lo que la plantilla trae y **descartamos a propósito**
+
+| Pieza | Por qué no |
+|---|---|
+| Chat (`messages.html`) | no existe módulo de mensajería en el MVP v2 |
+| Presets de color (teal/blue/sage/slate) | solo reescriben 4 variables; un servicio público no necesita paleta conmutable. Además deja el acento teal descolgado (no toca `--accent`) |
+| Selector de densidad | **está muerto en la plantilla**: `--card-padding` se define 3 veces y no lo consume ninguna regla. Adoptarlo sería copiar un defecto |
+| Command palette ⌘K | nuestro menú tiene 13 entradas; el costo de mantener 24 rutas con keywords no se paga |
+| Calendario de `appointments.html` | fechas fijas en el código (`{year:2026,month:6}`); no sirve para plazos reales |
+| Panel de paciente, triage, farmacia, facturación, RRHH, agendamiento | dominios que el MVP v2 no cubre |
+| `register` / `forgot-password` | Fortify gestiona nuestro ciclo de autenticación |
+| Módulo OTP (`data-otp`) | implementado y sin usar en la plantilla; sin 2FA en el MVP |
+| Footer ausente en la plantilla | nosotros **sí** tenemos footer (`layouts/panel.blade.php:167-170`) y lo conservamos |
+
+### 3.7 Lo que la plantilla **no trae** y debemos construir nosotros
+
+Esta es la deuda real del rediseño. No es poca:
+
+| Falta | Dónde lo necesitamos | Solución |
+|---|---|---|
+| **Diálogo / modal** | Observar y Aprobar (`revision/index.blade.php:172-237`) — hoy Bootstrap Modal. La plantilla **no tiene ningún modal**: el único diálogo es el ⌘K | `<dialog>` nativo + `<x-ui.modal>`, con focus trap manual |
+| **Paginación server-side** | 6 vistas con `->links()` | componente Blade sobre el paginador de Laravel, con estilo Tailwind |
+| **Filtros server-side** | `revision/index`, `completitud/index`, `admin/calendario/index` | mantener `<form method="GET">`, restilizar |
+| **Errores de campo** | `@error` en 4 formularios, hoy `is-invalid` / `invalid-feedback` | directiva propia `<x-ui.field>` con `aria-describedby` |
+| **Estado de subida de archivo** | `envios/show` | texto de ayuda + validación, sin barra de progreso (subida por `POST` normal) |
+| **Tema oscuro sin JS** | hoy no hay `@media (prefers-color-scheme)` en el CSS de la plantilla; solo `matchMedia` en JS | añadir el bloque `@media` en nuestro CSS; el `.dark` queda como override |
+| **`aria-current` en el nav** | la plantilla no lo usa (0 coincidencias); nosotros también lo perdimos | en el componente de link activo |
+| **`color-scheme`** | controles nativos (select, date, checkbox) quedan claros en modo oscuro | una línea en el CSS |
+| **`scope="col"` en `<th>`** | ninguna tabla de la plantilla lo tiene | en `<x-ui.table>` |
+
+---
+
+## 4. Cambios de stack y su impacto en el canon
+
+Este rediseño **no es cosmético**: cambia la capa UI del canon de stack.
+
+| Canon vigente (C-015) | Canon propuesto |
+|---|---|
+| UI: **AdminLTE 3.2 (Bootstrap 4)** | UI: **Tailwind CSS v4 + componentes propios** |
+| JS: Vanilla, sin Node en producción | **Igual** — Vite compila en local y `public/build/` es estático |
+| Iconos: FontAwesome (fuente) | **Lucide** (SVG, 26 iconos mapeados, 34 usos) |
+
+Consecuencias que hay que resolver **antes** de escribir código:
+
+1. **Enmienda a la constitución (v4.2.0 → v5.0.0).** Principio 0 (tabla de stack) y §6 (UX). Sin enmienda, este cambio viola el principio 1 y no pasa `verify`.
+2. **Registro de decisión C-019** en `02-DOCS/wiki/sdd/decisions.md` con opciones consideradas y motivo (principio 26).
+3. **El canon escrito ya está desactualizado.** Dice AdminLTE 3.2, pero `public/assets/adminlte/css/adminlte.min.css` es **AdminLTE v4.10.2** (= Bootstrap 5). La migración de la FTD anterior se ejecutó y el documento sigue en "Propuesto". Hay que cerrarla formalmente para no tener dos planes vivos.
+4. **Regla de build.** Nadie compila Tailwind en el servidor (no hay Node). Se construye en local y se sube `portal/public/build/` por FTP junto con el árbol. Esto ya es la práctica actual y cumple el principio de despliegue reproducible.
+5. **Tailwind no genera clases dinámicas.** Hoy tenemos `bg-{{ $color }}` en `envios/show.blade.php:29` y `bg-{{ ... }}` en `envios/index.blade.php:92` y `revision/index.blade.php:113`, más hex literales en `completitud/index.blade.php:8-13`. El escáner de Tailwind no ve esas cadenas y **la clase no existirá en el CSS compilado**. Todo estado debe pasar a un **mapa explícito** (un `match()` que devuelva una clase completa) o a un componente con variantes declaradas. Esto es el error más probable del rediseño y hay que fijarlo en los cimientos, no dejarlo para el final.
+6. **Costo de ApexCharts: 567 KB diferidos.** Se carga en cualquier página con `[data-chart]`. Con 4 gráficos en 2 pantallas es aceptable; si crece, pasa a ser un problema contra el presupuesto de p95 < 2 s de la constitución (principio 25).
+
+---
+
+## 5. Plan por fases
+
+### 5.0 Estado del repositorio al arrancar — resuelto
+
+Verificado el 2026-11-16 antes de tocar nada:
+
+| Hecho | Consecuencia |
+|---|---|
+| `feature/adminlte4-bootstrap5` **no tenía commits propios**: apuntaba a `713b544`, el mismo que `main` | La rama existía como nombre, no como trabajo |
+| La migración AdminLTE 4 estaba **solo en el árbol**: 23 modificados, 251 eliminados, 64 sin rastrear | Ese trabajo no estaba en ninguna rama y no se podía recuperar desde git |
+| `.gitignore` **no cubría** `adminlte4.zip` (4,86 MB), `adminlte.v3.backup/` (18,76 MB), `adminlte4_extracted/` (15,61 MB) ni `.playwright-cli/` | Basura que se habría colado en el commit |
+
+**Por qué bloqueaba.** Si el rediseño se commiteaba sobre ese árbol, la historia mezclaba 251 borrados de assets con los cambios de UI: el PR quedaba irrevisable, y el rollback del §10 (`git checkout -- views`) **habría borrado la migración AdminLTE 4**, que es trabajo real del equipo.
+
+**Resuelto el 2026-11-16.**
+
+1. `.gitignore` aísla los respaldos, las extracciones y los zip de assets.
+2. `5dffb49` en `feature/adminlte4-bootstrap5`: registra la migración (352 archivos: 78 altas, 251 bajas, 23 modificados). Se incluyen solo los assets en uso, `package-lock.json` y los CSV de `portal/database/data` que alimentan a `CatalogoSeeder` (D-025).
+3. `42b19a9` en `feature/rediseno-ui-clinova`: la enmienda constitucional, las decisiones y estas dos FTD.
+
+**Línea base verificada tras los commits:** `php vendor/bin/phpunit` → **OK (257 tests, 644 assertions)**, PHP 8.2.12. El árbol queda limpio salvo dos archivos ajenos a este trabajo (`docs/reestructuracion/checklist-retiro.md`, `shots/`).
+
+### Fase 0 — Canon y rama (0 código de UI)
+- [x] **0.1** Enmendar la constitución a v5.0.0: tabla de stack (§0) y §6 UX — **hecho 2026-11-16**
+- [x] **0.2** Registrar decisión C-019 en `02-DOCS/wiki/sdd/decisions.md` — **hecho 2026-11-16** (C-019 + D-031…D-037)
+- [x] **0.3** Cerrar `feature-adminlte4-bootstrap5-migration.md` como ejecutado — **hecho 2026-11-16**
+- [x] **0.4** Crear `feature/rediseno-ui-clinova` — **hecho 2026-11-16** (sobre `5dffb49`)
+
+### Fase 1 — Cimientos: design system y build
+
+- [x] **1.1** Instalar dependencias: `lucide@1.73.0`, `notyf@3.10.0`, `apexcharts@8.8.2`, `@fontsource-variable/inter@5.3.0`
+- [x] **1.2** `portal/resources/css/app.css`: tokens oklch light + `.dark` + `@media (prefers-color-scheme)` + `color-scheme` + `--status-*` + mapeo a `@theme inline` + `focus-visible` + `prefers-reduced-motion` + `.skip-link`
+- [x] **1.3** Módulos JS: `theme`, `sidebar`, `tabs`, `toast`, `icons` — **`datatable` y `charts` pasan a la Fase 2**, ver desviación D2
+- [ ] **1.4** `@vite(...)` en ambos layouts — **movido a la Fase 3**, ver desviación D1
+- [x] **1.5** `portal/resources/views/partials/tema.blade.php`: script anti-flash, listo para incluir en el `<head>`
+- [x] **1.6** `npm run build` sin errores; sin 404 de fuentes
+
+**Evidencia medida (2026-11-16).**
+
+| Comprobación | Resultado |
+|---|---|
+| `npm run build` | OK en 2,08 s |
+| CSS compilado | **65,68 kB** (gzip 12,21 kB) — por encima del objetivo de 60 kB, ver nota |
+| JS de entrada | 27,06 kB (gzip 6,15 kB), 53 iconos tree-shakeados |
+| Notyf | chunk diferido de 8,75 kB |
+| Fuentes | 7 subsets emitidos, **1 descargado** (`inter-latin`, 48,26 kB) gracias a `unicode-range` |
+| Inter aplicada | `getComputedStyle(body).fontFamily` → `Inter Variable` |
+| Iconos renderizados | 66 SVG en la galería |
+| Tema oscuro | clase `dark`, fondo `oklch(0.17 0.006 90)`, preferencia en `localStorage` |
+| Pestañas con teclado | `ArrowRight` mueve selección y foco, panel correcto visible |
+| Consola del navegador | **0 errores, 0 advertencias** |
+| Contraste AA | **26 pares en verde** en ambos temas (`npm run check:contraste`) |
+| Paridad de tokens oscuros | 40 tokens idénticos entre `.dark` y `@media` |
+| Suite PHP | **257 tests, 644 aserciones, OK** |
+
+**Por qué el CSS supera los 60 kB.** La galería `componentes.blade.php` usa casi todo el vocabulario en un solo archivo, y Tailwind lo escanea porque está dentro de `@source`. Son ~9 kB de utilidades que en producción no se usan todas. Bajan solas cuando la galería se retire en la Fase 6 y las clases vivan en los componentes que realmente las aplican.
+
+#### Desviaciones del plan, con motivo
+
+| # | Qué cambió | Por qué |
+|---|---|---|
+| **D1** | **1.4 se mueve a la Fase 3.** Los layouts siguen cargando AdminLTE | Cambiar `@vite` sin reescribir el shell deja el portal **sin estilos** entre la Fase 1 y la Fase 3. Movido, el paso de "AdminLTE con estilos" a "Clinova con estilos" ocurre en un solo commit y ningún punto intermedio queda roto |
+| **D2** | `datatable` y `charts` se escriben en la Fase 2 | Su API la definen los componentes que los consumen (`<x-ui.table>` y `<x-ui.chart>`). Escribirlos antes obliga a adivinar los `data-*` y después rehacerlos |
+| **D3** | **Galería `/componentes` creada en la Fase 1** (estaba en 2.7) | Sin ella no había forma de verificar el sistema ni de que Tailwind generara las utilidades. Es la evidencia visual de la fase |
+| **D4** | `vite.config.js`: `base: './'` | `laravel-vite-plugin` fija `base` en `/build/` y las fuentes quedaban en `/build/assets/…`: **404** en el subdirectorio local. Con rutas relativas el artefacto sirve en la raíz o en cualquier subdirectorio |
+| **D5** | Los estados se llaman `--status-ok/warn/danger/idle`, no `stable/observation/critical/discharged` | Los nombres de la plantilla son vocabulario hospitalario. El nuestro es el del dominio REM. Se adopta el sistema visual, no su nomenclatura clínica |
+| **D6** | Cada estado lleva par `--status-X` (relleno) y `--status-X-fg` (texto) | La plantilla usa una sola variable por estado. El ámbar de relleno (L 75 %) **falla AA como texto**. El par resuelve el principio 23 sin ensuciar los rellenos |
+| **D7** | `--primary` baja de `55%` a `52%` de luminosidad en claro | `primary-foreground / primary` daba **4,51:1**, aprobado por 0,01. Sin margen, cualquier redondeo lo tumba. Con 52 % queda en **5,11:1** |
+| **D8** | `--destructive-foreground` se invierte a oscuro en tema oscuro | Blanco sobre el rojo de la plantilla daba **3,77:1**, bajo AA. Con texto oscuro queda en **4,79:1** y además sigue la misma regla que `--primary-foreground` en oscuro |
+| **D9** | Se elimina `resources/js/bootstrap.js` (axios) | Cero usos en todo el proyecto, comprobado con `grep`. ~50 kB en cada carga por nada. `axios` sigue en `package.json` si alguna vez se necesita |
+| **D10** | Se agrega `portal/scripts/contraste.mjs` (`npm run check:contraste`) | Las desviaciones D7 y D8 se encontraron midiendo. Sin el script, el próximo ajuste de color las reintroduce en silencio. También vigila la paridad de los dos bloques oscuros |
+| **D11** | **`portal/public/build/` pasa a versionarse** (se quita del `.gitignore`) | Laravel lo ignora por defecto porque asume un servidor con Node. Aquí no hay Node y el despliegue es por FTP: sin el artefacto en el repositorio, un clon no sirve la interfaz. Es la misma convención que ya traía el proyecto, que versionaba 16 MB de assets de AdminLTE; el build pesa 12 archivos |
+
+### Fase 2 — Componentes Blade (primitivas) — **hecha 2026-11-16**
+- [x] **2.1** `card`, `stat`, `badge` (tono cerrado: ok/info/warn/danger/idle/none), `estado`, `avatar`, `icon`
+- [x] **2.2** `table` (con `scope="col"` y `caption`) + vista de paginación propia en `resources/views/vendor/pagination/tailwind.blade.php`
+- [x] **2.3** `field` (label + `aria-describedby` + error/ayuda)
+- [x] **2.4** `page-header` (con migas y `aria-current`), `tablist`, `empty`, `timeline` + `timeline-item`, `progress`, `alert`, `navegación` (`nav-link`)
+- [x] **2.5** `modal` sobre `<dialog>` nativo + `ui/modal.js`
+- [x] **2.6** `partials/avisos.blade.php` + Notyf
+- [x] **2.7** Galería `/componentes` (creada en la Fase 1)
+
+**Decisión de diseño:** donde hay variantes se usa componente (`badge`, `estado`, `stat`); donde hay maquetación se usan utilidades y una clase semántica (`.tabla`, `.btn`, `.input`, `.select`). Sin esas clases, cada una de las diez tablas repetiría nueve utilidades por celda.
+
+**`App\Support\EstadoUi`** centraliza el mapeo estado del dominio → etiqueta y tono. 18 estados cubiertos (envío, archivo, completitud, severidad, período). Un estado nuevo se agrega en un archivo, no en cinco tablas.
+
+### Fase 3 — Shell — **hecha 2026-11-16**
+- [x] **3.1** `layouts/panel.blade.php`: barra lateral con grupos, colapso a riel y capa móvil; cabecera con tema, campana y cuenta; skip-link; pie; `aria-current` en el enlace activo
+- [x] **3.2** `layouts/auth.blade.php` + `auth/login.blade.php`
+- [x] **3.3** `partials/campana.blade.php` con `<details>` nativo (abre sin JavaScript, anuncia el estado expandido)
+
+### Fase 4 — Vistas — **hecha 2026-11-16**
+
+Las 18 vistas migradas. Cero clases de Bootstrap en `resources/views`, verificado con búsqueda.
+
+| # | Vista | Resultado |
+|---|---|---|
+| 4.1 | `completitud/index` | 4 indicadores + progreso + matriz de celdas con leyenda y `aria-label` por celda |
+| 4.2 | `envios/show` | 4 indicadores + series + hallazgos + acciones + historial como línea de tiempo |
+| 4.3 | `panel` | accesos por rol + «cómo funciona»; **sin cifras inventadas** (ver D12) |
+| 4.4 | `envios/index` | alta + tabla + estados + vacío + paginación |
+| 4.5 | `revision/index` | filtros + tabla + 2 diálogos sobre `<dialog>` |
+| 4.6 | `admin/index` + `admin/form` | genéricos: **5 catálogos** (servicios, establecimientos, series, períodos, feriados) |
+| 4.7 | `admin/matriz/index` + `form` | tabla + casillas y fechas por serie |
+| 4.8 | `admin/calendario/index` | avisos + tabla de períodos + feriados |
+| 4.9 | `admin/plantillas/index` + `form` | tabla + formulario |
+| 4.10 | `admin/usuarios/form` | nombre, correo, contraseña, rol, activo |
+| 4.11 | `perfil` | datos + contraseña en dos bloques, un solo formulario |
+| 4.12 | `errors/404`, `errors/500` | página propia sin layout de panel (un error puede ocurrir sin sesión) |
+
+### Fase 5 — Accesibilidad y verificación — **hecha 2026-11-16**
+- [x] **5.1** `aria-current` en navegación y migas, `scope="col"` y `caption` en todas las tablas, etiquetas asociadas, foco visible global, contraste AA medido
+- [x] **5.2** Teclado comprobado: flechas/Home/End en pestañas, `Escape` cierra el panel móvil y devuelve el foco, `<dialog>` con foco atrapado nativo, `aria-pressed` en los controles de tema
+- [x] **5.3** 1360×900, 390×844 y tabla con scroll interno en móvil; sin scroll horizontal de página (medido: `scrollWidth === innerWidth`)
+- [x] **5.4** `php vendor/bin/phpunit` → **OK (257 tests, 644 assertions)**
+- [x] **5.5** Textos que afirman los tests: conservados todos salvo `'sin archivo'` → `'Sin archivo'` (ver D13)
+
+### Fase 6 — Retiro y limpieza — **hecha 2026-11-16**
+- [x] **6.1** `git rm -r portal/public/assets/adminlte/` (430 archivos). Los respaldos `adminlte.v3.backup/`, `adminlte4_extracted/` y `adminlte4.zip` están ignorados y quedan **en disco**: son copias locales del usuario, no del repositorio
+- [x] **6.2** `composer remove yajra/laravel-datatables-oracle` → `composer audit` sin avisos
+- [x] **6.3** `02-DOCS/wiki/stack/decision-stack.md` marcado como superado, con tabla de contraste contra el canon vigente
+- [ ] **6.4** `docs/manual/manual-usuario.md` con capturas: **pendiente**, requiere que el usuario apruebe las pantallas finales
+
+#### Desviaciones de las fases 2 a 6
+
+| # | Qué cambió | Por qué |
+|---|---|---|
+| **D12** | El Panel **no muestra cifras**: son accesos por rol y una explicación del flujo | Los indicadores reales exigirían un `PanelController` y cambiar rutas, que el alcance de esta FTD excluye. Poner números fijos en la portada los vuelve mentira que nadie verifica |
+| **D13** | Se actualiza **una** afirmación de test: `'sin archivo'` → `'Sin archivo'` | La etiqueta del estado se unificó con el resto del vocabulario. Es un cambio de presentación; el test sigue comprobando lo mismo: que la fila sin archivo muestre ese estado |
+| **D14** | La matriz de completitud **no enlaza** las celdas | El drill-down quedó fuera del alcance v2.0 (C-018) y `CompletitudTest::test_la_celda_ya_no_lleva_al_envio` lo exige. El subtítulo anterior prometía ese clic y no era cierto |
+| **D15** | No se usan pestañas en `envios/show`; el contenido va en secciones | Esconder «Series» detrás de una pestaña en la pantalla de trabajo principal agrega un clic a la tarea más frecuente. Las pestañas quedan disponibles (`tablist`) para cuando aporten |
+| **D16** | Los diálogos usan `<dialog>` + `form="id"` en el botón del pie | Permite que el botón de envío viva en el pie del componente sin que el formulario lo envuelva. Es HTML válido y evita duplicar el formulario |
+
+---
+
+## 6. Riesgos y mitigaciones
+
+| Riesgo | Prob. | Impacto | Mitigación |
+|---|---|---|---|
+| **Clases dinámicas de Tailwind no generadas** (`bg-{{ $estado }}`) | **Alta** | **Alto** — badges invisibles en producción | Mapa explícito en Fase 2.1; prohibir interpolación de clases en `REVIEW.md` |
+| Sin enmienda constitucional, `verify` rechaza el cambio | Alta | Alto | Fase 0 antes de la Fase 1 |
+| Tests que afirman textos de la UI actual | Media | Medio | 27 `assertSee` verificados: `'1 aviso(s) sin leer'`, `'sin archivo'`, `'quinto día hábil'`, `'Bandeja de revisión'`, `'Completitud del período'`, `'Mi cuenta'`. Conservar literal |
+| ApexCharts 567 KB rompe el presupuesto p95 < 2 s | Media | Medio | Solo 2 pantallas; `defer`; medir con DevTools |
+| Inter self-hosted añade peso de fuentes | Baja | Bajo | Solo subsets `latin` + `latin-ext` (2 `woff2`) |
+| Regresión visual en la matriz de Completitud | Media | Alto | Comparar lado a lado contra la vista actual en los 3 anchos antes de retirar AdminLTE |
+| El servidor queda sin UI si `public/build/` no se sube | Baja | **Crítico** | Checklist de despliegue: `npm run build` → subir `public/build/` es paso obligatorio |
+| AdminLTE 4 sigue instalado y alguien re-referencia una clase | Baja | Bajo | Fase 6.1 borra los tres directorios |
+
+---
+
+## 7. Evidencia de aceptación (Definition of Done)
+
+- [ ] `npm run build` sin errores; CSS compilado sin clases interpoladas
+- [ ] `./vendor/bin/phpunit` — toda la suite en verde, sin cambios en los tests
+- [ ] Las 18 vistas renderizan en 1440 / 768 / 390 px sin scroll horizontal no intencional
+- [ ] Cero `404` de assets en consola; cero errores JS
+- [ ] Los 6 estados de envío y los 6 de completitud se ven distintos entre sí y con texto, no solo con color
+- [ ] Recorrido completo con teclado: login → panel → envío → subir → revisar → aprobar
+- [ ] Contraste AA verificado en `--muted-foreground`, badges y sidebar
+- [ ] `portal/public/assets/adminlte*` ya no existe y la app carga solo desde `public/build/`
+- [ ] Constitución en v5.0.0 y decisión C-019 registrada
+
+---
+
+## 8. Decisiones pendientes (cola de decisión)
+
+| # | Decisión | Recomendación |
+|---|---|---|
+| **D1** | ¿Adoptamos Tailwind v4 como canon de UI y retiramos Bootstrap/AdminLTE? | **Sí.** Es la condición sin la cual nada de esto es posible |
+| **D2** | ¿Lucide en vez de FontAwesome? | **Sí.** 26 iconos mapeados, 34 usos, y quita un archivo de fuente |
+| **D3** | ¿Gráficos ApexCharts en Panel y Completitud? | **Sí, limitado a 4 gráficos en 2 pantallas** |
+| **D4** | Tablas: ¿buscador y facetas en cliente, o paginación del servidor? | **Híbrido:** cliente para catálogos admin (pocas filas), servidor para envíos y revisión |
+| **D5** | ¿Modo oscuro para los usuarios? | **Sí**, con `prefers-color-scheme` como valor inicial y conmutador persistente |
+| **D6** | ¿Presets de color y selector de densidad? | **No.** La densidad está muerta en la plantilla y los presets recolorean a medias |
+| **D7** | ¿Command palette ⌘K? | **No en v1.** Reevaluar si el menú pasa de 20 entradas |
+| **D8** | ¿Rama nueva o la actual? | **Nueva:** `feature/rediseno-ui-clinova` (principio 15) |
+
+---
+
+## 9. Próximo paso
+
+Aprobado D1 y la rama, el orden es: **Fase 0 → Fase 1 → Fase 2**, y ahí parar para una revisión visual de la galería `/componentes` antes de tocar las 15 vistas. Rediseñar 18 plantillas sin haber validado el sistema de componentes es cómo se pierde el trabajo.
+
+---
+
+## 10. Rollback
+
+```bash
+git checkout feature/mvp-v2-reestructuracion
+# los assets AdminLTE se retiran recién en la Fase 6
+git checkout -- portal/resources/css portal/resources/js portal/resources/views
+pnpm run build    # o npm run build: regenera public/build/ con la UI anterior
+./vendor/bin/phpunit
+```
+
+Como la Fase 6 borra assets, **el punto de no retorno es 6.1**. Todo lo anterior es reversible con `git`.
+
+---
+
+*FTD creado siguiendo el patrón de cambios simples: intención → alcance → checklist → evidencia → próximo paso.*

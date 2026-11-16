@@ -36,6 +36,17 @@ Route::get('/', function () {
 
 Route::get('/health', HealthController::class)->name('health');
 
+/*
+ * Galería del sistema visual.
+ *
+ * Herramienta de diseño, no una pantalla del portal: sirve para revisar tokens,
+ * estados y componentes sin depender de datos ni de sesión. Solo existe en
+ * local y se retira en la Fase 6 del rediseño.
+ */
+if (app()->environment('local')) {
+    Route::view('/componentes', 'componentes')->name('componentes');
+}
+
 Route::middleware('auth')->group(function () {
     Route::get('/panel', fn () => view('panel'))->name('panel');
 

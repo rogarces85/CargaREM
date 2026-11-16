@@ -1,16 +1,16 @@
 ---
 type: constitution
 title: Cargas — Constitution
-description: Los principios no negociables que toda fase rsc-sdd obedece. Stack canon: Laravel 12.72 + PHP 8.2 + MySQL 8 + AdminLTE 3.2 (C-015). Alcance vigente: MVP v2.
+description: Los principios no negociables que toda fase rsc-sdd obedece. Stack canon: Laravel 12.72 + PHP 8.2 + MySQL 8 + Tailwind CSS v4 sobre componentes propios (C-019). Alcance vigente: MVP v2.
 tags: [sdd, constitution, cargas, rem, mvp-v2]
-timestamp: 2026-11-13T00:00:00Z
+timestamp: 2026-11-16T12:50:00Z
 topic: sdd
-version: v4.2.0
+version: v5.0.0
 ---
 
 # Cargas — Constitution
 
-> Version: v4.2.0 · Ratified: 2026-11-06 · Last amended: 2026-11-14
+> Version: v5.0.0 · Ratified: 2026-11-06 · Last amended: 2026-11-16
 > Principios no negociables que toda fase rsc-sdd obedece. El detalle técnico vive en
 > `02-DOCS/wiki/stack/` y `02-DOCS/wiki/dominio/`; este archivo ratifica el principio y enlaza el detalle.
 >
@@ -18,7 +18,7 @@ version: v4.2.0
 > (`specs/MVP_V2.md`) y la documentación técnica de Cargas REM. No rige el ejecutable WinForms
 > existente, que se documenta pero no se modifica aquí.
 
-## 0. Decisión de stack — CERRADA (C-015: Laravel 12.72 + PHP 8.2 + MySQL 8 + AdminLTE 3.2)
+## 0. Decisión de stack — CERRADA (C-015: Laravel 12.72 + PHP 8.2 + MySQL 8; capa UI enmendada por C-019: Tailwind CSS v4)
 
 La decisión está tomada y **probada en código**. El portal corre sobre **Laravel 12.72.0 con PHP 8.2**.
 
@@ -36,8 +36,23 @@ La decisión está tomada y **probada en código**. El portal corre sobre **Lara
 | Lenguaje | PHP | 8.2 |
 | Framework | Laravel | 12.72 |
 | Base de datos | MySQL | 8.0.42 → 8.4 LTS |
-| UI | AdminLTE | 3.2 (Bootstrap 4) |
-| JS | Vanilla | Sin Node en producción |
+| UI | **Tailwind CSS v4 + componentes Blade propios** | 4.x (C-019) |
+| Iconos | **Lucide** (SVG inyectado) | — (C-019) |
+| Gráficos | ApexCharts, diferido y acotado | — (C-019) |
+| Tipografía | Inter Variable, self-hosted | — (C-019) |
+| JS | Vanilla ES modules, compilado con Vite | Sin Node en producción |
+
+### Enmienda de la capa UI (C-019, 2026-11-16)
+
+El canon de UI original era **AdminLTE 3.2 (Bootstrap 4)**. Se reemplaza por **Tailwind CSS v4 + componentes Blade propios**. El backend —Laravel, PHP, MySQL— no cambia.
+
+**Motivo.** `portal/resources/css/app.css` ya compila Tailwind v4 en cada build y ningún layout lo usaba: la capa compilada se generaba y se descartaba. El portal arrastraba además **tres** capas de assets distintos (`adminlte/`, `adminlte.v3.backup/`, `adminlte4_extracted/`), FontAwesome como fuente de iconos y `yajra/laravel-datatables-oracle` con **0 referencias en `portal/app`**.
+
+**Lo que la enmienda no autoriza.** Ningún framework de JavaScript (React, Vue, Alpine, htmx). Ningún componente que dependa de red en el cliente. Ningún Node en el servidor: Vite compila en local y `portal/public/build/` se sube como artefacto estático, igual que los assets que reemplaza.
+
+**Consecuencia para el despliegue.** Todo cambio de UI exige `npm run build` antes de publicar. Si `portal/public/build/` no se sube, el portal queda sin estilos. Es un paso obligatorio del checklist, no opcional.
+
+> El plan completo está en `02-DOCS/feature-rediseno-ui-clinova.md`.
 
 ### La consecuencia que se acepta a sabiendas
 
@@ -139,7 +154,8 @@ Es una decisión deliberada. La alternativa —Laravel 8 con 5 avisos sin parche
 ## 6. UX y accesibilidad
 
 23. **Línea base WCAG 2.2 AA:** navegación por teclado, foco visible, etiquetas de formulario,
-    contraste suficiente y mensajes asociados al campo. Usar AdminLTE o Bootstrap no exime.
+    contraste suficiente y mensajes asociados al campo. Usar un framework CSS no exime: la
+    conformidad se verifica, no se hereda del framework.
 24. **La interfaz siempre muestra el período y el establecimiento activos.** Se confirma solo lo
     irreversible (aprobar). Un encargado nuevo completa un envío con la guía en
     menos de 15 minutos.
@@ -161,6 +177,20 @@ Es una decisión deliberada. La alternativa —Laravel 8 con 5 avisos sin parche
 28. **En ASDD no se escribe código antes de la spec aprobada.** En cambios simples (FTD) basta el
     documento de feature con intención, alcance, checklist y evidencia.
 
+## 9. Capa de presentación
+
+29. **El estado del dominio se pinta con tokens semánticos, nunca con clases construidas en
+    tiempo de ejecución.** Tailwind compila a partir del código fuente: una clase interpolada en
+    Blade (`bg-{{ $estado }}`) no existe en el CSS compilado y el elemento queda sin estilo. Todo
+    estado pasa por un mapa explícito o por un componente con variantes declaradas. Lo mismo vale
+    para los colores literales en el marcado: prohibidos.
+30. **Cada estado del dominio se distingue por texto además de por color.** Un semáforo que solo
+    cambia de color es ilegible para daltonismo y para una impresión en blanco y negro.
+31. **La capa de presentación no introduce JavaScript de terceros sin registrar la decisión.** Un
+    framework de interfaz, un motor de tablas o una librería de gráficos se evalúa en
+    `decisions.md` antes de entrar. Los presupuestos del principio 25 aplican al peso que la
+    librería agregue al cliente.
+
 ## Definition of Done (la barra que `verify` ejecuta)
 
 Un cambio se entrega solo si TODO se cumple:
@@ -174,6 +204,7 @@ Un cambio se entrega solo si TODO se cumple:
 - [ ] Va en rama, con PR, autoría humana (15–17).
 - [ ] Aislamiento, archivos, secretos y auditoría cumplen (18–22).
 - [ ] Accesibilidad y presupuestos de rendimiento se cumplen donde apliquen (23–25).
+- [ ] Los estados usan tokens y se distinguen sin color; ninguna clase CSS se construye en Blade (29–31).
 - [ ] La decisión quedó registrada (26–28).
 
 ## Amendment log (append-only)
@@ -190,6 +221,7 @@ Un cambio se entrega solo si TODO se cumple:
 | 2026-11-11 | **v4.0.0** | **MAJOR.** **Cierra D-STACK (C-015)** con canon **Laravel 12.72 + PHP 8.2 + MySQL 8 + AdminLTE 3.2**. Principio 1 deja de bloquear. `portal/` pasa a Laravel 12. Se acepta que el despliegue espera a que TI habilite PHP 8.2. Reemplaza v3.2.0. | Prototipo en `portal-l12/` con Laravel 12.72.0 y `composer audit` sin avisos. Laravel 10 y 11 descartados por seguir afectados. |
 | 2026-11-13 | **v4.1.0** | **MINOR.** Reduce el alcance al MVP v2: retira el contrato del puente y la confirmación de carga, deja un solo Servicio de Salud y actualiza el documento canónico a `specs/MVP_V2.md`. | Decisión C-017 y reunión interna: el sistema hacía más de lo necesario. |
 | 2026-11-14 | **v4.2.0** | **MINOR.** Alineación con `specs/MVP_V2.md` (14-11): principios 21 y 24 sin reapertura ni anulación; la auditoría incorpora el CRUD de usuarios, catálogos y períodos; la Definition of Done fija MySQL 8 como base de pruebas. | C-018: el documento del 14-11 recorta la superficie del MVP y retira las operaciones de excepción. |
+| 2026-11-16 | **v5.0.0** | **MAJOR.** **Enmienda la capa UI del canon (§0):** AdminLTE 3.2 (Bootstrap 4) → **Tailwind CSS v4 + componentes Blade propios**, con Lucide, ApexCharts diferido e Inter self-hosted. El backend no cambia. Agrega **§9 Capa de presentación** con los principios 29–31 (sin clases construidas en Blade, estado legible sin color, dependencias de cliente registradas) y una línea nueva en la Definition of Done. Actualiza el principio 23, que invocaba a AdminLTE por su nombre. Reemplaza v4.2.0. | C-019. `portal/resources/css/app.css` ya compilaba Tailwind v4 en cada build sin que ningún layout lo cargara; el portal arrastraba tres juegos de assets de AdminLTE, FontAwesome como fuente y una dependencia de DataTables con 0 usos. El plan está en `02-DOCS/feature-rediseno-ui-clinova.md`. |
 
 
 

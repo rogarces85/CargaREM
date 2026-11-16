@@ -81,7 +81,11 @@ class EnvioController extends Controller
             'observaciones.autor', 'transiciones.actor', 'validaciones',
         ]);
 
+        // Series exigidas del período. Solo las activas: una serie desactivada
+        // no se puede subir, así que listarla como exigida mostraría una fila
+        // que nunca se va a poder completar.
         $exigidas = $envio->establecimiento->series()
+            ->where('series.activo', true)
             ->wherePivot('obligatoria', true)
             ->orderBy('orden')
             ->get();

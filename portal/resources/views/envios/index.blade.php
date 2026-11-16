@@ -3,118 +3,116 @@
 @section('titulo', 'Envíos')
 
 @section('contenido')
-    <div class="content-header px-0 d-flex justify-content-between align-items-center">
-        <div>
-            <h1 class="m-0">Envíos</h1>
-            <p class="text-muted mb-0">Archivos REM por establecimiento y período.</p>
-        </div>
-    </div>
+    <div class="mx-auto max-w-6xl space-y-6">
 
-    @if (session('ok'))
-        <div class="alert alert-success mt-3 mb-0">{{ session('ok') }}</div>
-    @endif
+        <x-ui.page-header
+            titulo="Envíos"
+            subtitulo="Archivos REM por establecimiento y período."
+            :migas="['Panel' => route('panel'), 'Envíos' => null]"
+        />
 
-    @if ($errors->any())
-        <div class="alert alert-danger mt-3 mb-0">
-            <ul class="mb-0">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+        @if ($puedeCrear)
+            <x-ui.card class="p-5">
+                <h2 class="text-sm font-semibold">Nuevo envío</h2>
+                <p class="mt-1 text-xs text-muted-foreground">
+                    El período se elige de los que están abiertos o en revisión. Un período cerrado no acepta cargas.
+                </p>
 
-    @if ($puedeCrear)
-        <div class="card mt-3">
-            <div class="card-header">
-                <h3 class="card-title mb-0">Nuevo envío</h3>
-            </div>
-            <div class="card-body">
-                <form method="POST" action="{{ route('envios.store') }}" class="form-row align-items-end">
+                <form method="POST" action="{{ route('envios.store') }}" class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_auto] lg:items-end">
                     @csrf
-                    <div class="form-group col-md-5">
-                        <label for="establecimiento_id">Establecimiento</label>
-                        <select name="establecimiento_id" id="establecimiento_id" class="form-control" required>
+
+                    <x-ui.field nombre="establecimiento_id" etiqueta="Establecimiento" :error="$errors->first('establecimiento_id')" requerido>
+                        <select name="establecimiento_id" id="establecimiento_id" class="select" required>
                             @foreach ($establecimientos as $establecimiento)
                                 <option value="{{ $establecimiento->id }}">
                                     {{ $establecimiento->codigo }} — {{ $establecimiento->nombre }}
                                 </option>
                             @endforeach
                         </select>
-                    </div>
-                    <div class="form-group col-md-4">
-                        <label for="periodo">Período</label>
-                        <select name="periodo" id="periodo" class="form-control" required>
+                    </x-ui.field>
+
+                    <x-ui.field nombre="periodo" etiqueta="Período" :error="$errors->first('periodo')" requerido>
+                        <select name="periodo" id="periodo" class="select" required>
                             @forelse ($periodos as $periodo)
                                 <option value="{{ $periodo->anio }}-{{ $periodo->mes }}">
-                                    {{ sprintf('%02d/%d', $periodo->mes, $periodo->anio) }} · {{ $periodo->estado }}
+                                    {{ sprintf('%02d/%d', $periodo->mes, $periodo->anio) }} · {{ \App\Support\EstadoUi::etiqueta($periodo->estado) }}
                                 </option>
                             @empty
                                 <option value="">No hay períodos abiertos</option>
                             @endforelse
                         </select>
-                    </div>
-                    <div class="form-group col-md-3">
-                        <button type="submit" class="btn btn-primary btn-block" @disabled($periodos->isEmpty())>
-                            Crear envío
-                        </button>
-                    </div>
-                </form>
-                <small class="text-muted">
-                    El período se elige de los que están abiertos o en revisión. Un período cerrado no acepta cargas.
-                </small>
-            </div>
-        </div>
-    @endif
+                    </x-ui.field>
 
-    <div class="card mt-3">
-        <div class="card-body table-responsive p-0">
-            <table class="table table-hover mb-0">
+                    <button type="submit" class="btn btn-primary h-10" @disabled($periodos->isEmpty())>
+                        <x-ui.icon name="plus" class="size-4" />
+                        Crear envío
+                    </button>
+                </form>
+            </x-ui.card>
+        @endif
+
+        @if ($envios->isEmpty())
+            <x-ui.empty
+                titulo="Todavía no hay envíos"
+                texto="Cree uno con el formulario de arriba. Aparecerá aquí con su estado y podrá subir las series una por una."
+            />
+        @else
+            <x-ui.table>
+                <caption class="sr-only">Envíos por período y establecimiento</caption>
                 <thead>
                     <tr>
-                        <th>Período</th>
-                        <th>Establecimiento</th>
-                        <th>Estado</th>
-                        <th class="text-center">Series</th>
-                        <th>Actualizado</th>
-                        <th></th>
+                        <th scope="col">Período</th>
+                        <th scope="col">Establecimiento</th>
+                        <th scope="col">Estado</th>
+                        <th scope="col" class="text-center">Series</th>
+                        <th scope="col" class="hidden sm:table-cell">Actualizado</th>
+                        <th scope="col" class="text-end">Acción</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($envios as $envio)
+                    @foreach ($envios as $envio)
                         <tr>
-                            <td>{{ sprintf('%02d/%d', $envio->mes, $envio->anio) }}</td>
+                            <td class="tabular font-medium">{{ sprintf('%02d/%d', $envio->mes, $envio->anio) }}</td>
+
                             <td>
-                                <strong>{{ $envio->establecimiento->codigo }}</strong>
-                                <span class="text-muted d-block small">{{ $envio->establecimiento->nombre }}</span>
-                            </td>
-                            <td>
-                                <span class="badge badge-{{ $envio->estado === 'aprobado' ? 'success' : ($envio->estado === 'con_errores' ? 'danger' : 'info') }}">
-                                    {{ str_replace('_', ' ', $envio->estado) }}
+                                <span class="flex items-center gap-2.5">
+                                    <x-ui.avatar :texto="$envio->establecimiento->nombre" tamano="sm" />
+                                    <span class="min-w-0">
+                                        <span class="block font-medium">{{ $envio->establecimiento->codigo }}</span>
+                                        <span class="block truncate text-xs text-muted-foreground">{{ $envio->establecimiento->nombre }}</span>
+                                    </span>
                                 </span>
-                                @if ($envio->estaFueraDePlazo())
-                                    <span class="badge badge-danger d-block mt-1">Fuera de plazo</span>
-                                @endif
                             </td>
-                            <td class="text-center">{{ $envio->archivosVigentes->count() }}</td>
-                            <td>{{ $envio->updated_at?->format('d-m-Y H:i') }}</td>
-                            <td class="text-right">
-                                <a href="{{ route('envios.show', $envio) }}" class="btn btn-sm btn-outline-primary">
+
+                            <td>
+                                <span class="flex flex-wrap items-center gap-1">
+                                    <x-ui.estado :valor="$envio->estado" />
+
+                                    @if ($envio->estaFueraDePlazo())
+                                        <x-ui.badge tono="danger">Fuera de plazo</x-ui.badge>
+                                    @endif
+                                </span>
+                            </td>
+
+                            <td class="text-center tabular">{{ $envio->archivosVigentes->count() }}</td>
+
+                            <td class="hidden whitespace-nowrap text-xs text-muted-foreground sm:table-cell">
+                                {{ $envio->updated_at?->format('d-m-Y H:i') }}
+                            </td>
+
+                            <td class="text-end">
+                                <a href="{{ route('envios.show', $envio) }}" class="btn btn-secondary btn-sm">
                                     Abrir
+                                    <x-ui.icon name="arrow-right" class="size-3.5" />
                                 </a>
                             </td>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" class="text-center text-muted py-4">
-                                Todavía no hay envíos. Cree uno con el formulario de arriba.
-                            </td>
-                        </tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
-            </table>
-        </div>
-    </div>
+            </x-ui.table>
 
-    <div class="mt-3">{{ $envios->links() }}</div>
+            <div>{{ $envios->links() }}</div>
+        @endif
+
+    </div>
 @endsection

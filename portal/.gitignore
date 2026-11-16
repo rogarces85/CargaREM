@@ -1,6 +1,12 @@
 /.phpunit.cache
 /node_modules
-/public/build
+# /public/build SÍ se versiona.
+#
+# El servidor no tiene Node y el despliegue es por FTP: si el artefacto no está
+# en el repositorio, un clon no sirve la interfaz. Además es coherente con la
+# convención que ya traía el proyecto, que versionaba los assets de AdminLTE.
+# Se regenera con `npm run build`; Vite vacía el directorio en cada corrida, así
+# que los hashes viejos no se acumulan.
 /public/hot
 /public/storage
 /storage/*.key

@@ -161,8 +161,11 @@ class CompletitudService
             ->where('activo', true)
             ->with(['series' => function ($q) {
                 // Solo la matriz vigente: una serie que dejó de exigirse no
-                // debe aparecer como pendiente.
-                $q->wherePivot('obligatoria', true)
+                // debe aparecer como pendiente. Y solo series activas: una
+                // desactivada no se puede entregar, así que mostrarla como
+                // faltante sería una columna en rojo imposible de llenar.
+                $q->where('series.activo', true)
+                    ->wherePivot('obligatoria', true)
                     ->where(function ($sub) {
                         $sub->whereNull('establecimiento_serie.vigente_desde')
                             ->orWhere('establecimiento_serie.vigente_desde', '<=', now()->toDateString());

@@ -3,56 +3,69 @@
 @section('titulo', 'Plantillas')
 
 @section('contenido')
-    <div class="content-header px-0 d-flex justify-content-between align-items-start">
-        <div>
-            <h1 class="m-0">Plantillas</h1>
-            <p class="text-muted mb-0">
-                Versión de formato esperada por año, mes y serie. Las hojas se editan por año y serie interna.
-            </p>
-        </div>
-        <a href="{{ route('admin.plantillas.create') }}" class="btn btn-primary">Nueva plantilla</a>
-    </div>
+    <div class="mx-auto max-w-6xl space-y-6">
 
-    @if (session('ok'))
-        <div class="alert alert-success mt-3">{{ session('ok') }}</div>
-    @endif
+        <x-ui.page-header
+            titulo="Plantillas"
+            subtitulo="Versión esperada del Excel por año, mes y serie."
+            :migas="['Panel' => route('panel'), 'Plantillas' => null]"
+        >
+            <x-slot:acciones>
+                <a href="{{ route('admin.plantillas.create') }}" class="btn btn-primary">
+                    <x-ui.icon name="plus" class="size-4" />
+                    Nueva plantilla
+                </a>
+            </x-slot:acciones>
+        </x-ui.page-header>
 
-    <div class="card mt-3">
-        <div class="card-body table-responsive p-0">
-            <table class="table table-hover text-nowrap mb-0">
+        @if ($plantillas->isEmpty())
+            <x-ui.empty
+                icono="file-spreadsheet"
+                titulo="Todavía no hay plantillas"
+                texto="Una plantilla define qué hojas y qué rango se espera en el Excel de una serie para un período."
+            >
+                <x-slot:accion>
+                    <a href="{{ route('admin.plantillas.create') }}" class="btn btn-primary">
+                        <x-ui.icon name="plus" class="size-4" />
+                        Nueva plantilla
+                    </a>
+                </x-slot:accion>
+            </x-ui.empty>
+        @else
+            <x-ui.table>
+                <caption class="sr-only">Plantillas por período y serie</caption>
                 <thead>
                     <tr>
-                        <th>Año</th>
-                        <th>Mes</th>
-                        <th>Serie</th>
-                        <th>Serie del Excel</th>
-                        <th>Versión</th>
-                        <th></th>
+                        <th scope="col">Período</th>
+                        <th scope="col">Serie</th>
+                        <th scope="col" class="hidden sm:table-cell">Versión</th>
+                        <th scope="col" class="hidden md:table-cell">Serie del Excel</th>
+                        <th scope="col" class="text-end">Acción</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($plantillas as $plantilla)
+                    @foreach ($plantillas as $plantilla)
                         <tr>
-                            <td>{{ $plantilla->anio }}</td>
-                            <td>{{ $plantilla->mes }}</td>
-                            <td>{{ $plantilla->serie?->codigo }}</td>
-                            <td>{{ $plantilla->serie_excel }}</td>
-                            <td>{{ $plantilla->version }}</td>
-                            <td class="text-right">
-                                <a href="{{ route('admin.plantillas.edit', $plantilla) }}" class="btn btn-sm btn-outline-primary">
+                            <td class="tabular font-medium">{{ sprintf('%02d/%d', $plantilla->mes, $plantilla->anio) }}</td>
+                            <td>
+                                <span class="block font-medium">{{ $plantilla->serie?->codigo ?? '—' }}</span>
+                                <span class="block truncate text-xs text-muted-foreground">{{ $plantilla->serie?->nombre }}</span>
+                            </td>
+                            <td class="hidden text-muted-foreground sm:table-cell">{{ $plantilla->version }}</td>
+                            <td class="hidden truncate text-muted-foreground md:table-cell">{{ $plantilla->serie_excel }}</td>
+                            <td class="text-end">
+                                <a href="{{ route('admin.plantillas.edit', $plantilla) }}" class="btn btn-secondary btn-sm">
+                                    <x-ui.icon name="pencil" class="size-3.5" />
                                     Editar
                                 </a>
                             </td>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" class="text-center text-muted py-4">Sin plantillas cargadas.</td>
-                        </tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
-            </table>
-        </div>
-    </div>
+            </x-ui.table>
 
-    <div class="mt-3">{{ $plantillas->links() }}</div>
+            <div>{{ $plantillas->links() }}</div>
+        @endif
+
+    </div>
 @endsection

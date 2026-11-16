@@ -210,7 +210,11 @@ class EstadoEnvioService
             throw EnvioInvalidoException::aprobacionConBloqueantes($bloqueantes);
         }
 
+        // Solo las series activas: una serie desactivada no se puede subir, así
+        // que exigirla bloquearía la aprobación para siempre. Mismo criterio que
+        // V11 (ReglaV11Completitud) y que la matriz de completitud.
         $exigidas = $envio->establecimiento->series()
+            ->where('series.activo', true)
             ->wherePivot('obligatoria', true)
             ->pluck('series.id');
 
