@@ -115,6 +115,25 @@ Tomadas de `MODULO_M7_PROFUNDIZADO.md` §18. Ninguna se cierra por inferencia: l
 > administrador (D-030). El portal ya no envía correo: se retiró la recuperación
 > por enlace.
 
+### Rediseño de UI (2026-11-16)
+
+Aprueba D1 y desbloquea `02-DOCS/feature-rediseno-ui-clinova.md`. Enmienda la constitución a **v5.0.0**.
+
+| Fecha | ID | Decisión | Opciones | Motivo |
+|---|---|---|---|---|
+| 2026-11-16 | C-019 | **La capa UI del canon pasa de AdminLTE 3.2 (Bootstrap 4) a Tailwind CSS v4 + componentes Blade propios**, compilados con Vite en local y subidos como `portal/public/build/`. Se retiran AdminLTE, Bootstrap y FontAwesome | Mantener AdminLTE 4 / migrar a Tailwind v4 / sistema propio desde cero | `portal/resources/css/app.css` ya importa `tailwindcss` y cada `npm run build` genera 43 KB de CSS que **ningún layout cargaba**. El portal mantenía tres juegos de assets (`adminlte/`, `adminlte.v3.backup/`, `adminlte4_extracted/`), FontAwesome solo para 26 iconos, y `yajra/laravel-datatables-oracle` con **0 referencias** en `portal/app`. Se conserva la restricción de no usar Node en el servidor: el build es un artefacto estático |
+| 2026-11-16 | D-031 | **Iconos: Lucide** (SVG inyectado) en lugar de FontAwesome (fuente de iconos) | FontAwesome / Lucide / SVG a mano | 26 iconos distintos en 34 usos. Lucide los cubre todos, elimina un archivo de fuente y su declaración `@font-face` |
+| 2026-11-16 | D-032 | **Gráficos: ApexCharts, diferido, acotado a 4 gráficos en 2 pantallas** (Panel y Completitud) | Sin gráficos / ApexCharts / motor propio | El chunk pesa 567 KB. Con `import()` solo se descarga en las páginas que declaran `[data-chart]`. Si crece, choca con el presupuesto p95 < 2 s (principio 25) |
+| 2026-11-16 | D-033 | **Tablas híbridas:** búsqueda en cliente para los catálogos de administración (pocas filas); paginación del servidor para envíos y revisión | Todo cliente / todo servidor / híbrido | Los catálogos caben en una página y el filtro instantáneo evita un viaje al servidor. Envíos y revisión ya paginan en servidor y la bandeja se presupuesta con 100 filas (principio 25) |
+| 2026-11-16 | D-034 | **Modo oscuro disponible**, con `prefers-color-scheme` como valor inicial y conmutador persistente | Solo claro / claro + oscuro automático / conmutador | El tema oscuro es gratis con tokens `oklch` en dos capas. Se toma del sistema y no obliga a nadie a elegir al entrar |
+| 2026-11-16 | D-035 | **Sin presets de color ni selector de densidad** | Con / sin | Los presets de la plantilla de referencia reescriben solo 4 variables y dejan el acento descolgado: una paleta a medias es peor que una fija. El selector de densidad está **muerto en la plantilla original** (`--card-padding` se define 3 veces y ninguna regla lo consume) |
+| 2026-11-16 | D-036 | **Sin paleta de comandos (⌘K)** | Con / sin | El menú tiene 13 entradas. Mantener un índice de rutas con palabras clave no se paga con ese tamaño |
+| 2026-11-16 | D-037 | **El rediseño va en rama `feature/rediseno-ui-clinova`**, creada sobre el estado de `feature/adminlte4-bootstrap5` | Rama actual / rama nueva | Principio 15. `main` está cerrada para el agente |
+
+> **Estado de la FTD previa (2026-11-16):** `02-DOCS/feature-adminlte4-bootstrap5-migration.md` quedó **ejecutada en el árbol de trabajo pero sin commit**. AdminLTE 4.10.2 está instalado y las 18 vistas usan su marcado. Se cierra en la misma fecha y su contenido se presume en la base de este rediseño. Ver la nota de bloqueo en §3 de `feature-rediseno-ui-clinova.md`.
+
+
+
 ## Cómo se cierra una decisión
 
 1. Se escribe la opción elegida y el motivo en esta tabla (nueva fila, no se edita la anterior).

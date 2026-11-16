@@ -107,3 +107,12 @@ portal/archivos/
 # Respaldos locales de la base y de los archivos subidos: llevan datos reales
 # (principio 22). Se generan con 01-TOOLS/backup y nunca se versionan.
 backup_mvp_v2/
+
+# Assets de UI: se versiona SOLO el directorio en uso. Los respaldos, las
+# extracciones y los zip de descarga son insumos locales, no parte del portal.
+portal/public/assets/adminlte.v3.backup/
+portal/public/assets/adminlte4_extracted/
+portal/public/assets/*.zip
+
+# Estado local de herramientas de automatización de navegador.
+.playwright-cli/
