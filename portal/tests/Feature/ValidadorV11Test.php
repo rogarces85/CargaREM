@@ -176,4 +176,33 @@ class ValidadorV11Test extends TestCase
 
         $this->assertSame($primera, DB::table('validaciones')->where('etapa', 'V11')->count());
     }
+
+    /**
+     * Una serie desactivada en el catálogo deja de exigirse, aunque la matriz
+     * conserve la fila `obligatoria`.
+     *
+     * Sin esto, desactivar una serie en el panel de Series bloqueaba para
+     * siempre a los establecimientos que la tenían en la matriz: no se puede
+     * subir (la vista no la ofrece y el servicio la rechaza) y V11 la seguía
+     * reclamando. El envío quedaba en `con_errores` sin salida.
+     */
+    public function test_una_serie_desactivada_no_se_exige(): void
+    {
+        $this->serieBS->update(['activo' => false]);
+
+        $archivoA = $this->archivoDe($this->serieA, 'A');
+
+        $this->assertSame([], $this->hallazgosV11($archivoA), 'la serie BS está desactivada: no debe reclamarse');
+    }
+
+    /** Al reactivarla vuelve a exigirse: el estado del catálogo manda. */
+    public function test_una_serie_reactivada_vuelve_a_exigirse(): void
+    {
+        $this->serieBS->update(['activo' => false]);
+        $this->serieBS->update(['activo' => true]);
+
+        $archivoA = $this->archivoDe($this->serieA, 'A');
+
+        $this->assertSame(['ENV-025'], $this->hallazgosV11($archivoA));
+    }
 }
