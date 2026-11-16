@@ -3,64 +3,75 @@
 @section('titulo', $titulo)
 
 @section('contenido')
-    <div class="content-header px-0 d-flex justify-content-between align-items-center">
-        <h1 class="m-0">{{ $titulo }}</h1>
-        <a href="{{ route($ruta.'.create') }}" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Nuevo
-        </a>
-    </div>
+    <div class="mx-auto max-w-6xl space-y-6">
 
-    @if (session('ok'))
-        <div class="alert alert-success mt-3">{{ session('ok') }}</div>
-    @endif
+        <x-ui.page-header
+            :titulo="$titulo"
+            :migas="['Panel' => route('panel'), $titulo => null]"
+        >
+            <x-slot:acciones>
+                <a href="{{ route($ruta . '.create') }}" class="btn btn-primary">
+                    <x-ui.icon name="plus" class="size-4" />
+                    Nuevo
+                </a>
+            </x-slot:acciones>
+        </x-ui.page-header>
 
-    @if (session('error'))
-        <div class="alert alert-danger mt-3">{{ session('error') }}</div>
-    @endif
-
-    <div class="card mt-3">
-        <div class="card-body table-responsive p-0">
-            <table class="table table-hover text-nowrap mb-0">
+        @if ($filas->isEmpty())
+            <x-ui.empty
+                icono="inbox"
+                titulo="Todavía no hay registros"
+                :texto="'Cree el primero con el botón «Nuevo».'"
+            >
+                <x-slot:accion>
+                    <a href="{{ route($ruta . '.create') }}" class="btn btn-primary">
+                        <x-ui.icon name="plus" class="size-4" />
+                        Nuevo
+                    </a>
+                </x-slot:accion>
+            </x-ui.empty>
+        @else
+            <x-ui.table>
+                <caption class="sr-only">{{ $titulo }}</caption>
                 <thead>
                     <tr>
                         @foreach ($columnas as $etiqueta => $campo)
-                            <th>{{ $etiqueta }}</th>
+                            <th scope="col">{{ $etiqueta }}</th>
                         @endforeach
-                        <th class="text-end">Acciones</th>
+                        <th scope="col" class="text-end">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($filas as $fila)
+                    @foreach ($filas as $fila)
                         <tr>
                             @foreach ($columnas as $campo)
                                 @php $valor = data_get($fila, $campo); @endphp
-                                <td>
+                                <td @class(['tabular' => is_numeric($valor)])>
                                     @if ($valor instanceof \DateTimeInterface)
                                         {{ $valor->format('d-m-Y') }}
                                     @elseif (is_bool($valor))
-                                        {{ $valor ? 'Sí' : 'No' }}
+                                        <x-ui.badge :tono="$valor ? 'ok' : 'idle'">{{ $valor ? 'Sí' : 'No' }}</x-ui.badge>
+                                    @elseif ($valor === null || $valor === '')
+                                        <span class="text-muted-foreground">—</span>
                                     @else
                                         {{ $valor }}
                                     @endif
                                 </td>
                             @endforeach
+
                             <td class="text-end">
-                                <a href="{{ route($ruta.'.edit', $fila) }}" class="btn btn-sm btn-outline-secondary">
+                                <a href="{{ route($ruta . '.edit', $fila) }}" class="btn btn-secondary btn-sm">
+                                    <x-ui.icon name="pencil" class="size-3.5" />
                                     Editar
                                 </a>
                             </td>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="{{ count($columnas) + 1 }}" class="text-center text-muted py-4">
-                                No hay registros.
-                            </td>
-                        </tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
-            </table>
-        </div>
-    </div>
+            </x-ui.table>
 
-    <div class="mt-3">{{ $filas->links() }}</div>
+            <div>{{ $filas->links() }}</div>
+        @endif
+
+    </div>
 @endsection

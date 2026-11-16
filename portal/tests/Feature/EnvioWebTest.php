@@ -110,7 +110,9 @@ class EnvioWebTest extends TestCase
             ->get("/envios/{$envio->id}")
             ->assertOk()
             ->assertSee('SERIE A')
-            ->assertSee('sin archivo');
+            // La etiqueta del estado se unificó con el resto del vocabulario:
+            // «Aprobado», «Observado», «Sin archivo» van con mayúscula inicial.
+            ->assertSee('Sin archivo');
     }
 
     public function test_sube_un_archivo_y_lo_valida(): void

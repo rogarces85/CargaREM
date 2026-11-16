@@ -3,245 +3,233 @@
 @section('titulo', 'Revisión')
 
 @section('contenido')
-    <div class="content-header px-0">
-        <h1 class="m-0">Bandeja de revisión</h1>
-        <p class="text-muted mb-0">
-            Envíos de los establecimientos del Servicio de Salud. Los más antiguos primero.
-        </p>
-    </div>
+    <div class="mx-auto max-w-6xl space-y-6">
 
-    @if (session('ok'))
-        <div class="alert alert-success mt-3">{{ session('ok') }}</div>
-    @endif
+        <x-ui.page-header
+            titulo="Bandeja de revisión"
+            subtitulo="Envíos de los establecimientos del Servicio de Salud. Los más antiguos primero."
+            :migas="['Panel' => route('panel'), 'Revisión' => null]"
+        />
 
-    @if ($errors->any())
-        <div class="alert alert-danger mt-3">
-            <ul class="mb-0">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
-    <div class="card mt-3">
-        <div class="card-body">
-            <form method="GET" action="{{ route('revision.index') }}" class="row g-3 align-items-end">
-                <div class="col-md-2">
-                    <label for="estado" class="form-label">Estado</label>
-                    <select name="estado" id="estado" class="form-select">
+        {{-- Filtros --}}
+        <x-ui.card class="p-5">
+            <form method="GET" action="{{ route('revision.index') }}"
+                  class="grid gap-4 sm:grid-cols-2 lg:grid-cols-6 lg:items-end">
+                <x-ui.field nombre="estado" etiqueta="Estado">
+                    <select name="estado" id="estado" class="select">
                         @foreach ($estados as $valor => $texto)
-                            <option value="{{ $valor }}" @selected(($filtros['estado'] ?? '') === (string) $valor)>
-                                {{ $texto }}
-                            </option>
+                            <option value="{{ $valor }}" @selected(($filtros['estado'] ?? '') === (string) $valor)>{{ $texto }}</option>
                         @endforeach
                     </select>
-                </div>
+                </x-ui.field>
 
-                <div class="col-md-3">
-                    <label for="establecimiento_id" class="form-label">Establecimiento</label>
-                    <select name="establecimiento_id" id="establecimiento_id" class="form-select">
+                <x-ui.field nombre="establecimiento_id" etiqueta="Establecimiento" class="lg:col-span-2">
+                    <select name="establecimiento_id" id="establecimiento_id" class="select">
                         <option value="">Todos</option>
                         @foreach ($establecimientos as $establecimiento)
-                            <option value="{{ $establecimiento->id }}"
-                                @selected(($filtros['establecimiento_id'] ?? '') == $establecimiento->id)>
+                            <option value="{{ $establecimiento->id }}" @selected(($filtros['establecimiento_id'] ?? '') == $establecimiento->id)>
                                 {{ $establecimiento->codigo }} — {{ $establecimiento->nombre }}
                             </option>
                         @endforeach
                     </select>
-                </div>
+                </x-ui.field>
 
-                <div class="col-md-2">
-                    <label for="anio" class="form-label">Año</label>
-                    <input type="number" name="anio" id="anio" class="form-control"
-                           value="{{ $filtros['anio'] ?? '' }}" min="2000" max="2100" placeholder="Todos">
-                </div>
+                <x-ui.field nombre="anio" etiqueta="Año">
+                    <input type="number" name="anio" id="anio" value="{{ $filtros['anio'] ?? '' }}"
+                           min="2000" max="2100" placeholder="Todos" class="input tabular">
+                </x-ui.field>
 
-                <div class="col-md-2">
-                    <label for="dias" class="form-label">Antigüedad</label>
-                    <select name="dias" id="dias" class="form-select">
+                <x-ui.field nombre="dias" etiqueta="Antigüedad">
+                    <select name="dias" id="dias" class="select">
                         <option value="">Cualquiera</option>
                         @foreach ([3, 7, 15, 30] as $dias)
-                            <option value="{{ $dias }}" @selected(($filtros['dias'] ?? '') == $dias)>
-                                Más de {{ $dias }} días
-                            </option>
+                            <option value="{{ $dias }}" @selected(($filtros['dias'] ?? '') == $dias)>Más de {{ $dias }} días</option>
                         @endforeach
                     </select>
-                </div>
+                </x-ui.field>
 
-                <div class="col-md-2">
-                    <label for="fuera_de_plazo" class="form-label">Plazo</label>
-                    <select name="fuera_de_plazo" id="fuera_de_plazo" class="form-select">
+                <x-ui.field nombre="fuera_de_plazo" etiqueta="Plazo">
+                    <select name="fuera_de_plazo" id="fuera_de_plazo" class="select">
                         <option value="">Todos</option>
                         <option value="1" @selected(($filtros['fuera_de_plazo'] ?? '') == '1')>Fuera de plazo</option>
                     </select>
-                </div>
+                </x-ui.field>
 
-                <div class="col-md-1">
-                    <button type="submit" class="btn btn-primary w-100">Filtrar</button>
-                </div>
-                <div class="col-md-1">
-                    <a href="{{ route('revision.index') }}" class="btn btn-outline-secondary w-100">Limpiar</a>
+                <div class="flex gap-2 lg:col-span-6">
+                    <button type="submit" class="btn btn-primary">
+                        <x-ui.icon name="search" class="size-4" />
+                        Filtrar
+                    </button>
+                    <a href="{{ route('revision.index') }}" class="btn btn-ghost">Limpiar</a>
                 </div>
             </form>
-        </div>
-    </div>
+        </x-ui.card>
 
-    <div class="card mt-3">
-        <div class="card-body table-responsive p-0">
-            <table class="table table-hover mb-0">
+        @if ($envios->isEmpty())
+            <x-ui.empty
+                icono="clipboard-check"
+                titulo="No hay envíos con ese filtro"
+                texto="Pruebe con otro estado, otro establecimiento o quite los filtros."
+            />
+        @else
+            <x-ui.table>
+                <caption class="sr-only">Envíos pendientes de revisión</caption>
                 <thead>
                     <tr>
-                        <th>Establecimiento</th>
-                        <th>Período</th>
-                        <th>Estado</th>
-                        <th class="text-center">Series</th>
-                        <th class="text-center">Observaciones</th>
-                        <th>Esperando desde</th>
-                        <th class="text-end">Acciones</th>
+                        <th scope="col">Establecimiento</th>
+                        <th scope="col">Período</th>
+                        <th scope="col">Estado</th>
+                        <th scope="col" class="hidden text-center sm:table-cell">Series</th>
+                        <th scope="col" class="text-center">Observaciones</th>
+                        <th scope="col" class="hidden md:table-cell">Esperando desde</th>
+                        <th scope="col" class="text-end">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($envios as $envio)
+                    @foreach ($envios as $envio)
                         <tr>
                             <td>
-                                <strong>{{ $envio->establecimiento->codigo }}</strong>
-                                <span class="text-muted small d-block">{{ $envio->establecimiento->nombre }}</span>
-                            </td>
-                            <td>{{ sprintf('%02d/%d', $envio->mes, $envio->anio) }}</td>
-                            <td>
-                                <span class="badge bg-{{ $envio->estado === 'aprobado' ? 'success' : ($envio->estado === 'observado' ? 'warning' : 'info') }}">
-                                    {{ str_replace('_', ' ', $envio->estado) }}
+                                <span class="flex items-center gap-2.5">
+                                    <x-ui.avatar :texto="$envio->establecimiento->nombre" tamano="sm" />
+                                    <span class="min-w-0">
+                                        <span class="block font-medium">{{ $envio->establecimiento->codigo }}</span>
+                                        <span class="block truncate text-xs text-muted-foreground">{{ $envio->establecimiento->nombre }}</span>
+                                    </span>
                                 </span>
-                                @if ($envio->estaFueraDePlazo())
-                                    <span class="badge bg-danger d-block mt-1">Fuera de plazo</span>
-                                @endif
                             </td>
-                            <td class="text-center">{{ $envio->archivosVigentes->count() }}</td>
+
+                            <td class="tabular">{{ sprintf('%02d/%d', $envio->mes, $envio->anio) }}</td>
+
+                            <td>
+                                <span class="flex flex-wrap items-center gap-1">
+                                    <x-ui.estado :valor="$envio->estado" />
+                                    @if ($envio->estaFueraDePlazo())
+                                        <x-ui.badge tono="danger" :punto="false">Fuera de plazo</x-ui.badge>
+                                    @endif
+                                </span>
+                            </td>
+
+                            <td class="hidden text-center tabular sm:table-cell">{{ $envio->archivosVigentes->count() }}</td>
+
                             <td class="text-center">
                                 @if ($envio->abiertas > 0)
-                                    <span class="badge bg-warning text-dark">{{ $envio->abiertas }}</span>
+                                    <x-ui.badge tono="warn">{{ $envio->abiertas }}</x-ui.badge>
                                 @else
-                                    <span class="text-muted">—</span>
+                                    <span class="text-muted-foreground">—</span>
                                 @endif
                             </td>
-                            <td>
+
+                            <td class="hidden whitespace-nowrap text-xs text-muted-foreground md:table-cell">
                                 {{ $envio->fecha_envio?->diffForHumans() ?? '—' }}
                             </td>
-                            <td class="text-end">
-                                <a href="{{ route('envios.show', $envio) }}" class="btn btn-sm btn-outline-secondary">
-                                    Ver
-                                </a>
 
-                                @can('observar', $envio)
-                                    <button type="button" class="btn btn-sm btn-warning btn-observar me-1"
+                            <td class="text-end">
+                                <span class="inline-flex flex-wrap items-center justify-end gap-1.5">
+                                    <a href="{{ route('envios.show', $envio) }}" class="btn btn-secondary btn-sm">Ver</a>
+
+                                    @can('observar', $envio)
+                                        <button
+                                            type="button"
+                                            class="btn btn-warning btn-sm"
+                                            data-modal-open="modalObservar"
                                             data-id="{{ $envio->id }}"
                                             data-referencia="{{ $envio->establecimiento->codigo }} · {{ sprintf('%02d/%d', $envio->mes, $envio->anio) }}"
                                             data-series="{{ $envio->archivosVigentes->map(fn ($a) => ['id' => $a->serie_id, 'codigo' => $a->serie?->codigo])->toJson() }}"
-                                            data-bs-toggle="modal" data-bs-target="#modalObservar">
-                                        Observar
-                                    </button>
-                                @endcan
+                                        >
+                                            Observar
+                                        </button>
+                                    @endcan
 
-                                @can('aprobar', $envio)
-                                    <button type="button" class="btn btn-sm btn-success btn-aprobar me-1"
+                                    @can('aprobar', $envio)
+                                        <button
+                                            type="button"
+                                            class="btn btn-primary btn-sm"
+                                            data-modal-open="modalAprobar"
                                             data-id="{{ $envio->id }}"
                                             data-referencia="{{ $envio->establecimiento->codigo }} · {{ sprintf('%02d/%d', $envio->mes, $envio->anio) }}"
                                             data-abiertas="{{ $envio->abiertas }}"
-                                            data-bs-toggle="modal" data-bs-target="#modalAprobar">
-                                        Aprobar
-                                    </button>
-                                @endcan
+                                        >
+                                            Aprobar
+                                        </button>
+                                    @endcan
+                                </span>
                             </td>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7" class="text-center text-muted py-4">
-                                No hay envíos con ese filtro.
-                            </td>
-                        </tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
-            </table>
-        </div>
+            </x-ui.table>
+
+            <div>{{ $envios->links() }}</div>
+        @endif
     </div>
 
-    <div class="mt-3">{{ $envios->links() }}</div>
+    {{-- ===================== Observar ===================== --}}
+    <x-ui.modal id="modalObservar" titulo="Observar envío">
+        <form id="formObservar" method="POST" action="" class="space-y-4">
+            @csrf
 
-    {{-- Modal observar --}}
-    <div class="modal fade" id="modalObservar" tabindex="-1" aria-labelledby="tituloObservar" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <form method="POST" id="formObservar" action="">
-                @csrf
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="tituloObservar">Observar envío</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p class="mb-2">Envío <strong id="referenciaObservar"></strong></p>
-                        <div class="mb-3">
-                            <label for="serieObservar" class="form-label">¿Sobre qué serie?</label>
-                            <select name="serie_id" id="serieObservar" class="form-select">
-                                <option value="">Todo el envío</option>
-                            </select>
-                            <small class="form-text text-muted">
-                                Si elige una serie, la observación se resuelve sola cuando el encargado suba la corrección.
-                            </small>
-                        </div>
+            <p class="text-sm text-muted-foreground">
+                Envío <strong class="text-foreground" id="referenciaObservar"></strong>
+            </p>
 
-                        <div class="mb-0">
-                            <label for="texto" class="form-label">¿Qué debe corregir el establecimiento?</label>
-                            <textarea name="texto" id="texto" rows="4" class="form-control" maxlength="2000" required></textarea>
-                            <small class="form-text text-muted">
-                                La observación vuelve al establecimiento y queda en la bitácora.
-                            </small>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-link" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-warning">Observar</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
+            <x-ui.field nombre="serie_id" etiqueta="¿Sobre qué serie?"
+                        ayuda="Si elige una serie, la observación se resuelve sola cuando el encargado suba la corrección.">
+                <select name="serie_id" id="serieObservar" class="select">
+                    <option value="">Todo el envío</option>
+                </select>
+            </x-ui.field>
 
-    {{-- Modal aprobar --}}
-    <div class="modal fade" id="modalAprobar" tabindex="-1" aria-labelledby="tituloAprobar" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <form method="POST" id="formAprobar" action="">
-                @csrf
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="tituloAprobar">Aprobar envío</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p class="mb-2">Envío <strong id="referenciaAprobar"></strong></p>
-                        <div class="alert alert-warning d-none" id="avisoObservaciones">
-                            Este envío tiene observaciones sin resolver. No se puede aprobar hasta resolverlas.
-                        </div>
-                        <div class="mb-0">
-                            <label for="comentario" class="form-label">Comentario (opcional)</label>
-                            <input type="text" name="comentario" id="comentario" class="form-control" maxlength="500">
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-link" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-success" id="botonAprobar">Aprobar</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
+            <x-ui.field nombre="texto" etiqueta="¿Qué debe corregir el establecimiento?"
+                        ayuda="La observación vuelve al establecimiento y queda en la bitácora." requerido>
+                <textarea name="texto" id="texto" rows="4" maxlength="2000" required class="textarea"></textarea>
+            </x-ui.field>
+        </form>
+
+        <x-slot:pie>
+            <button type="button" class="btn btn-ghost" data-modal-close>Cancelar</button>
+            <button type="submit" form="formObservar" class="btn btn-warning">
+                <x-ui.icon name="circle-exclamation-point" class="size-4" />
+                Observar
+            </button>
+        </x-slot:pie>
+    </x-ui.modal>
+
+    {{-- ===================== Aprobar ===================== --}}
+    <x-ui.modal id="modalAprobar" titulo="Aprobar envío">
+        <form id="formAprobar" method="POST" action="" class="space-y-4">
+            @csrf
+
+            <p class="text-sm text-muted-foreground">
+                Envío <strong class="text-foreground" id="referenciaAprobar"></strong>
+            </p>
+
+            <x-ui.alert tono="warn" id="avisoObservaciones" class="hidden">
+                Este envío tiene observaciones sin resolver. No se puede aprobar hasta resolverlas.
+            </x-ui.alert>
+
+            <x-ui.field nombre="comentario" etiqueta="Comentario (opcional)">
+                <input type="text" name="comentario" id="comentario" maxlength="500" class="input">
+            </x-ui.field>
+        </form>
+
+        <x-slot:pie>
+            <button type="button" class="btn btn-ghost" data-modal-close>Cancelar</button>
+            <button type="submit" form="formAprobar" id="botonAprobar" class="btn btn-primary">
+                <x-ui.icon name="circle-check" class="size-4" />
+                Aprobar
+            </button>
+        </x-slot:pie>
+    </x-ui.modal>
 @endsection
 
 @push('scripts')
     <script>
-        document.querySelectorAll('.btn-observar').forEach(function (boton) {
+        // Preparan el diálogo antes de abrirlo: la acción del formulario y el
+        // detalle dependen del envío de la fila, que el servidor ya renderizó.
+        document.querySelectorAll('[data-modal-open="modalObservar"]').forEach(function (boton) {
             boton.addEventListener('click', function () {
                 const id = this.dataset.id;
+
                 document.getElementById('formObservar').action = '/revision/' + id + '/observar';
                 document.getElementById('referenciaObservar').textContent = this.dataset.referencia;
                 document.getElementById('texto').value = '';
@@ -258,7 +246,7 @@
             });
         });
 
-        document.querySelectorAll('.btn-aprobar').forEach(function (boton) {
+        document.querySelectorAll('[data-modal-open="modalAprobar"]').forEach(function (boton) {
             boton.addEventListener('click', function () {
                 const id = this.dataset.id;
                 const abiertas = parseInt(this.dataset.abiertas || '0', 10);
@@ -266,7 +254,7 @@
                 document.getElementById('formAprobar').action = '/revision/' + id + '/aprobar';
                 document.getElementById('referenciaAprobar').textContent = this.dataset.referencia;
 
-                document.getElementById('avisoObservaciones').classList.toggle('d-none', abiertas === 0);
+                document.getElementById('avisoObservaciones').classList.toggle('hidden', abiertas === 0);
                 document.getElementById('botonAprobar').disabled = abiertas > 0;
             });
         });

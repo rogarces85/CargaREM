@@ -103,7 +103,7 @@ const pares = (t) => {
     ['destructive-foreground / destructive', t['--destructive-foreground'], t['--destructive'], 4.5],
   ];
 
-  for (const estado of ['ok', 'warn', 'danger', 'idle']) {
+  for (const estado of ['ok', 'info', 'warn', 'danger', 'idle']) {
     filas.push([`status-${estado}-fg / card`, t[`--status-${estado}-fg`], card, 4.5]);
     filas.push([
       `status-${estado}-fg / tinte 10%`,

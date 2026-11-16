@@ -3,72 +3,85 @@
 @section('titulo', $titulo)
 
 @section('contenido')
-    <div class="content-header px-0">
-        <h1 class="m-0">{{ $titulo }}</h1>
-    </div>
+    <div class="mx-auto max-w-3xl space-y-6">
 
-    @if ($errors->any())
-        <div class="alert alert-danger mt-3">
-            <ul class="mb-0">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+        <x-ui.page-header
+            :titulo="$titulo"
+            :migas="['Panel' => route('panel'), $ruta => route($ruta . '.index'), 'Editar' => null]"
+        />
 
-    <div class="card mt-3">
-        <div class="card-body">
-            <form method="POST" action="{{ $accion }}">
-                @csrf
-                @if ($metodo !== 'POST')
-                    @method($metodo)
-                @endif
+        <form method="POST" action="{{ $accion }}" class="space-y-6">
+            @csrf
+            @if ($metodo !== 'POST')
+                @method($metodo)
+            @endif
 
-                @foreach ($campos as $campo)
-                    <div class="mb-3">
-                        <label for="{{ $campo['name'] }}" class="form-label">{{ $campo['label'] }}</label>
+            <x-ui.card class="p-5">
+                <div class="space-y-4">
+                    @foreach ($campos as $campo)
+                        @php
+                            $nombre = $campo['name'];
+                            $tipo = $campo['type'] ?? 'text';
+                            $valor = old($nombre, $registro?->{$nombre});
+                            $error = $errors->first($nombre);
+                        @endphp
 
-                        @if (($campo['type'] ?? 'text') === 'select')
-                            <select name="{{ $campo['name'] }}"
-                                    id="{{ $campo['name'] }}"
-                                    class="form-select @error($campo['name']) is-invalid @enderror">
-                                @foreach ($campo['options'] as $valor => $texto)
-                                    <option value="{{ $valor }}"
-                                        @selected((string) old($campo['name'], $registro?->{$campo['name']}) === (string) $valor)>
-                                        {{ $texto }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        @elseif (($campo['type'] ?? 'text') === 'checkbox')
-                            <div class="form-check">
-                                <input type="hidden" name="{{ $campo['name'] }}" value="0">
-                                <input type="checkbox"
-                                       name="{{ $campo['name'] }}"
-                                       id="{{ $campo['name'] }}"
-                                       value="1"
-                                       class="form-check-input"
-                                       @checked(old($campo['name'], $registro?->{$campo['name']} ?? true))>
-                                <label class="form-check-label" for="{{ $campo['name'] }}">{{ $campo['label'] }}</label>
+                        @if ($tipo === 'checkbox')
+                            <div>
+                                <input type="hidden" name="{{ $nombre }}" value="0">
+                                <label for="{{ $nombre }}" class="flex cursor-pointer items-center gap-2 text-sm">
+                                    <input type="checkbox" name="{{ $nombre }}" id="{{ $nombre }}" value="1"
+                                           class="check"
+                                           @checked(old($nombre, $registro?->{$nombre} ?? true))>
+                                    {{ $campo['label'] }}
+                                </label>
+
+                                @if ($error)
+                                    <p class="campo-error">
+                                        <x-ui.icon name="circle-exclamation-point" class="mt-px size-3.5 shrink-0" />
+                                        <span>{{ $error }}</span>
+                                    </p>
+                                @endif
                             </div>
                         @else
-                            <input type="{{ $campo['type'] ?? 'text' }}"
-                                   name="{{ $campo['name'] }}"
-                                   id="{{ $campo['name'] }}"
-                                   value="{{ old($campo['name'], $registro?->{$campo['name']}) }}"
-                                   class="form-control @error($campo['name']) is-invalid @enderror"
-                                   @if (! empty($campo['required'])) required @endif>
+                            <x-ui.field :nombre="$nombre" :etiqueta="$campo['label']" :error="$error"
+                                        :requerido="! empty($campo['required'])">
+                                @if ($tipo === 'select')
+                                    <select name="{{ $nombre }}" id="{{ $nombre }}" class="select"
+                                            @if (! empty($campo['required'])) required @endif
+                                            @if ($error) aria-invalid="true" aria-describedby="{{ $nombre }}-error" @endif>
+                                        @foreach ($campo['options'] as $opcionValor => $opcionTexto)
+                                            <option value="{{ $opcionValor }}" @selected((string) $valor === (string) $opcionValor)>
+                                                {{ $opcionTexto }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                @elseif ($tipo === 'textarea')
+                                    <textarea name="{{ $nombre }}" id="{{ $nombre }}" rows="4" class="textarea"
+                                              @if (! empty($campo['required'])) required @endif
+                                              @if ($error) aria-invalid="true" aria-describedby="{{ $nombre }}-error" @endif>{{ $valor }}</textarea>
+                                @else
+                                    <input type="{{ $tipo }}" name="{{ $nombre }}" id="{{ $nombre }}"
+                                           value="{{ $tipo === 'password' ? '' : $valor }}"
+                                           class="input @if ($tipo === 'number') tabular @endif"
+                                           @if (! empty($campo['required'])) required @endif
+                                           @if ($error) aria-invalid="true" aria-describedby="{{ $nombre }}-error" @endif
+                                           @if (! empty($campo['placeholder'])) placeholder="{{ $campo['placeholder'] }}" @endif>
+                                @endif
+                            </x-ui.field>
                         @endif
+                    @endforeach
+                </div>
+            </x-ui.card>
 
-                        @error($campo['name'])
-                            <span class="invalid-feedback d-block">{{ $message }}</span>
-                        @enderror
-                    </div>
-                @endforeach
+            <div class="flex items-center gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <x-ui.icon name="check" class="size-4" />
+                    Guardar
+                </button>
+                <a href="{{ route($ruta . '.index') }}" class="btn btn-ghost">Cancelar</a>
+            </div>
+        </form>
 
-                <button type="submit" class="btn btn-primary">Guardar</button>
-                <a href="{{ route($ruta.'.index') }}" class="btn btn-link">Cancelar</a>
-            </form>
-        </div>
     </div>
 @endsection

@@ -3,69 +3,69 @@
 @section('titulo', 'Mi cuenta')
 
 @section('contenido')
-    <div class="content-header px-0">
-        <h1 class="m-0">Mi cuenta</h1>
-        <p class="text-muted mb-0">
-            El correo lo administra el portal: si necesita cambiarlo, pídalo al administrador.
-        </p>
-    </div>
+    <div class="mx-auto max-w-3xl space-y-6">
 
-    @if (session('ok'))
-        <div class="alert alert-success mt-3">{{ session('ok') }}</div>
-    @endif
+        <x-ui.page-header
+            titulo="Mi cuenta"
+            subtitulo="Su nombre y su contraseña. El correo lo administra el portal."
+            :migas="['Panel' => route('panel'), 'Mi cuenta' => null]"
+        />
 
-    @if ($errors->any())
-        <div class="alert alert-danger mt-3">
-            <ul class="mb-0">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+        <form method="POST" action="{{ route('perfil.update') }}" class="space-y-6">
+            @csrf
+            @method('PUT')
 
-    <div class="card mt-3">
-        <div class="card-body">
-            <form method="POST" action="{{ route('perfil.update') }}">
-                @csrf
-                @method('PUT')
+            {{-- Datos --}}
+            <x-ui.card class="p-5">
+                <h2 class="text-sm font-semibold">Datos</h2>
 
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label for="name" class="form-label">Nombre</label>
-                        <input type="text" name="name" id="name" class="form-control"
-                               value="{{ old('name', $usuario->name) }}" maxlength="150" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="email" class="form-label">Correo</label>
-                        <input type="email" id="email" class="form-control" value="{{ $usuario->email }}" disabled>
-                        <small class="form-text text-muted">Lo fija el administrador.</small>
-                    </div>
+                <div class="mt-4 grid gap-4 sm:grid-cols-2">
+                    <x-ui.field nombre="name" etiqueta="Nombre" :error="$errors->first('name')" requerido>
+                        <input type="text" name="name" id="name" value="{{ old('name', $usuario->name) }}"
+                               maxlength="150" required class="input"
+                               @error('name') aria-invalid="true" aria-describedby="name-error" @enderror>
+                    </x-ui.field>
+
+                    <x-ui.field nombre="email" etiqueta="Correo" ayuda="Lo fija el administrador.">
+                        <input type="email" id="email" value="{{ $usuario->email }}" disabled class="input">
+                    </x-ui.field>
                 </div>
+            </x-ui.card>
 
-                <hr>
-
-                <p class="text-muted">
-                    Para cambiar la contraseña, escriba la actual y la nueva (mínimo 12 caracteres).
+            {{-- Contraseña --}}
+            <x-ui.card class="p-5">
+                <h2 class="text-sm font-semibold">Contraseña</h2>
+                <p class="mt-1 text-xs text-muted-foreground">
+                    Para cambiarla, escriba la actual y la nueva (mínimo 12 caracteres). Si no quiere cambiarla, deje los tres campos vacíos.
                 </p>
 
-                <div class="row g-3 mb-3">
-                    <div class="col-md-4">
-                        <label for="actual" class="form-label">Contraseña actual</label>
-                        <input type="password" name="actual" id="actual" class="form-control" autocomplete="current-password">
-                    </div>
-                    <div class="col-md-4">
-                        <label for="password" class="form-label">Contraseña nueva</label>
-                        <input type="password" name="password" id="password" class="form-control" autocomplete="new-password">
-                    </div>
-                    <div class="col-md-4">
-                        <label for="password_confirmation" class="form-label">Repetir la nueva</label>
-                        <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" autocomplete="new-password">
-                    </div>
-                </div>
+                <div class="mt-4 grid gap-4 sm:grid-cols-3">
+                    <x-ui.field nombre="actual" etiqueta="Contraseña actual" :error="$errors->first('actual')">
+                        <input type="password" name="actual" id="actual" autocomplete="current-password" class="input"
+                               @error('actual') aria-invalid="true" aria-describedby="actual-error" @enderror>
+                    </x-ui.field>
 
-                <button type="submit" class="btn btn-primary">Guardar</button>
-            </form>
-        </div>
+                    <x-ui.field nombre="password" etiqueta="Contraseña nueva" :error="$errors->first('password')">
+                        <input type="password" name="password" id="password" autocomplete="new-password" class="input"
+                               @error('password') aria-invalid="true" aria-describedby="password-error" @enderror>
+                    </x-ui.field>
+
+                    <x-ui.field nombre="password_confirmation" etiqueta="Repetir la nueva" :error="$errors->first('password_confirmation')">
+                        <input type="password" name="password_confirmation" id="password_confirmation"
+                               autocomplete="new-password" class="input"
+                               @error('password_confirmation') aria-invalid="true" aria-describedby="password_confirmation-error" @enderror>
+                    </x-ui.field>
+                </div>
+            </x-ui.card>
+
+            <div class="flex items-center gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <x-ui.icon name="check" class="size-4" />
+                    Guardar
+                </button>
+                <a href="{{ route('panel') }}" class="btn btn-ghost">Cancelar</a>
+            </div>
+        </form>
+
     </div>
 @endsection
