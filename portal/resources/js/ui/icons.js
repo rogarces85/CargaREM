@@ -1,0 +1,134 @@
+/**
+ * Iconos Lucide.
+ *
+ * Se importan uno por uno, no `import * as icons`. El paquete expone ~2.055
+ * iconos; traerlos todos engordaría el bundle por cada icono que no usamos.
+ *
+ * `createIcons` resuelve `data-lucide="chevron-down"` convirtiendo el guion a
+ * PascalCase y buscando `ChevronDown` en este objeto. Si un nombre no está acá,
+ * la consola avisa «icon name was not found in the provided icons object» y el
+ * icono desaparece: esa es la señal para agregar el import.
+ */
+import {
+  createIcons,
+  Activity,
+  ArrowRight,
+  ArrowUpDown,
+  Ban,
+  Bell,
+  Building,
+  Calendar,
+  CalendarCheck,
+  CalendarDays,
+  Check,
+  ChevronDown,
+  ChevronRight,
+  ChevronsLeft,
+  Circle,
+  CircleCheck,
+  CircleExclamationPoint,
+  CircleX,
+  ClipboardCheck,
+  Clock,
+  Download,
+  Ellipsis,
+  ExternalLink,
+  Eye,
+  FileSpreadsheet,
+  FileText,
+  FileUp,
+  Grid3x3,
+  Hospital,
+  Hourglass,
+  House,
+  Inbox,
+  LayoutDashboard,
+  List,
+  ListOrdered,
+  Lock,
+  LogOut,
+  Mail,
+  Menu,
+  Minus,
+  Monitor,
+  Moon,
+  PanelLeftClose,
+  Pencil,
+  Percent,
+  Plus,
+  Search,
+  Sun,
+  Table,
+  TriangleExclamationPoint,
+  Upload,
+  User,
+  Users,
+  X,
+} from 'lucide';
+
+const ICONS = {
+  Activity,
+  ArrowRight,
+  ArrowUpDown,
+  Ban,
+  Bell,
+  Building,
+  Calendar,
+  CalendarCheck,
+  CalendarDays,
+  Check,
+  ChevronDown,
+  ChevronRight,
+  ChevronsLeft,
+  Circle,
+  CircleCheck,
+  CircleExclamationPoint,
+  CircleX,
+  ClipboardCheck,
+  Clock,
+  Download,
+  Ellipsis,
+  ExternalLink,
+  Eye,
+  FileSpreadsheet,
+  FileText,
+  FileUp,
+  Grid3x3,
+  Hospital,
+  Hourglass,
+  House,
+  Inbox,
+  LayoutDashboard,
+  List,
+  ListOrdered,
+  Lock,
+  LogOut,
+  Mail,
+  Menu,
+  Minus,
+  Monitor,
+  Moon,
+  PanelLeftClose,
+  Pencil,
+  Percent,
+  Plus,
+  Search,
+  Sun,
+  Table,
+  TriangleExclamationPoint,
+  Upload,
+  User,
+  Users,
+  X,
+};
+
+/**
+ * Sustituye en el DOM todo `[data-lucide]` por su SVG.
+ *
+ * Hay que volver a llamarlo después de insertar marcado nuevo: los iconos no se
+ * auto-instalan. Los SVG quedan marcados `aria-hidden="true"` por Lucide salvo
+ * que el elemento traiga un atributo de accesibilidad propio.
+ */
+export function renderIcons(root = document) {
+  createIcons({ icons: ICONS, root });
+}

@@ -217,12 +217,49 @@ Verificado el 2026-11-16 antes de tocar nada:
 - [x] **0.4** Crear `feature/rediseno-ui-clinova` — **hecho 2026-11-16** (sobre `5dffb49`)
 
 ### Fase 1 — Cimientos: design system y build
-- [ ] **1.1** Instalar dependencias: `lucide`, `notyf`, `apexcharts`, `@fontsource-variable/inter`
-- [ ] **1.2** `portal/resources/css/app.css`: tokens oklch light + `.dark` + `@media (prefers-color-scheme)` + `color-scheme` + `--status-*` + mapeo a `@theme` + `focus-visible` + `prefers-reduced-motion` + `.skip-link`
-- [ ] **1.3** `portal/resources/js/app.js` en módulos: `theme`, `sidebar`, `tabs`, `toast`, `icons`, `datatable`, `charts`
-- [ ] **1.4** `@vite(['resources/css/app.css','resources/js/app.js'])` en ambos layouts, retirando `asset('assets/adminlte/...')`
-- [ ] **1.5** Script inline anti-flash en `<head>` (tema antes del paint)
-- [ ] **1.6** Verificar: `npm run build` produce CSS < 60 KB y sin 404 de fuentes
+
+- [x] **1.1** Instalar dependencias: `lucide@1.73.0`, `notyf@3.10.0`, `apexcharts@8.8.2`, `@fontsource-variable/inter@5.3.0`
+- [x] **1.2** `portal/resources/css/app.css`: tokens oklch light + `.dark` + `@media (prefers-color-scheme)` + `color-scheme` + `--status-*` + mapeo a `@theme inline` + `focus-visible` + `prefers-reduced-motion` + `.skip-link`
+- [x] **1.3** Módulos JS: `theme`, `sidebar`, `tabs`, `toast`, `icons` — **`datatable` y `charts` pasan a la Fase 2**, ver desviación D2
+- [ ] **1.4** `@vite(...)` en ambos layouts — **movido a la Fase 3**, ver desviación D1
+- [x] **1.5** `portal/resources/views/partials/tema.blade.php`: script anti-flash, listo para incluir en el `<head>`
+- [x] **1.6** `npm run build` sin errores; sin 404 de fuentes
+
+**Evidencia medida (2026-11-16).**
+
+| Comprobación | Resultado |
+|---|---|
+| `npm run build` | OK en 2,08 s |
+| CSS compilado | **65,68 kB** (gzip 12,21 kB) — por encima del objetivo de 60 kB, ver nota |
+| JS de entrada | 27,06 kB (gzip 6,15 kB), 53 iconos tree-shakeados |
+| Notyf | chunk diferido de 8,75 kB |
+| Fuentes | 7 subsets emitidos, **1 descargado** (`inter-latin`, 48,26 kB) gracias a `unicode-range` |
+| Inter aplicada | `getComputedStyle(body).fontFamily` → `Inter Variable` |
+| Iconos renderizados | 66 SVG en la galería |
+| Tema oscuro | clase `dark`, fondo `oklch(0.17 0.006 90)`, preferencia en `localStorage` |
+| Pestañas con teclado | `ArrowRight` mueve selección y foco, panel correcto visible |
+| Consola del navegador | **0 errores, 0 advertencias** |
+| Contraste AA | **26 pares en verde** en ambos temas (`npm run check:contraste`) |
+| Paridad de tokens oscuros | 40 tokens idénticos entre `.dark` y `@media` |
+| Suite PHP | **257 tests, 644 aserciones, OK** |
+
+**Por qué el CSS supera los 60 kB.** La galería `componentes.blade.php` usa casi todo el vocabulario en un solo archivo, y Tailwind lo escanea porque está dentro de `@source`. Son ~9 kB de utilidades que en producción no se usan todas. Bajan solas cuando la galería se retire en la Fase 6 y las clases vivan en los componentes que realmente las aplican.
+
+#### Desviaciones del plan, con motivo
+
+| # | Qué cambió | Por qué |
+|---|---|---|
+| **D1** | **1.4 se mueve a la Fase 3.** Los layouts siguen cargando AdminLTE | Cambiar `@vite` sin reescribir el shell deja el portal **sin estilos** entre la Fase 1 y la Fase 3. Movido, el paso de "AdminLTE con estilos" a "Clinova con estilos" ocurre en un solo commit y ningún punto intermedio queda roto |
+| **D2** | `datatable` y `charts` se escriben en la Fase 2 | Su API la definen los componentes que los consumen (`<x-ui.table>` y `<x-ui.chart>`). Escribirlos antes obliga a adivinar los `data-*` y después rehacerlos |
+| **D3** | **Galería `/componentes` creada en la Fase 1** (estaba en 2.7) | Sin ella no había forma de verificar el sistema ni de que Tailwind generara las utilidades. Es la evidencia visual de la fase |
+| **D4** | `vite.config.js`: `base: './'` | `laravel-vite-plugin` fija `base` en `/build/` y las fuentes quedaban en `/build/assets/…`: **404** en el subdirectorio local. Con rutas relativas el artefacto sirve en la raíz o en cualquier subdirectorio |
+| **D5** | Los estados se llaman `--status-ok/warn/danger/idle`, no `stable/observation/critical/discharged` | Los nombres de la plantilla son vocabulario hospitalario. El nuestro es el del dominio REM. Se adopta el sistema visual, no su nomenclatura clínica |
+| **D6** | Cada estado lleva par `--status-X` (relleno) y `--status-X-fg` (texto) | La plantilla usa una sola variable por estado. El ámbar de relleno (L 75 %) **falla AA como texto**. El par resuelve el principio 23 sin ensuciar los rellenos |
+| **D7** | `--primary` baja de `55%` a `52%` de luminosidad en claro | `primary-foreground / primary` daba **4,51:1**, aprobado por 0,01. Sin margen, cualquier redondeo lo tumba. Con 52 % queda en **5,11:1** |
+| **D8** | `--destructive-foreground` se invierte a oscuro en tema oscuro | Blanco sobre el rojo de la plantilla daba **3,77:1**, bajo AA. Con texto oscuro queda en **4,79:1** y además sigue la misma regla que `--primary-foreground` en oscuro |
+| **D9** | Se elimina `resources/js/bootstrap.js` (axios) | Cero usos en todo el proyecto, comprobado con `grep`. ~50 kB en cada carga por nada. `axios` sigue en `package.json` si alguna vez se necesita |
+| **D10** | Se agrega `portal/scripts/contraste.mjs` (`npm run check:contraste`) | Las desviaciones D7 y D8 se encontraron midiendo. Sin el script, el próximo ajuste de color las reintroduce en silencio. También vigila la paridad de los dos bloques oscuros |
+| **D11** | **`portal/public/build/` pasa a versionarse** (se quita del `.gitignore`) | Laravel lo ignora por defecto porque asume un servidor con Node. Aquí no hay Node y el despliegue es por FTP: sin el artefacto en el repositorio, un clon no sirve la interfaz. Es la misma convención que ya traía el proyecto, que versionaba 16 MB de assets de AdminLTE; el build pesa 12 archivos |
 
 ### Fase 2 — Componentes Blade (primitivas)
 - [ ] **2.1** `card`, `stat`, `badge` (variantes de estado), `button`, `avatar`
