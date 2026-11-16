@@ -4,13 +4,13 @@
 @endphp
 
 <li class="nav-item dropdown">
-    <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-label="Notificaciones ({{ $sinLeer }} sin leer)">
+    <a class="nav-link" data-bs-toggle="dropdown" href="#" role="button" aria-label="Notificaciones ({{ $sinLeer }} sin leer)">
         <i class="far fa-bell"></i>
         @if ($sinLeer > 0)
-            <span class="badge badge-danger navbar-badge">{{ $sinLeer }}</span>
+            <span class="badge bg-danger navbar-badge">{{ $sinLeer }}</span>
         @endif
     </a>
-    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
         <span class="dropdown-item dropdown-header">{{ $sinLeer }} aviso(s) sin leer</span>
 
         @forelse ($avisos as $aviso)

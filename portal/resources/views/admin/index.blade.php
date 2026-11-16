@@ -26,7 +26,7 @@
                         @foreach ($columnas as $etiqueta => $campo)
                             <th>{{ $etiqueta }}</th>
                         @endforeach
-                        <th class="text-right">Acciones</th>
+                        <th class="text-end">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -44,7 +44,7 @@
                                     @endif
                                 </td>
                             @endforeach
-                            <td class="text-right">
+                            <td class="text-end">
                                 <a href="{{ route($ruta.'.edit', $fila) }}" class="btn btn-sm btn-outline-secondary">
                                     Editar
                                 </a>

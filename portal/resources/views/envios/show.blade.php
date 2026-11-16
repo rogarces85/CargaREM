@@ -26,9 +26,9 @@
                 <p class="text-muted mb-0">
                     Código {{ $envio->establecimiento->codigo }} ·
                     Período {{ sprintf('%02d/%d', $envio->mes, $envio->anio) }} ·
-                    <span class="badge badge-{{ $color }}">{{ str_replace('_', ' ', $envio->estado) }}</span>
+                    <span class="badge bg-{{ $color }}">{{ str_replace('_', ' ', $envio->estado) }}</span>
                     @if ($envio->estaFueraDePlazo())
-                        <span class="badge badge-danger">Fuera de plazo</span>
+                        <span class="badge bg-danger">Fuera de plazo</span>
                     @endif
                 </p>
                 <p class="text-muted small mb-0">
@@ -104,11 +104,11 @@
                 <h3 class="card-title mb-0">Subir o reemplazar un archivo</h3>
             </div>
             <div class="card-body">
-                <form method="POST" action="{{ route('envios.subir', $envio) }}" enctype="multipart/form-data" class="form-row align-items-end">
+                <form method="POST" action="{{ route('envios.subir', $envio) }}" enctype="multipart/form-data" class="row g-3 align-items-end">
                     @csrf
-                    <div class="form-group col-md-4">
-                        <label for="serie_id">Serie</label>
-                        <select name="serie_id" id="serie_id" class="form-control" required>
+                    <div class="col-md-4">
+                        <label for="serie_id" class="form-label">Serie</label>
+                        <select name="serie_id" id="serie_id" class="form-select" required>
                             @foreach ($series as $serie)
                                 <option value="{{ $serie->id }}">
                                     {{ $serie->codigo }} — {{ $serie->nombre }}
@@ -119,15 +119,17 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="form-group col-md-5">
-                        <label for="archivo">Archivo Excel</label>
-                        <input type="file" name="archivo" id="archivo" class="form-control-file" accept=".xls,.xlsx,.xlsm" required>
+                    <div class="col-md-5">
+                        <label for="archivo" class="form-label">Archivo Excel</label>
+                        <input type="file" name="archivo" id="archivo" class="form-control" accept=".xls,.xlsx,.xlsm" required>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary w-100">Subir y validar</button>
+                    </div>
+                    <div class="col-12">
                         <small class="form-text text-muted">
                             Máximo {{ config('rem.archivos.max_kb') }} KB. Subir de nuevo crea una versión nueva; la anterior queda en el historial.
                         </small>
-                    </div>
-                    <div class="form-group col-md-3">
-                        <button type="submit" class="btn btn-primary btn-block">Subir y validar</button>
                     </div>
                 </form>
             </div>
@@ -164,17 +166,17 @@
                             <td>{{ $archivo ? 'v'.$archivo->version : '—' }}</td>
                             <td>
                                 @if ($archivo)
-                                    <span class="badge badge-{{ $archivo->estado === 'valido' ? 'success' : ($archivo->estado === 'con_errores' ? 'danger' : 'secondary') }}">
+                                    <span class="badge bg-{{ $archivo->estado === 'valido' ? 'success' : ($archivo->estado === 'con_errores' ? 'danger' : 'secondary') }}">
                                         {{ str_replace('_', ' ', $archivo->estado) }}
                                     </span>
                                 @else
-                                    <span class="badge badge-light">sin archivo</span>
+                                    <span class="badge bg-light text-dark">sin archivo</span>
                                 @endif
                             </td>
                             <td class="text-center">
                                 {{ $archivo ? $archivo->validaciones->where('severidad', 'bloqueante')->count() : '—' }}
                             </td>
-                            <td class="text-right">
+                            <td class="text-end">
                                 @if ($archivo)
                                     <a href="{{ route('envios.archivo.descargar', [$envio, $archivo]) }}" class="btn btn-sm btn-outline-secondary">
                                         Descargar
@@ -260,7 +262,7 @@
                         <form method="POST" action="{{ route('envios.transicion', $envio) }}" class="d-inline">
                             @csrf
                             <input type="hidden" name="accion" value="{{ $accion['accion'] }}">
-                            <button type="submit" class="btn btn-{{ $accion['clase'] }} mr-2 mb-2">
+                            <button type="submit" class="btn btn-{{ $accion['clase'] }} me-2 mb-2">
                                 {{ $accion['texto'] }}
                             </button>
                         </form>

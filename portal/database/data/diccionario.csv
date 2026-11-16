@@ -1,0 +1,23 @@
+CodigoPrestacion,Mes,Year,TextoPrestacion,Hoja,Serie,Posicion,tipoDato,linea,Inicio,Fin
+010101,,2026,Consulta médica general,1,SERIE A,1,entero,1,1,100
+010102,,2026,Consulta médica especialidad,1,SERIE A,2,entero,1,1,50
+010103,,2026,Procedimiento quirúrgico menor,1,SERIE A,3,entero,1,1,20
+010201,,2026,Hospitalización días cama,2,SERIE A,1,entero,1,1,1000
+010202,,2026,Egreso hospitalario,2,SERIE A,2,entero,1,1,500
+020101,,2026,Atención dental preventiva,1,SERIE BS,1,entero,1,1,200
+020102,,2026,Atención dental curativa,1,SERIE BS,2,entero,1,1,300
+020201,,2026,Prótesis dental,2,SERIE BS,1,entero,1,1,50
+030101,,2026,Control niño sano,1,SERIE BM,1,entero,1,1,100
+030102,,2026,Vacunación,1,SERIE BM,2,entero,1,1,150
+030201,,2026,Control embarazo,2,SERIE BM,1,entero,1,1,80
+030202,,2026,Parto,2,SERIE BM,2,entero,1,1,30
+040101,,2026,Examen laboratorio,1,SERIE D,1,entero,1,1,500
+040102,,2026,Examen imagenología,1,SERIE D,2,entero,1,1,200
+040201,,2026,Anatomía patológica,2,SERIE D,1,entero,1,1,50
+040301,,2026,Banco de sangre,3,SERIE D,1,entero,1,1,100
+050101,,2026,Urgencia respiratoria,1,SERIE P,1,entero,1,1,200
+050102,,2026,Urgencia traumatológica,1,SERIE P,2,entero,1,1,150
+050201,,2026,Observación corta estancia,2,SERIE P,1,entero,1,1,100
+060101,,2026,Programa salud mental,1,SERIE F,1,entero,1,1,80
+060102,,2026,Programa tuberculosis,1,SERIE F,2,entero,1,1,20
+060201,,2026,Programa VIH/SIDA,2,SERIE F,1,entero,1,1,30

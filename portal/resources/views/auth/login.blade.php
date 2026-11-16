@@ -24,9 +24,7 @@
                            autocomplete="username"
                            required
                            autofocus>
-                    <div class="input-group-append">
-                        <div class="input-group-text"><span class="fas fa-envelope"></span></div>
-                    </div>
+                    <span class="input-group-text"><span class="fas fa-envelope"></span></span>
                     @error('email')
                         <span class="invalid-feedback" role="alert">{{ $message }}</span>
                     @enderror
@@ -40,9 +38,7 @@
                            placeholder="Contraseña"
                            autocomplete="current-password"
                            required>
-                    <div class="input-group-append">
-                        <div class="input-group-text"><span class="fas fa-lock"></span></div>
-                    </div>
+                    <span class="input-group-text"><span class="fas fa-lock"></span></span>
                     @error('password')
                         <span class="invalid-feedback" role="alert">{{ $message }}</span>
                     @enderror
@@ -50,13 +46,13 @@
 
                 <div class="row">
                     <div class="col-7">
-                        <div class="icheck-primary">
-                            <input type="checkbox" id="remember" name="remember">
-                            <label for="remember">Recordarme</label>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                            <label class="form-check-label" for="remember">Recordarme</label>
                         </div>
                     </div>
                     <div class="col-5">
-                        <button type="submit" class="btn btn-primary btn-block">Ingresar</button>
+                        <button type="submit" class="btn btn-primary w-100">Ingresar</button>
                     </div>
                 </div>
             </form>

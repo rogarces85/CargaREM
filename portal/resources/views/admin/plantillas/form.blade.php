@@ -29,20 +29,20 @@
                     @method($metodo)
                 @endif
 
-                <div class="form-row">
-                    <div class="form-group col-md-2">
-                        <label for="anio">Año</label>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-2">
+                        <label for="anio" class="form-label">Año</label>
                         <input type="number" name="anio" id="anio" min="2000" max="2100"
                                value="{{ old('anio', $plantilla->anio) }}" class="form-control" required>
                     </div>
-                    <div class="form-group col-md-2">
-                        <label for="mes">Mes</label>
+                    <div class="col-md-2">
+                        <label for="mes" class="form-label">Mes</label>
                         <input type="number" name="mes" id="mes" min="1" max="12"
                                value="{{ old('mes', $plantilla->mes) }}" class="form-control" required>
                     </div>
-                    <div class="form-group col-md-3">
-                        <label for="serie_id">Serie</label>
-                        <select name="serie_id" id="serie_id" class="form-control" required>
+                    <div class="col-md-3">
+                        <label for="serie_id" class="form-label">Serie</label>
+                        <select name="serie_id" id="serie_id" class="form-select" required>
                             @foreach ($series as $id => $codigo)
                                 <option value="{{ $id }}" @selected((string) old('serie_id', $plantilla->serie_id) === (string) $id)>
                                     {{ $codigo }}
@@ -50,28 +50,28 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="form-group col-md-2">
-                        <label for="version">Versión</label>
+                    <div class="col-md-2">
+                        <label for="version" class="form-label">Versión</label>
                         <input type="text" name="version" id="version" maxlength="20"
                                value="{{ old('version', $plantilla->version) }}" class="form-control" required>
                     </div>
                 </div>
 
-                <div class="form-row">
-                    <div class="form-group col-md-4">
-                        <label for="serie_excel">Serie del Excel</label>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <label for="serie_excel" class="form-label">Serie del Excel</label>
                         <input type="text" name="serie_excel" id="serie_excel" maxlength="60"
                                value="{{ old('serie_excel', $plantilla->serie_excel) }}" class="form-control" required>
                     </div>
-                    <div class="form-group col-md-4">
-                        <label for="serie_interna">Serie interna</label>
+                    <div class="col-md-4">
+                        <label for="serie_interna" class="form-label">Serie interna</label>
                         <input type="text" name="serie_interna" id="serie_interna" maxlength="60"
                                value="{{ old('serie_interna', $plantilla->serie_interna) }}" class="form-control" required>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="hojas">Hojas obligatorias</label>
+                <div class="mb-3">
+                    <label for="hojas" class="form-label">Hojas obligatorias</label>
                     <textarea name="hojas" id="hojas" rows="6" class="form-control">{{ $hojas }}</textarea>
                     <small class="form-text text-muted">
                         Una hoja por línea, por ejemplo <code>A01|C6:V40</code>. Sin rango, se deja vacío.

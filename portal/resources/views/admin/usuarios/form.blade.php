@@ -25,20 +25,20 @@
                     @method($metodo)
                 @endif
 
-                <div class="form-group">
-                    <label for="name">Nombre</label>
+                <div class="mb-3">
+                    <label for="name" class="form-label">Nombre</label>
                     <input type="text" name="name" id="name" class="form-control"
                            value="{{ old('name', $usuario->name) }}" required>
                 </div>
 
-                <div class="form-group">
-                    <label for="email">Correo</label>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Correo</label>
                     <input type="email" name="email" id="email" class="form-control"
                            value="{{ old('email', $usuario->email) }}" required>
                 </div>
 
-                <div class="form-group">
-                    <label for="password">
+                <div class="mb-3">
+                    <label for="password" class="form-label">
                         Contraseña
                         @if ($usuario->exists)
                             <span class="text-muted small">(dejar vacío para no cambiarla)</span>
@@ -49,9 +49,9 @@
                     <small class="form-text text-muted">Mínimo 12 caracteres.</small>
                 </div>
 
-                <div class="form-group">
-                    <label for="rol">Rol</label>
-                    <select name="rol" id="rol" class="form-control" required>
+                <div class="mb-3">
+                    <label for="rol" class="form-label">Rol</label>
+                    <select name="rol" id="rol" class="form-select" required>
                         @foreach ($roles as $rol)
                             <option value="{{ $rol }}" @selected(old('rol', $rolActual) === $rol)>{{ $rol }}</option>
                         @endforeach
@@ -62,7 +62,7 @@
                     <input type="hidden" name="activo" value="0">
                     <input type="checkbox" name="activo" id="activo" value="1" class="form-check-input"
                            @checked(old('activo', $usuario->activo ?? true))>
-                    <label for="activo" class="form-check-label">Activo</label>
+                    <label class="form-check-label" for="activo">Activo</label>
                 </div>
 
                 <button type="submit" class="btn btn-primary">Guardar</button>

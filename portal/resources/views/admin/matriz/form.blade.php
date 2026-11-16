@@ -48,6 +48,7 @@
                                     <input type="checkbox"
                                            name="series[{{ $serie->id }}][obligatoria]"
                                            value="1"
+                                           class="form-check-input"
                                            @checked(old("series.{$serie->id}.obligatoria", $actual?->obligatoria))>
                                 </td>
                                 <td>

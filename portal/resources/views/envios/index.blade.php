@@ -30,11 +30,11 @@
                 <h3 class="card-title mb-0">Nuevo envío</h3>
             </div>
             <div class="card-body">
-                <form method="POST" action="{{ route('envios.store') }}" class="form-row align-items-end">
+                <form method="POST" action="{{ route('envios.store') }}" class="row g-3 align-items-end">
                     @csrf
-                    <div class="form-group col-md-5">
-                        <label for="establecimiento_id">Establecimiento</label>
-                        <select name="establecimiento_id" id="establecimiento_id" class="form-control" required>
+                    <div class="col-md-5">
+                        <label for="establecimiento_id" class="form-label">Establecimiento</label>
+                        <select name="establecimiento_id" id="establecimiento_id" class="form-select" required>
                             @foreach ($establecimientos as $establecimiento)
                                 <option value="{{ $establecimiento->id }}">
                                     {{ $establecimiento->codigo }} — {{ $establecimiento->nombre }}
@@ -42,9 +42,9 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="form-group col-md-4">
-                        <label for="periodo">Período</label>
-                        <select name="periodo" id="periodo" class="form-control" required>
+                    <div class="col-md-4">
+                        <label for="periodo" class="form-label">Período</label>
+                        <select name="periodo" id="periodo" class="form-select" required>
                             @forelse ($periodos as $periodo)
                                 <option value="{{ $periodo->anio }}-{{ $periodo->mes }}">
                                     {{ sprintf('%02d/%d', $periodo->mes, $periodo->anio) }} · {{ $periodo->estado }}
@@ -54,8 +54,8 @@
                             @endforelse
                         </select>
                     </div>
-                    <div class="form-group col-md-3">
-                        <button type="submit" class="btn btn-primary btn-block" @disabled($periodos->isEmpty())>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary w-100" @disabled($periodos->isEmpty())>
                             Crear envío
                         </button>
                     </div>
@@ -89,16 +89,16 @@
                                 <span class="text-muted d-block small">{{ $envio->establecimiento->nombre }}</span>
                             </td>
                             <td>
-                                <span class="badge badge-{{ $envio->estado === 'aprobado' ? 'success' : ($envio->estado === 'con_errores' ? 'danger' : 'info') }}">
+                                <span class="badge bg-{{ $envio->estado === 'aprobado' ? 'success' : ($envio->estado === 'con_errores' ? 'danger' : 'info') }}">
                                     {{ str_replace('_', ' ', $envio->estado) }}
                                 </span>
                                 @if ($envio->estaFueraDePlazo())
-                                    <span class="badge badge-danger d-block mt-1">Fuera de plazo</span>
+                                    <span class="badge bg-danger d-block mt-1">Fuera de plazo</span>
                                 @endif
                             </td>
                             <td class="text-center">{{ $envio->archivosVigentes->count() }}</td>
                             <td>{{ $envio->updated_at?->format('d-m-Y H:i') }}</td>
-                            <td class="text-right">
+                            <td class="text-end">
                                 <a href="{{ route('envios.show', $envio) }}" class="btn btn-sm btn-outline-primary">
                                     Abrir
                                 </a>

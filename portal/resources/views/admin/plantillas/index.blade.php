@@ -38,7 +38,7 @@
                             <td>{{ $plantilla->serie?->codigo }}</td>
                             <td>{{ $plantilla->serie_excel }}</td>
                             <td>{{ $plantilla->version }}</td>
-                            <td class="text-right">
+                            <td class="text-end">
                                 <a href="{{ route('admin.plantillas.edit', $plantilla) }}" class="btn btn-sm btn-outline-primary">
                                     Editar
                                 </a>

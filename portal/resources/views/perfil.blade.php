@@ -30,14 +30,14 @@
                 @csrf
                 @method('PUT')
 
-                <div class="form-row">
-                    <div class="form-group col-md-6">
-                        <label for="name">Nombre</label>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="name" class="form-label">Nombre</label>
                         <input type="text" name="name" id="name" class="form-control"
                                value="{{ old('name', $usuario->name) }}" maxlength="150" required>
                     </div>
-                    <div class="form-group col-md-6">
-                        <label for="email">Correo</label>
+                    <div class="col-md-6">
+                        <label for="email" class="form-label">Correo</label>
                         <input type="email" id="email" class="form-control" value="{{ $usuario->email }}" disabled>
                         <small class="form-text text-muted">Lo fija el administrador.</small>
                     </div>
@@ -49,17 +49,17 @@
                     Para cambiar la contraseña, escriba la actual y la nueva (mínimo 12 caracteres).
                 </p>
 
-                <div class="form-row">
-                    <div class="form-group col-md-4">
-                        <label for="actual">Contraseña actual</label>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <label for="actual" class="form-label">Contraseña actual</label>
                         <input type="password" name="actual" id="actual" class="form-control" autocomplete="current-password">
                     </div>
-                    <div class="form-group col-md-4">
-                        <label for="password">Contraseña nueva</label>
+                    <div class="col-md-4">
+                        <label for="password" class="form-label">Contraseña nueva</label>
                         <input type="password" name="password" id="password" class="form-control" autocomplete="new-password">
                     </div>
-                    <div class="form-group col-md-4">
-                        <label for="password_confirmation">Repetir la nueva</label>
+                    <div class="col-md-4">
+                        <label for="password_confirmation" class="form-label">Repetir la nueva</label>
                         <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" autocomplete="new-password">
                     </div>
                 </div>

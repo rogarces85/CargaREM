@@ -26,13 +26,13 @@
                 @endif
 
                 @foreach ($campos as $campo)
-                    <div class="form-group">
-                        <label for="{{ $campo['name'] }}">{{ $campo['label'] }}</label>
+                    <div class="mb-3">
+                        <label for="{{ $campo['name'] }}" class="form-label">{{ $campo['label'] }}</label>
 
                         @if (($campo['type'] ?? 'text') === 'select')
                             <select name="{{ $campo['name'] }}"
                                     id="{{ $campo['name'] }}"
-                                    class="form-control @error($campo['name']) is-invalid @enderror">
+                                    class="form-select @error($campo['name']) is-invalid @enderror">
                                 @foreach ($campo['options'] as $valor => $texto)
                                     <option value="{{ $valor }}"
                                         @selected((string) old($campo['name'], $registro?->{$campo['name']}) === (string) $valor)>
@@ -49,6 +49,7 @@
                                        value="1"
                                        class="form-check-input"
                                        @checked(old($campo['name'], $registro?->{$campo['name']} ?? true))>
+                                <label class="form-check-label" for="{{ $campo['name'] }}">{{ $campo['label'] }}</label>
                             </div>
                         @else
                             <input type="{{ $campo['type'] ?? 'text' }}"

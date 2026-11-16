@@ -18,8 +18,8 @@
                         <h3>Envíos</h3>
                         <p>Crear, subir y seguir el estado del período</p>
                     </div>
-                    <div class="icon"><i class="fas fa-file-upload"></i></div>
-                    <a href="{{ route('envios.index') }}" class="small-box-footer">
+                    <i class="small-box-icon fas fa-file-upload"></i>
+                    <a href="{{ route('envios.index') }}" class="small-box-footer text-decoration-none">
                         Abrir <i class="fas fa-arrow-circle-right"></i>
                     </a>
                 </div>
@@ -33,8 +33,8 @@
                         <h3>Revisión</h3>
                         <p>Observar o aprobar la estadística</p>
                     </div>
-                    <div class="icon"><i class="fas fa-hourglass-half"></i></div>
-                    <a href="{{ route('revision.index') }}" class="small-box-footer">
+                    <i class="small-box-icon fas fa-hourglass-half"></i>
+                    <a href="{{ route('revision.index') }}" class="small-box-footer text-decoration-none">
                         Abrir <i class="fas fa-arrow-circle-right"></i>
                     </a>
                 </div>
@@ -48,8 +48,8 @@
                         <h3>Completitud</h3>
                         <p>Qué entregó cada establecimiento</p>
                     </div>
-                    <div class="icon"><i class="fas fa-check"></i></div>
-                    <a href="{{ route('completitud.index') }}" class="small-box-footer">
+                    <i class="small-box-icon fas fa-check"></i>
+                    <a href="{{ route('completitud.index') }}" class="small-box-footer text-decoration-none">
                         Abrir <i class="fas fa-arrow-circle-right"></i>
                     </a>
                 </div>

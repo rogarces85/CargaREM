@@ -31,9 +31,9 @@
 
     <div class="card mt-3">
         <div class="card-body">
-            <form method="GET" action="{{ route('admin.calendario.index') }}" class="form-inline">
-                <label for="anio" class="mr-2">Año</label>
-                <input type="number" name="anio" id="anio" class="form-control mr-2" min="2010" max="2100" value="{{ $anio }}" style="width:110px">
+            <form method="GET" action="{{ route('admin.calendario.index') }}" class="d-flex align-items-end gap-2">
+                <label for="anio" class="mb-0">Año</label>
+                <input type="number" name="anio" id="anio" class="form-control" min="2010" max="2100" value="{{ $anio }}" style="width:110px">
                 <button type="submit" class="btn btn-primary">Ver</button>
             </form>
         </div>
@@ -71,9 +71,9 @@
                                     </td>
                                     <td>
                                         @if ($fila['periodo']?->fecha_limite_manual)
-                                            <span class="badge badge-warning">Manual</span>
+                                            <span class="badge bg-warning text-dark">Manual</span>
                                         @else
-                                            <span class="badge badge-secondary">Calculada</span>
+                                            <span class="badge bg-secondary">Calculada</span>
                                         @endif
                                     </td>
                                 </tr>

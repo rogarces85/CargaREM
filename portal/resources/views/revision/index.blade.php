@@ -26,10 +26,10 @@
 
     <div class="card mt-3">
         <div class="card-body">
-            <form method="GET" action="{{ route('revision.index') }}" class="form-row align-items-end">
-                <div class="form-group col-md-2">
-                    <label for="estado">Estado</label>
-                    <select name="estado" id="estado" class="form-control">
+            <form method="GET" action="{{ route('revision.index') }}" class="row g-3 align-items-end">
+                <div class="col-md-2">
+                    <label for="estado" class="form-label">Estado</label>
+                    <select name="estado" id="estado" class="form-select">
                         @foreach ($estados as $valor => $texto)
                             <option value="{{ $valor }}" @selected(($filtros['estado'] ?? '') === (string) $valor)>
                                 {{ $texto }}
@@ -38,9 +38,9 @@
                     </select>
                 </div>
 
-                <div class="form-group col-md-3">
-                    <label for="establecimiento_id">Establecimiento</label>
-                    <select name="establecimiento_id" id="establecimiento_id" class="form-control">
+                <div class="col-md-3">
+                    <label for="establecimiento_id" class="form-label">Establecimiento</label>
+                    <select name="establecimiento_id" id="establecimiento_id" class="form-select">
                         <option value="">Todos</option>
                         @foreach ($establecimientos as $establecimiento)
                             <option value="{{ $establecimiento->id }}"
@@ -51,15 +51,15 @@
                     </select>
                 </div>
 
-                <div class="form-group col-md-2">
-                    <label for="anio">Año</label>
+                <div class="col-md-2">
+                    <label for="anio" class="form-label">Año</label>
                     <input type="number" name="anio" id="anio" class="form-control"
                            value="{{ $filtros['anio'] ?? '' }}" min="2000" max="2100" placeholder="Todos">
                 </div>
 
-                <div class="form-group col-md-2">
-                    <label for="dias">Antigüedad</label>
-                    <select name="dias" id="dias" class="form-control">
+                <div class="col-md-2">
+                    <label for="dias" class="form-label">Antigüedad</label>
+                    <select name="dias" id="dias" class="form-select">
                         <option value="">Cualquiera</option>
                         @foreach ([3, 7, 15, 30] as $dias)
                             <option value="{{ $dias }}" @selected(($filtros['dias'] ?? '') == $dias)>
@@ -69,17 +69,19 @@
                     </select>
                 </div>
 
-                <div class="form-group col-md-2">
-                    <label for="fuera_de_plazo">Plazo</label>
-                    <select name="fuera_de_plazo" id="fuera_de_plazo" class="form-control">
+                <div class="col-md-2">
+                    <label for="fuera_de_plazo" class="form-label">Plazo</label>
+                    <select name="fuera_de_plazo" id="fuera_de_plazo" class="form-select">
                         <option value="">Todos</option>
                         <option value="1" @selected(($filtros['fuera_de_plazo'] ?? '') == '1')>Fuera de plazo</option>
                     </select>
                 </div>
 
-                <div class="form-group col-md-2">
-                    <button type="submit" class="btn btn-primary">Filtrar</button>
-                    <a href="{{ route('revision.index') }}" class="btn btn-link">Limpiar</a>
+                <div class="col-md-1">
+                    <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+                </div>
+                <div class="col-md-1">
+                    <a href="{{ route('revision.index') }}" class="btn btn-outline-secondary w-100">Limpiar</a>
                 </div>
             </form>
         </div>
@@ -96,7 +98,7 @@
                         <th class="text-center">Series</th>
                         <th class="text-center">Observaciones</th>
                         <th>Esperando desde</th>
-                        <th class="text-right">Acciones</th>
+                        <th class="text-end">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -108,17 +110,17 @@
                             </td>
                             <td>{{ sprintf('%02d/%d', $envio->mes, $envio->anio) }}</td>
                             <td>
-                                <span class="badge badge-{{ $envio->estado === 'aprobado' ? 'success' : ($envio->estado === 'observado' ? 'warning' : 'info') }}">
+                                <span class="badge bg-{{ $envio->estado === 'aprobado' ? 'success' : ($envio->estado === 'observado' ? 'warning' : 'info') }}">
                                     {{ str_replace('_', ' ', $envio->estado) }}
                                 </span>
                                 @if ($envio->estaFueraDePlazo())
-                                    <span class="badge badge-danger d-block mt-1">Fuera de plazo</span>
+                                    <span class="badge bg-danger d-block mt-1">Fuera de plazo</span>
                                 @endif
                             </td>
                             <td class="text-center">{{ $envio->archivosVigentes->count() }}</td>
                             <td class="text-center">
                                 @if ($envio->abiertas > 0)
-                                    <span class="badge badge-warning">{{ $envio->abiertas }}</span>
+                                    <span class="badge bg-warning text-dark">{{ $envio->abiertas }}</span>
                                 @else
                                     <span class="text-muted">—</span>
                                 @endif
@@ -126,27 +128,27 @@
                             <td>
                                 {{ $envio->fecha_envio?->diffForHumans() ?? '—' }}
                             </td>
-                            <td class="text-right">
+                            <td class="text-end">
                                 <a href="{{ route('envios.show', $envio) }}" class="btn btn-sm btn-outline-secondary">
                                     Ver
                                 </a>
 
                                 @can('observar', $envio)
-                                    <button type="button" class="btn btn-sm btn-warning btn-observar"
+                                    <button type="button" class="btn btn-sm btn-warning btn-observar me-1"
                                             data-id="{{ $envio->id }}"
                                             data-referencia="{{ $envio->establecimiento->codigo }} · {{ sprintf('%02d/%d', $envio->mes, $envio->anio) }}"
                                             data-series="{{ $envio->archivosVigentes->map(fn ($a) => ['id' => $a->serie_id, 'codigo' => $a->serie?->codigo])->toJson() }}"
-                                            data-toggle="modal" data-target="#modalObservar">
+                                            data-bs-toggle="modal" data-bs-target="#modalObservar">
                                         Observar
                                     </button>
                                 @endcan
 
                                 @can('aprobar', $envio)
-                                    <button type="button" class="btn btn-sm btn-success btn-aprobar"
+                                    <button type="button" class="btn btn-sm btn-success btn-aprobar me-1"
                                             data-id="{{ $envio->id }}"
                                             data-referencia="{{ $envio->establecimiento->codigo }} · {{ sprintf('%02d/%d', $envio->mes, $envio->anio) }}"
                                             data-abiertas="{{ $envio->abiertas }}"
-                                            data-toggle="modal" data-target="#modalAprobar">
+                                            data-bs-toggle="modal" data-bs-target="#modalAprobar">
                                         Aprobar
                                     </button>
                                 @endcan
@@ -167,22 +169,20 @@
     <div class="mt-3">{{ $envios->links() }}</div>
 
     {{-- Modal observar --}}
-    <div class="modal fade" id="modalObservar" tabindex="-1" role="dialog" aria-labelledby="tituloObservar" aria-hidden="true">
+    <div class="modal fade" id="modalObservar" tabindex="-1" aria-labelledby="tituloObservar" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <form method="POST" id="formObservar" action="">
                 @csrf
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="tituloObservar">Observar envío</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                     </div>
                     <div class="modal-body">
                         <p class="mb-2">Envío <strong id="referenciaObservar"></strong></p>
-                        <div class="form-group">
-                            <label for="serieObservar">¿Sobre qué serie?</label>
-                            <select name="serie_id" id="serieObservar" class="form-control">
+                        <div class="mb-3">
+                            <label for="serieObservar" class="form-label">¿Sobre qué serie?</label>
+                            <select name="serie_id" id="serieObservar" class="form-select">
                                 <option value="">Todo el envío</option>
                             </select>
                             <small class="form-text text-muted">
@@ -190,8 +190,8 @@
                             </small>
                         </div>
 
-                        <div class="form-group mb-0">
-                            <label for="texto">¿Qué debe corregir el establecimiento?</label>
+                        <div class="mb-0">
+                            <label for="texto" class="form-label">¿Qué debe corregir el establecimiento?</label>
                             <textarea name="texto" id="texto" rows="4" class="form-control" maxlength="2000" required></textarea>
                             <small class="form-text text-muted">
                                 La observación vuelve al establecimiento y queda en la bitácora.
@@ -199,7 +199,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-link" data-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-link" data-bs-dismiss="modal">Cancelar</button>
                         <button type="submit" class="btn btn-warning">Observar</button>
                     </div>
                 </div>
@@ -208,29 +208,27 @@
     </div>
 
     {{-- Modal aprobar --}}
-    <div class="modal fade" id="modalAprobar" tabindex="-1" role="dialog" aria-labelledby="tituloAprobar" aria-hidden="true">
+    <div class="modal fade" id="modalAprobar" tabindex="-1" aria-labelledby="tituloAprobar" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <form method="POST" id="formAprobar" action="">
                 @csrf
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="tituloAprobar">Aprobar envío</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                     </div>
                     <div class="modal-body">
                         <p class="mb-2">Envío <strong id="referenciaAprobar"></strong></p>
                         <div class="alert alert-warning d-none" id="avisoObservaciones">
                             Este envío tiene observaciones sin resolver. No se puede aprobar hasta resolverlas.
                         </div>
-                        <div class="form-group mb-0">
-                            <label for="comentario">Comentario (opcional)</label>
+                        <div class="mb-0">
+                            <label for="comentario" class="form-label">Comentario (opcional)</label>
                             <input type="text" name="comentario" id="comentario" class="form-control" maxlength="500">
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-link" data-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-link" data-bs-dismiss="modal">Cancelar</button>
                         <button type="submit" class="btn btn-success" id="botonAprobar">Aprobar</button>
                     </div>
                 </div>

@@ -21,8 +21,8 @@
                     <tr>
                         <th>Código</th>
                         <th>Establecimiento</th>
-                        <th class="text-right">Series exigidas</th>
-                        <th class="text-right">Acciones</th>
+                        <th class="text-end">Series exigidas</th>
+                        <th class="text-end">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -30,8 +30,8 @@
                         <tr>
                             <td>{{ $establecimiento->codigo }}</td>
                             <td>{{ $establecimiento->nombre }}</td>
-                            <td class="text-right">{{ $establecimiento->series_count }}</td>
-                            <td class="text-right">
+                            <td class="text-end">{{ $establecimiento->series_count }}</td>
+                            <td class="text-end">
                                 <a href="{{ route('admin.matriz.edit', $establecimiento) }}"
                                    class="btn btn-sm btn-outline-secondary">Editar</a>
                             </td>

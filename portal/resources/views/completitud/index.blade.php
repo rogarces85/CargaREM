@@ -64,22 +64,22 @@
 
     <div class="card mt-3">
         <div class="card-body">
-            <form method="GET" action="{{ route('completitud.index') }}" class="form-row align-items-end">
-                <div class="form-group col-md-2">
-                    <label for="anio">Año</label>
+            <form method="GET" action="{{ route('completitud.index') }}" class="row g-3 align-items-end">
+                <div class="col-md-2">
+                    <label for="anio" class="form-label">Año</label>
                     <input type="number" name="anio" id="anio" class="form-control" value="{{ $anio }}" min="2000" max="2100">
                 </div>
-                <div class="form-group col-md-2">
-                    <label for="mes">Mes</label>
-                    <select name="mes" id="mes" class="form-control">
+                <div class="col-md-2">
+                    <label for="mes" class="form-label">Mes</label>
+                    <select name="mes" id="mes" class="form-select">
                         @for ($m = 1; $m <= 12; $m++)
                             <option value="{{ $m }}" @selected($mes === $m)>{{ sprintf('%02d', $m) }}</option>
                         @endfor
                     </select>
                 </div>
-                <div class="form-group col-md-4">
-                    <label for="establecimiento_id">Establecimiento</label>
-                    <select name="establecimiento_id" id="establecimiento_id" class="form-control">
+                <div class="col-md-4">
+                    <label for="establecimiento_id" class="form-label">Establecimiento</label>
+                    <select name="establecimiento_id" id="establecimiento_id" class="form-select">
                         <option value="">Todos</option>
                         @foreach ($establecimientos as $establecimiento)
                             <option value="{{ $establecimiento->id }}"
@@ -89,8 +89,8 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="form-group col-md-4">
-                    <button type="submit" class="btn btn-primary">Ver</button>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary w-100">Ver</button>
                 </div>
             </form>
         </div>
@@ -101,7 +101,7 @@
             <table class="table table-bordered mb-0 text-center align-middle">
                 <thead>
                     <tr>
-                        <th class="text-left">Establecimiento</th>
+                        <th class="text-start">Establecimiento</th>
                         @foreach ($matriz['series'] as $serie)
                             <th title="{{ $serie->nombre }}">{{ $serie->codigo }}</th>
                         @endforeach
@@ -111,11 +111,11 @@
                 <tbody>
                     @forelse ($matriz['filas'] as $fila)
                         <tr>
-                            <td class="text-left">
+                            <td class="text-start">
                                 <strong>{{ $fila['establecimiento']->codigo }}</strong>
                                 <span class="text-muted small d-block">{{ $fila['establecimiento']->nombre }}</span>
                                 @if ($fila['fuera_de_plazo'])
-                                    <span class="badge badge-danger mt-1">Fuera de plazo</span>
+                                    <span class="badge bg-danger mt-1">Fuera de plazo</span>
                                 @endif
                             </td>
                             @foreach ($matriz['series'] as $serie)
@@ -145,7 +145,7 @@
                 @if ($matriz['series']->isNotEmpty())
                     <tfoot>
                         <tr>
-                            <th class="text-left">Total aprobadas</th>
+                            <th class="text-start">Total aprobadas</th>
                             @foreach ($matriz['series'] as $serie)
                                 <th>{{ $matriz['totales'][$serie->id] ?? 0 }}</th>
                             @endforeach
@@ -158,10 +158,10 @@
     </div>
 
     <div class="mt-3">
-        <span class="badge" style="background:#d4edda;color:#155724;">✓ Aprobado</span>
-        <span class="badge" style="background:#fff3cd;color:#856404;">· En proceso</span>
-        <span class="badge" style="background:#f8d7da;color:#721c24;">✕ Con errores</span>
-        <span class="badge" style="background:#f8f9fa;color:#6c757d;">○ Sin archivo</span>
-        <span class="badge" style="background:#e2e3e5;color:#383d41;">— Sin envío</span>
+        <span class="badge bg-success">✓ Aprobado</span>
+        <span class="badge bg-warning text-dark">· En proceso</span>
+        <span class="badge bg-danger">✕ Con errores</span>
+        <span class="badge bg-light text-dark">○ Sin archivo</span>
+        <span class="badge bg-secondary">— Sin envío</span>
     </div>
 @endsection
