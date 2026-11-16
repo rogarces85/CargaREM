@@ -132,7 +132,7 @@
                                             type="button"
                                             class="btn btn-warning btn-sm"
                                             data-modal-open="modalObservar"
-                                            data-id="{{ $envio->id }}"
+                                            data-url="{{ route('revision.observar', $envio) }}"
                                             data-referencia="{{ $envio->establecimiento->codigo }} · {{ sprintf('%02d/%d', $envio->mes, $envio->anio) }}"
                                             data-series="{{ $envio->archivosVigentes->map(fn ($a) => ['id' => $a->serie_id, 'codigo' => $a->serie?->codigo])->toJson() }}"
                                         >
@@ -145,7 +145,7 @@
                                             type="button"
                                             class="btn btn-primary btn-sm"
                                             data-modal-open="modalAprobar"
-                                            data-id="{{ $envio->id }}"
+                                            data-url="{{ route('revision.aprobar', $envio) }}"
                                             data-referencia="{{ $envio->establecimiento->codigo }} · {{ sprintf('%02d/%d', $envio->mes, $envio->anio) }}"
                                             data-abiertas="{{ $envio->abiertas }}"
                                         >
@@ -226,11 +226,13 @@
     <script>
         // Preparan el diálogo antes de abrirlo: la acción del formulario y el
         // detalle dependen del envío de la fila, que el servidor ya renderizó.
+        //
+        // La URL llega desde `route()`, no se arma con un literal: el portal se
+        // sirve en un subdirectorio y un '/revision/...' escrito a mano apunta a
+        // la raíz del dominio, donde no hay nada.
         document.querySelectorAll('[data-modal-open="modalObservar"]').forEach(function (boton) {
             boton.addEventListener('click', function () {
-                const id = this.dataset.id;
-
-                document.getElementById('formObservar').action = '/revision/' + id + '/observar';
+                document.getElementById('formObservar').action = this.dataset.url;
                 document.getElementById('referenciaObservar').textContent = this.dataset.referencia;
                 document.getElementById('texto').value = '';
 
@@ -248,10 +250,9 @@
 
         document.querySelectorAll('[data-modal-open="modalAprobar"]').forEach(function (boton) {
             boton.addEventListener('click', function () {
-                const id = this.dataset.id;
                 const abiertas = parseInt(this.dataset.abiertas || '0', 10);
 
-                document.getElementById('formAprobar').action = '/revision/' + id + '/aprobar';
+                document.getElementById('formAprobar').action = this.dataset.url;
                 document.getElementById('referenciaAprobar').textContent = this.dataset.referencia;
 
                 document.getElementById('avisoObservaciones').classList.toggle('hidden', abiertas === 0);
