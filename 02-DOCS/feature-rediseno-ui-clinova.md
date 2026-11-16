@@ -190,27 +190,31 @@ Consecuencias que hay que resolver **antes** de escribir código:
 
 ## 5. Plan por fases
 
-### 5.0 Estado del repositorio al arrancar — bloqueo de 0.4
+### 5.0 Estado del repositorio al arrancar — resuelto
 
 Verificado el 2026-11-16 antes de tocar nada:
 
 | Hecho | Consecuencia |
 |---|---|
-| `feature/adminlte4-bootstrap5` **no tiene commits propios**: apunta a `713b544`, el mismo que `main` | La rama existe como nombre, no como trabajo |
-| La migración AdminLTE 4 está **solo en el árbol de trabajo**: 23 modificados, 251 eliminados, 64 sin rastrear | Ese trabajo no está en ninguna rama y no se puede recuperar desde git |
-| `.gitignore` **no cubre** `adminlte4.zip`, `adminlte.v3.backup/`, `adminlte4_extracted/`, `shots/`, `.playwright-cli/` | Basura que se colaría en el commit |
+| `feature/adminlte4-bootstrap5` **no tenía commits propios**: apuntaba a `713b544`, el mismo que `main` | La rama existía como nombre, no como trabajo |
+| La migración AdminLTE 4 estaba **solo en el árbol**: 23 modificados, 251 eliminados, 64 sin rastrear | Ese trabajo no estaba en ninguna rama y no se podía recuperar desde git |
+| `.gitignore` **no cubría** `adminlte4.zip` (4,86 MB), `adminlte.v3.backup/` (18,76 MB), `adminlte4_extracted/` (15,61 MB) ni `.playwright-cli/` | Basura que se habría colado en el commit |
 
-**Por qué bloquea.** Si el rediseño se commitea sobre este árbol, la historia mezcla 251 borrados de assets con los cambios de UI: el PR es irrevisable, y el rollback del §10 (`git checkout -- views`) **borraría la migración AdminLTE 4**, que es trabajo real del equipo.
+**Por qué bloqueaba.** Si el rediseño se commiteaba sobre ese árbol, la historia mezclaba 251 borrados de assets con los cambios de UI: el PR quedaba irrevisable, y el rollback del §10 (`git checkout -- views`) **habría borrado la migración AdminLTE 4**, que es trabajo real del equipo.
 
-**Cómo se resuelve.** Commitear primero el estado actual en `feature/adminlte4-bootstrap5` —solo los archivos que el portal carga, no los respaldos ni los zip— y crear `feature/rediseno-ui-clinova` desde ahí. Es la única forma de que el rediseño tenga un `git diff` legible y un rollback verdadero.
+**Resuelto el 2026-11-16.**
 
-Mientras no se resuelva, la Fase 0 avanza **solo en documentos**: no se crea la rama ni se descartan cambios.
+1. `.gitignore` aísla los respaldos, las extracciones y los zip de assets.
+2. `5dffb49` en `feature/adminlte4-bootstrap5`: registra la migración (352 archivos: 78 altas, 251 bajas, 23 modificados). Se incluyen solo los assets en uso, `package-lock.json` y los CSV de `portal/database/data` que alimentan a `CatalogoSeeder` (D-025).
+3. `42b19a9` en `feature/rediseno-ui-clinova`: la enmienda constitucional, las decisiones y estas dos FTD.
+
+**Línea base verificada tras los commits:** `php vendor/bin/phpunit` → **OK (257 tests, 644 assertions)**, PHP 8.2.12. El árbol queda limpio salvo dos archivos ajenos a este trabajo (`docs/reestructuracion/checklist-retiro.md`, `shots/`).
 
 ### Fase 0 — Canon y rama (0 código de UI)
 - [x] **0.1** Enmendar la constitución a v5.0.0: tabla de stack (§0) y §6 UX — **hecho 2026-11-16**
 - [x] **0.2** Registrar decisión C-019 en `02-DOCS/wiki/sdd/decisions.md` — **hecho 2026-11-16** (C-019 + D-031…D-037)
 - [x] **0.3** Cerrar `feature-adminlte4-bootstrap5-migration.md` como ejecutado — **hecho 2026-11-16**
-- [ ] **0.4** **BLOQUEADO:** commitear la migración AdminLTE 4 en su rama y crear `feature/rediseno-ui-clinova` desde ahí (ver §5.0)
+- [x] **0.4** Crear `feature/rediseno-ui-clinova` — **hecho 2026-11-16** (sobre `5dffb49`)
 
 ### Fase 1 — Cimientos: design system y build
 - [ ] **1.1** Instalar dependencias: `lucide`, `notyf`, `apexcharts`, `@fontsource-variable/inter`
