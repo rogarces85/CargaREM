@@ -1,7 +1,21 @@
-# Guía del administrador
+# Manual del administrador
 
 > Para quien mantiene el catálogo, el calendario y los usuarios.
 > Usuario de la demo: `admin@ssosorno.cl`, clave `Portal2026!`.
+>
+> Antes de empezar: si el portal no te abre, mira
+> [`levantar-el-servidor.md`](levantar-el-servidor.md).
+
+![Flujo del rol administrador](img/02-flujo-rol-administrador.png)
+
+---
+
+## 0. Tu trabajo en una frase
+
+**Que el mes esté listo antes de que los establecimientos empiecen a cargar.**
+
+El catálogo, el calendario y los usuarios son tuyos. Si están bien, el resto del sistema
+funciona solo.
 
 ---
 
@@ -185,6 +199,17 @@ están en una sola manos.
 
    Es reversible. El estado inicial se reproduce con
    `php artisan db:seed --class=L1MinimumSeeder`.
+
+5. **Si la base se ve vacía**, cárgale los datos de ejemplo:
+
+   ```bat
+   cd C:\xampp\htdocs\www\Cargas\portal
+   php artisan db:seed --class=DemoSeeder
+   ```
+
+   Deja el período 10/2026 con seis envíos repartidos por los cinco estados. Es idempotente:
+   ejecutarlo de nuevo reemplaza los anteriores. El detalle está en
+   [`00-como-funciona-el-sistema.md`](00-como-funciona-el-sistema.md), §8.
 
 > **Lo que hay que subrayar en la demostración:** desactivar una serie no borra su fila de la
 > matriz. Mientras la serie esté inactiva, el catálogo manda y la serie no se exige; al

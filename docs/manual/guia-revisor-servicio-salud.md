@@ -1,7 +1,20 @@
-# Guía del revisor del Servicio de Salud
+# Manual del revisor del Servicio de Salud
 
 > Para quien revisa la estadística que entregan los establecimientos y la aprueba.
 > Usuario de la demo: `revisor@ssosorno.cl`, clave `Portal2026!`.
+>
+> Antes de empezar: si el portal no te abre, mira
+> [`levantar-el-servidor.md`](levantar-el-servidor.md).
+
+![Flujo del rol revisor](img/04-flujo-rol-revisor.png)
+
+---
+
+## 0. Tu trabajo en una frase
+
+**Decidir si la estadística de cada establecimiento se aprueba o se devuelve.**
+
+Puedes aprobar o devolver, pero no cargar ni corregir: eso es del establecimiento.
 
 ---
 

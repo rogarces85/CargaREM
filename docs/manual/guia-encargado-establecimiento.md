@@ -1,10 +1,24 @@
-# Guía del encargado de establecimiento
+# Manual del encargado de establecimiento
 
 > Para quien carga la estadística mensual en un hospital o una posta.
 > Cubre el mes completo, de la creación del envío a la aprobación.
 >
 > En la demo hay **dos** usuarios con este rol: `encargado.hospital@ssosorno.cl` y
 > `encargado.postas@ssosorno.cl`. La clave de ambos es `Portal2026!`.
+>
+> Antes de empezar: si el portal no te abre, mira
+> [`levantar-el-servidor.md`](levantar-el-servidor.md).
+
+![Flujo del rol encargado](img/03-flujo-rol-encargado.png)
+
+---
+
+## 0. Tu trabajo en una frase
+
+**Cargar el archivo de cada serie que el Servicio te exige y avisar cuando están listos.**
+
+No decides severidades, no apruebas nada y no tocas catálogos. Tu parte termina cuando
+pulsas «Enviar a revisión».
 
 ---
 
@@ -119,13 +133,16 @@ campana.
 
 Para resolverlo:
 
-1. Abre el envío. En el **Historial** verás «Observado» con el motivo.
+1. Abre el envío. Verás un bloque **Observaciones** con el texto exacto de lo que te
+   pidieron corregir, quién lo pidió y cuándo. Si ya no queda ninguna pendiente, el bloque
+   dice «todas resueltas».
 2. Corrige esa serie y súbela de nuevo.
 3. Al subirla, **la observación se resuelve sola** y el envío vuelve a `recibido`.
 4. Vuelve a comprobar que no hay bloqueantes.
 5. Pulsa otra vez **«Enviar a revisión»**.
 
-No hay que marcar nada como «resuelto»: subir la corrección **es** la respuesta.
+No hay que marcar nada como «resuelto»: subir la corrección **es** la respuesta. La tarjeta
+de Acciones te lo recuerda mientras el envío esté observado.
 
 ### Paso 7 — Comprobar que quedaste al día
 
