@@ -3,6 +3,7 @@
 > **Documento vivo.** Única fuente de verdad del proyecto.
 > Reemplaza a `specs/_historico/AGENT.md`, `PLAN.md`, `SPECS.md` y `TASK.md`.
 > Fecha: 2026-11-14
+> Actualizado: 2026-11-20 — la capa UI pasa de AdminLTE 3.2 a Tailwind CSS v4 + componentes Blade propios (C-019, Constitución v5.0.0).
 
 ---
 
@@ -34,7 +35,7 @@ El catálogo `servicios` se conserva con el registro único de Osorno (código M
 
 - Laravel 12.72 + PHP 8.2
 - MySQL 8 en producción y en la suite de pruebas (`cargas_rem_test`)
-- AdminLTE 3.2 (Bootstrap 4, sin Node)
+- Tailwind CSS v4 + componentes Blade propios (C-019): iconos Lucide, tipografía Inter Variable self-hosted y ApexCharts diferido y acotado. Sin Node en producción; Vite compila en local y `portal/public/build/` se publica como artefacto estático.
 - Fortify (auth)
 - spatie/laravel-permission (roles)
 - PhpSpreadsheet (lectura Excel)
