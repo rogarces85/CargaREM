@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Dominio\MatrizSeries;
 use App\Models\Envio;
 use App\Models\EnvioArchivo;
 use App\Models\Establecimiento;
@@ -177,11 +178,12 @@ class DemoSeeder extends Seeder
             'fuera_de_plazo'      => $plan['fuera_de_plazo'] ?? null,
         ]);
 
-        $exigidas = $establecimiento->series()
-            ->where('series.activo', true)
-            ->wherePivot('obligatoria', true)
-            ->orderBy('orden')
-            ->get();
+        $matriz = app(MatrizSeries::class);
+
+        $exigidas = $matriz->exigidas(
+            $establecimiento,
+            $matriz->cierreDelPeriodo(self::ANIO, self::MES)
+        );
 
         $conArchivo = $plan['tomar'] === null
             ? $exigidas

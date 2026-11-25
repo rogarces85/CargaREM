@@ -11,6 +11,22 @@ source: sdd/decisions.md (D-005, D-006); MODULO_M7_PROFUNDIZADO.md §9.1; PLAN.m
 
 # Matriz de series obligatorias por establecimiento
 
+> **Estado de implementación al 2026-11-25 (rama `feature/matriz-series-vigencia`).**
+>
+> | Regla | Estado |
+> |---|---|
+> | **R-SER-01** derivar del histórico | **No implementada.** Se sustituyó por una decisión explícita: al importar el catálogo se exigen **todas las series activas** a todos los establecimientos, y el administrador ajusta desde la pantalla |
+> | **R-SER-02** override manual | ✅ Implementada (`Admin\MatrizController`) |
+> | **R-SER-03** vigencia contra el cierre del período | ✅ Implementada en `App\Dominio\MatrizSeries`, usada por los cuatro lectores |
+> | **R-SER-04** no reinterpretar el pasado | ✅ Implementada por lo anterior |
+> | **R-SER-05** sin fila, no obliga | ✅ Implementada |
+> | **R-SER-06** serie desmarcada | ✅ Implementada |
+> | **R-SER-07** serie inactiva | ✅ Implementada |
+>
+> La única diferencia entre este documento y el código es **R-SER-01**. Está explicada en
+> [`inconsistencias-documentacion-codigo.md`](inconsistencias-documentacion-codigo.md) §1: el portal no
+> tiene el histórico de meses cargados que la regla necesita.
+
 > **Tarea:** T-F0-06 · **Estado:** borrador para firma por la Unidad de Estadísticas.
 > **Decisiones que implementa:** **D-005** (histórico + *override* manual) y **D-006** (SAX fuera del MVP).
 > **Para qué sirve:** sin esta matriz el portal no puede decir «falta la serie BS». Es la regla que alimenta la validación de completitud **V11** y el semáforo del tablero.
@@ -22,6 +38,13 @@ source: sdd/decisions.md (D-005, D-006); MODULO_M7_PROFUNDIZADO.md §9.1; PLAN.m
 **Cada establecimiento debe entregar las series que entregó en los últimos 12 meses, ajustadas a mano cuando corresponda, y el ajuste tiene fecha de vigencia.**
 
 Se descartaron dos alternativas: exigir todas las series a todos (genera faltantes falsos) y exigirlas por tipo de establecimiento (no hay en la base un tipo fiable para eso).
+
+> **Cómo se implementó mientras no haya histórico.** El portal no tiene los meses ya cargados, así que
+> la primera opción descartada es la que rige hoy: al importar el catálogo, **todos los
+> establecimientos deben todas las series activas**, sin fecha de término. El administrador quita las
+> que no correspondan, establecimiento por establecimiento, desde la matriz. Cuando exista el
+> histórico, esta regla se cambia por la derivación automática sin tocar el resto del sistema: la
+> ventana de vigencia ya funciona.
 
 ---
 

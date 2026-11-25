@@ -8,6 +8,7 @@ use App\Models\Periodo;
 use App\Models\Serie;
 use App\Models\User;
 use App\Services\EnvioService;
+use Carbon\Carbon;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -113,6 +114,60 @@ class EnvioWebTest extends TestCase
             // La etiqueta del estado se unificó con el resto del vocabulario:
             // «Aprobado», «Observado», «Sin archivo» van con mayúscula inicial.
             ->assertSee('Sin archivo');
+    }
+
+    /**
+     * La tabla «Series del período» se armaba con las series sin mirar la
+     * vigencia: ofrecía como pendiente una serie que la matriz ya no exigía y
+     * que V11 ya no reclamaba.
+     *
+     * El desplegable de subida sí lista todas las series activas, y eso es
+     * deliberado: permite subir una serie que la matriz no exige. Lo que no
+     * puede aparecer como exigida es la que venció.
+     *
+     * «Hoy» se fija el 15-08-2026: la serie vence el 31-08, así que con `now()`
+     * todavía estaría vigente y la tabla la mostraría. Con el cierre del
+     * período (30-09) no.
+     */
+    public function test_la_tabla_de_series_no_muestra_una_serie_con_vigencia_terminada(): void
+    {
+        $this->travelTo(Carbon::parse('2026-08-15'));
+
+        $serieBS = Serie::create(['codigo' => 'BS', 'nombre' => 'SERIE BS', 'orden' => 2]);
+
+        $this->establecimiento->series()->attach($serieBS->id, [
+            'obligatoria'   => true,
+            'vigente_hasta' => '2026-08-31',
+        ]);
+
+        $envio = app(EnvioService::class)->crear($this->establecimiento, 2026, 9, $this->encargado);
+
+        // El contador de la cabecera es el que manda: una sola serie exigida.
+        $this->actingAs($this->encargado)
+            ->get("/envios/{$envio->id}")
+            ->assertOk()
+            ->assertSee('Series exigidas')
+            ->assertViewHas('exigidas', fn ($exigidas) => $exigidas->pluck('codigo')->all() === ['A']);
+
+        $this->travelBack();
+    }
+
+    public function test_la_tabla_de_series_muestra_una_serie_vigente_hasta_el_cierre_del_periodo(): void
+    {
+        $serieBS = Serie::create(['codigo' => 'BS', 'nombre' => 'SERIE BS', 'orden' => 2]);
+
+        // Vigente justo hasta el último día del período del envío (9/2026).
+        $this->establecimiento->series()->attach($serieBS->id, [
+            'obligatoria'   => true,
+            'vigente_hasta' => '2026-09-30',
+        ]);
+
+        $envio = app(EnvioService::class)->crear($this->establecimiento, 2026, 9, $this->encargado);
+
+        $this->actingAs($this->encargado)
+            ->get("/envios/{$envio->id}")
+            ->assertOk()
+            ->assertViewHas('exigidas', fn ($exigidas) => $exigidas->pluck('codigo')->all() === ['A', 'BS']);
     }
 
     public function test_sube_un_archivo_y_lo_valida(): void

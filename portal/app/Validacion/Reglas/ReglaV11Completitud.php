@@ -2,6 +2,7 @@
 
 namespace App\Validacion\Reglas;
 
+use App\Dominio\MatrizSeries;
 use App\Models\EnvioArchivo;
 use App\Validacion\ContextoValidacion;
 use App\Validacion\Hallazgo;
@@ -21,6 +22,8 @@ use App\Validacion\Severidad;
  */
 final class ReglaV11Completitud implements ReglaValidacion
 {
+    public function __construct(private readonly MatrizSeries $matriz) {}
+
     public function etapa(): string
     {
         return 'V11';
@@ -30,25 +33,12 @@ final class ReglaV11Completitud implements ReglaValidacion
     {
         $envio = $contexto->envio;
 
-        // Series que la matriz exige y que hoy están vigentes.
-        //
-        // También tienen que estar activas: una serie desactivada en el catálogo
-        // no se puede subir (`EnvioService::subirVersion` la rechaza y la vista
-        // ni la ofrece), así que exigirla dejaría el envío bloqueado para
-        // siempre, sin que el encargado pueda hacer nada. La matriz conserva la
-        // fila; el que manda es el estado del catálogo.
-        $exigidas = $envio->establecimiento->series()
-            ->where('series.activo', true)
-            ->wherePivot('obligatoria', true)
-            ->where(function ($q) {
-                $q->whereNull('establecimiento_serie.vigente_desde')
-                    ->orWhere('establecimiento_serie.vigente_desde', '<=', now()->toDateString());
-            })
-            ->where(function ($q) {
-                $q->whereNull('establecimiento_serie.vigente_hasta')
-                    ->orWhere('establecimiento_serie.vigente_hasta', '>=', now()->toDateString());
-            })
-            ->get();
+        // La regla de «qué se exige» vive en MatrizSeries, no aquí (R-SER-03:
+        // la vigencia se evalúa contra el cierre del período que se informa).
+        $exigidas = $this->matriz->exigidas(
+            $envio->establecimiento,
+            $this->matriz->cierreDelPeriodo((int) $envio->anio, (int) $envio->mes)
+        );
 
         if ($exigidas->isEmpty()) {
             return [new Hallazgo(

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Dominio\MatrizSeries;
 use App\Exceptions\ArchivoRechazadoException;
 use App\Exceptions\EnvioInvalidoException;
 use App\Exceptions\ValidacionOcupadaException;
@@ -28,6 +29,7 @@ class EnvioController extends Controller
     public function __construct(
         private readonly EnvioService $envios,
         private readonly EstadoEnvioService $estados,
+        private readonly MatrizSeries $matriz,
     ) {
     }
 
@@ -81,14 +83,13 @@ class EnvioController extends Controller
             'observaciones.autor', 'transiciones.actor', 'validaciones',
         ]);
 
-        // Series exigidas del período. Solo las activas: una serie desactivada
-        // no se puede subir, así que listarla como exigida mostraría una fila
-        // que nunca se va a poder completar.
-        $exigidas = $envio->establecimiento->series()
-            ->where('series.activo', true)
-            ->wherePivot('obligatoria', true)
-            ->orderBy('orden')
-            ->get();
+        // Series exigidas del período. La regla vive en MatrizSeries y se
+        // evalúa con el cierre del período del envío, igual que V11 y que la
+        // aprobación: antes esta pantalla listaba series vencidas.
+        $exigidas = $this->matriz->exigidas(
+            $envio->establecimiento,
+            $this->matriz->cierreDelPeriodo((int) $envio->anio, (int) $envio->mes)
+        );
 
         $vigentes = $envio->archivosVigentes->keyBy('serie_id');
 
