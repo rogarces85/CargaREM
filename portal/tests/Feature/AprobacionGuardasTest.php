@@ -130,6 +130,46 @@ class AprobacionGuardasTest extends TestCase
         }
     }
 
+    /**
+     * El fallo que motivó este test: la aprobación no filtraba la vigencia de
+     * la matriz. Una serie con `vigente_hasta` terminado dejaba de exigirse en
+     * V11 y desaparecía de la matriz de completitud, pero seguía bloqueando la
+     * aprobación: el envío quedaba imposible de aprobar sin que nadie pudiera
+     * hacer nada, porque el encargado tampoco podía subir esa serie.
+     */
+    public function test_una_serie_con_vigencia_terminada_no_bloquea_la_aprobacion(): void
+    {
+        // La serie BS dejó de exigirse antes del período 9/2026 del envío.
+        $this->envio->establecimiento->series()->updateExistingPivot(
+            $this->serieBS->id,
+            ['vigente_hasta' => '2026-08-31']
+        );
+
+        $this->archivo($this->serieA);
+
+        $this->aprobar();
+
+        $this->assertSame(Envio::APROBADO, $this->envio->fresh()->estado);
+    }
+
+    public function test_una_serie_vigente_sigue_bloqueando_la_aprobacion(): void
+    {
+        // La misma serie, pero con vigencia hasta el fin del período: se exige.
+        $this->envio->establecimiento->series()->updateExistingPivot(
+            $this->serieBS->id,
+            ['vigente_hasta' => '2026-09-30']
+        );
+
+        $this->archivo($this->serieA);
+
+        try {
+            $this->aprobar();
+            $this->fail('Debería rechazar por incompleto');
+        } catch (EnvioInvalidoException $e) {
+            $this->assertSame('APP-ENV-011', $e->codigo);
+        }
+    }
+
     public function test_no_aprueba_si_el_envio_no_esta_en_revision(): void
     {
         $this->archivo($this->serieA);

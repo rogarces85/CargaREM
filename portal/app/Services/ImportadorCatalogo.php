@@ -63,7 +63,7 @@ class ImportadorCatalogo
     /**
      * Carga el catálogo completo.
      *
-     * @return array{series: int, establecimientos: int, plantillas: int, hojas: int, diccionario: int}
+     * @return array{series: int, establecimientos: int, plantillas: int, hojas: int, diccionario: int, matriz: int}
      */
     public function cargar(string $directorio): array
     {
@@ -82,6 +82,12 @@ class ImportadorCatalogo
             $series = $this->importarSeries($directorio);
 
             $establecimientos = $this->importarEstablecimientos($directorio, $servicio);
+
+            // La matriz se arma al importar: sin filas, R-SER-05 («sin fila, no
+            // obliga») dejaría a los establecimientos del catálogo sin ninguna
+            // serie exigida. El administrador ajusta después cuál sí y cuál no.
+            $matriz = $this->crearMatrizInicial($servicio);
+
             $plantillas = $this->importarPlantillas($directorio, $series);
             $hojas = $this->importarHojas($directorio);
 
@@ -96,8 +102,83 @@ class ImportadorCatalogo
                 'plantillas'       => $plantillas,
                 'hojas'            => $hojas,
                 'diccionario'      => $diccionario,
+                'matriz'           => $matriz,
             ];
         });
+    }
+
+    /**
+     * Exige todas las series activas a los establecimientos del Servicio.
+     *
+     * **Cuándo llena una matriz y cuándo no.** Solo cuando el establecimiento
+     * **no tiene ninguna fila**. Una matriz vacía se considera «no
+     * configurada», y se configura con el criterio por defecto: todas las
+     * series activas.
+     *
+     * En cuanto el administrador edita la matriz, el establecimiento tiene al
+     * menos una fila y la importación **no lo toca**. Si no fuera así, quitar
+     * una serie desde la pantalla no serviría de nada: la siguiente
+     * importación la volvería a poner y nadie podría confiar en el ajuste.
+     *
+     * El caso límite que esto acepta: si el administrador desmarca **todas** las
+     * series de un establecimiento, su matriz queda vacía y la próxima
+     * importación le devuelve el criterio por defecto. Se acepta a sabiendas
+     * porque «no debe ninguna serie» y «nadie configuró esto» son la misma fila
+     * vacía, y para el primer caso está `obligatoria = 0` en la matriz.
+     *
+     * `vigente_desde` queda en `null` (rige desde siempre) porque la regla es
+     * «todos deben todas desde el primer período». Si más adelante una serie se
+     * deja de exigir, el administrador pone su `vigente_hasta`.
+     *
+     * @return int pares creados (los establecimientos ya configurados no cuentan)
+     */
+    private function crearMatrizInicial(Servicio $servicio): int
+    {
+        $series = Serie::where('activo', true)->pluck('id');
+
+        if ($series->isEmpty()) {
+            return 0;
+        }
+
+        $establecimientos = Establecimiento::where('servicio_id', $servicio->id)->pluck('id');
+
+        if ($establecimientos->isEmpty()) {
+            return 0;
+        }
+
+        // Los que ya tienen alguna fila están configurados: no se tocan.
+        $configurados = DB::table('establecimiento_serie')
+            ->whereIn('establecimiento_id', $establecimientos)
+            ->distinct()
+            ->pluck('establecimiento_id')
+            ->flip();
+
+        $ahora = now();
+        $nuevas = [];
+
+        foreach ($establecimientos as $establecimientoId) {
+            if ($configurados->has($establecimientoId)) {
+                continue;
+            }
+
+            foreach ($series as $serieId) {
+                $nuevas[] = [
+                    'establecimiento_id' => $establecimientoId,
+                    'serie_id'           => $serieId,
+                    'obligatoria'        => true,
+                    'vigente_desde'      => null,
+                    'vigente_hasta'      => null,
+                    'created_at'         => $ahora,
+                    'updated_at'         => $ahora,
+                ];
+            }
+        }
+
+        foreach (array_chunk($nuevas, self::TAMANO_LOTE) as $lote) {
+            DB::table('establecimiento_serie')->insert($lote);
+        }
+
+        return count($nuevas);
     }
 
     /** El Servicio del MVP, tomado del CSV y confirmado contra la configuración. */

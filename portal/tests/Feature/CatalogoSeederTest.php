@@ -112,4 +112,86 @@ class CatalogoSeederTest extends TestCase
         $this->assertTrue($this->importador()->disponible($this->fixture));
         $this->assertFalse($this->importador()->disponible($this->fixture.DIRECTORY_SEPARATOR.'no-existe'));
     }
+
+    /**
+     * Sin matriz, R-SER-05 («sin fila, no obliga») dejaría al catálogo real sin
+     * ninguna serie exigida: los 82 establecimientos del Servicio entrarían sin
+     * nada que pedirles y V11 solo advertiría.
+     */
+    public function test_al_importar_exige_todas_las_series_activas(): void
+    {
+        $resumen = $this->importador()->cargar($this->fixture);
+
+        $activas = Serie::where('activo', true)->count();
+        $establecimientos = Establecimiento::count();
+
+        $this->assertSame($activas, 2, 'El fixture trae SERIE A y SERIE BS');
+        $this->assertSame(
+            $establecimientos * $activas,
+            $resumen['matriz'],
+            'Cada establecimiento recibe una fila por serie activa'
+        );
+
+        $this->assertSame(
+            $establecimientos * $activas,
+            \DB::table('establecimiento_serie')->count()
+        );
+
+        foreach (Establecimiento::with('series')->get() as $establecimiento) {
+            $this->assertSame($activas, $establecimiento->series->count());
+            $this->assertTrue((bool) $establecimiento->series->first()->pivot->obligatoria);
+            $this->assertNull(
+                $establecimiento->series->first()->pivot->vigente_desde,
+                'Rige desde siempre: no se inventa una fecha de inicio'
+            );
+        }
+    }
+
+    /**
+     * El ajuste manual manda. Si el administrador quitó una serie, reimportar el
+     * catálogo no se la vuelve a poner: si no, su decisión duraría hasta la
+     * siguiente importación y nadie podría confiar en la matriz.
+     */
+    public function test_reimportar_no_pisa_una_matriz_ya_editada(): void
+    {
+        $this->importador()->cargar($this->fixture);
+
+        $establecimiento = Establecimiento::first();
+        $serieBS = Serie::where('codigo', 'BS')->first();
+
+        // El administrador quita BS de ese establecimiento.
+        $establecimiento->series()->detach($serieBS->id);
+
+        $this->assertSame(
+            Serie::where('activo', true)->count() - 1,
+            $establecimiento->fresh()->series()->count()
+        );
+
+        $resumen = $this->importador()->cargar($this->fixture);
+
+        $this->assertSame(0, $resumen['matriz'], 'Nada nuevo que crear: el par ya existía');
+        $this->assertSame(
+            Serie::where('activo', true)->count() - 1,
+            $establecimiento->fresh()->series()->count(),
+            'La edición del administrador se respeta'
+        );
+        $this->assertFalse(
+            $establecimiento->fresh()->series->contains('id', $serieBS->id),
+            'BS sigue fuera de la matriz de ese establecimiento'
+        );
+    }
+
+    public function test_reimportar_no_duplica_la_matriz(): void
+    {
+        $primera = $this->importador()->cargar($this->fixture);
+        $segunda = $this->importador()->cargar($this->fixture);
+
+        $this->assertGreaterThan(0, $primera['matriz']);
+        $this->assertSame(0, $segunda['matriz'], 'La segunda corrida no crea filas');
+        $this->assertSame(
+            Establecimiento::count() * Serie::where('activo', true)->count(),
+            \DB::table('establecimiento_serie')->count(),
+            'Sin duplicados'
+        );
+    }
 }

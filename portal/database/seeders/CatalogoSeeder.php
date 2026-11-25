@@ -37,5 +37,10 @@ class CatalogoSeeder extends Seeder
             $resumen['hojas'],
             $resumen['diccionario']
         ));
+
+        $this->command?->line(sprintf(
+            'Matriz de series: %d exigencias nuevas (las ya editadas no se tocan).',
+            $resumen['matriz']
+        ));
     }
 }

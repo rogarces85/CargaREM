@@ -1,5 +1,9 @@
 # Informe Técnico Exhaustivo: ValidadorRem ("Sistema Cargas REM")
-**Conclusión operativa para el equipo:** ValidadorRem es una herramienta de escritorio monousuario centrada en validar y consolidar archivos REM en bases Access por serie y año, con un fuerte acoplamiento a los servicios SOAP del MINSAL y a la versión de plantillas Excel. Para una reconstrucción web, los riesgos principales son la dependencia de Jet/ACE (32 bits), la falta de RBAC, la sobrescritura destructiva sin control de acceso, y los endpoints en HTTP de prueba. Los puntos P1 a P11 deben cerrarse antes de implementar.
+
+> **Nota de lectura (2026-11-24).** La conclusión operativa está al final del documento. Este informe
+> describe el **sistema de escritorio que existe hoy**; no describe el portal M7, que tiene su propia
+> especificación en [`specs/MVP_V2.md`](specs/MVP_V2.md). Las afirmaciones del informe sobre
+> validación, RBAC y sobrescritura son del escritorio, y varias ya no aplican al portal.
 
 **Alcance del análisis:** `ValidadorRem.exe` (PE32 x86, IL-only, .NET Framework 4.8), sus 24 recursos embebidos, sus metadatos (100 TypeDef, 1 975 MethodDef, 1 015 literales `#US`, 20 219 aristas de llamada), las bases Access (`.mdb`) en modo solo lectura y el `.config`. No se ejecutó la aplicación ni se capturó tráfico en runtime; las partes que requieren eso están marcadas como **[PENDIENTE DE VALIDACIÓN]**.
 
@@ -314,6 +318,15 @@ Como es WinForms, no hay rutas. El equivalente de "ruta" es la opción de menú 
 
 ### 4.2 Estrategia para el equipo frontend/backend (si se reconstruye como web)
 
+> **Nota (2026-11-24): propuesta superada por la decisión real.**
+> Esta sección propone una reconstrucción del **escritorio** en **React + TanStack Query + Vite**.
+> No fue el camino elegido: el portal M7 se construyó en **Laravel 12.72 + PHP 8.2** con Blade y
+> Tailwind CSS v4, sin SPA (C-015 y C-019; ver `specs/MVP_V2.md` §3).
+> Se conserva porque el diagnóstico de abajo —qué estado es local, cuál es de servidor, dónde hacen
+> falta paginación de servidor y confirmación destructiva— **sigue siendo correcto** y aplica a
+> cualquier reconstrucción futura, también a la del propio ValidadorRem.
+> No se usa como guía de implementación del portal.
+
 El sistema actual es escritorio. Esta sección describe el destino recomendado, no el estado actual.
 
 **Gestión de estado — qué usar y por qué**
@@ -487,24 +500,35 @@ export interface Software { nombre: 'CargaRem'; version: string }
 - **Datos personales en la ruta:** literal `C:\Documents and Settings\mcastillo\Mis documentos` (ruta de ejemplo con un nombre de usuario). Eliminar del código.
 - **Typos y nomenclatura:** `VlidadorRem` (en metadatos y configuración), `VlidadorRem_*` en nombres de settings, y `ValidadorRem_ExtraeDatosC_CargaControlServ` (con prefijo distinto) en la configuración.
 
-### 5.4 [PENDIENTE DE VALIDACIÓN] — qué falta y cómo obtenerlo
+### 5.4 Qué falta de este informe, y su estado al 2026-11-24
 
-| # | Elemento pendiente | Por qué no se pudo extraer | Cómo obtenerlo |
+Los trece puntos siguen siendo huecos **de este informe**, no del portal. El portal se construyó sin
+cerrarlos, porque no los necesita para funcionar. Cada uno lleva su veredicto.
+
+| # | Elemento pendiente | Estado | Motivo / dónde se resolvió |
 |---|---|---|---|
-| P1 | Payload y respuesta SOAP exactos (XML) de cada operación | Son runtime; el análisis estático no los contiene | Captura en runtime con un proxy HTTP (Fiddler/mitmproxy) con la app ejecutada en entorno de prueba. Verificar TLS y autenticación. |
-| P2 | Estructura exacta de los `DataSet` devueltos por `datos()`, `diccionario()`, `Thoja()`, etc. | El tipo de retorno es `class:237` (DataSet), sin columnas | Capturar una respuesta real (igual que P1) o inspeccionar con REA los anchors de `Actualizacion.actualizar`. |
-| P3 | Lógica interna exacta de validación (`CargaDatos.Button4_Click`, `Busca_Dato`, `VeriExcep`, `Cuantas`, `bases.compara_mes`) | Se extrajeron llamadas y literales, no el pseudocódigo | Descompilar con dnSpy (incluido en la carpeta) o ILSpy. Después, `import_managed_reconstruction` de REA contra la evidencia de `inspect_managed_members`. |
-| P4 | Mapeo exacto menú → formulario para "Glosa de prestaciones", "Decimales", "Informe1", "Actualiza series", "Actualiza sistema", "Datos desde Servidor" | Los nombres de manejadores no se pudieron asociar sin ver la UI | Ejecutar la app y capturar la UI, o revisar `Principal.InitializeComponent` (6 322 bytes) con anchors de `ToolStripMenuItem`. |
-| P5 | Significado de dominio de las series (`A`, `BS`, `BM`, `D`, `P`, `F`) y del acrónimo REM | No está en el binario como texto explicativo | Validar con el área de negocio / documentación del MINSAL. |
-| P6 | Semántica de `Col01…Col50` | Requiere cruzar `Diccionario` con las hojas Excel | Consulta a `Global.mdb.Diccionario` por `Hoja`, `Serie` y `Year` (no se realizó: la base de 422 MB estaba bloqueada). |
-| P7 | Formato del archivo MINSAL (contenedor, extensión, cabecera, nombre) | El bloque GZip no revela el esquema de salida | Generar una muestra en entorno de prueba y analizar el archivo resultante. |
-| P8 | Efecto de `generacion = False` y de `Puntos` (`InformeControl`) | Solo se observó la configuración y el nombre del método | Revisar IL o ejecutar en entorno de prueba. |
-| P9 | Comportamiento ante 401/403/404/500 y reintentos de los WS | El análisis estático solo muestra las llamadas | Pruebas de integración contra un entorno de staging que devuelva esos códigos. |
-| P10 | Si el host `http://intradeis.minsal.cl/webservicePrueba/…` sigue en uso en producción | Es una configuración, no prueba de uso | Confirmar con la unidad de TI del MINSAL y revisar tráfico real. |
-| P11 | Roles y permisos reales requeridos | El sistema no los implementa | Definir con negocio antes de diseñar el RBAC de la versión web. |
-| P12 | Serie local SAX (Anexo, Servicio de Salud Osorno): estructura, hojas, reglas de validación y carga | No existe en el sistema actual | Documentación en sistema aparte (gestionada por el usuario); integrar al informe cuando esté disponible. |
-| P13 | Stack tecnológico del módulo de envío (sección 2.10) | Decisión pendiente | Definir antes de diseñar la arquitectura del portal. |
+| P1 | Payload y respuesta SOAP exactos (XML) de cada operación | **Fuera del alcance del portal** | El portal no habla con los WS del MINSAL: se verificaron **0 referencias** a `SoapClient` o `minsal.cl` en `portal/app`. Cargas REM sigue siendo quien sincroniza |
+| P2 | Estructura exacta de los `DataSet` devueltos por `datos()`, `diccionario()`, `Thoja()` | **Fuera del alcance del portal** | Igual que P1: el portal no consume esos servicios |
+| P3 | Lógica interna exacta de validación (`Button4_Click`, `Busca_Dato`, `VeriExcep`, `Cuantas`) | **Abierto** | El portal implementa las reglas **documentadas** (V0–V11), no las del IL. Cerrarlo exige *golden files*: [`02-DOCS/wiki/dominio/validacion-rem.md`](02-DOCS/wiki/dominio/validacion-rem.md) §4 |
+| P4 | Mapeo exacto menú → formulario de seis entradas | **Abierto, sin impacto** | Es documentación del escritorio. No bloquea nada: [`backup_documentacion/MODULO_M1_PROFUNDIZADO.md`](backup_documentacion/MODULO_M1_PROFUNDIZADO.md) ya lo cubre por otra vía |
+| P5 | Significado de dominio de las series y del acrónimo REM | **Parcialmente resuelto** | A, BS, BM, D, P, F y SAX están definidas en [`docs/validacion/matriz-series-obligatorias.md`](docs/validacion/matriz-series-obligatorias.md). El catálogo confirma además las subseries (A1, A2, BM1, BS1, BS2). El significado de «REM» sigue pendiente de negocio |
+| P6 | Semántica de `Col01…Col50` | **Abierto, con decisión tomada** | El portal **no lee** esas columnas: usa el mapeo del `Diccionario` por `diccionario.tipo_dato`. La hipótesis sigue sin confirmar en [`docs/validacion/paridad-cabecera-diccionario.md`](docs/validacion/paridad-cabecera-diccionario.md) §2 (RIES-03) |
+| P7 | Formato del archivo MINSAL | **Fuera del alcance del portal** | La generación del archivo MINSAL es de Cargas REM (C-018: fuera de v2.0) |
+| P8 | Efecto de `generacion = False` y de `Puntos` | **Abierto, sin impacto** | Afecta a la hoja de control del escritorio. El portal no calcula puntos |
+| P9 | Comportamiento ante 401/403/404/500 de los WS | **Fuera del alcance del portal** | Ver P1 |
+| P10 | Si `intradeis.minsal.cl/webservicePrueba` sigue en uso | **Fuera del alcance del portal** | Ver P1 |
+| P11 | Roles y permisos reales requeridos | **Resuelto** | 3 roles y 16 permisos, con matriz declarada como dato: `portal/database/seeders/RolePermissionSeeder.php` y `tests/Parity/fixtures/rbac-matrix.json` |
+| P12 | Serie local SAX | **Abierto, decidido** | D6: SAX queda fuera del MVP. La documentación de SAX sigue en un sistema aparte |
+| P13 | Stack tecnológico del módulo de envío | **Resuelto** | C-015: Laravel 12.72 + PHP 8.2 + MySQL 8. UI enmendada por C-019: Tailwind CSS v4. Ver [`specs/MVP_V2.md`](specs/MVP_V2.md) §3 |
+
+**Lo que esto significa:** de los trece, **tres se cerraron** (P11, P13 y parcialmente P5), **cinco
+quedaron fuera del alcance del portal** porque el portal no toca los WS ni genera el archivo MINSAL, y
+**cinco siguen abiertos** con motivo escrito (P3, P4, P6, P8, P12). Ninguno bloquea el portal. **Solo
+P3 bloquea afirmar paridad con ValidadorRem**, y para eso hacen falta los *golden files*, no más
+lectura de código.
 
 ---
 
-**Conclusión operativa para el equipo:** ValidadorRem es una herramienta de escritorio monousuario centrada en validar y consolidar archivos REM en bases Access por serie y año, con un fuerte acoplamiento a los servicios SOAP del MINSAL y a la versión de plantillas Excel. Para una reconstrucción web, los riesgos principales son la dependencia de Jet/ACE (32 bits), la falta de RBAC, la sobrescritura destructiva sin control de acceso, y los endpoints en HTTP de prueba. Los puntos P1 a P11 deben cerrarse antes de implementar.
+**Conclusión operativa para el equipo:** ValidadorRem es una herramienta de escritorio monousuario centrada en validar y consolidar archivos REM en bases Access por serie y año, con un fuerte acoplamiento a los servicios SOAP del MINSAL y a la versión de plantillas Excel. Para una reconstrucción web, los riesgos principales son la dependencia de Jet/ACE (32 bits), la falta de RBAC, la sobrescritura destructiva sin control de acceso, y los endpoints en HTTP de prueba.
+
+**Estado de esos riesgos al 2026-11-24.** El portal M7 **no** reconstruye el escritorio: recibe, valida, ordena la revisión y aprueba. De los riesgos de arriba, el portal ya resolvió dos —**RBAC** (3 roles, 16 permisos, matriz declarada como dato y con tests) y **control de la sobrescritura** (versionado: un reenvío crea versión nueva y marca la anterior como `reemplazado`)— y no toca los otros tres. El acoplamiento a Jet/ACE y a los WS sigue entero, y por eso **Cargas REM sigue siendo el sistema de escritorio**: no se reemplazó. Los trece puntos P1–P13 tienen veredicto individual en §5.4.

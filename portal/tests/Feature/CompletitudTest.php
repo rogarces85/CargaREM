@@ -9,6 +9,7 @@ use App\Models\Periodo;
 use App\Models\Serie;
 use App\Models\User;
 use App\Services\CompletitudService;
+use Carbon\Carbon;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
@@ -187,6 +188,54 @@ class CompletitudTest extends TestCase
         $ajeno = User::factory()->create(['activo' => true]);
 
         $this->actingAs($ajeno)->get('/completitud')->assertForbidden();
+    }
+
+    /**
+     * La matriz de completitud tiene que usar la misma ventana de vigencia que
+     * V11 y que la aprobación, evaluada contra el cierre del período 9/2026.
+     *
+     * «Hoy» se fija el 15-08-2026: la serie todavía no venció ese día, pero el
+     * período del envío cierra después. Con `now()` se pintaría en rojo; con el
+     * cierre del período, no.
+     */
+    public function test_una_serie_con_vigencia_terminada_no_aparece_como_pendiente(): void
+    {
+        $this->travelTo(Carbon::parse('2026-08-15'));
+
+        // BS venció el 31-08: el período 9/2026 ya no la exige.
+        $this->hosp1->series()->updateExistingPivot($this->serieBS->id, [
+            'vigente_hasta' => '2026-08-31',
+        ]);
+
+        $matriz = $this->matriz();
+
+        $fila = collect($matriz['filas'])->first(fn ($f) => $f['establecimiento']->id === $this->hosp1->id);
+
+        $this->assertSame(1, $fila['exigidas'], 'Solo la serie A sigue exigiéndose');
+        $this->assertSame(
+            'no_aplica',
+            $fila['celdas'][$this->serieBS->id]['estado'],
+            'Una serie vencida no es una columna en rojo'
+        );
+
+        $this->travelBack();
+    }
+
+    public function test_una_serie_vigente_hasta_el_cierre_del_periodo_si_aparece(): void
+    {
+        $this->hosp1->series()->updateExistingPivot($this->serieBS->id, [
+            'vigente_hasta' => '2026-09-30',
+        ]);
+
+        $matriz = $this->matriz();
+
+        $fila = collect($matriz['filas'])->first(fn ($f) => $f['establecimiento']->id === $this->hosp1->id);
+
+        $this->assertSame(2, $fila['exigidas']);
+        $this->assertSame(
+            CompletitudService::SIN_ENVIO,
+            $fila['celdas'][$this->serieBS->id]['estado']
+        );
     }
 
     public function test_la_matriz_carga_rapido_con_muchos_establecimientos(): void

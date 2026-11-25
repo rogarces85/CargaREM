@@ -58,12 +58,14 @@ class MatrizController extends Controller
             $establecimiento->series()->detach();
 
             foreach ($datos['series'] ?? [] as $serieId => $valores) {
-                if (empty($valores['obligatoria'])) {
-                    continue;
-                }
-
+                // Se guarda la fila también cuando la casilla queda desmarcada,
+                // con `obligatoria = false` (R-SER-06: «se acepta, pero no
+                // cuenta»). Descartarla borraba la decisión del administrador:
+                // la serie desaparecía de la matriz y la siguiente importación
+                // se la volvía a poner, porque una matriz vacía se interpreta
+                // como «nadie configuró esto».
                 $establecimiento->series()->attach($serieId, [
-                    'obligatoria'   => true,
+                    'obligatoria'   => (bool) ($valores['obligatoria'] ?? false),
                     'vigente_desde' => $valores['vigente_desde'] ?? null,
                     'vigente_hasta' => $valores['vigente_hasta'] ?? null,
                 ]);

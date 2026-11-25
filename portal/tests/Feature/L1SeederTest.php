@@ -103,4 +103,46 @@ class L1SeederTest extends TestCase
             \DB::table('establecimiento_serie')->count(),
         ]);
     }
+
+    /**
+     * Los seis códigos de prueba existen en el catálogo real del Minsal. Cuando
+     * el catálogo ya está importado, el nombre bueno es el suyo: el seeder no
+     * puede revertirlo a la etiqueta corta de L1.
+     *
+     * Antes lo hacía en cada corrida de `iniciar.bat`, y con ella borraba la
+     * matriz de series editada por el administrador.
+     */
+    public function test_no_pisa_los_nombres_del_catalogo_importado(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+
+        $establecimiento = Establecimiento::where('codigo', '123100')->first();
+        $establecimiento->update(['nombre' => 'Hospital Base San José de Osorno']);
+
+        $this->seed(L1MinimumSeeder::class);
+
+        $this->assertSame(
+            'Hospital Base San José de Osorno',
+            $establecimiento->fresh()->nombre,
+            'El nombre del catálogo manda sobre la etiqueta de L1'
+        );
+    }
+
+    public function test_no_borra_una_matriz_ya_editada(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+
+        $establecimiento = Establecimiento::where('codigo', '123100')->first();
+        $serieF = Serie::where('codigo', 'F')->first();
+
+        // El administrador deja de exigir la serie F en ese establecimiento.
+        $establecimiento->series()->detach($serieF->id);
+
+        $this->seed(L1MinimumSeeder::class);
+
+        $this->assertFalse(
+            $establecimiento->fresh()->series->contains('id', $serieF->id),
+            'La siembra no puede resucitar la serie que el administrador quitó'
+        );
+    }
 }

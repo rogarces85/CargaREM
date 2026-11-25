@@ -2,11 +2,13 @@
 
 namespace App\Services;
 
+use App\Dominio\MatrizSeries;
 use App\Models\Envio;
 use App\Models\EnvioArchivo;
 use App\Models\Establecimiento;
 use App\Models\Serie;
 use App\Models\User;
+use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
 
 /**
@@ -27,6 +29,10 @@ class CompletitudService
     public const EN_PROCESO = 'en_proceso';
     public const APROBADO = 'aprobado';
 
+    public function __construct(private readonly MatrizSeries $matriz)
+    {
+    }
+
     public const ETIQUETAS = [
         self::SIN_ENVIO    => 'Sin envío',
         self::SIN_ARCHIVO  => 'Sin archivo',
@@ -45,7 +51,9 @@ class CompletitudService
      */
     public function matriz(int $anio, int $mes, User $usuario, ?int $establecimientoId = null): array
     {
-        $establecimientos = $this->establecimientos($usuario, $establecimientoId);
+        $cierre = $this->matriz->cierreDelPeriodo($anio, $mes);
+
+        $establecimientos = $this->establecimientos($usuario, $establecimientoId, $cierre);
 
         if ($establecimientos->isEmpty()) {
             return [
@@ -153,28 +161,19 @@ class CompletitudService
     /**
      * Establecimientos con sus series exigidas, dentro del alcance del usuario.
      *
+     * La condición de la matriz la aplica `MatrizSeries`, con el cierre del
+     * período que se está mirando (R-SER-03): así esta pantalla y V11 no pueden
+     * volver a discrepar.
+     *
      * @return Collection<int, Establecimiento>
      */
-    private function establecimientos(User $usuario, ?int $establecimientoId): Collection
+    private function establecimientos(User $usuario, ?int $establecimientoId, CarbonInterface $cierre): Collection
     {
         $consulta = Establecimiento::query()
             ->where('activo', true)
-            ->with(['series' => function ($q) {
-                // Solo la matriz vigente: una serie que dejó de exigirse no
-                // debe aparecer como pendiente. Y solo series activas: una
-                // desactivada no se puede entregar, así que mostrarla como
-                // faltante sería una columna en rojo imposible de llenar.
-                $q->where('series.activo', true)
-                    ->wherePivot('obligatoria', true)
-                    ->where(function ($sub) {
-                        $sub->whereNull('establecimiento_serie.vigente_desde')
-                            ->orWhere('establecimiento_serie.vigente_desde', '<=', now()->toDateString());
-                    })
-                    ->where(function ($sub) {
-                        $sub->whereNull('establecimiento_serie.vigente_hasta')
-                            ->orWhere('establecimiento_serie.vigente_hasta', '>=', now()->toDateString());
-                    })
-                    ->orderBy('orden');
+            ->with(['series' => function ($q) use ($cierre) {
+                $this->matriz->aplicarVigencia($q, $cierre);
+                $q->orderBy('orden');
             }])
             ->orderBy('nombre');
 

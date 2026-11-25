@@ -1,7 +1,8 @@
 # Estado del proyecto para la entrega
 
-Resumen para quien toma el proyecto. Fecha: 14 de noviembre de 2026.
+Resumen para quien toma el proyecto. Fecha: 24 de noviembre de 2026.
 Especificación vigente: [`specs/MVP_V2.md`](../../specs/MVP_V2.md).
+Canon: Constitución [v5.0.0](../../02-DOCS/wiki/sdd/constitution.md) (Laravel 12.72 + PHP 8.2 + Tailwind CSS v4).
 
 ## Qué está hecho
 
@@ -90,7 +91,15 @@ Después: [`docs/operacion/como-probar.md`](../operacion/como-probar.md).
 
 ## Números
 
-- **257 tests, 644 aserciones, 0 fallos.**
+- **261 tests, 649 aserciones, 0 fallos** (medido el 2026-11-24).
 - **3 roles y 16 permisos.**
 - **185.526 prestaciones** en el catálogo del Minsal sembrado.
 - Bandeja con 100 envíos: **0,72 s**. Matriz 30×7: **0,31 s**.
+- UI: **18 vistas** y **18 componentes Blade** sobre Tailwind v4; `public/build/` pesa 12 archivos.
+
+## Cómo se publica la interfaz
+
+El servidor no tiene Node. La UI se compila en local (`npm run build`) y
+`portal/public/build/` se versiona como artefacto: es lo que se sube por FTP.
+Si se cambia una vista, un icono o una clase de Tailwind sin recompilar, el
+despliegue sirve la interfaz anterior.

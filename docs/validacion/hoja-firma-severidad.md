@@ -63,6 +63,22 @@ source: docs/validacion/politica-severidad.md; docs/validacion/catalogo-errores-
 
 ---
 
+> **Actualización 2026-11-24 — qué sigue en pie de esta hoja.**
+>
+> - **D4 (plazo) quedó resuelta** el 14-11 (D-029): quinto día hábil del mes siguiente.
+>   Ya no hay nada que firmar en [`reglas-cierre-periodo.md`](reglas-cierre-periodo.md), que pasó a
+>   `status: vigente`.
+> - **D1 (identidad) quedó resuelta** el 14-11 (D-030): cuentas locales, sin recuperación por correo.
+>   El documento de 2FA quedó archivado en
+>   [`docs/_historico/decision-identidad-2fa.md`](../_historico/decision-identidad-2fa.md).
+> - **Tres códigos ya no se emiten** en v2.0: `ENV-021` y `ENV-022` dependen de V8 (excepciones), que
+>   está fuera del alcance; `ENV-032` (antivirus) no aplica.
+>
+> **Lo que sí se firma:** la severidad de los 29 códigos restantes y la matriz de series (D5). SAX
+> (D6) ya está decidido: fuera del MVP.
+
+---
+
 ## Si algo no está de acuerdo
 
 Anote el código y la severidad que corresponde:
@@ -96,7 +112,7 @@ Al firmar, se actualiza `status: firmada` en [`politica-severidad.md`](politica-
 | Documento | Qué confirma | Estado |
 |---|---|---|
 | [Matriz de series obligatorias](matriz-series-obligatorias.md) | Qué series debe cada establecimiento y que SAX queda fuera del MVP | Borrador · 3 preguntas |
-| [Reglas de cierre de período](reglas-cierre-periodo.md) | Día 10 configurable y cierre manual por el administrador | Borrador · 4 preguntas |
-| [Identidad y 2FA](../auth/decision-identidad-2fa.md) | Cuentas locales y segundo factor para revisores y admin | Borrador · 4 preguntas |
+| [Reglas de cierre de período](reglas-cierre-periodo.md) | Quinto día hábil del mes siguiente y cierre manual por el administrador | **Resuelta (D-029)** · vigente |
+| [Identidad y 2FA](../_historico/decision-identidad-2fa.md) | Cuentas locales y segundo factor para revisores y admin | **Resuelta (D-030)** · 2FA a v2.1 |
 
 Cada uno termina con una tabla de preguntas concretas. Con esas respuestas se cierra F0 entero.

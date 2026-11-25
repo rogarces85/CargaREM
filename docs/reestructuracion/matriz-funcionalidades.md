@@ -64,6 +64,6 @@ quedó archivada en [`docs/_historico/`](../_historico/).
 ## 4. Pendientes de verificación
 
 - [x] `php artisan migrate:fresh --seed` en la base de pruebas.
-- [x] Suite completa en verde (257 tests).
-- [ ] Barrido de referencias activas en README y manuales.
+- [x] Suite completa en verde (261 tests, 649 aserciones al 2026-11-24).
+- [x] Barrido de referencias activas en README y manuales ([cierre de la documentación](../../02-DOCS/feature-cierre-documentacion.md)).
 - [x] Recorrido encargado → revisor con el catálogo sembrado ([resultado](../uat/resultado-2026-11-14.md)); falta la UAT con personas.

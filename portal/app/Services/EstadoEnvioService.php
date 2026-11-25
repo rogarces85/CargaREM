@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Dominio\MatrizSeries;
 use App\Exceptions\EnvioInvalidoException;
 use App\Models\Envio;
 use App\Models\EnvioArchivo;
@@ -23,6 +24,10 @@ use Illuminate\Support\Facades\DB;
  */
 class EstadoEnvioService
 {
+    public function __construct(private readonly MatrizSeries $matriz)
+    {
+    }
+
     /**
      * Transiciones que una persona puede ejecutar.
      *
@@ -210,13 +215,15 @@ class EstadoEnvioService
             throw EnvioInvalidoException::aprobacionConBloqueantes($bloqueantes);
         }
 
-        // Solo las series activas: una serie desactivada no se puede subir, así
-        // que exigirla bloquearía la aprobación para siempre. Mismo criterio que
-        // V11 (ReglaV11Completitud) y que la matriz de completitud.
-        $exigidas = $envio->establecimiento->series()
-            ->where('series.activo', true)
-            ->wherePivot('obligatoria', true)
-            ->pluck('series.id');
+        // Las series exigidas se resuelven con la MISMA regla que V11
+        // (MatrizSeries), y con el cierre del período del envío. Antes esta
+        // consulta no filtraba la vigencia: una serie vencida seguía contando
+        // como faltante y el envío quedaba imposible de aprobar, aunque V11 y
+        // la matriz de completitud ya no la exigieran.
+        $exigidas = $this->matriz->idsExigidos(
+            $envio->establecimiento,
+            $this->matriz->cierreDelPeriodo((int) $envio->anio, (int) $envio->mes)
+        );
 
         $presentes = $envio->archivos()->where('es_vigente', true)->pluck('serie_id');
 

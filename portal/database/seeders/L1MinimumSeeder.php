@@ -78,7 +78,12 @@ class L1MinimumSeeder extends Seeder
         $establecimientos = [];
 
         foreach (self::ESTABLECIMIENTOS as $datos) {
-            $establecimientos[] = Establecimiento::updateOrCreate(
+            // `firstOrCreate`, no `updateOrCreate`: estos siete códigos existen
+            // en el catálogo real del Minsal. Si el catálogo ya se importó, el
+            // nombre bueno es el del catálogo y este seeder no puede pisarlo.
+            // Antes lo pisaba en cada `iniciar.bat`: «Hospital Base San José de
+            // Osorno» volvía a «Hospital Base San José».
+            $establecimientos[] = Establecimiento::firstOrCreate(
                 ['codigo' => $datos['codigo']],
                 [
                     'nombre'      => $datos['nombre'],
@@ -107,19 +112,31 @@ class L1MinimumSeeder extends Seeder
             );
         }
 
-        // Matriz: todos los establecimientos deben las seis series activas.
+        // Matriz de los establecimientos de prueba: todas las series activas.
+        //
+        // Solo se rellena donde **no hay ninguna fila**. `detach()` + `attach()`
+        // borraba la matriz que el administrador hubiera editado cada vez que se
+        // corría `db:seed`. Ahora la decisión del administrador sobrevive a
+        // cualquier siembra.
         DB::transaction(function () use ($establecimientos, $series) {
             foreach ($establecimientos as $establecimiento) {
-                $establecimiento->series()->detach();
+                if ($establecimiento->series()->exists()) {
+                    continue;
+                }
 
-                foreach ($series as $codigo => $serie) {
+                foreach ($series as $serie) {
                     if (! $serie->activo) {
                         continue;
                     }
 
                     $establecimiento->series()->attach($serie->id, [
                         'obligatoria'   => true,
-                        'vigente_desde' => '2026-01-01',
+                        // `null` y no una fecha: la regla es «rige desde
+                        // siempre». El importador usa el mismo valor; antes
+                        // había dos criterios para la misma noción y un período
+                        // anterior a 2026-01 se comportaba distinto según quién
+                        // hubiera creado la fila.
+                        'vigente_desde' => null,
                     ]);
                 }
             }

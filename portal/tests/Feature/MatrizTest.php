@@ -59,7 +59,13 @@ class MatrizTest extends TestCase
             ->assertSee('SERIE A');
     }
 
-    public function test_guarda_solo_las_series_marcadas_con_su_vigencia(): void
+    /**
+     * R-SER-06: «serie desmarcada» significa `obligatoria = 0`, no «fila
+     * borrada». La fila tiene que quedar: si se descarta, la serie desaparece
+     * de la matriz y la siguiente importación la vuelve a exigir, porque una
+     * matriz vacía se lee como «nadie configuró esto».
+     */
+    public function test_guarda_tambien_las_desmarcadas_con_obligatoria_en_falso(): void
     {
         $establecimiento = $this->establecimiento();
         $a = Serie::create(['codigo' => 'A', 'nombre' => 'SERIE A']);
@@ -74,9 +80,20 @@ class MatrizTest extends TestCase
             ])
             ->assertRedirect(route('admin.matriz.index'));
 
-        $this->assertSame(1, $establecimiento->series()->count());
-        $this->assertTrue((bool) $establecimiento->series->first()->pivot->obligatoria);
-        $this->assertSame('2026-01-01', $establecimiento->series->first()->pivot->vigente_desde);
+        $this->assertSame(2, $establecimiento->series()->count(), 'Las dos filas se guardan');
+
+        $filaA = $establecimiento->series->firstWhere('codigo', 'A');
+        $filaBS = $establecimiento->series->firstWhere('codigo', 'BS');
+
+        $this->assertTrue((bool) $filaA->pivot->obligatoria);
+        $this->assertSame('2026-01-01', $filaA->pivot->vigente_desde);
+        $this->assertFalse((bool) $filaBS->pivot->obligatoria, 'BS se acepta pero no cuenta');
+
+        // Y lo que importa: una desmarcada no se exige.
+        $this->assertSame(
+            ['A'],
+            app(\App\Dominio\MatrizSeries::class)->exigidas($establecimiento)->pluck('codigo')->all()
+        );
     }
 
     public function test_reemplaza_la_matriz_anterior(): void

@@ -17,6 +17,10 @@ Extensiones de PHP necesarias: `pdo_mysql`, `mbstring`, `fileinfo`, `zip`,
 
 ## Instalación desde cero
 
+> **Antes de subir nada: compilar la interfaz.** El servidor no tiene Node. La UI
+> (Tailwind CSS v4 + componentes Blade) se compila en la máquina de desarrollo y
+> el resultado viaja en `portal/public/build/`. Ver «La interfaz compilada».
+
 ```bash
 cd /var/www/cargas/portal
 
@@ -33,6 +37,21 @@ php artisan route:cache
 php artisan view:cache
 ```
 
+### La interfaz compilada
+
+`portal/public/build/` **sí se versiona**. Es el artefacto de Vite y contiene el CSS
+de Tailwind, el JavaScript y las fuentes Inter. Sin él, el portal responde sin
+estilos.
+
+| Cuándo | Qué hacer |
+|---|---|
+| Se cambió una vista, un componente, un icono o una clase de Tailwind | `npm run build` en local y subir `portal/public/build/` |
+| Solo se cambió PHP, reglas o textos en controladores | Nada: el build no cambia |
+| Se quiere comprobar antes de subir | `npm run check:contraste`: mide los pares de color y la paridad del tema oscuro |
+
+`npm run build` vacía el directorio en cada corrida: subir el directorio completo,
+no archivos sueltos.
+
 ### Variables que no pueden quedar mal
 
 | Variable | Valor en producción |
@@ -48,12 +67,13 @@ php artisan view:cache
 
 El servidor no tiene SSH confirmado, así que se sube por FTP:
 
-1. Comprimir el proyecto **sin** `vendor/`, `node_modules/`, `storage/logs/*`
-   ni `.env`.
-2. Subir y descomprimir donde corresponda.
-3. Subir el `.env` de producción por separado (nunca dentro del ZIP).
-4. Ejecutar `php artisan migrate --force` desde el panel o por cron único.
-5. Limpiar cachés: `php artisan optimize:clear` y volver a cachear.
+1. Compilar la UI: `npm run build` (ver «La interfaz compilada»).
+2. Comprimir el proyecto **sin** `vendor/`, `node_modules/`, `storage/logs/*`
+   ni `.env`. **Con** `public/build/`.
+3. Subir y descomprimir donde corresponda.
+4. Subir el `.env` de producción por separado (nunca dentro del ZIP).
+5. Ejecutar `php artisan migrate --force` desde el panel o por cron único.
+6. Limpiar cachés: `php artisan optimize:clear` y volver a cachear.
 
 ## Comprobar que está sano
 
@@ -132,6 +152,7 @@ semana y puede quedar 1 o 2 días más largo. Los feriados se cargan a mano
 |---|---|---|
 | `/health` da 503 | Base caída o credenciales | Revisar `.env` y el servicio de MySQL |
 | 500 en todas las páginas | `storage/` o `bootstrap/cache/` sin permiso de escritura | `chown -R www-data:www-data storage bootstrap/cache` |
+| **El portal se ve sin estilos** | `public/build/` no se subió o quedó desactualizado | `npm run build` en local y subir el directorio completo |
 | «La validación pide plantilla» | Catálogo no sembrado | `php artisan db:seed --class=CatalogoSeeder` con `REM_CATALOGO_DIR` |
 | Una validación tarda ~35 s | Excel de 1,5 MB y 30 hojas | Es el comportamiento esperado; el límite es 90 s |
 | «Hay 2 validaciones en curso» | Semáforo lleno | Reintentar; el límite protege la memoria |
@@ -150,7 +171,6 @@ semana y puede quedar 1 o 2 días más largo. Los feriados se cargan a mano
 
 | Tema | Riesgo |
 |---|---|
-
 | Paridad con el ValidadorRem sin verificar | El motor aplica las reglas documentadas, pero no está probado que coincida con el sistema anterior |
 | Sin snapshot de catálogo por archivo | Revalidar usa el catálogo vigente; se conservan hallazgos, hash y `validado_en` |
 | CSP permite estilos y scripts en línea | Se mitiga moviendo el JavaScript a archivos propios |

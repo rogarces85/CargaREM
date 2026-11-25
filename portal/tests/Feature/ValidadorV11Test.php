@@ -12,6 +12,7 @@ use App\Models\Serie;
 use App\Models\User;
 use App\Services\EnvioService;
 use App\Validacion\ValidadorArchivo;
+use Carbon\Carbon;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -204,5 +205,53 @@ class ValidadorV11Test extends TestCase
         $archivoA = $this->archivoDe($this->serieA, 'A');
 
         $this->assertSame(['ENV-025'], $this->hallazgosV11($archivoA));
+    }
+
+    /**
+     * La ventana de vigencia de la matriz (R-SER-03): una serie que dejó de
+     * exigirse antes del período del envío no se reclama.
+     *
+     * **La fecha se viaja a propósito, y a un punto que discrimina.** El envío
+     * es de 9/2026 y la serie vence el 31-08-2026. «Hoy» se fija el 15-08-2026:
+     * ese día la serie **todavía no venció**, pero el período del envío ya
+     * terminó después. Con la regla correcta (cierre del período) no se
+     * reclama; con la vieja (`now()`) sí, porque el 15-08 la vigencia seguía
+     * abierta. Es el único par de fechas que separa las dos implementaciones.
+     */
+    public function test_una_serie_con_vigencia_terminada_no_se_reclama(): void
+    {
+        $this->travelTo(Carbon::parse('2026-08-15'));
+
+        $this->establecimiento->series()->updateExistingPivot($this->serieBS->id, [
+            'vigente_hasta' => '2026-08-31',
+        ]);
+
+        $archivoA = $this->archivoDe($this->serieA, 'A');
+
+        $this->assertSame([], $this->hallazgosV11($archivoA), 'BS venció en agosto: el envío es de septiembre');
+
+        $this->travelBack();
+    }
+
+    public function test_una_serie_vigente_hasta_el_cierre_del_periodo_si_se_reclama(): void
+    {
+        $this->establecimiento->series()->updateExistingPivot($this->serieBS->id, [
+            'vigente_hasta' => '2026-09-30',
+        ]);
+
+        $archivoA = $this->archivoDe($this->serieA, 'A');
+
+        $this->assertSame(['ENV-025'], $this->hallazgosV11($archivoA));
+    }
+
+    public function test_una_serie_con_vigencia_futura_no_se_reclama_todavia(): void
+    {
+        $this->establecimiento->series()->updateExistingPivot($this->serieBS->id, [
+            'vigente_desde' => '2027-01-01',
+        ]);
+
+        $archivoA = $this->archivoDe($this->serieA, 'A');
+
+        $this->assertSame([], $this->hallazgosV11($archivoA), 'BS rige desde 2027: en septiembre no se debe');
     }
 }
