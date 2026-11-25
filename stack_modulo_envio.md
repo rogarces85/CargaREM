@@ -1,7 +1,21 @@
 # Stack propuesto: Módulo de envío de estadísticas por establecimiento
 
-**Estado:** propuesta provisional (no definitiva). Complementa la sección 2.10 de `informe.md`.
-**Última actualización:** documento de trabajo.
+> ⚠️ **Documento superado. No es el canon vigente.**
+>
+> Escrito antes de que existiera una decisión de stack. Proponía **Laravel 8 / PHP 7.4 / AdminLTE 3.2
+> (Bootstrap 4) + DataTables**; nada de eso rige.
+>
+> | Capa | Aquí se proponía | Vigente |
+> |---|---|---|
+> | Framework | Laravel 8 | **Laravel 12.72** (C-015) |
+> | PHP | 7.4 | **8.2** (C-015) |
+> | UI | AdminLTE 3.2 / Bootstrap 4 | **Tailwind CSS v4 + componentes Blade propios** (C-019) |
+> | Tablas | DataTables | **componente propio**, sin dependencia |
+>
+> **Vigente:** [`02-DOCS/wiki/sdd/constitution.md`](02-DOCS/wiki/sdd/constitution.md) §0 y
+> [`specs/MVP_V2.md`](specs/MVP_V2.md) §3. Se conserva como historial del razonamiento previo.
+
+**Estado original:** propuesta provisional (no definitiva). Complementa la sección 2.10 de `informe.md`.
 
 ---
 

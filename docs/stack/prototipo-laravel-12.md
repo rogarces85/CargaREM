@@ -11,6 +11,13 @@ status: promovido
 # Prototipo Laravel 12
 
 > **Promovido el 2026-11-11:** este prototipo se convirtió en el portal. `portal-l12/` pasó a ser `portal/` y la rama `prototype/laravel-12` a `feature/f1-laravel-12`, tras cerrar D-STACK con C-015. Se conserva como registro de por qué se descartaron Laravel 8, 10 y 11.
+>
+> **Desactualizado en dos puntos, por decisiones posteriores.** Se dejan como estaban para no reescribir el registro:
+>
+> - **`vite.config.js`** (§4) ya **no** se puede borrar: es la herramienta de compilación de la UI desde C-019.
+> - **Los assets de AdminLTE** (§4) ya **no** se copian: se retiraron en la Fase 6 del rediseño (C-019). La UI es Tailwind CSS v4.
+>
+> Lo demás —el diff estructural, las dos trampas y el costo— sigue siendo válido.
 
 ---
 

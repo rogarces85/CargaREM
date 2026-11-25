@@ -1,7 +1,8 @@
 # REVIEW.md — qué mira el revisor en Cargas
 
-> Ratificado con la constitución v1.0.0 (2026-11-06). Si este archivo contradice
-> `02-DOCS/wiki/sdd/constitution.md`, manda la constitución. Se enmienda como ella: nunca en silencio.
+> Ratificado con la constitución v1.0.0 (2026-11-06); revisado contra la v5.0.0 (2026-11-24). Si este
+> archivo contradice `02-DOCS/wiki/sdd/constitution.md`, manda la constitución. Se enmienda como ella:
+> nunca en silencio.
 
 ## Qué es un fallo grave aquí
 
@@ -23,16 +24,20 @@ Un cambio no se aprueba si comete alguno de estos, aunque "funcione":
    `Content-Disposition: attachment` y `nosniff` (principio 19).
 7. **SQL concatenado** o `{!! !!}` con datos de usuario; XSS o inyección evitable (principio 20).
 8. **Secreto, `.env`, `.mdb`, `.sql` con datos o archivo REM real en el diff** (principio 22).
-9. **Dependencia que exige un runtime fuera de las restricciones del servidor** mientras D-STACK
-   esté abierta (principios 1–2).
+9. **Dependencia que exige un runtime fuera de las restricciones del servidor** (principios 1–2).
 10. **Funcionalidad que depende de cron, cola o SSH** para completarse (principio 3).
 11. **Texto de interfaz o estado en inglés** cuando corresponde español (principio 11).
+12. **Clase de Tailwind construida por interpolación** (`bg-{{ $estado }}`): el compilador no la
+    genera y el elemento sale sin estilo, en silencio (principios 29–31).
+13. **Cambio de UI sin recompilar `public/build/`**: el servidor no tiene Node y sirve el artefacto
+    anterior (principio 31).
 
 ## Rutas que no se revisan
 
 - `vendor/`, `node_modules/` y cualquier dependencia instalada.
 - `storage/`, `bootstrap/cache/` y logs.
-- `public/assets/vendor/` (AdminLTE, Bootstrap, Chart.js, DataTables) y `*.min.*`.
+- `portal/public/build/` (artefacto compilado por Vite: se revisa que se haya recompilado, no su
+  contenido) y `*.min.*`.
 - `Flujos/*.png`, `docs/*.svg` y binarios: se revisa que existan, no su contenido.
 - `composer.lock` / `package-lock.json`: se revisa que el cambio sea intencional, no línea por línea.
 

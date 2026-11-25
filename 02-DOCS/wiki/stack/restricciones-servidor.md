@@ -9,9 +9,16 @@ topic: stack
 
 # Restricciones del servidor
 
-> **Esto es evidencia, no una elección de stack.** La elección está abierta en
-> [`decision-stack.md`](decision-stack.md) (D-STACK reabierta). Este artículo registra qué se sabe,
-> qué se corrigió y qué falta confirmar.
+> **Evidencia previa a C-015. No es el canon.** Este diagnóstico del 2026-11-06 es el que abrió
+> D-STACK y terminó en el pedido de PHP 8.2. El 2026-11-12 **TI confirmó PHP 8.2** en el vhost, y
+> la Constitución v5.0.0 fija el canon: Laravel 12.72 + PHP 8.2 + Tailwind CSS v4.
+>
+> Se conserva porque explica **por qué** se pidió el cambio de versión y qué límites del servidor
+> siguen vigentes: `upload_max_filesize=2M`, `post_max_size=8M`, sin `opcache`, sin SSH y
+> despliegue por FTP.
+>
+> **Vigente:** [`sdd/constitution.md`](../sdd/constitution.md) §0 y
+> [`docs/infra/solicitud-php-82-ti.md`](../../../docs/infra/solicitud-php-82-ti.md).
 
 ## 1. Confirmado por diagnóstico directo
 
@@ -50,30 +57,29 @@ La investigación previa asumió PHP 8.3 basándose en el sistema de Observacion
 
 ## 4. Sin confirmar (bloquea decisiones)
 
+> **Actualización 2026-11-12:** TI confirmó PHP 8.2 para el vhost. Las dos primeras filas quedaron
+> resueltas; el resto sigue abierto y se sigue operando por FTP.
+
 | Dato | Por qué importa | Cómo se cierra |
 |---|---|---|
-| ¿Se puede actualizar Ubuntu/PHP? | Define si el stack puede ser PHP 8 / framework moderno | Respuesta de TI del SS Osorno |
-| ¿Se puede instalar PHP-FPM 8.3 para este vhost? | Permitiría Laravel 13 sin tocar el Apache principal | Respuesta de TI |
-| ¿Existe SSH para el usuario del proyecto? | Requerido para `composer`, `artisan`, migraciones | Respuesta de TI |
-| ¿Se puede habilitar `opcache` y `pdo_sqlite`? | Requeridas por Laravel 13 | `apt install php7.4-opcache php7.4-sqlite3` si se queda en 7.4 |
+| ~~¿Se puede actualizar Ubuntu/PHP?~~ | **Resuelto:** TI habilitó PHP 8.2 | — |
+| ~~¿Se puede instalar PHP-FPM 8.2 para este vhost?~~ | **Resuelto:** es el runtime del despliegue | — |
+| ¿Existe SSH para el usuario del proyecto? | Requerido para `composer`, `artisan`, migraciones | Respuesta de TI. Hoy se trabaja por FTP |
+| ¿Se puede habilitar `opcache`? | Rendimiento: sin él, cada petición recompila | `apt install php8.2-opcache` |
 | Cuota y ruta de respaldos | Define retención y operación | Respuesta de TI |
 | Antivirus disponible (ClamAV) | Control de archivos maliciosos | Respuesta de TI |
 
-## 5. Cómo confirmar si hay PHP-FPM disponible
+## 5. Cómo se confirmó PHP-FPM disponible
 
-Si TI dice que no se puede tocar el Apache principal, preguntar:
-
-1. ¿Hay un pool PHP-FPM 8.2/8.3 corriendo en el servidor?
-2. ¿Se puede crear uno nuevo para `sist_envios` en el puerto 9000/9001?
-3. ¿El vhost puede usar `ProxyPassMatch` a ese pool?
-
-Si la respuesta es sí, la Opción A (Laravel 13) vuelve a ser viable sin actualizar Ubuntu.
+Se preguntó a TI si había un pool PHP-FPM 8.2/8.3 corriendo en el servidor. **La respuesta fue sí:**
+PHP 8.2 quedó habilitado para el vhost del portal, que es lo que sostiene el canon Laravel 12.72.
 
 ## 6. Lo que ninguna propuesta puede asumir
 
 - Que el servidor se actualizará «mientras tanto».
 - Que habrá SSH, Composer o Artisan en producción (probable, no confirmado).
 - Que una cola o un worker resolverá el tiempo de validación.
-- Que se puede subir un mes completo en una petición.
+- Que se puede subir un mes completo en una petición (`upload_max_filesize=2M` sigue vigente).
 - Que Access (`Global.mdb`) es el almacén del portal: es fuente histórica, no destino concurrente.
-- Que `pdo_sqlite`, `opcache` y `bcmath` están disponibles (hoy **no** lo están).
+- Que `opcache`, `pdo_sqlite` y `bcmath` están disponibles (hoy **no** lo están).
+- Que el servidor compila la UI: no tiene Node. Se sube `portal/public/build/` ya compilado.
