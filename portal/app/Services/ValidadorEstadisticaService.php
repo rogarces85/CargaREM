@@ -4,9 +4,11 @@ namespace App\Services;
 
 use App\Models\User;
 use App\Models\ValidadorEjecucion;
+use App\Validador\ArchivoNoValidable;
 use App\Validador\CatalogoCalidad;
-use App\Validador\HallazgoCalidad;
-use App\Validador\MotorValidador;
+use App\Validador\NominaEstablecimientos;
+use App\Validador\ResultadoEstadistico;
+use App\Validador\ValidadorEstadistico;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -15,9 +17,10 @@ use Throwable;
 /**
  * Módulo Validador (RF-040, D-047).
  *
- * Revisa un Excel suelto con las reglas de calidad de la Unidad y registra la
- * ejecución. **No interviene en el proceso estadístico:** no crea envíos, no
- * cambia estados, no escribe en `validaciones`. Hay un test que lo comprueba.
+ * Revisa un Excel REM suelto con el catálogo de reglas de la Unidad y registra
+ * la ejecución. **No interviene en el proceso estadístico:** no crea envíos,
+ * no cambia estados y no escribe en `validaciones`. Hay un test que lo
+ * comprueba contando las cuatro tablas del flujo antes y después.
  *
  * El archivo se guarda en disco privado con nombre generado y se conserva 90
  * días (`rem:validador:limpiar`). La fila de registro se queda: es el dato de
@@ -28,104 +31,60 @@ class ValidadorEstadisticaService
     /** Días que se guarda el archivo subido. */
     public const RETENCION_DIAS = 90;
 
-    public function __construct(private readonly MotorValidador $motor)
+    public function __construct(private readonly ValidadorEstadistico $validador)
     {
     }
 
     /**
      * Ejecuta el Validador sobre un archivo subido.
      *
-     * @return array{ejecucion: ValidadorEjecucion, catalogo: CatalogoCalidad}
+     * @return array{ejecucion: ValidadorEjecucion, resultado: ResultadoEstadistico}
      */
     public function ejecutar(User $usuario, UploadedFile $archivo): array
     {
-        $catalogo = CatalogoCalidad::desdeArchivo();
         $inicio = microtime(true);
-
         $hash = hash_file('sha256', $archivo->getRealPath());
-        $ruta = $this->guardar($archivo, $usuario);
+        $ruta = $this->guardar($archivo, $hash);
 
         try {
-            $hallazgos = $this->motor->ejecutar(
+            $resultado = $this->validador->validar(
                 Storage::disk(config('rem.archivos.disco'))->path($ruta),
-                $catalogo
+                $archivo->getClientOriginalName(),
             );
-        } catch (Throwable $e) {
-            // Una ejecución fallida también se registra: si el archivo no se
-            // puede abrir, el administrador tiene que poder verlo.
-            $ejecucion = $this->registrar($usuario, $archivo, $ruta, $hash, $catalogo, [], $inicio, $e->getMessage());
+        } catch (ArchivoNoValidable $e) {
+            // Un archivo que no entra no es un hallazgo: es un rechazo con
+            // motivo. Se registra igual, para que el administrador vea que
+            // alguien lo intentó y por qué no pasó.
+            $ejecucion = $this->registrarRechazo($usuario, $archivo, $ruta, $hash, $e, $inicio);
 
-            throw new \RuntimeException('No se pudo revisar el archivo: ' . $e->getMessage(), 0, $e);
+            throw $e;
+        } catch (Throwable $e) {
+            $this->registrarRechazo(
+                $usuario,
+                $archivo,
+                $ruta,
+                $hash,
+                new ArchivoNoValidable('No se pudo revisar el archivo: ' . $e->getMessage()),
+                $inicio,
+            );
+
+            throw new ArchivoNoValidable('No se pudo revisar el archivo: ' . $e->getMessage(), [], 0, $e);
         }
 
-        $ejecucion = $this->registrar($usuario, $archivo, $ruta, $hash, $catalogo, $hallazgos, $inicio, null);
+        $ejecucion = $this->registrar($usuario, $archivo, $ruta, $hash, $resultado, $inicio);
 
         AuditoriaService::registrarSobre('validador.ejecutado', $ejecucion, [
-            'reglas'      => $catalogo->version,
-            'hallazgos'   => $ejecucion->hallazgos,
-            'bloqueantes' => $ejecucion->bloqueantes,
+            'reglas'      => $resultado->catalogo->version,
+            'hallazgos'   => $resultado->resumen->hallazgos,
+            'bloqueantes' => $resultado->resumen->erroresBloqueantes,
+            'veredicto'   => $resultado->resumen->veredicto,
         ]);
 
-        return ['ejecucion' => $ejecucion, 'catalogo' => $catalogo];
+        return ['ejecucion' => $ejecucion, 'resultado' => $resultado];
     }
 
     /**
-     * @param  list<HallazgoCalidad>  $hallazgos
-     */
-    private function registrar(
-        User $usuario,
-        UploadedFile $archivo,
-        string $ruta,
-        string $hash,
-        CatalogoCalidad $catalogo,
-        array $hallazgos,
-        float $inicio,
-        ?string $error,
-    ): ValidadorEjecucion {
-        $bloqueantes = count(array_filter($hallazgos, fn (HallazgoCalidad $h) => $h->esBloqueante()));
-        $advertencias = count($hallazgos) - $bloqueantes;
-
-        $estado = match (true) {
-            $error !== null => ValidadorEjecucion::FALLIDO,
-            $bloqueantes > 0, count($hallazgos) > 0 => ValidadorEjecucion::CON_HALLAZGOS,
-            default => ValidadorEjecucion::SIN_HALLAZGOS,
-        };
-
-        return ValidadorEjecucion::create([
-            'usuario_id'      => $usuario->id,
-            'nombre_original' => mb_substr($archivo->getClientOriginalName(), 0, 255),
-            'ruta'            => $ruta,
-            'sha256'          => $hash,
-            'tamano_bytes'    => (int) $archivo->getSize(),
-            'reglas_version'  => $catalogo->version,
-            'hallazgos'       => count($hallazgos),
-            'bloqueantes'     => $bloqueantes,
-            'advertencias'    => $advertencias,
-            'duracion_ms'     => (int) round((microtime(true) - $inicio) * 1000),
-            'resultado'       => [
-                'reglas'    => $catalogo->nombre,
-                'error'     => $error,
-                'hallazgos' => array_map(fn (HallazgoCalidad $h) => $h->aArreglo(), $hallazgos),
-            ],
-            'estado'          => $estado,
-        ]);
-    }
-
-    /** Guarda el archivo en disco privado, con nombre generado. */
-    private function guardar(UploadedFile $archivo, User $usuario): string
-    {
-        $carpeta = sprintf('validador/%s/%s', now()->format('Y/m'), $usuario->id);
-
-        // `storeAs` con nombre derivado del hash: el nombre original se guarda
-        // en la fila, pero en disco nunca se usa el que subió el usuario
-        // (Constitución, principio 19).
-        $nombre = hash_file('sha256', $archivo->getRealPath()) . '.' . $archivo->getClientOriginalExtension();
-
-        return $archivo->storeAs($carpeta, $nombre, config('rem.archivos.disco'));
-    }
-
-    /**
-     * Uso agregado por usuario y mes (RF-040.2).
+     * Uso agregado por usuario y año (RF-040.2).
      *
      * @return \Illuminate\Support\Collection<int, object>
      */
@@ -163,6 +122,25 @@ class ValidadorEstadisticaService
         return $serie;
     }
 
+    /** Metadatos del catálogo, para mostrarle al usuario qué reglas corren. */
+    public function catalogo(): ?CatalogoCalidad
+    {
+        try {
+            return CatalogoCalidad::desdeArchivo();
+        } catch (Throwable) {
+            return null;
+        }
+    }
+
+    public function nomina(): ?NominaEstablecimientos
+    {
+        try {
+            return NominaEstablecimientos::desdeArchivo();
+        } catch (Throwable) {
+            return null;
+        }
+    }
+
     /** Borra los archivos con más de la retención; conserva el registro. */
     public function limpiarAntiguos(): int
     {
@@ -193,5 +171,76 @@ class ValidadorEstadisticaService
             });
 
         return $borrados;
+    }
+
+    private function registrar(
+        User $usuario,
+        UploadedFile $archivo,
+        string $ruta,
+        string $hash,
+        ResultadoEstadistico $resultado,
+        float $inicio,
+    ): ValidadorEjecucion {
+        $resumen = $resultado->resumen;
+
+        return ValidadorEjecucion::create([
+            'usuario_id'      => $usuario->id,
+            'nombre_original' => mb_substr($archivo->getClientOriginalName(), 0, 255),
+            'ruta'            => $ruta,
+            'sha256'          => $hash,
+            'tamano_bytes'    => (int) $archivo->getSize(),
+            'reglas_version'  => $resultado->catalogo->version,
+            'hallazgos'       => $resumen->hallazgos,
+            'bloqueantes'     => $resumen->erroresBloqueantes,
+            'advertencias'    => $resumen->revisar,
+            'duracion_ms'     => (int) round((microtime(true) - $inicio) * 1000),
+            'resultado'       => $resultado->aArreglo(),
+            'estado'          => match (true) {
+                $resumen->hallazgos === 0 => ValidadorEjecucion::SIN_HALLAZGOS,
+                default                   => ValidadorEjecucion::CON_HALLAZGOS,
+            },
+        ]);
+    }
+
+    private function registrarRechazo(
+        User $usuario,
+        UploadedFile $archivo,
+        string $ruta,
+        string $hash,
+        ArchivoNoValidable $error,
+        float $inicio,
+    ): ValidadorEjecucion {
+        return ValidadorEjecucion::create([
+            'usuario_id'      => $usuario->id,
+            'nombre_original' => mb_substr($archivo->getClientOriginalName(), 0, 255),
+            'ruta'            => $ruta,
+            'sha256'          => $hash,
+            'tamano_bytes'    => (int) $archivo->getSize(),
+            'reglas_version'  => '—',
+            'hallazgos'       => 0,
+            'bloqueantes'     => 0,
+            'advertencias'    => 0,
+            'duracion_ms'     => (int) round((microtime(true) - $inicio) * 1000),
+            'resultado'       => [
+                'metadatos' => ['nombre' => $archivo->getClientOriginalName()],
+                'resumen'   => [],
+                'error'     => $error->getMessage(),
+                'detalles'  => $error->detalles,
+                'hallazgos' => [],
+            ],
+            'estado'          => ValidadorEjecucion::FALLIDO,
+        ]);
+    }
+
+    /** Guarda el archivo en disco privado, con nombre generado. */
+    private function guardar(UploadedFile $archivo, string $hash): string
+    {
+        $carpeta = sprintf('validador/%s/%s', now()->format('Y/m'), auth()->id() ?? 0);
+
+        // El nombre en disco lo deriva el hash: el original se guarda en la
+        // fila, pero nunca se usa como ruta (Constitución, principio 19).
+        $nombre = $hash . '.' . strtolower($archivo->getClientOriginalExtension());
+
+        return $archivo->storeAs($carpeta, $nombre, config('rem.archivos.disco'));
     }
 }

@@ -36,7 +36,7 @@ class EquipoRemSeeder extends Seeder
      * @var list<array{nombre: string, email: string}>
      */
     public const INTEGRANTES = [
-        ['nombre' => 'Roxana Macilla', 'email' => 'roxana.macilla@ssosorno.cl'],
+        ['nombre' => 'Roxana Mancilla', 'email' => 'roxana.mancilla@ssosorno.cl'],
         ['nombre' => 'Marcelo Horstmeir', 'email' => 'marcelo.horstmeir@ssosorno.cl'],
         ['nombre' => 'Victoria Martínez', 'email' => 'victoria.martinez@ssosorno.cl'],
         ['nombre' => 'Rodrigo Garcés', 'email' => 'rodrigo.garces@ssosorno.cl'],

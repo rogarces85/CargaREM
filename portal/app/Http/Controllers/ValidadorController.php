@@ -4,18 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Models\ValidadorEjecucion;
 use App\Services\ValidadorEstadisticaService;
-use App\Validador\CatalogoCalidad;
+use App\Validador\ArchivoNoValidable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Throwable;
 
 /**
  * Módulo Validador (RF-040).
  *
  * Disponible para todos los usuarios con `validador.usar`. El encargado lo usa
  * para revisar su propio archivo antes de subirlo; el Equipo REM, para revisar
- * la calidad de lo que ya llegó. El flujo de envío no lo conoce.
+ * la calidad de lo que ya llegó. **El flujo de envío no lo conoce.**
  */
 class ValidadorController extends Controller
 {
@@ -30,21 +29,16 @@ class ValidadorController extends Controller
             ->orderByDesc('created_at')
             ->paginate(10);
 
-        $catalogo = null;
-
-        try {
-            $catalogo = CatalogoCalidad::desdeArchivo();
-        } catch (Throwable $e) {
-            // Si el archivo de reglas falta o está mal, la pantalla lo dice en
-            // vez de reventar: el usuario necesita saber que la herramienta no
-            // está operativa, no un error 500.
-            $errorCatalogo = $e->getMessage();
-        }
+        $catalogo = $this->validador->catalogo();
+        $nomina = $this->validador->nomina();
 
         return view('validador.index', [
-            'ejecuciones'    => $ejecuciones,
-            'catalogo'       => $catalogo,
-            'errorCatalogo'  => $errorCatalogo ?? null,
+            'ejecuciones'   => $ejecuciones,
+            'catalogo'      => $catalogo,
+            'nomina'        => $nomina,
+            'errorCatalogo' => $catalogo === null
+                ? 'El archivo de reglas del Validador no se puede leer.'
+                : null,
         ]);
     }
 
@@ -62,17 +56,17 @@ class ValidadorController extends Controller
 
         try {
             $resultado = $this->validador->ejecutar($request->user(), $request->file('archivo'));
-        } catch (Throwable $e) {
-            return back()->withErrors(['archivo' => $e->getMessage()]);
+        } catch (ArchivoNoValidable $e) {
+            return back()->withErrors([
+                'archivo' => $e->getMessage() . ($e->detalles === [] ? '' : ' ' . implode(' ', $e->detalles)),
+            ]);
         }
 
-        $ejecucion = $resultado['ejecucion'];
-
         return redirect()
-            ->route('validador.show', $ejecucion)
-            ->with('ok', $ejecucion->hallazgos === 0
+            ->route('validador.show', $resultado['ejecucion'])
+            ->with('ok', $resultado['resultado']->resumen->hallazgos === 0
                 ? 'Revisión terminada sin hallazgos.'
-                : "Revisión terminada: {$ejecucion->hallazgos} hallazgo(s).");
+                : 'Revisión terminada: ' . $resultado['resultado']->resumen->hallazgos . ' hallazgo(s).');
     }
 
     public function show(Request $request, ValidadorEjecucion $ejecucion): View
@@ -83,7 +77,11 @@ class ValidadorController extends Controller
             403
         );
 
-        return view('validador.show', ['ejecucion' => $ejecucion]);
+        return view('validador.show', [
+            'ejecucion'  => $ejecucion,
+            'resultado'  => $ejecucion->resultado ?? [],
+            'hallazgos'  => $ejecucion->listaHallazgos(),
+        ]);
     }
 
     /** Registro de uso agregado, solo para el administrador. */
@@ -98,6 +96,7 @@ class ValidadorController extends Controller
             'porUsuario' => $this->validador->usoPorUsuario($anio),
             'porMes'     => $this->validador->porMes($anio),
             'total'      => ValidadorEjecucion::whereYear('created_at', $anio)->count(),
+            'catalogo'   => $this->validador->catalogo(),
         ]);
     }
 }

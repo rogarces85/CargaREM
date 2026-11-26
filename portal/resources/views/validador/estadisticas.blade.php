@@ -22,6 +22,12 @@
         <x-ui.alert tono="info">
             El registro sirve para saber si la herramienta se usa y con qué resultado. No hay cuota ni bloqueo:
             un módulo de ayuda que castiga por usarlo se deja de usar.
+            @if ($catalogo)
+                <span class="block pt-1">
+                    Catálogo vigente: <strong>{{ $catalogo->version }}</strong>
+                    ({{ $catalogo->total() }} reglas).
+                </span>
+            @endif
         </x-ui.alert>
 
         <x-ui.card class="p-5">

@@ -50,7 +50,7 @@ Portal web para que los establecimientos de salud suban su REM mensual (Excel), 
 
 | Nombre | Asignación |
 |---|---|
-| Roxana Macilla | La define el administrador |
+| Roxana Mancilla | La define el administrador |
 | Marcelo Horstmeir | La define el administrador |
 | Victoria Martínez | La define el administrador |
 | Rodrigo Garcés | La define el administrador |
@@ -117,9 +117,14 @@ Los RF-001 a RF-039 de la v2 siguen vigentes. Se agregan:
 
 ### Validador (MOD-12)
 
-- **RF-040** Módulo de revisión independiente: cualquier usuario autenticado sube un Excel REM y lo contrasta contra las reglas del archivo de configuración de la Unidad. No crea envíos, no cambia estados y no sustituye la validación V0–V11.
-- **RF-040.1** Cada ejecución registra autor, archivo, hash, versión de reglas, hallazgos y duración.
+- **RF-040** Módulo de revisión independiente: cualquier usuario autenticado sube un Excel REM y lo contrasta contra el **catálogo real de 144 reglas** de la Unidad (23 hojas REM, series A y P). No crea envíos, no cambia estados y no sustituye la validación V0–V11.
+- **RF-040.1** Cada ejecución registra autor, archivo, hash, versión del catálogo, hallazgos y duración.
 - **RF-040.2** El administrador ve el registro agregado por usuario, mes y resultado.
+- **RF-040.3** La revisión pasa por cinco etapas en este orden: nombre del archivo, apertura del libro, hojas obligatorias de la serie, establecimiento en la nómina y hoja NOMBRE; después, las reglas de negocio de la serie.
+- **RF-040.4** Una regla puede terminar en CUMPLE, HALLAZGO, OMITIDA o ERROR_TÉCNICO. Una regla omitida **no cuenta como cumplida**.
+- **RF-040.5** El motor debe coincidir con el Validador de escritorio sobre sus archivos de prueba. Las diferencias se declaran con su causa; una diferencia nueva rompe el test.
+
+> **El catálogo no es definitivo.** La Unidad lo está depurando. Actualizarlo es copiar `reglas_finales.json` a `portal/config/validador/reglas.json` y correr la suite: el test de paridad avisa si algo dejó de leerse.
 
 ### Avisos de subida (MOD-09)
 

@@ -7,7 +7,7 @@
 
         <x-ui.page-header
             titulo="Validador de calidad"
-            subtitulo="Revisa un Excel REM con las reglas de la Unidad. No modifica ningún envío."
+            subtitulo="Revisa un Excel REM con el catálogo de reglas de la Unidad. No modifica ningún envío."
             :migas="['Panel' => route('panel'), 'Validador' => null]"
         >
             @can('validador.estadisticas')
@@ -22,8 +22,7 @@
 
         @if ($errorCatalogo)
             <x-ui.alert tono="danger">
-                <span class="font-medium">El archivo de reglas no se puede leer.</span>
-                {{ $errorCatalogo }}
+                <span class="font-medium">{{ $errorCatalogo }}</span>
                 Mientras siga así, el Validador no puede ejecutarse.
             </x-ui.alert>
         @else
@@ -34,10 +33,20 @@
 
             <x-ui.card class="p-5">
                 <h2 class="text-sm font-semibold">Revisar un archivo</h2>
+
                 <p class="mt-1 text-xs text-muted-foreground">
-                    Reglas cargadas: <strong>{{ $catalogo->nombre }}</strong> (versión {{ $catalogo->version }},
-                    {{ count($catalogo->reglas) }} regla(s)). Máximo
-                    {{ config('rem.archivos.max_kb') }} KB, .xls/.xlsx/.xlsm.
+                    Catálogo: <strong>{{ $catalogo->version }}</strong>,
+                    {{ $catalogo->total() }} regla(s) en {{ count($catalogo->hojas()) }} hoja(s).
+                    Nómina: {{ $nomina?->total() ?? 0 }} establecimientos.
+                    Máximo {{ config('rem.archivos.max_kb') }} KB.
+                </p>
+
+                {{-- El archivo se reconoce por su nombre: [código 6][serie][mes].
+                     Decirlo aquí evita el rechazo que más confunde. --}}
+                <p class="mt-2 rounded-lg bg-muted px-3 py-2 text-xs text-muted-foreground">
+                    El nombre del archivo tiene que seguir el formato DEIS:
+                    <code class="rounded bg-card px-1 py-0.5">123100A02.xlsx</code>
+                    (código de 6 dígitos, serie y mes). La serie P se informa en 06 y 12.
                 </p>
 
                 <form method="POST" action="{{ route('validador.store') }}" enctype="multipart/form-data"
@@ -91,8 +100,13 @@
                                 <td>
                                     <span class="flex flex-wrap items-center gap-1">
                                         <x-ui.estado :valor="$ejecucion->estado" />
+
                                         @if ($ejecucion->bloqueantes > 0)
-                                            <x-ui.badge tono="danger">{{ $ejecucion->bloqueantes }} bloqueante(s)</x-ui.badge>
+                                            <x-ui.badge tono="danger">{{ $ejecucion->bloqueantes }} error(es)</x-ui.badge>
+                                        @endif
+
+                                        @if ($ejecucion->advertencias > 0)
+                                            <x-ui.badge tono="warn">{{ $ejecucion->advertencias }} a revisar</x-ui.badge>
                                         @endif
                                     </span>
                                 </td>

@@ -51,4 +51,21 @@ class ValidadorEjecucion extends Model
     {
         return $this->resultado['hallazgos'] ?? [];
     }
+
+    /** Resumen del veredicto, o null si la ejecución no llegó a producir uno. */
+    public function resumen(): ?array
+    {
+        return $this->resultado['resumen'] ?? null;
+    }
+
+    public function veredicto(): string
+    {
+        return $this->resumen()['veredicto'] ?? '—';
+    }
+
+    /** Metadatos que el Validador leyó del nombre y de la portada. */
+    public function metadatos(): array
+    {
+        return $this->resultado['metadatos'] ?? [];
+    }
 }
