@@ -314,6 +314,39 @@
                         </p>
                     @endif
                 @endforelse
+
+                {{-- Reapertura (RF-044.2, D-043). Solo sobre un envío aprobado y con
+                     permiso: la operación deshace una aprobación y por eso pide motivo. --}}
+                @can('reabrir', $envio)
+                    <form method="POST" action="{{ route('revision.reabrir', $envio) }}" class="mt-4 space-y-3 border-t border-border pt-4">
+                        @csrf
+
+                        <p class="text-sm">
+                            <span class="font-medium">Reabrir el envío</span><br>
+                            <span class="text-xs text-muted-foreground">
+                                Vuelve a «Observado» para que el establecimiento suba una corrección.
+                                Queda en el historial y el encargado recibe el aviso.
+                            </span>
+                        </p>
+
+                        @error('reabrir')
+                            <p class="campo-error">
+                                <x-ui.icon name="circle-exclamation-point" class="mt-px size-3.5 shrink-0" />
+                                <span>{{ $message }}</span>
+                            </p>
+                        @enderror
+
+                        <x-ui.field nombre="motivo" etiqueta="Motivo de la reapertura">
+                            <textarea name="motivo" id="motivo" rows="2" maxlength="500" required
+                                      class="textarea" placeholder="Qué está mal y qué debe volver a subir"></textarea>
+                        </x-ui.field>
+
+                        <button type="submit" class="btn btn-warning w-full">
+                            <x-ui.icon name="rotate-ccw" class="size-4" />
+                            Reabrir envío
+                        </button>
+                    </form>
+                @endcan
             </x-ui.card>
 
             {{-- Historial --}}

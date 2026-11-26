@@ -5,18 +5,28 @@ recomendación técnica con su justificación, la consecuencia de adoptarla y qu
 cambiaría si se rechaza.
 
 **D4 (plazo) quedó resuelta el 2026-11-14:** quinto día hábil del mes siguiente,
-con calendario de feriados de Chile (D-029). **D1 (identidad) quedó resuelta el
-2026-11-14:** cuentas locales creadas por el administrador, correo válido sin
-dominio obligatorio y reset por el administrador (D-030). Las que siguen
-abiertas son D5 (matriz de series) y D6 (SAX).
+con calendario de feriados de Chile (D-029), y **automatizada el 2026-11-26**
+(D-046: el calendario se genera solo y se verifica). **D1 (identidad) quedó
+resuelta el 2026-11-14:** cuentas locales creadas por el administrador, correo
+válido sin dominio obligatorio y reset por el administrador (D-030).
 
-Están **adoptadas técnicamente** para no detener el desarrollo: el sistema ya se
-comporta como se describe aquí. Falta la firma del referente para que dejen de
-ser propuestas.
+**D5 y D6 quedaron cerradas el 2026-11-26:** se exigen todas las series activas
+al importar y el administrador ajusta desde la matriz (D-038); la serie P se
+informa solo en los períodos 06 y 12 (D-045); SAX queda fuera del alcance
+(D-006).
+
+Lo que sigue no es una decisión abierta sino un pendiente de operación:
+
+| Pendiente | Quién |
+|---|---|
+| Cargar el `.json` de reglas del módulo Validador | Unidad de Estadísticas |
+| Confirmar nombres y correos de los cuatro integrantes del Equipo REM | Unidad de Estadísticas |
+| Repartir los establecimientos entre los revisores | Administrador del portal |
+| Ejecutar el guion de UAT | Unidad de Estadísticas |
 
 ---
 
-## D5 — Matriz de series obligatorias
+## D5 — Matriz de series obligatorias — CERRADA (D-038 y D-045)
 
 **Recomendación:** todo establecimiento activo exige **las seis series del MVP**
 (A, BS, BM, D, P, F) desde el primer período. Las excepciones se cargan una por
@@ -39,7 +49,7 @@ regla desde la pantalla de matriz.
 
 ---
 
-## Severidad de los códigos
+## Severidad de los códigos — adopción técnica (v2)
 
 **Recomendación:** adoptar la severidad tal como está implementada, que sigue el
 catálogo del Módulo M7 con dos excepciones documentadas.

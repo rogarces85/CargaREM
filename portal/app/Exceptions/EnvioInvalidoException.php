@@ -85,4 +85,64 @@ public static function aprobacionConObservaciones(int $abiertas): self
     {
         return new self('APP-ENV-011', "Falta(n) {$faltantes} serie(s) exigida(s) por la matriz: el envío no está completo.");
     }
+
+    public static function reaperturaSinMotivo(): self
+    {
+        return new self(
+            'APP-ENV-013',
+            'Para reabrir un envío hay que explicar por qué: escriba al menos 10 caracteres.'
+        );
+    }
+
+    public static function reaperturaImposible(string $estado): self
+    {
+        return new self(
+            'APP-ENV-014',
+            "Solo se reabre un envío aprobado. Este está en «{$estado}»: si hay algo que corregir, obsérvelo."
+        );
+    }
+
+    public static function reenvioSinMotivo(): self
+    {
+        return new self(
+            'APP-ENV-015',
+            'Para pedir una nueva subida hay que explicar qué está mal: escriba al menos 10 caracteres.'
+        );
+    }
+
+    public static function reenvioSinAlcance(): self
+    {
+        return new self(
+            'APP-ENV-016',
+            'Indique qué debe volver a subir: una serie, todas las del envío o todos sus establecimientos en un período.'
+        );
+    }
+
+    public static function periodoInexistente(int $anio, int $mes): self
+    {
+        // A diferencia de `periodoNoExiste`, este no invita a crear el período:
+        // lo usa la solicitud de nueva subida, que trabaja sobre lo ya cargado.
+        return new self('APP-ENV-017', "No hay envíos cargados para el período {$mes}/{$anio} en su alcance.");
+    }
+
+    public static function aperturaSinMotivo(int $minimo = 15): self
+    {
+        return new self(
+            'APP-APL-001',
+            "La solicitud de apertura necesita un motivo de al menos {$minimo} caracteres."
+        );
+    }
+
+    public static function aperturaYaResuelta(string $estado): self
+    {
+        return new self(
+            'APP-APL-002',
+            "Esta solicitud ya está «{$estado}»: no se puede volver a resolver."
+        );
+    }
+
+    public static function aperturaSinPermisoDeResolucion(): self
+    {
+        return new self('APP-APL-003', 'Solo el administrador puede aprobar o rechazar una apertura de plazo.');
+    }
 }

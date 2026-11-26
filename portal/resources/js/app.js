@@ -14,6 +14,7 @@ import { initSidebar } from './ui/sidebar';
 import { initTabs } from './ui/tabs';
 import { initToasts } from './ui/toast';
 import { initModals } from './ui/modal';
+import { initCharts } from './ui/charts';
 import { renderIcons } from './ui/icons';
 
 function iniciar() {
@@ -22,6 +23,7 @@ function iniciar() {
   initTabs();
   initToasts();
   initModals();
+  initCharts();
   renderIcons();
 
   // Los formularios y modales que inserten marcado después del arranque tienen

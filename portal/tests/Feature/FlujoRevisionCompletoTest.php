@@ -53,6 +53,7 @@ class FlujoRevisionCompletoTest extends TestCase
 
         $this->revisor = User::factory()->create(['activo' => true]);
         $this->revisor->assignRole('revisor');
+        $this->revisor->establecimientos()->attach($this->establecimiento->id);
 
         $this->admin = User::factory()->create(['activo' => true]);
         $this->admin->assignRole('admin');

@@ -105,8 +105,24 @@ class AuthTest extends TestCase
 
         // Un muestreo de la matriz: lo que solo el admin puede y lo que todos ven.
         $this->assertTrue(Role::findByName('admin')->hasPermissionTo('envios.reabrir'));
-        $this->assertFalse(Role::findByName('revisor')->hasPermissionTo('envios.reabrir'));
+
+        // v3 (D-043): reabrir deja de ser exclusivo del administrador —el
+        // Equipo REM lo necesita para pedir una nueva subida— y pasa a serlo de
+        // resolver aperturas, que solo el administrador otorga.
+        $this->assertTrue(Role::findByName('revisor')->hasPermissionTo('envios.reabrir'));
+        $this->assertFalse(Role::findByName('revisor')->hasPermissionTo('aperturas.resolver'));
         $this->assertFalse(Role::findByName('encargado')->hasPermissionTo('envios.aprobar'));
         $this->assertFalse(Role::findByName('revisor')->hasPermissionTo('envios.crear'));
+
+        // El Validador está «agregado a todos los usuarios» (RF-040), pero su
+        // registro de uso es solo del administrador.
+        foreach (RolePermissionSeeder::ROLES as $rol) {
+            $this->assertTrue(
+                Role::findByName($rol)->hasPermissionTo('validador.usar'),
+                "El rol {$rol} debe poder usar el Validador"
+            );
+        }
+
+        $this->assertSame(20, count(RolePermissionSeeder::MATRIZ));
     }
 }

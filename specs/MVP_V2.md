@@ -1,6 +1,13 @@
 # MVP_V2.md — Portal M7 (versión 2)
 
-> **Documento vivo.** Única fuente de verdad del proyecto.
+> **Documento superado.** La fuente de verdad vigente es [`MVP_V3.md`](MVP_V3.md) desde el
+> 2026-11-26. Este archivo se conserva como historia del corte v2 (reparto de la revisión,
+> aperturas de plazo, reapertura, Serie P semestral, calendario automático, panel y Validador
+> viven en la v3).
+>
+> ---
+>
+> **Documento vivo (hasta el 2026-11-26).** Única fuente de verdad del proyecto.
 > Reemplaza a `specs/_historico/AGENT.md`, `PLAN.md`, `SPECS.md` y `TASK.md`.
 > Fecha: 2026-11-14
 > Actualizado: 2026-11-20 — la capa UI pasa de AdminLTE 3.2 a Tailwind CSS v4 + componentes Blade propios (C-019, Constitución v5.0.0).

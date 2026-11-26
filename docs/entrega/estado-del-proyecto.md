@@ -1,8 +1,8 @@
 # Estado del proyecto para la entrega
 
-Resumen para quien toma el proyecto. Fecha: 24 de noviembre de 2026.
-Especificación vigente: [`specs/MVP_V2.md`](../../specs/MVP_V2.md).
-Canon: Constitución [v5.0.0](../../02-DOCS/wiki/sdd/constitution.md) (Laravel 12.72 + PHP 8.2 + Tailwind CSS v4).
+Resumen para quien toma el proyecto. Fecha: 26 de noviembre de 2026.
+Especificación vigente: [`specs/MVP_V3.md`](../../specs/MVP_V3.md).
+Canon: Constitución [v6.0.0](../../02-DOCS/wiki/sdd/constitution.md) (Laravel 12.72 + PHP 8.2 + Tailwind CSS v4).
 
 ## Qué está hecho
 
@@ -12,16 +12,17 @@ portal se ocupa de que lleguen, se validen, se revisen y queden registrados.
 
 | Módulo | Qué entrega | Estado |
 |---|---|---|
-| **MOD-01** | Login, logout, cuenta propia, 3 roles, 16 permisos, alta de usuarios y reset por el administrador | ✅ |
-| **MOD-02** | Catálogos: servicios, establecimientos, series, períodos, matriz, plantillas, diccionario sembrado y calendario de plazos con feriados | ✅ |
-| **MOD-03** | Envío mensual, versiones, hash, revalidación y descargas | ✅ |
+| **MOD-01** | Login, logout, cuenta propia, 3 roles, **20 permisos**, alta de usuarios, **reparto de establecimientos** | ✅ |
+| **MOD-02** | Catálogos: servicios, establecimientos, series (con meses exigidos), períodos, matriz, plantillas, diccionario sembrado y **calendario automático verificado** | ✅ |
+| **MOD-03** | Envío mensual, versiones, hash, revalidación, descargas y **filtros por año, mes, comuna, establecimiento y estado** | ✅ |
 | **MOD-04** | Validación V0–V11 (sin V8) y reporte de hallazgos | ✅ |
-| **MOD-05** | Máquina de estados con `aprobado` como final | ✅ |
-| **MOD-06** | Bandeja del revisor, observaciones por serie y aprobación completa | ✅ |
-| **MOD-07** | Matriz de completitud con semáforo, totales y atraso | ✅ |
-| **MOD-08** | Auditoría append-only (tabla, servicios y observers) | ✅ |
-| **MOD-09** | Notificación en base de datos y campana en la cabecera | ✅ |
+| **MOD-05** | Máquina de estados con **reapertura con motivo** | ✅ |
+| **MOD-06** | Bandeja del **Equipo REM** acotada a sus establecimientos, observaciones por serie, aprobación, **solicitud de nueva subida** y **aperturas de plazo** | ✅ |
+| **MOD-07** | Matriz de completitud con semáforo, totales, **Serie P semestral** y **panel con indicadores** | ✅ |
+| **MOD-08** | Auditoría append-only (tabla, servicios y observers), con aperturas y uso del Validador | ✅ |
+| **MOD-09** | Notificación en base de datos, campana **con distintivo de subida** y **página de historial** | ✅ |
 | **MOD-11** | Cabeceras, CSRF, rate limit, health check, logs y validación real | ✅ |
+| **MOD-12** | **Módulo Validador**: reglas de calidad desde JSON, aislamiento del flujo y registro de uso | ✅ (reglas a la espera del JSON de la Unidad) |
 
 ## Lo que se puede usar hoy
 
@@ -91,11 +92,11 @@ Después: [`docs/operacion/como-probar.md`](../operacion/como-probar.md).
 
 ## Números
 
-- **261 tests, 649 aserciones, 0 fallos** (medido el 2026-11-24).
-- **3 roles y 16 permisos.**
+- **383 tests, 972 aserciones, 0 fallos** (medido el 2026-11-26).
+- **3 roles y 20 permisos.**
 - **185.526 prestaciones** en el catálogo del Minsal sembrado.
 - Bandeja con 100 envíos: **0,72 s**. Matriz 30×7: **0,31 s**.
-- UI: **18 vistas** y **18 componentes Blade** sobre Tailwind v4; `public/build/` pesa 12 archivos.
+- UI: **51 vistas** y **21 componentes Blade** sobre Tailwind v4; `public/build/` pesa 12 archivos.
 
 ## Cómo se publica la interfaz
 

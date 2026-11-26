@@ -63,11 +63,18 @@ no coincide con la realidad.
 | A4c | Intentar usar «recuperar contraseña» | No existe la opción en el login |
 | A5 | Intentar desactivarse a sí mismo | Se rechaza |
 | A6 | Editar una plantilla y sus hojas | La validación usa la versión nueva |
-| A7 | Confirmar que un envío aprobado no se reabre ni se anula | No hay botón ni ruta; el estado final es «aprobado» |
+| A7 | **Reabrir** un envío aprobado con motivo | Vuelve a «observado», queda en el historial y el encargado recibe el aviso |
 | A8 | Revisar la bitácora en base de datos | Cada acción anterior aparece con su usuario y su fecha |
+| A9 | Asignar dos establecimientos a un revisor y ninguno a otro | El primero ve solo los suyos; el segundo, una bandeja vacía con aviso, y el administrador recibe el aviso |
+| A10 | Abrir una ventana de plazo para un establecimiento | Ese establecimiento carga; los demás siguen bloqueados |
+| A11 | Dejar vencer una apertura | El bloqueo vuelve sin intervención |
+| A12 | Resolver una solicitud de apertura sin motivo | Se rechaza |
+| A13 | Cargar el `.json` de reglas y usar el Validador | Aparecen los hallazgos y el uso queda en el registro; ningún envío cambia |
+| A14 | Abrir el panel con cada rol | Cada uno ve sus cifras; el dato también está en la tabla de respaldo |
 
 **Falla si:** puede dejar el sistema sin administrador, la bitácora tiene
-huecos, o el catálogo queda a medias tras una carga fallida.
+huecos, un revisor ve un establecimiento que no tiene asignado, o el Validador
+cambia el estado de un envío.
 
 ---
 

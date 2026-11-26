@@ -50,6 +50,8 @@ class AprobacionGuardasTest extends TestCase
 
         $this->revisor = User::factory()->create(['activo' => true]);
         $this->revisor->assignRole('revisor');
+        // R-ALC-01 (v3): el Equipo REM solo actúa sobre lo asignado.
+        $this->revisor->establecimientos()->attach($establecimiento->id);
 
         $this->serieA = Serie::create(['codigo' => 'A', 'nombre' => 'SERIE A']);
         $this->serieBS = Serie::create(['codigo' => 'BS', 'nombre' => 'SERIE BS']);

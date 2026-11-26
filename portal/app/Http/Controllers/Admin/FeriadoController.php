@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Feriado;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Validation\Rule;
+use Illuminate\View\View;
 
 /**
  * Feriados del calendario (D-029).
  *
  * Se administran a mano porque la lista oficial cambia cada año y el portal no
- * depende de internet en runtime.
+ * depende de internet en runtime. La lista se siembra con los años verificados
+ * (`rem:feriados:cargar`) y el administrador corrige o suma lo que falte.
  */
 class FeriadoController extends CatalogoController
 {
@@ -24,6 +26,24 @@ class FeriadoController extends CatalogoController
         'Ámbito'  => 'ambito',
         'Región'  => 'region',
     ];
+
+    /**
+     * Los feriados se ordenan por fecha, no por id.
+     *
+     * El CRUD genérico ordena por id, que para un catálogo es razonable pero
+     * para un calendario no: al cargarse dos años seguidos, el más reciente
+     * quedaba al final de la segunda página. Se listan del más próximo al más
+     * antiguo, que es como se revisan.
+     */
+    public function index(): View
+    {
+        return view('admin.index', [
+            'titulo'   => $this->titulo,
+            'ruta'     => $this->ruta,
+            'columnas' => $this->columnas,
+            'filas'    => Feriado::query()->orderByDesc('fecha')->paginate(50),
+        ]);
+    }
 
     protected array $campos = [
         ['name' => 'fecha', 'label' => 'Fecha', 'type' => 'date', 'required' => true],

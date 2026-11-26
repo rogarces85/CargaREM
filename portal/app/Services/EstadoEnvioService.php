@@ -174,6 +174,70 @@ class EstadoEnvioService
     }
 
     /**
+     * Reabre un envío aprobado para que el establecimiento vuelva a subir
+     * (RF-044.2, D-043).
+     *
+     * **No se agrega la arista a `PERMITIDAS`.** Si `aprobado → observado`
+     * estuviera en la tabla, cualquier `transicionar()` la aceptaría y la
+     * reapertura dejaría de tener guardas. Se expone como método propio, con
+     * el motivo obligatorio, y la tabla de transiciones sigue diciendo que
+     * `aprobado` es final.
+     *
+     * Deja tres rastros, no uno: la transición en `envio_transiciones`, la
+     * auditoría y el aviso al encargado.
+     */
+    public function reabrir(Envio $envio, User $actor, string $motivo): Envio
+    {
+        $motivo = trim($motivo);
+
+        if (mb_strlen($motivo) < 10) {
+            throw EnvioInvalidoException::reaperturaSinMotivo();
+        }
+
+        if ($envio->estado !== Envio::APROBADO) {
+            throw EnvioInvalidoException::reaperturaImposible($envio->estado);
+        }
+
+        $envio = DB::transaction(function () use ($envio, $actor, $motivo) {
+            $anterior = $envio->estado;
+
+            $envio->estado = Envio::OBSERVADO;
+            $envio->save();
+
+            // Los archivos aprobados vuelven a «observado»: describen el mismo
+            // hecho que el envío, y dejarlos en `aprobado` con el envío abierto
+            // haría que la matriz de completitud pintara verde un período que
+            // la Unidad está corrigiendo.
+            $envio->archivosVigentes()->update(['estado' => EnvioArchivo::OBSERVADO]);
+
+            $envio->transiciones()->create([
+                'estado_anterior' => $anterior,
+                'estado_nuevo'    => Envio::OBSERVADO,
+                'actor_id'        => $actor->id,
+                'motivo'          => 'Reapertura: ' . $motivo,
+            ]);
+
+            AuditoriaService::registrarSobre('envio.reabierto', $envio, [
+                'de'     => $anterior,
+                'a'      => Envio::OBSERVADO,
+                'motivo' => $motivo,
+            ]);
+
+            return $envio;
+        });
+
+        try {
+            app(Notificador::class)->enviar($envio->fresh(), 'reabierto', $actor, [
+                'motivo' => $motivo,
+            ]);
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
+        return $envio;
+    }
+
+    /**
      * Aprueba el envío, con las guardas completas (T-F3-06).
      *
      * No alcanza con que el revisor tenga el permiso y el envío esté en

@@ -11,7 +11,7 @@
 |---|---|---|
 | **Cualquiera que va a abrir el portal** | [Levantar el servidor](levantar-el-servidor.md) | 5 min |
 | **Encargado de establecimiento** | [Manual del encargado](guia-encargado-establecimiento.md) | 15 min |
-| **Revisor del Servicio de Salud** | [Manual del revisor](guia-revisor-servicio-salud.md) | 15 min |
+| **Equipo REM** | [Guía del Equipo REM](guia-revisor-servicio-salud.md) | 15 min |
 | **Administrador** | [Manual del administrador](guia-administrador.md) | 20 min |
 | **Quien va a explicar el sistema** | [Cómo funciona el sistema](00-como-funciona-el-sistema.md) | 20 min |
 
@@ -21,8 +21,8 @@
 
 | Rol | Quién es | Qué hace | Qué no puede hacer |
 |---|---|---|---|
-| **Encargado** | Quien carga en un hospital o posta | Crea el envío, sube las series, envía a revisión | Ver otros establecimientos, aprobar |
-| **Revisor** | Unidad de Estadísticas del Servicio | Observa o aprueba | Cargar archivos, editar catálogos |
+| **Encargado** | Quien carga en un hospital o posta | Crea el envío, sube las series, envía a revisión, pide apertura de plazo | Ver otros establecimientos, aprobar |
+| **Equipo REM** | La Unidad de Estadísticas (cuatro personas) | Observa, aprueba, reabre y pide nueva subida en sus establecimientos asignados | Cargar archivos, editar catálogos, aprobar aperturas de plazo |
 | **Administrador** | Mantiene el sistema | Catálogo, calendario, usuarios; y todo lo anterior | Nada del flujo le está vedado |
 
 Los tres roles trabajan sobre **la misma unidad**: el envío de un establecimiento en un mes.

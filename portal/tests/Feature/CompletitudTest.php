@@ -60,6 +60,12 @@ class CompletitudTest extends TestCase
         }
 
         $this->encargado->establecimientos()->attach($this->hosp1->id);
+
+        // R-ALC-01 (v3): el revisor alcanza solo lo asignado. La matriz de esta
+        // suite compara los dos establecimientos del Servicio, así que se le
+        // asignan ambos; el test del revisor con un solo establecimiento es
+        // `AsignacionRevisoresTest`.
+        $this->revisor->establecimientos()->attach([$this->hosp1->id, $this->hosp2->id]);
     }
 
     private function envio(Establecimiento $establecimiento, string $estado, array $series = []): Envio
@@ -144,11 +150,22 @@ class CompletitudTest extends TestCase
         $this->assertSame($this->hosp1->id, $matriz['filas'][0]['establecimiento']->id);
     }
 
-    public function test_el_revisor_ve_todos_los_establecimientos(): void
+    public function test_el_revisor_ve_los_establecimientos_que_tiene_asignados(): void
     {
         $matriz = $this->matriz($this->revisor);
 
-        $this->assertCount(2, $matriz['filas']);
+        $this->assertCount(2, $matriz['filas'], 'La suite le asignó los dos establecimientos del Servicio');
+    }
+
+    public function test_el_revisor_sin_asignacion_no_ve_ninguna_fila(): void
+    {
+        $sinReparto = User::factory()->create(['activo' => true]);
+        $sinReparto->assignRole('revisor');
+
+        // R-ALC-01: sin asignación no hay filas, ni siquiera del propio Servicio.
+        $matriz = $this->matriz($sinReparto);
+
+        $this->assertCount(0, $matriz['filas']);
     }
 
     public function test_la_pantalla_muestra_la_matriz(): void
@@ -257,6 +274,10 @@ class CompletitudTest extends TestCase
             }
 
             $this->envio($establecimiento, Envio::RECIBIDO, [$serie->id => EnvioArchivo::VALIDO]);
+
+            // El presupuesto se mide sobre lo que el revisor alcanza: con el
+            // alcance por asignación, sin esto la matriz mediría dos filas.
+            $this->revisor->establecimientos()->attach($establecimiento->id);
         }
 
         $inicio = microtime(true);

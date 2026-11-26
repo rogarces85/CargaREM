@@ -32,6 +32,8 @@ use Illuminate\Support\Collection;
  * - **R-SER-05**: sin fila, no obliga. Solo cuentan las filas del pivot.
  * - **R-SER-06**: `obligatoria = 0` significa «se acepta, no se cuenta».
  * - **R-SER-07**: una serie inactiva no se espera de nadie.
+ * - **R-P-01** (v3): una serie con `meses_exigidos` solo se exige en esos
+ *   meses. La P se informa en 6 y 12.
  *
  * **R-SER-01 (derivar del histórico de 12 meses) no está implementada**: exige
  * datos históricos que el portal no tiene. Al importar el catálogo se exigen
@@ -65,15 +67,29 @@ final class MatrizSeries
      * misma condición que `exigidas()`: sin esto habría dos versiones del
      * `where`, que es justo el fallo que esta clase viene a cerrar.
      *
+     * **Meses (R-P-01).** La serie P no se informa todos los meses: se exige
+     * solo en los períodos de junio y diciembre. El mes se toma del ancla del
+     * período —el cierre del mes informado—, no de la fecha en que corre la
+     * consulta. Un período de septiembre se juzga con los meses de septiembre
+     * aunque la pantalla se abra en diciembre.
+     *
      * @param  Builder<Serie>|mixed  $consulta  consulta sobre la relación `series`
      */
     public function aplicarVigencia($consulta, ?CarbonInterface $periodo = null): void
     {
-        $fecha = ($periodo ?? now())->toDateString();
+        $ancla = $periodo ?? now();
+        $fecha = $ancla->toDateString();
+        $mes = (int) $ancla->month;
 
         $consulta
             ->where('series.activo', true)
             ->wherePivot('obligatoria', true)
+            // `null` = todos los meses. `whereJsonContains` se resuelve como
+            // JSON_CONTAINS, que MariaDB 10.4 y MySQL 8 entienden igual.
+            ->where(function ($q) use ($mes) {
+                $q->whereNull('series.meses_exigidos')
+                    ->orWhereJsonContains('series.meses_exigidos', $mes);
+            })
             ->where(function ($q) use ($fecha) {
                 $q->whereNull('establecimiento_serie.vigente_desde')
                     ->orWhere('establecimiento_serie.vigente_desde', '<=', $fecha);

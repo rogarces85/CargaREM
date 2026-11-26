@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Establecimiento;
+use App\Dominio\Alcance;
 use App\Models\Periodo;
 use App\Services\CompletitudService;
 use Illuminate\Http\Request;
@@ -12,14 +12,16 @@ use Illuminate\View\View;
  * Matriz de completitud del Servicio de Salud (T-F4-03).
  *
  * Responde una pregunta concreta: qué establecimientos entregaron lo que se
- * les exige, en qué estado, y qué falta. El encargado ve lo suyo; el revisor
- * y el admin ven todo el Servicio. En v2.0 no hay exportación: la pantalla es
- * la única salida.
+ * les exige, en qué estado, y qué falta. El encargado y el Equipo REM ven lo
+ * suyo asignado; el admin ve todo el Servicio. En v3.0 no hay exportación: la
+ * pantalla es la única salida.
  */
 class CompletitudController extends Controller
 {
-    public function __construct(private readonly CompletitudService $completitud)
-    {
+    public function __construct(
+        private readonly CompletitudService $completitud,
+        private readonly Alcance $alcance,
+    ) {
     }
 
     public function index(Request $request): View
@@ -60,15 +62,9 @@ class CompletitudController extends Controller
         return [$anio, $mes];
     }
 
-    /** Establecimientos que el usuario puede filtrar. */
+    /** Establecimientos que el usuario puede filtrar (R-ALC-01). */
     private function establecimientosDelAlcance(Request $request)
     {
-        $usuario = $request->user();
-
-        if ($usuario->hasRole('admin') || $usuario->hasRole('revisor')) {
-            return Establecimiento::where('activo', true)->orderBy('nombre')->get();
-        }
-
-        return $usuario->establecimientos()->where('activo', true)->orderBy('nombre')->get();
+        return $this->alcance->establecimientos($request->user());
     }
 }

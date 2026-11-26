@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Dominio\Alcance;
 use App\Dominio\MatrizSeries;
 use App\Models\Envio;
 use App\Models\EnvioArchivo;
@@ -29,8 +30,10 @@ class CompletitudService
     public const EN_PROCESO = 'en_proceso';
     public const APROBADO = 'aprobado';
 
-    public function __construct(private readonly MatrizSeries $matriz)
-    {
+    public function __construct(
+        private readonly MatrizSeries $matriz,
+        private readonly Alcance $alcance,
+    ) {
     }
 
     public const ETIQUETAS = [
@@ -165,6 +168,10 @@ class CompletitudService
      * período que se está mirando (R-SER-03): así esta pantalla y V11 no pueden
      * volver a discrepar.
      *
+     * El alcance lo resuelve `App\Dominio\Alcance` (R-ALC-01): el revisor ve
+     * solo lo asignado y sin asignación no ve ninguno. Antes esta pantalla
+     * filtraba por `servicio_id`, que daba al revisor el Servicio completo.
+     *
      * @return Collection<int, Establecimiento>
      */
     private function establecimientos(User $usuario, ?int $establecimientoId, CarbonInterface $cierre): Collection
@@ -181,14 +188,7 @@ class CompletitudService
             $consulta->whereKey($establecimientoId);
         }
 
-        if ($usuario->hasRole('revisor')) {
-            // El revisor ve su Servicio; si no lo tiene declarado, ve todo.
-            if ($usuario->servicio_id !== null) {
-                $consulta->where('servicio_id', $usuario->servicio_id);
-            }
-        } elseif (! $usuario->hasRole('admin')) {
-            $consulta->whereIn('id', $usuario->establecimientos()->select('establecimientos.id'));
-        }
+        $this->alcance->aplicar($consulta, $usuario);
 
         return $consulta->get();
     }

@@ -93,11 +93,32 @@ class EnvioServiceTest extends TestCase
         $this->servicio()->crear($this->establecimiento, 2026, 9, $this->encargado);
     }
 
-    public function test_rechaza_un_periodo_inexistente(): void
+    /**
+     * RF-046.1 (v3): el período que falta se crea al pedirlo.
+     *
+     * La v2 lo rechazaba y obligaba a que el administrador lo creara a mano
+     * desde el calendario. Ahora el alta del envío lo provisiona con su fecha
+     * calculada.
+     */
+    public function test_crea_el_periodo_que_falta_con_su_fecha_calculada(): void
+    {
+        $envio = $this->servicio()->crear($this->establecimiento, 2026, 11, $this->encargado);
+
+        $this->assertSame(2026, $envio->anio);
+        $this->assertSame(11, $envio->mes);
+
+        $periodo = Periodo::where('anio', 2026)->where('mes', 11)->firstOrFail();
+
+        // 11/2026 vence el 5.º día hábil de diciembre de 2026: el 7.
+        $this->assertSame('2026-12-07', $periodo->fecha_limite->toDateString());
+        $this->assertSame('2026-12-07', $envio->fecha_limite->toDateString());
+    }
+
+    public function test_rechaza_un_periodo_fuera_de_rango(): void
     {
         $this->expectException(EnvioInvalidoException::class);
 
-        $this->servicio()->crear($this->establecimiento, 2026, 11, $this->encargado);
+        $this->servicio()->crear($this->establecimiento, 1999, 13, $this->encargado);
     }
 
     public function test_rechaza_un_periodo_cerrado(): void

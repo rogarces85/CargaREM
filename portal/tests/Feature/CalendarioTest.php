@@ -57,8 +57,11 @@ class CalendarioTest extends TestCase
         $this->seed(FeriadosSeeder::class);
 
         $this->assertTrue($this->calendario()->hayFeriados(2026));
-        $this->assertFalse($this->calendario()->hayFeriados(2027));
-        $this->assertSame(16, Feriado::count());
+        // La v3 carga 2027 en la misma semilla porque el plazo de diciembre de
+        // 2026 cae en enero de 2027 y ese feriado corre la fecha.
+        $this->assertTrue($this->calendario()->hayFeriados(2027));
+        $this->assertFalse($this->calendario()->hayFeriados(2029));
+        $this->assertSame(16 + 17, Feriado::count());
     }
 
     public function test_el_feriado_registrado_bloquea_el_dia(): void

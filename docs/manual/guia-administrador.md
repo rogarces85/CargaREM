@@ -88,7 +88,7 @@ subida, la validación de completitud, el estado del envío y la guarda de aprob
 
 **Esta pantalla es la que hay que revisar cada vez que una serie cambia de estado.**
 
-### Paso 4 — Revisar los usuarios
+### Paso 4 — Revisar los usuarios y repartir los establecimientos
 
 Menú **Usuarios**.
 
@@ -100,9 +100,18 @@ Cada persona necesita:
 | **Rol** | Decide qué pantallas ve |
 | **Activo** | Un usuario inactivo no recibe avisos |
 | Contraseña | Al crear; después la cambia la persona |
+| **Establecimientos** | Define su alcance: sin asignación no ve ningún dato |
 
-> **Los establecimientos de cada encargado también se asignan aquí.** Sin esa asignación, el
-> encargado entra y no tiene ningún establecimiento donde crear envíos.
+> **El reparto se hace en dos lugares y es la misma decisión:** en el formulario del
+> usuario y en **Usuarios → Asignaciones**. Un establecimiento puede tener varios
+> integrantes del Equipo REM.
+
+**Roles.** El que revisa se muestra como **Equipo REM**; su clave interna sigue
+siendo `revisor`. Los cuatro integrantes se crean con `php artisan db:seed
+--class=EquipoRemSeeder` en local, o desde esta pantalla en producción.
+
+> **Sin asignación, la bandeja del revisor y la del encargado aparecen vacías** y a ti te
+> llega un aviso. Es el síntoma correcto: falta repartir, no es un fallo del sistema.
 
 ---
 
@@ -174,24 +183,72 @@ correctos empiezan a fallar.
 |---|---|
 | Gestionar catálogos | `catalogos.gestionar` |
 | Importar catálogos | `catalogos.importar` |
-| Gestionar usuarios | `usuarios.gestionar` |
+| Gestionar usuarios y **repartir establecimientos** | `usuarios.gestionar` |
 | Gestionar períodos | `periodos.gestionar` |
 | Ver la auditoría | `auditoria.ver` |
-| **Reabrir** un envío | `envios.reabrir` |
+| **Aprobar, rechazar o abrir** una apertura de plazo | `aperturas.resolver` |
 | **Anular** un envío | `envios.anular` |
+| Ver el **registro de uso del Validador** | `validador.estadisticas` |
 
-Nadie más tiene esos dos últimos. Son las acciones que rompen la trazabilidad, y por eso
-están en una sola manos.
+**Reabrir** ya no es exclusivo tuyo: el Equipo REM también puede, con motivo. Es la
+contrapartida de que un envío aprobado no sea irreversible.
+
+---
+
+## 5 bis. Aperturas de plazo y Validador
+
+### Aperturas de plazo
+
+Menú **Aperturas de plazo**. Ahí llegan las solicitudes del equipo y las que
+abriste tú.
+
+| Acción | Cómo |
+|---|---|
+| **Aprobar** una solicitud | Botón **Resolver** → motivo + fecha de término |
+| **Rechazar** | Botón **Resolver** → motivo del rechazo |
+| **Abrir por tu cuenta** | Formulario de arriba, con establecimiento (o «todos»), período, motivo y fecha |
+| **Anular** una ventana vigente | Botón **Anular**, con motivo |
+
+Mientras la ventana está vigente, ese establecimiento puede cargar el período
+aunque esté cerrado. **Los demás siguen cerrados.** Vencida la fecha, el bloqueo
+vuelve solo.
+
+### Validador
+
+**Validador → Registro de uso** (solo tú lo ves): revisiones por mes y por
+usuario, con hallazgos y bloqueantes. Sirve para saber si la herramienta se usa.
+
+El Validador **no interviene en el flujo**: revisa un Excel suelto. Si encuentras
+algo, se corrige con una observación o una nueva subida, no desde ahí.
+
+### Comandos nuevos
+
+```bat
+php artisan rem:periodos:generar 2027      Crea los períodos del año
+php artisan rem:periodos:generar --siguiente
+php artisan rem:calendario 2026 --verificar   Falla si el calendario se desfasó
+php artisan rem:feriados:cargar 2027       Carga los feriados verificados
+php artisan rem:aperturas:cerrar           Marca las ventanas vencidas
+php artisan rem:validador:limpiar          Borra archivos con más de 90 días
+```
+
+**Ninguno es obligatorio para que el portal funcione.** El calendario se genera
+al pedir un período que no existe, y las ventanas se controlan por fecha.
 
 ---
 
 ## 6. Lo que conviene saber antes de la demostración
 
 1. **La campana es el único aviso.** No hay correo. Si alguien no entra, no se enteró.
+   La campana distingue **serie suelta** de **envío completo** y agrupa las subidas
+   seguidas. En **Notificaciones** está el historial.
 2. **El cierre del período es manual.** Decirlo en voz alta evita la pregunta incómoda.
+   Abrir un período cerrado para un establecimiento es una **apertura**, y se aprueba aquí.
 3. **El mes 10 está vencido desde el 06-11.** Demostrar con octubre es demostrar el camino
    del atraso. Es válido, pero hay que decirlo.
-4. **La serie F es la pieza de demostración.** En la realidad no se usa desde hace años, pero
+4. **La serie P solo aparece en junio y diciembre.** Si alguien pregunta por qué no
+   está en el mes en curso, la respuesta es el corte semestral.
+5. **La serie F es la pieza de demostración.** En la realidad no se usa desde hace años, pero
    queda activa para mostrar en vivo cómo se deshabilita una serie y cómo se vuelve a agregar.
    - Desmarcar **Activa** en Series: F desaparece del desplegable de subida y de la matriz de
      completitud. Los envíos que la tenían **no se bloquean**.
@@ -200,7 +257,7 @@ están en una sola manos.
    Es reversible. El estado inicial se reproduce con
    `php artisan db:seed --class=L1MinimumSeeder`.
 
-5. **Si la base se ve vacía**, cárgale los datos de ejemplo:
+6. **Si la base se ve vacía**, cárgale los datos de ejemplo:
 
    ```bat
    cd C:\xampp\htdocs\www\Cargas\portal

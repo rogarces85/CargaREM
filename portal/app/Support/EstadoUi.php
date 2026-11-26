@@ -48,6 +48,17 @@ class EstadoUi
         // Período
         'abierto'      => ['etiqueta' => 'Abierto', 'tono' => 'ok'],
         'cerrado'      => ['etiqueta' => 'Cerrado', 'tono' => 'idle'],
+
+        // Apertura de plazo (v3)
+        'pendiente'    => ['etiqueta' => 'Pendiente', 'tono' => 'warn'],
+        'aprobada'     => ['etiqueta' => 'Aprobada', 'tono' => 'ok'],
+        'rechazada'    => ['etiqueta' => 'Rechazada', 'tono' => 'danger'],
+        'anulada'      => ['etiqueta' => 'Anulada', 'tono' => 'idle'],
+
+        // Validador (v3)
+        'sin_hallazgos' => ['etiqueta' => 'Sin hallazgos', 'tono' => 'ok'],
+        'con_hallazgos' => ['etiqueta' => 'Con hallazgos', 'tono' => 'warn'],
+        'fallido'       => ['etiqueta' => 'Fallido', 'tono' => 'danger'],
     ];
 
     /**

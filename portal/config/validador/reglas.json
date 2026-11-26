@@ -1,0 +1,53 @@
+{
+  "version": "1.0",
+  "nombre": "Calidad de la estadística REM",
+  "descripcion": "Reglas de revisión de la Unidad de Estadísticas. No sustituyen la validación V0–V11 del flujo de envío: la complementan.",
+  "nota": "Este archivo es el insumo que la Unidad entregará. Los tipos admitidos son hoja_presente, requerido, tipo_dato, rango, dominio y unicidad. Un tipo distinto aborta la ejecución con el identificador de la regla.",
+  "reglas": [
+    {
+      "id": "CAL-001",
+      "tipo": "hoja_presente",
+      "severidad": "bloqueante",
+      "hoja": "NOMBRE",
+      "mensaje": "El archivo debe traer la hoja NOMBRE."
+    },
+    {
+      "id": "CAL-002",
+      "tipo": "requerido",
+      "severidad": "bloqueante",
+      "hoja": "NOMBRE",
+      "columna": "A",
+      "desde_fila": 2,
+      "mensaje": "La columna A debe traer datos en todas sus filas."
+    },
+    {
+      "id": "CAL-003",
+      "tipo": "tipo_dato",
+      "severidad": "advertencia",
+      "hoja": "NOMBRE",
+      "columna": "C",
+      "desde_fila": 2,
+      "esperado": "numérico",
+      "mensaje": "La columna C debe contener números."
+    },
+    {
+      "id": "CAL-004",
+      "tipo": "rango",
+      "severidad": "advertencia",
+      "hoja": "NOMBRE",
+      "columna": "C",
+      "desde_fila": 2,
+      "min": 0,
+      "mensaje": "La columna C no puede traer valores negativos."
+    },
+    {
+      "id": "CAL-005",
+      "tipo": "unicidad",
+      "severidad": "advertencia",
+      "hoja": "NOMBRE",
+      "columna": "A",
+      "desde_fila": 2,
+      "mensaje": "La columna A no puede repetir el mismo código."
+    }
+  ]
+}

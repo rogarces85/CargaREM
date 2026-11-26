@@ -27,9 +27,15 @@
         </summary>
 
         <div class="absolute end-0 z-50 mt-2 w-80 overflow-hidden rounded-xl border border-border bg-popover shadow-lg">
-            <p class="border-b border-border px-4 py-2.5 text-xs font-medium text-muted-foreground">
-                {{ $sinLeer }} aviso(s) sin leer
-            </p>
+            <div class="flex items-center justify-between border-b border-border px-4 py-2.5">
+                <p class="text-xs font-medium text-muted-foreground">
+                    {{ $sinLeer }} aviso(s) sin leer
+                </p>
+
+                <a href="{{ route('notificaciones.index') }}" class="text-xs font-medium text-primary hover:underline">
+                    Ver todos
+                </a>
+            </div>
 
             <div class="max-h-80 overflow-y-auto">
                 @forelse ($avisos as $aviso)

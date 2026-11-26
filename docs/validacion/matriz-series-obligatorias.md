@@ -56,7 +56,7 @@ Se descartaron dos alternativas: exigir todas las series a todos (genera faltant
 | `BS` | *se importa del catálogo* | ✅ |
 | `BM` | *se importa del catálogo* | ✅ |
 | `D` | *se importa del catálogo* | ✅ |
-| `P` | *se importa del catálogo* | ✅ |
+| `P` | *se importa del catálogo* | ✅ **solo en 06 y 12** (R-P-01) |
 | `F` | *se importa del catálogo* | ✅ |
 | `SAX` | Serie local (Anexo, Servicio de Salud Osorno) | 🟡 fuera del MVP (D-006) |
 
@@ -75,6 +75,7 @@ Se descartaron dos alternativas: exigir todas las series a todos (genera faltant
 | **R-SER-05** | **Sin fila, no obliga.** Si un establecimiento no tiene ninguna fila para una serie, esa serie **no** se le exige. El silencio nunca produce faltante. | Un establecimiento nuevo no arrastra faltantes por series que nunca envió. |
 | **R-SER-06** | **Serie desmarcada.** `obligatoria = 0` significa «se acepta el archivo, pero no cuenta para la completitud». | El archivo se valida igual; no bloquea el envío. |
 | **R-SER-07** | **Serie inactiva.** Una serie con `series.activo = 0` no se espera de nadie y no se ofrece en la UI. | `SAX` entra así en el MVP. |
+| **R-P-01** | **Meses exigidos (v3, D-045).** Una serie con `meses_exigidos` solo se exige en esos meses. La serie P trae `[6, 12]`: se informa con los cortes semestrales (estadística de junio con plazo de julio, de diciembre con plazo de enero). Fuera de esos meses no se exige, no cuenta como faltante y se acepta si llega. | `MatrizSeries::aplicarVigencia()`; `SeriePSemestralTest`. |
 
 ---
 
