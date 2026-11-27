@@ -1,0 +1,28 @@
+---
+type: archive-state
+slug: mejoras-m7-v3
+state: shipped
+pr: 7
+merge_commit: aa0be79
+merged_at: 2026-11-27T12:49:38Z
+merged_by: rogarces85
+base: main
+branch: feature/mejoras-m7-v3
+---
+
+# Estado
+
+- `state`: **shipped**
+- `pr`: #7 — https://github.com/rogarces85/CargaREM/pull/7
+- `merge_commit`: `aa0be79`
+- `merged_at`: 2026-11-27
+- `merged_by`: `rogarces85` (aprobación humana del tier 2)
+- `branch`: `feature/mejoras-m7-v3`, borrada en local y en el remoto tras verificar que su
+  contenido estaba íntegro en `main` (diff rama↔main vacío).
+
+## Verificación posterior al merge
+
+- Suite en `main` (`aa0be79`): **417 passed (1044 assertions), 0 fallos**.
+- Árbol limpio; solo queda la rama `main`.
+- Documentación actualizada: `02-DOCS/feature-mejoras-v3.md` en `shipped`, acta de revisión
+  cerrada, decisión D-051 registrada.

@@ -56,7 +56,9 @@ Cuando dos documentos se contradicen, gana el primero de esta lista. Es la regla
 | Artículo | Qué contiene |
 |---|---|
 | [`sdd/constitution.md`](sdd/constitution.md) | Constitución **v6.0.0**: canon Laravel **12.72** + PHP **8.2** + **Tailwind CSS v4** (C-019), 33 principios y Definition of Done. §10: módulos laterales y alcance por asignación |
-| [`sdd/decisions.md`](sdd/decisions.md) | Registro append-only de decisiones: alcance v3 (C-020), Equipo REM (D-041), alcance por asignación (D-042), reapertura (D-043), aperturas (D-044), serie P (D-045), calendario (D-046), Validador (D-047), panel (D-048), filtros (D-049) y avisos (D-050) |
+| [`sdd/decisions.md`](sdd/decisions.md) | Registro append-only de decisiones: alcance v3 (C-020), Equipo REM (D-041), alcance por asignación (D-042), reapertura (D-043), aperturas (D-044), serie P (D-045), calendario (D-046), Validador (D-047), panel (D-048), filtros (D-049), avisos (D-050) y entrega de la v3 por PR (D-051) |
+| [`sdd/reviews/mejoras-m7-v3.md`](sdd/reviews/mejoras-m7-v3.md) | Revisión de cierre de la v3: panel de 3 refutadores, 10 hallazgos (1 bloqueante) y su corrección |
+| [`sdd/archive/mejoras-m7-v3/final-report.md`](sdd/archive/mejoras-m7-v3/final-report.md) | Entrega de la v3: qué se fusionó, verificación y lo que la suite no prueba (PR #7) |
 
 ## stack/ — entorno y decisión **cerrada (C-015)**
 

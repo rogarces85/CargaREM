@@ -117,3 +117,16 @@ assertions), 0 fallos**.
 **Verificación de que los tests prueban algo:** se revirtió cada arreglo y se corrió su test; los
 cinco comprobados así **fallaron sin el arreglo y pasan con él**.
 
+---
+
+# Cierre — la rama se fusionó
+
+| Campo | Valor |
+|---|---|
+| PR | [#7](https://github.com/rogarces85/CargaREM/pull/7) |
+| Fusión | 2026-11-27, por `rogarces85` (aprobación humana del tier 2) |
+| Commit de merge | `aa0be79` |
+| Suite en `main` | **417 passed (1044 assertions), 0 fallos** |
+| Rama | borrada en local y en el remoto; solo queda `main` |
+
+

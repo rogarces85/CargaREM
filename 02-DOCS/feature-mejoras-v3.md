@@ -1,9 +1,14 @@
 ---
 author: Rodrigo Garces
 branch: feature/mejoras-m7-v3
-status: closed
+status: shipped
+merged: 2026-11-27 (PR #7, merge aa0be79)
 ---
 # Mejoras de la v3: diez cambios de la Unidad de Estadísticas
+
+> **Entregada.** Fusionada a `main` por PR #7 (`aa0be79`, 2026-11-27), tras la revisión de cierre
+> en contexto fresco documentada en `02-DOCS/wiki/sdd/reviews/mejoras-m7-v3.md`. Suite en `main`:
+> 417 tests, 1044 aserciones, 0 fallos.
 
 ## Intent
 
