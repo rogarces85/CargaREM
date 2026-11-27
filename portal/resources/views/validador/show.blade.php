@@ -32,6 +32,13 @@
             :migas="['Panel' => route('panel'), 'Validador' => route('validador.index'), 'Revisión' => null]"
         >
             <x-slot:acciones>
+                @if (! $error)
+                    <a href="{{ route('validador.reporte', $ejecucion) }}" class="btn btn-secondary">
+                        <x-ui.icon name="file-spreadsheet" class="size-4" />
+                        Descargar reporte
+                    </a>
+                @endif
+
                 <a href="{{ route('validador.index') }}" class="btn btn-ghost">
                     <x-ui.icon name="arrow-right" class="size-4 rotate-180" />
                     Volver

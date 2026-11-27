@@ -67,6 +67,11 @@ final class ResultadoEstadistico
             'duracionMs'      => $this->duracionMs,
             'reglasVersion'   => $this->catalogo->version,
             'hallazgos'       => array_map(fn (ResultadoRegla $r) => $r->aArreglo(), $this->hallazgos()),
+            // RF-040.3: el reporte descargable trae **todas** las reglas
+            // evaluadas, no solo las que fallan. El histórico de una revisión
+            // tiene que poder auditarse entero: qué se comparó y qué se omitió.
+            // Pesa unos 70 KB por ejecución; se guarda junto al resto.
+            'resultados'      => array_map(fn (ResultadoRegla $r) => $r->aArreglo(), $this->resultados),
         ];
     }
 }

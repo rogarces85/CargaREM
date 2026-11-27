@@ -125,3 +125,7 @@ portal/public/assets/*.zip
 # `npm run generar:pruebas` en ese sistema, no fuente del portal. Se copian
 # aqui para la comparacion y no se versionan.
 /pruebas-generadas/
+
+# Reportes del Validador usados como referencia para comparar la salida del
+# portal con la del escritorio. Llevan datos de un establecimiento real.
+/Validacion_*.xlsx

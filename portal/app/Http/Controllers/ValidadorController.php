@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\ValidadorEjecucion;
 use App\Services\ValidadorEstadisticaService;
+use App\Services\ValidadorReporteService;
 use App\Validador\ArchivoNoValidable;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Módulo Validador (RF-040).
@@ -72,16 +74,37 @@ class ValidadorController extends Controller
     public function show(Request $request, ValidadorEjecucion $ejecucion): View
     {
         // Cada usuario ve sus revisiones; el administrador, todas (RF-040.2).
-        abort_unless(
-            $ejecucion->usuario_id === $request->user()->id || $request->user()->can('validador.estadisticas'),
-            403
-        );
+        abort_unless($this->puedeVer($request, $ejecucion), 403);
 
         return view('validador.show', [
             'ejecucion'  => $ejecucion,
             'resultado'  => $ejecucion->resultado ?? [],
             'hallazgos'  => $ejecucion->listaHallazgos(),
         ]);
+    }
+
+    /**
+     * Reporte descargable (RF-040.3).
+     *
+     * Misma regla de acceso que la pantalla: el dueño de la revisión o quien
+     * tiene el permiso de estadísticas. El archivo se arma desde el resultado
+     * guardado, no desde el Excel subido.
+     */
+    public function reporte(
+        Request $request,
+        ValidadorEjecucion $ejecucion,
+        ValidadorReporteService $reportes,
+    ): StreamedResponse {
+        abort_unless($this->puedeVer($request, $ejecucion), 403);
+
+        return $reportes->descargar($ejecucion);
+    }
+
+    /** ¿Este usuario puede ver esta ejecución? */
+    private function puedeVer(Request $request, ValidadorEjecucion $ejecucion): bool
+    {
+        return $ejecucion->usuario_id === $request->user()->id
+            || $request->user()->can('validador.estadisticas');
     }
 
     /** Registro de uso agregado, solo para el administrador. */

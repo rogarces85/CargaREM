@@ -170,6 +170,9 @@ Route::middleware(['auth', 'permission:validador.usar'])
         Route::post('/', [ValidadorController::class, 'store'])
             ->name('store')
             ->middleware('throttle:10,60');
+        Route::get('{ejecucion}/reporte', [ValidadorController::class, 'reporte'])
+            ->name('reporte')
+            ->middleware('throttle:30,1');
         Route::get('estadisticas', [ValidadorController::class, 'estadisticas'])->name('estadisticas');
         Route::get('{ejecucion}', [ValidadorController::class, 'show'])->name('show');
     });

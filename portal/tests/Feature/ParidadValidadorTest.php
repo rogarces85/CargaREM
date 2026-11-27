@@ -124,21 +124,15 @@ class ParidadValidadorTest extends TestCase
      * Una diferencia documentada no se esconde: se declara, se explica y se
      * deja de vigilar. Aparecer una **nueva** es lo que rompe el test.
      *
+     * **Vacía a propósito.** Hubo una (`A04-VAL006`, por el cambio de `==` a
+     * `>=` del catálogo del 2026-09-09 frente a unas pruebas del 2026-08-12), y
+     * desapareció cuando se regeneraron las pruebas el 2026-11-27. El test de
+     * abajo avisa justamente de eso: una diferencia que ya no ocurre no puede
+     * quedarse en la lista como excusa permanente.
+     *
      * @var array<string, string>
      */
-    private const DIFERENCIAS_CONOCIDAS = [
-        // El catálogo es más nuevo que los archivos de prueba.
-        //
-        // `reglas_finales.json` se regeneró el 2026-09-09; las pruebas se
-        // generaron el 2026-08-12. Entre esas fechas el catálogo cambió
-        // A04-VAL006 de `==` a `>=` (commit `cf5676f`, «Despacho Completo y
-        // Oportuno para tipo Crónica es un subconjunto de Despacho Completo»).
-        // Las pruebas siguen esperando el operador viejo, así que el motor
-        // actual —que aplica el nuevo— acierta y la expectativa está obsoleta.
-        //
-        // Se resuelve regenerando las pruebas en el proyecto de escritorio.
-        'A04-VAL006' => 'El catálogo cambió el operador a >= (2026-09-09); las pruebas son de 2026-08-12.',
-    ];
+    private const DIFERENCIAS_CONOCIDAS = [];
 
     public function test_el_motor_acierta_el_estado_de_cada_regla_objetivo(): void
     {
