@@ -231,75 +231,88 @@
                         @endif
                     </x-ui.alert>
                 @else
-                    <x-ui.card class="p-0">
-                        <div class="overflow-x-auto">
-                            <table class="tabla">
-                                <caption class="sr-only">Resultados del Validador</caption>
-                                <thead>
-                                    <tr>
-                                        <th scope="col">Hoja</th>
-                                        <th scope="col">Regla</th>
-                                        <th scope="col">Severidad</th>
-                                        <th scope="col">Estado</th>
-                                        <th scope="col">Comparación</th>
-                                        <th scope="col">Mensaje</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($visibles as $r)
+                    <div class="grid gap-4 {{ $seleccionado !== null ? 'lg:grid-cols-[1fr_24rem]' : '' }}">
+                        <x-ui.card class="p-0">
+                            <div class="overflow-x-auto">
+                                <table class="tabla">
+                                    <caption class="sr-only">Resultados del Validador. Cada fila abre su detalle.</caption>
+                                    <thead>
                                         <tr>
-                                            <td class="whitespace-nowrap text-muted-foreground">
-                                                {{ $r['hoja'] ?? '—' }}
-                                                @if (! empty($r['hoja2']) && ($r['hoja2'] ?? '') !== ($r['hoja'] ?? ''))
-                                                    → {{ $r['hoja2'] }}
-                                                @endif
-                                            </td>
-
-                                            <td>
-                                                <code class="rounded bg-muted px-1 py-0.5 text-[11px]">{{ $r['regla'] ?? '—' }}</code>
-                                            </td>
-
-                                            <td>
-                                                @if (($r['estado'] ?? '') === 'HALLAZGO')
-                                                    <x-ui.badge :tono="($r['severidad'] ?? '') === 'ERROR' ? 'danger' : 'warn'">
-                                                        {{ ($r['severidad'] ?? '') === 'ERROR' ? 'Error' : 'Por revisar' }}
-                                                    </x-ui.badge>
-                                                @else
-                                                    <span class="text-xs text-muted-foreground">{{ $r['severidad'] ?? '' }}</span>
-                                                @endif
-                                            </td>
-
-                                            <td class="whitespace-nowrap">
-                                                @php
-                                                    $estados = [
-                                                        'CUMPLE' => ['Cumple', 'ok'],
-                                                        'HALLAZGO' => ['No cumple', 'danger'],
-                                                        'OMITIDA' => ['No aplica', 'idle'],
-                                                        'ERROR_TECNICO' => ['Fuera de rango', 'warn'],
-                                                    ];
-                                                    [$etiqueta, $tono] = $estados[$r['estado'] ?? ''] ?? [$r['estado'] ?? '—', 'idle'];
-                                                @endphp
-                                                <x-ui.badge :tono="$tono">{{ $etiqueta }}</x-ui.badge>
-                                            </td>
-
-                                            <td class="whitespace-nowrap font-mono text-xs text-muted-foreground">
-                                                {{ $r['expresion1'] ?? '' }} {{ $r['operador'] ?? '' }} {{ $r['expresion2'] ?? '' }}
-                                            </td>
-
-                                            <td>
-                                                <span class="block">{{ $r['mensaje'] ?? '' }}</span>
-                                                @if (! empty($r['evidencia']))
-                                                    <span class="mt-0.5 block text-xs text-muted-foreground">
-                                                        {{ $r['evidencia'] }}
-                                                    </span>
-                                                @endif
-                                            </td>
+                                            <th scope="col">Hoja</th>
+                                            <th scope="col">Regla</th>
+                                            <th scope="col">Severidad</th>
+                                            <th scope="col">Estado</th>
+                                            <th scope="col">Comparación</th>
+                                            <th scope="col">Mensaje</th>
                                         </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </x-ui.card>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($visibles as $r)
+                                            @php $abierto = ($filtro->detalle ?? null) === ($r['regla'] ?? null); @endphp
+                                            <tr @class(['bg-muted/60' => $abierto])>
+                                                <td class="whitespace-nowrap text-muted-foreground">
+                                                    {{ $r['hoja'] ?? '—' }}
+                                                    @if (! empty($r['hoja2']) && ($r['hoja2'] ?? '') !== ($r['hoja'] ?? ''))
+                                                        → {{ $r['hoja2'] }}
+                                                    @endif
+                                                </td>
+
+                                                <td>
+                                                    {{-- La regla es el enlace: es lo que identifica la fila. --}}
+                                                    <a href="{{ route('validador.show', array_merge([$ejecucion], $filtro->conDetalle($r['regla'] ?? null)->aConsulta())) }}"
+                                                       class="font-mono text-xs underline-offset-2 hover:underline"
+                                                       @if ($abierto) aria-current="true" @endif>
+                                                        {{ $r['regla'] ?? '—' }}
+                                                    </a>
+                                                </td>
+
+                                                <td>
+                                                    @if (($r['estado'] ?? '') === 'HALLAZGO')
+                                                        <x-ui.badge :tono="($r['severidad'] ?? '') === 'ERROR' ? 'danger' : 'warn'">
+                                                            {{ ($r['severidad'] ?? '') === 'ERROR' ? 'Error' : 'Por revisar' }}
+                                                        </x-ui.badge>
+                                                    @else
+                                                        <span class="text-xs text-muted-foreground">{{ $r['severidad'] ?? '' }}</span>
+                                                    @endif
+                                                </td>
+
+                                                <td class="whitespace-nowrap">
+                                                    @php
+                                                        $estados = [
+                                                            'CUMPLE' => ['Cumple', 'ok'],
+                                                            'HALLAZGO' => ['No cumple', 'danger'],
+                                                            'OMITIDA' => ['No aplica', 'idle'],
+                                                            'ERROR_TECNICO' => ['Fuera de rango', 'warn'],
+                                                        ];
+                                                        [$etiqueta, $tono] = $estados[$r['estado'] ?? ''] ?? [$r['estado'] ?? '—', 'idle'];
+                                                    @endphp
+                                                    <x-ui.badge :tono="$tono">{{ $etiqueta }}</x-ui.badge>
+                                                </td>
+
+                                                <td class="whitespace-nowrap font-mono text-xs text-muted-foreground">
+                                                    {{ $r['expresion1'] ?? '' }} {{ $r['operador'] ?? '' }} {{ $r['expresion2'] ?? '' }}
+                                                </td>
+
+                                                <td>
+                                                    <span class="block">{{ $r['mensaje'] ?? '' }}</span>
+                                                    @if (! empty($r['evidencia']))
+                                                        <span class="mt-0.5 block text-xs text-muted-foreground">
+                                                            {{ $r['evidencia'] }}
+                                                        </span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </x-ui.card>
+
+                        {{-- Detalle del resultado abierto, al lado de la tabla. --}}
+                        @if ($seleccionado !== null)
+                            <x-validador.detalle :seleccionado="$seleccionado" :ejecucion="$ejecucion" :filtro="$filtro" />
+                        @endif
+                    </div>
                 @endif
             </div>
 

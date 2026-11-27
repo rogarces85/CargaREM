@@ -36,6 +36,7 @@ final class FiltroResultados
         public readonly array $severidades = [],
         public readonly ?string $hoja = null,
         public readonly string $busqueda = '',
+        public readonly ?string $detalle = null,
     ) {
     }
 
@@ -61,6 +62,9 @@ final class FiltroResultados
             severidades: $severidades,
             hoja: $hoja,
             busqueda: trim((string) ($consulta['q'] ?? '')),
+            detalle: isset($consulta['ver']) && $consulta['ver'] !== ''
+                ? (string) $consulta['ver']
+                : null,
         );
     }
 
@@ -113,7 +117,7 @@ final class FiltroResultados
     {
         $estados = $this->alternar($this->estados, $estado, self::ESTADOS);
 
-        return new self($estados, $this->severidades, $this->hoja, $this->busqueda);
+        return new self($estados, $this->severidades, $this->hoja, $this->busqueda, $this->detalle);
     }
 
     /** Copia con una severidad alternada. */
@@ -121,7 +125,16 @@ final class FiltroResultados
     {
         $severidades = $this->alternar($this->severidades, $severidad, self::SEVERIDADES);
 
-        return new self($this->estados, $severidades, $this->hoja, $this->busqueda);
+        return new self($this->estados, $severidades, $this->hoja, $this->busqueda, $this->detalle);
+    }
+
+    /**
+     * Copia con el texto de una regla a la vista, manteniendo el resto del
+     * filtro: abrir un resultado no puede borrar lo que se venía filtrando.
+     */
+    public function conDetalle(?string $regla): self
+    {
+        return new self($this->estados, $this->severidades, $this->hoja, $this->busqueda, $regla);
     }
 
     /**
@@ -150,6 +163,10 @@ final class FiltroResultados
 
         if ($this->busqueda !== '') {
             $consulta['q'] = $this->busqueda;
+        }
+
+        if ($this->detalle !== null) {
+            $consulta['ver'] = $this->detalle;
         }
 
         return $consulta;

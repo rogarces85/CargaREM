@@ -88,14 +88,30 @@ class ValidadorController extends Controller
         $filtro = FiltroResultados::desdeConsulta($request->query());
         $visibles = $filtro->aplicar($todos);
 
+        // El detalle se busca sobre TODOS los resultados, no sobre los
+        // visibles: abrir un resultado y luego filtrar no debe cerrarlo, y un
+        // enlace compartido tiene que funcionar aunque el filtro cambie.
+        $seleccionado = null;
+
+        if ($filtro->detalle !== null) {
+            foreach ($todos as $r) {
+                if (($r['regla'] ?? '') === $filtro->detalle) {
+                    $seleccionado = $r;
+
+                    break;
+                }
+            }
+        }
+
         return view('validador.show', [
-            'ejecucion'  => $ejecucion,
-            'resultado'  => $ejecucion->resultado ?? [],
-            'hallazgos'  => $ejecucion->listaHallazgos(),
-            'visibles'   => $visibles,
-            'total'      => count($todos),
-            'filtro'     => $filtro,
-            'hojas'      => FiltroResultados::conteoPorHoja($todos),
+            'ejecucion'    => $ejecucion,
+            'resultado'    => $ejecucion->resultado ?? [],
+            'hallazgos'    => $ejecucion->listaHallazgos(),
+            'visibles'     => $visibles,
+            'total'        => count($todos),
+            'filtro'       => $filtro,
+            'hojas'        => FiltroResultados::conteoPorHoja($todos),
+            'seleccionado' => $seleccionado,
         ]);
     }
 
