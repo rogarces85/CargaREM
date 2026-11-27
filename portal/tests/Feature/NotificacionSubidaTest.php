@@ -61,17 +61,21 @@ class NotificacionSubidaTest extends TestCase
         $this->envio = app(EnvioService::class)->crear($this->establecimiento, 2026, 9, $this->encargado);
     }
 
-    private function subir(Serie $serie, int $kb = 4): void
+    private function subir(Serie $serie, int $kb = 4, ?User $autor = null): void
     {
         // Cada archivo necesita contenido distinto: el mismo hash se rechaza
         // como duplicado (ENV-029) y el test mediría otra cosa.
         $contenido = "PK\x03\x04".str_repeat(chr(65 + $serie->id), max(1, $kb * 1024));
 
+        // El actor importa: la regla «quien sube no recibe su propio aviso» se
+        // mide contra quien de verdad ejecuta la subida.
+        $autor ??= $this->encargado;
+
         app(EnvioService::class)->subirVersion(
             $this->envio->fresh(),
             $serie,
             UploadedFile::fake()->createWithContent("123100{$serie->codigo}09.xlsx", $contenido),
-            $this->encargado
+            $autor
         );
     }
 
@@ -124,16 +128,45 @@ class NotificacionSubidaTest extends TestCase
         $this->assertCount(1, $this->revisor->notifications()->where('data->tipo', 'subida')->get());
     }
 
+    /**
+     * RF-041.3 acota la fusión a 10 minutos. Sin cruzar el borde, ampliar la
+     * ventana (que acumularía avisos viejos en vez de abrir uno nuevo) no
+     * rompe ningún test.
+     */
+    public function test_pasada_la_ventana_de_fusion_el_aviso_es_uno_nuevo(): void
+    {
+        $this->subir($this->serieA);
+        $this->assertCount(1, $this->revisor->notifications()->where('data->tipo', 'subida')->get());
+
+        // Dentro de la ventana: se reutiliza el aviso abierto.
+        $this->travel(5)->minutes();
+        $this->subir($this->serieBS, 10);
+        $this->assertCount(1, $this->revisor->notifications()->where('data->tipo', 'subida')->get());
+
+        // Fuera de la ventana: es otro hecho, va otro aviso.
+        $this->travel(6)->minutes();
+        $this->subir($this->serieBS, 11);
+        $this->assertCount(2, $this->revisor->notifications()->where('data->tipo', 'subida')->get());
+    }
+
     public function test_quien_sube_no_recibe_su_propio_aviso(): void
     {
+        // Tiene que ser revisor para que el aviso lo alcanzaría de no mediar la
+        // exclusión: con rol solo de encargado, el test pasaría igual aunque
+        // la exclusión se quitara.
         $encargadoRevisor = User::factory()->create(['activo' => true]);
         $encargadoRevisor->assignRole('encargado');
+        $encargadoRevisor->assignRole('revisor');
         $encargadoRevisor->establecimientos()->attach($this->establecimiento->id);
 
         $this->actingAs($encargadoRevisor);
-        $this->subir($this->serieA);
+        $this->subir($this->serieA, 4, $encargadoRevisor);
 
         $this->assertSame(0, $encargadoRevisor->notifications()->count());
+        $this->assertTrue(
+            $this->revisor->notifications()->where('data->tipo', 'subida')->exists(),
+            'El otro revisor sí recibe el aviso: la exclusión es del actor, no del rol.'
+        );
     }
 
     public function test_un_establecimiento_sin_revisor_avisa_al_administrador(): void

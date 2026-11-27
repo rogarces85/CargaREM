@@ -92,3 +92,28 @@ Añadir el test que sube una versión sobre un envío observado en un período e
 2. Decidir sobre F2–F7: arreglar ahora o registrar como seguimiento acordado.
 3. Corregir las cifras de F8.
 4. **Aprobación humana explícita** (tier 2). Un agente no sustituye esa firma.
+
+---
+
+# Cierre de la ronda 1 — los hallazgos se corrigieron
+
+Los diez hallazgos se corrigieron en el mismo árbol, cada uno con el test que falla sin el arreglo
+(comprobado revirtiendo el cambio y volviendo a correr). Suite final: **417 passed (1044
+assertions), 0 fallos**.
+
+| # | Arreglo | Test que lo fija |
+|---|---|---|
+| F1 | `subirVersion` pasa el envío a `verificarCarga`; `crear` deja `null` explícito | `test_un_envio_observado_puede_subir_correccion_en_un_periodo_en_revision` + su reverso |
+| F2 | `comunasDisponibles` aplica `Alcance` y filtra `activo` | `test_el_desplegable_de_comuna_respeta_el_alcance`, `..._sin_asignacion_no_ve_ninguna_comuna` |
+| F3 | La solicitud de reenvío autoriza con `reabrir` cuando el envío está aprobado | `test_pedir_nueva_subida_de_una_serie_sobre_un_aprobado_lo_reabre` |
+| F4 | La versión anterior queda con `estado = reemplazado` | `test_la_version_anterior_queda_marcada_como_reemplazada` |
+| F5 | El Validador lee dentro de `BloqueoValidacion`; ruta con `throttle:10,60` | cubierto por la suite existente del semáforo |
+| F6 | Tests de filtro por `mes` y por `establecimiento_id` | `test_el_filtro_por_mes_deja_solo_ese_mes`, `..._por_establecimiento_deja_solo_ese` |
+| F7 | Aserciones de `sha256`, `reglas_version` y `duracion_ms` | `test_un_archivo_sin_errores_no_deja_hallazgos` |
+| F8 | Cifras actualizadas a 416/1040 → 417/1044 en la ficha y en `V3_TAREAS.md` | — |
+| F9 | Test que cruza el borde de los 10 minutos | `test_pasada_la_ventana_de_fusion_el_aviso_es_uno_nuevo` |
+| F10 | El emisor del test también tiene rol revisor | `test_quien_sube_no_recibe_su_propio_aviso` |
+
+**Verificación de que los tests prueban algo:** se revirtió cada arreglo y se corrió su test; los
+cinco comprobados así **fallaron sin el arreglo y pasan con él**.
+

@@ -42,7 +42,9 @@ class EnvioService
         // administrador lo creara desde el calendario.
         $periodo = $this->periodoDe($anio, $mes);
 
-        $apertura = $this->verificarCarga($periodo, $establecimiento, $usuario);
+        // Alta nueva: no hay envío previo, así que no hay corrección que
+        // amparar. Un período «en revisión» exige apertura.
+        $apertura = $this->verificarCarga($periodo, $establecimiento, $usuario, null);
 
         $existente = Envio::where('establecimiento_id', $establecimiento->id)
             ->where('anio', $anio)
@@ -102,7 +104,7 @@ class EnvioService
 
         $periodo = $this->periodoDe((int) $envio->anio, (int) $envio->mes);
 
-        $apertura = $this->verificarCarga($periodo, $envio->establecimiento, $usuario);
+        $apertura = $this->verificarCarga($periodo, $envio->establecimiento, $usuario, $envio);
 
         // La carga al amparo de una apertura se recuerda en el envío, aunque la
         // apertura se anule después: el hecho ocurrió.
@@ -124,10 +126,17 @@ class EnvioService
             $version = ((int) $envio->archivos()->where('serie_id', $serie->id)->max('version')) + 1;
 
             // La versión anterior deja de ser la vigente, pero no se borra.
+            // RN-ENV-8 / REVIEW.md §8: el reenvío NO reemplaza la fila
+            // anterior, la marca. Sin este estado el histórico se conserva
+            // pero la interfaz no puede distinguir «reemplazada» de «vigente
+            // en su momento».
             $envio->archivos()
                 ->where('serie_id', $serie->id)
                 ->where('es_vigente', true)
-                ->update(['es_vigente' => false]);
+                ->update([
+                    'es_vigente' => false,
+                    'estado'     => EnvioArchivo::REEMPLAZADO,
+                ]);
 
             // Se guarda el archivo antes de la fila: si falla el INSERT, el
             // archivo huérfano lo recoge la limpieza; al revés quedaría una

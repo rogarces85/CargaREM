@@ -165,7 +165,11 @@ Route::middleware(['auth', 'permission:validador.usar'])
     ->name('validador.')
     ->group(function () {
         Route::get('/', [ValidadorController::class, 'index'])->name('index');
-        Route::post('/', [ValidadorController::class, 'store'])->name('store');
+        // Misma tasa que `envios.subir`: la lectura abre un Excel y consume
+        // memoria, así que no puede ser la única subida sin límite del portal.
+        Route::post('/', [ValidadorController::class, 'store'])
+            ->name('store')
+            ->middleware('throttle:10,60');
         Route::get('estadisticas', [ValidadorController::class, 'estadisticas'])->name('estadisticas');
         Route::get('{ejecucion}', [ValidadorController::class, 'show'])->name('show');
     });

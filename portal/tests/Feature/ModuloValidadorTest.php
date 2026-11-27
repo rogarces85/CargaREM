@@ -128,6 +128,12 @@ class ModuloValidadorTest extends TestCase
         $this->assertSame('123100A01.xlsx', $ejecucion->nombre_original);
         $this->assertSame('A', $ejecucion->metadatos()['serie']);
         $this->assertSame('Hospital Base San José de Osorno', $ejecucion->metadatos()['establecimiento']);
+
+        // R-VAL-03 / RF-040.1: el registro tiene que servir para reproducir la
+        // ejecución. Sin hash, versión de reglas y duración, no sirve.
+        $this->assertMatchesRegularExpression('/^[0-9a-f]{64}$/', $ejecucion->sha256, 'Guarda el hash del archivo');
+        $this->assertNotSame('', (string) $ejecucion->reglas_version, 'Guarda la versión del catálogo');
+        $this->assertGreaterThan(0, $ejecucion->duracion_ms, 'Guarda cuánto tardó');
     }
 
     public function test_una_regla_rota_produce_su_hallazgo(): void

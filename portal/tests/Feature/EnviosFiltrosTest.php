@@ -86,6 +86,53 @@ class EnviosFiltrosTest extends TestCase
                 && $pagina->first()->establecimiento->comuna === 'San Pablo');
     }
 
+    public function test_el_filtro_por_mes_deja_solo_ese_mes(): void
+    {
+        $this->envio($this->hospital, 2026, 1);
+        $this->envio($this->hospital, 2026, 9);
+
+        $this->actingAs($this->encargado)
+            ->get('/envios?anio=2026&mes=9')
+            ->assertOk()
+            ->assertViewHas('envios', fn ($pagina) => $pagina->total() === 1
+                && (int) $pagina->first()->mes === 9);
+    }
+
+    public function test_el_filtro_por_establecimiento_deja_solo_ese(): void
+    {
+        $this->envio($this->hospital, 2026, 9);
+        $this->envio($this->posta, 2026, 9);
+
+        $this->actingAs($this->encargado)
+            ->get('/envios?establecimiento_id=' . $this->posta->id)
+            ->assertOk()
+            ->assertViewHas('envios', fn ($pagina) => $pagina->total() === 1
+                && $pagina->first()->establecimiento_id === $this->posta->id);
+    }
+
+    /**
+     * El desplegable de comuna es del alcance: listar el territorio completo
+     * entrega al revisor lo que no le asignaron (R-ALC-01, principio 33).
+     */
+    public function test_el_desplegable_de_comuna_respeta_el_alcance(): void
+    {
+        $this->actingAs($this->revisor)
+            ->get('/envios')
+            ->assertOk()
+            ->assertViewHas('comunas', fn ($comunas) => $comunas === ['Osorno']);
+    }
+
+    public function test_el_revisor_sin_asignacion_no_ve_ninguna_comuna(): void
+    {
+        $sinAsignacion = User::factory()->create(['activo' => true]);
+        $sinAsignacion->assignRole('revisor');
+
+        $this->actingAs($sinAsignacion)
+            ->get('/envios')
+            ->assertOk()
+            ->assertViewHas('comunas', fn ($comunas) => $comunas === []);
+    }
+
     public function test_el_filtro_por_estado(): void
     {
         $this->envio($this->hospital, 2026, 9, Envio::EN_REVISION);

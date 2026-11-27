@@ -181,9 +181,16 @@ class EnvioController extends Controller
      */
     private function comunasDisponibles(User $usuario): array
     {
-        return Establecimiento::query()
+        $consulta = Establecimiento::query()
+            ->where('activo', true)
             ->whereNotNull('comuna')
-            ->where('comuna', '!=', '')
+            ->where('comuna', '!=', '');
+
+        // El desplegable es del alcance, como el resto de la pantalla: listar
+        // todas las comunas del Servicio entrega al revisor el territorio que
+        // no le asignaron (R-ALC-01, principio 33).
+        return $this->alcance
+            ->aplicar($consulta, $usuario)
             ->distinct()
             ->orderBy('comuna')
             ->pluck('comuna')

@@ -237,6 +237,27 @@ class ReaperturaTest extends TestCase
         $this->assertSame(Envio::OBSERVADO, $envio->fresh()->estado);
     }
 
+    /**
+     * La puerta HTTP del reenvío por serie sobre un envío aprobado: antes
+     * autorizaba con `observar`, que exige EN_REVISION, y moría con 403 antes
+     * de llegar al servicio que sí sabe reabrir (RF-044.2).
+     */
+    public function test_pedir_nueva_subida_de_una_serie_sobre_un_aprobado_lo_reabre(): void
+    {
+        $envio = $this->aprobado();
+
+        $this->actingAs($this->revisor)
+            ->post('/revision/reenvio', [
+                'alcance'  => SolicitudReenvioService::ALCANCE_SERIE,
+                'envio_id' => $envio->id,
+                'serie_id' => $this->serieA->id,
+                'motivo'   => 'La serie A viene con el formato del período anterior.',
+            ])
+            ->assertRedirect('/revision');
+
+        $this->assertSame(Envio::OBSERVADO, $envio->fresh()->estado);
+    }
+
     public function test_pedir_nueva_subida_a_todos_los_asignados_recorre_el_periodo(): void
     {
         $posta = Establecimiento::create(['codigo' => '123105', 'nombre' => 'Posta', 'comuna' => 'San Pablo']);

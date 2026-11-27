@@ -110,13 +110,13 @@
 | 9.3 | Manuales por rol con el Equipo REM | ✅ | `docs/manual/` |
 | 9.4 | `REVIEW.md` con los fallos graves nuevos | ✅ | `REVIEW.md` |
 | 9.5 | Estado del proyecto y números | ✅ | `docs/entrega/estado-del-proyecto.md` |
-| 9.6 | Suite completa y build | ✅ | 383 tests, `public/build/` regenerado |
+| 9.6 | Suite completa y build | ✅ | 416 tests, `public/build/` regenerado |
 
 ## Números
 
 | Métrica | v2 | v3 |
 |---|---|---|
-| Tests | 285 | **383** |
+| Tests | 285 | **416** |
 | Permisos | 16 | **20** |
 | Roles | 3 | 3 (uno cambia de nombre visible) |
 | Migraciones | 20 | **24** |

@@ -218,8 +218,16 @@ class RevisionController extends Controller
         $envio = $datos['envio_id'] ?? null ? Envio::findOrFail($datos['envio_id']) : null;
 
         if ($envio !== null) {
-            // La solicitud es una acción de revisión: se apoya en observar.
-            $this->authorize('observar', $envio);
+            // La solicitud es una acción de revisión y se apoya en observar,
+            // salvo sobre un envío ya aprobado: ahí lo que corresponde es
+            // reabrirlo (RF-044.2), y `observar` exige EN_REVISION. Sin esta
+            // rama, el reenvío por serie o por envío moría con 403 y solo la
+            // vía «asignados» reabría, que es otro alcance del que el revisor
+            // eligió.
+            $this->authorize(
+                $envio->estado === Envio::APROBADO ? 'reabrir' : 'observar',
+                $envio
+            );
         }
 
         try {

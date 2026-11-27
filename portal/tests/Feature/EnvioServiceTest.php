@@ -167,6 +167,73 @@ class EnvioServiceTest extends TestCase
         $this->assertSame(2, $envio->archivos()->count(), 'La versión anterior no se borra');
     }
 
+    /**
+     * RN-ENV-8 / REVIEW.md §8: la versión anterior no se reemplaza en el
+     * disco, se marca. `EstadoUi` pinta el estado, así que tiene que estar.
+     */
+    public function test_la_version_anterior_queda_marcada_como_reemplazada(): void
+    {
+        $this->periodo();
+        $envio = $this->servicio()->crear($this->establecimiento, 2026, 9, $this->encargado);
+        $serie = Serie::create(['codigo' => 'A', 'nombre' => 'SERIE A']);
+
+        $v1 = $this->servicio()->subirVersion($envio, $serie, $this->excel(), $this->encargado);
+        $this->servicio()->subirVersion(
+            $envio, $serie, $this->archivo('123100A09.xlsx', "PK\x03\x04".str_repeat('B', 2048)), $this->encargado
+        );
+
+        $this->assertSame(EnvioArchivo::REEMPLAZADO, $v1->fresh()->estado);
+    }
+
+    /**
+     * FT-06: la corrección que el propio flujo pidió. En un período «en
+     * revisión» el envío observado puede subir su versión nueva sin apertura;
+     * la guarda de `verificarCarga` existe justo para eso.
+     */
+    public function test_un_envio_observado_puede_subir_correccion_en_un_periodo_en_revision(): void
+    {
+        $periodo = $this->periodo(Periodo::EN_REVISION);
+        $envio = Envio::create([
+            'establecimiento_id' => $this->establecimiento->id,
+            'periodo_id'         => $periodo->id,
+            'anio'               => 2026,
+            'mes'                => 9,
+            'estado'             => Envio::OBSERVADO,
+            'enviado_por'        => $this->encargado->id,
+        ]);
+        $serie = Serie::create(['codigo' => 'A', 'nombre' => 'SERIE A']);
+
+        $registro = $this->servicio()->subirVersion($envio, $serie, $this->excel(), $this->encargado);
+
+        $this->assertSame(1, $registro->version, 'La corrección se acepta');
+        $this->assertSame(Envio::RECIBIDO, $envio->fresh()->estado, 'Y devuelve el envío a recibido');
+    }
+
+    /**
+     * El reverso del anterior: un envío que NO está observado tampoco puede
+     * colarse en un período «en revisión». La guarda no abre la puerta de más.
+     */
+    public function test_un_envio_no_observado_no_sube_en_un_periodo_en_revision(): void
+    {
+        $periodo = $this->periodo(Periodo::EN_REVISION);
+        $envio = Envio::create([
+            'establecimiento_id' => $this->establecimiento->id,
+            'periodo_id'         => $periodo->id,
+            'anio'               => 2026,
+            'mes'                => 9,
+            'estado'             => Envio::VALIDADO,
+            'enviado_por'        => $this->encargado->id,
+        ]);
+        $serie = Serie::create(['codigo' => 'A', 'nombre' => 'SERIE A']);
+
+        try {
+            $this->servicio()->subirVersion($envio, $serie, $this->excel(), $this->encargado);
+            $this->fail('Debería exigir apertura en un período en revisión');
+        } catch (EnvioInvalidoException $e) {
+            $this->assertSame('APP-ENV-012', $e->codigo);
+        }
+    }
+
     public function test_rechaza_un_archivo_demasiado_grande(): void
     {
         $this->periodo();

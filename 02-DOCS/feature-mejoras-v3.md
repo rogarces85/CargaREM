@@ -59,7 +59,7 @@ con tests nuevos; el 11 y el 12, con la corrida final.
 
 | # | Evidencia observada (2026-11-26) |
 |---|---|
-| 1 | `php artisan test --compact` → **383 passed (972 assertions)**, 0 fallos. Antes de la rama: 285 (701). **+98 tests** |
+| 1 | `php artisan test --compact` → **416 passed (1040 assertions)**, 0 fallos. Antes de la rama: 285 (701). **+131 tests** |
 | 2 | 4 migraciones nuevas: índices de alcance y panel, `series.meses_exigidos`, `aperturas` + `envios.apertura_id`, `validador_ejecuciones`. Aplicadas en `cargas_rem_test` |
 | 3 | `npm run build` → `app.js` 31,8 KB y `apexcharts.esm` 992 KB en **chunk aparte**, cargado solo con `import()` cuando hay `[data-chart]` |
 | 4 | `php artisan rem:calendario 2026 --verificar` y `rem:periodos:generar` disponibles; 11 comandos `rem:*` en total (antes 8) |

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\User;
 use App\Models\ValidadorEjecucion;
+use App\Validacion\BloqueoValidacion;
 use App\Validador\ArchivoNoValidable;
 use App\Validador\CatalogoCalidad;
 use App\Validador\NominaEstablecimientos;
@@ -31,12 +32,20 @@ class ValidadorEstadisticaService
     /** Días que se guarda el archivo subido. */
     public const RETENCION_DIAS = 90;
 
-    public function __construct(private readonly ValidadorEstadistico $validador)
-    {
+    public function __construct(
+        private readonly ValidadorEstadistico $validador,
+        private readonly BloqueoValidacion $bloqueo,
+    ) {
     }
 
     /**
      * Ejecuta el Validador sobre un archivo subido.
+     *
+     * La lectura del Excel pasa por el mismo semáforo que el flujo normal
+     * (`BloqueoValidacion`): abrir un libro comprimido reserva cientos de megas
+     * y el servidor solo admite dos a la vez (principio 25). Sin él, diez
+     * envíos simultáneos al Validador tumbaban la memoria y arrastraban a las
+     * validaciones de los demás usuarios.
      *
      * @return array{ejecucion: ValidadorEjecucion, resultado: ResultadoEstadistico}
      */
@@ -47,10 +56,10 @@ class ValidadorEstadisticaService
         $ruta = $this->guardar($archivo, $hash);
 
         try {
-            $resultado = $this->validador->validar(
+            $resultado = $this->bloqueo->conSlot(fn () => $this->validador->validar(
                 Storage::disk(config('rem.archivos.disco'))->path($ruta),
                 $archivo->getClientOriginalName(),
-            );
+            ));
         } catch (ArchivoNoValidable $e) {
             // Un archivo que no entra no es un hallazgo: es un rechazo con
             // motivo. Se registra igual, para que el administrador vea que
