@@ -149,65 +149,148 @@
                 @endif
             </x-ui.card>
 
-            {{-- Hallazgos. --}}
-            <div class="space-y-2">
-                <h2 class="text-sm font-semibold">
-                    Hallazgos
-                    <span class="font-normal text-muted-foreground">
-                        {{ count($hallazgos) }} en total
-                    </span>
-                </h2>
+            {{-- Resultados y filtros (RF-040.4). --}}
+            <div class="space-y-3">
+                <div class="flex flex-wrap items-baseline justify-between gap-2">
+                    <h2 class="text-sm font-semibold">Resultados</h2>
+                    <p class="text-xs text-muted-foreground" aria-live="polite">
+                        {{ count($visibles) }} de {{ $total }} resultados
+                        @if ($filtro->hayFiltrosActivos())
+                            · <a href="{{ route('validador.show', $ejecucion) }}" class="underline underline-offset-2">Ver todo</a>
+                        @endif
+                    </p>
+                </div>
 
-                @if ($hallazgos === [])
+                {{-- Filtros: buscador, hoja y dos grupos de chips. --}}
+                <form method="GET" action="{{ route('validador.show', $ejecucion) }}"
+                      class="flex flex-wrap items-center gap-x-4 gap-y-3">
+                    {{-- Los chips se envían como campos ocultos para no perderlos al buscar. --}}
+                    @foreach ($filtro->severidades as $severidad)
+                        <input type="hidden" name="severidades[]" value="{{ $severidad }}">
+                    @endforeach
+                    @foreach ($filtro->estados as $estado)
+                        <input type="hidden" name="estados[]" value="{{ $estado }}">
+                    @endforeach
+
+                    <div class="relative min-w-56 flex-1">
+                        <label for="q" class="sr-only">Buscar en los resultados</label>
+                        <x-ui.icon name="search" class="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                        <input id="q" name="q" type="search" value="{{ $filtro->busqueda }}"
+                               placeholder="Buscar celda, hoja, regla o texto del resultado"
+                               class="input ps-9">
+                    </div>
+
+                    <div class="flex items-center gap-1.5">
+                        <label for="hoja" class="text-xs text-muted-foreground">Hoja</label>
+                        <select id="hoja" name="hoja" class="input">
+                            <option value="">Todas</option>
+                            @foreach ($hojas as $h)
+                                <option value="{{ $h['hoja'] }}" @selected($filtro->hoja === $h['hoja'])>
+                                    {{ $h['hoja'] }} ({{ $h['hallazgos'] }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-secondary">Buscar</button>
+                </form>
+
+                {{-- Chips de estado y severidad: son enlaces, así que funcionan sin JavaScript. --}}
+                <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+                    <div class="flex flex-wrap items-center gap-1.5" role="group" aria-label="Estado">
+                        @foreach (\App\Validador\FiltroResultados::ESTADOS as $estado)
+                            @php $activo = in_array($estado, $filtro->estados, true); @endphp
+                            <a href="{{ route('validador.show', array_merge([$ejecucion], $filtro->conEstado($estado)->aConsulta())) }}"
+                               aria-pressed="{{ $activo ? 'true' : 'false' }}"
+                               class="btn btn-sm {{ $activo ? 'btn-primary' : 'btn-ghost' }}">
+                                {{ ['HALLAZGO' => 'No cumple', 'CUMPLE' => 'Cumple', 'OMITIDA' => 'No aplica', 'ERROR_TECNICO' => 'Fuera de rango'][$estado] }}
+                            </a>
+                        @endforeach
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-1.5" role="group" aria-label="Severidad">
+                        @foreach (\App\Validador\FiltroResultados::SEVERIDADES as $severidad)
+                            @php $activo = in_array($severidad, $filtro->severidades, true); @endphp
+                            <a href="{{ route('validador.show', array_merge([$ejecucion], $filtro->conSeveridad($severidad)->aConsulta())) }}"
+                               aria-pressed="{{ $activo ? 'true' : 'false' }}"
+                               class="btn btn-sm {{ $activo ? 'btn-primary' : 'btn-ghost' }}">
+                                {{ ['ERROR' => 'Error', 'REVISAR' => 'Por revisar', 'INDICADOR' => 'Indicador'][$severidad] }}
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+
+                @if ($visibles === [])
                     <x-ui.alert tono="ok">
-                        Ninguna regla encontró problemas en este archivo. Recuerde que esto no reemplaza la
-                        validación del portal ni la revisión del Equipo REM.
+                        @if ($filtro->hayFiltrosActivos())
+                            Ningún resultado coincide con el filtro.
+                            <a href="{{ route('validador.show', $ejecucion) }}" class="underline underline-offset-2">Ver todo</a>.
+                        @else
+                            Ninguna regla encontró problemas en este archivo. Recuerde que esto no reemplaza la
+                            validación del portal ni la revisión del Equipo REM.
+                        @endif
                     </x-ui.alert>
                 @else
                     <x-ui.card class="p-0">
                         <div class="overflow-x-auto">
                             <table class="tabla">
-                                <caption class="sr-only">Hallazgos del Validador</caption>
+                                <caption class="sr-only">Resultados del Validador</caption>
                                 <thead>
                                     <tr>
+                                        <th scope="col">Hoja</th>
                                         <th scope="col">Regla</th>
                                         <th scope="col">Severidad</th>
-                                        <th scope="col">Hoja</th>
+                                        <th scope="col">Estado</th>
                                         <th scope="col">Comparación</th>
                                         <th scope="col">Mensaje</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($hallazgos as $hallazgo)
+                                    @foreach ($visibles as $r)
                                         <tr>
-                                            <td>
-                                                <code class="rounded bg-muted px-1 py-0.5 text-[11px]">{{ $hallazgo['regla'] }}</code>
-                                            </td>
-
-                                            <td>
-                                                <x-ui.badge :tono="$hallazgo['severidad'] === 'ERROR' ? 'danger' : 'warn'">
-                                                    {{ $hallazgo['severidad'] }}
-                                                </x-ui.badge>
-                                            </td>
-
-                                            <td class="text-muted-foreground">
-                                                {{ $hallazgo['hoja'] ?? '—' }}
-                                                @if (! empty($hallazgo['hoja2']) && $hallazgo['hoja2'] !== $hallazgo['hoja'])
-                                                    → {{ $hallazgo['hoja2'] }}
+                                            <td class="whitespace-nowrap text-muted-foreground">
+                                                {{ $r['hoja'] ?? '—' }}
+                                                @if (! empty($r['hoja2']) && ($r['hoja2'] ?? '') !== ($r['hoja'] ?? ''))
+                                                    → {{ $r['hoja2'] }}
                                                 @endif
                                             </td>
 
-                                            <td class="whitespace-nowrap font-mono text-xs text-muted-foreground">
-                                                {{ $hallazgo['expresion1'] ?? '' }}
-                                                {{ $hallazgo['operador'] ?? '' }}
-                                                {{ $hallazgo['expresion2'] ?? '' }}
+                                            <td>
+                                                <code class="rounded bg-muted px-1 py-0.5 text-[11px]">{{ $r['regla'] ?? '—' }}</code>
                                             </td>
 
                                             <td>
-                                                <span class="block">{{ $hallazgo['mensaje'] }}</span>
-                                                @if (! empty($hallazgo['evidencia']))
+                                                @if (($r['estado'] ?? '') === 'HALLAZGO')
+                                                    <x-ui.badge :tono="($r['severidad'] ?? '') === 'ERROR' ? 'danger' : 'warn'">
+                                                        {{ ($r['severidad'] ?? '') === 'ERROR' ? 'Error' : 'Por revisar' }}
+                                                    </x-ui.badge>
+                                                @else
+                                                    <span class="text-xs text-muted-foreground">{{ $r['severidad'] ?? '' }}</span>
+                                                @endif
+                                            </td>
+
+                                            <td class="whitespace-nowrap">
+                                                @php
+                                                    $estados = [
+                                                        'CUMPLE' => ['Cumple', 'ok'],
+                                                        'HALLAZGO' => ['No cumple', 'danger'],
+                                                        'OMITIDA' => ['No aplica', 'idle'],
+                                                        'ERROR_TECNICO' => ['Fuera de rango', 'warn'],
+                                                    ];
+                                                    [$etiqueta, $tono] = $estados[$r['estado'] ?? ''] ?? [$r['estado'] ?? '—', 'idle'];
+                                                @endphp
+                                                <x-ui.badge :tono="$tono">{{ $etiqueta }}</x-ui.badge>
+                                            </td>
+
+                                            <td class="whitespace-nowrap font-mono text-xs text-muted-foreground">
+                                                {{ $r['expresion1'] ?? '' }} {{ $r['operador'] ?? '' }} {{ $r['expresion2'] ?? '' }}
+                                            </td>
+
+                                            <td>
+                                                <span class="block">{{ $r['mensaje'] ?? '' }}</span>
+                                                @if (! empty($r['evidencia']))
                                                     <span class="mt-0.5 block text-xs text-muted-foreground">
-                                                        {{ $hallazgo['evidencia'] }}
+                                                        {{ $r['evidencia'] }}
                                                     </span>
                                                 @endif
                                             </td>

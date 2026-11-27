@@ -6,6 +6,7 @@ use App\Models\ValidadorEjecucion;
 use App\Services\ValidadorEstadisticaService;
 use App\Services\ValidadorReporteService;
 use App\Validador\ArchivoNoValidable;
+use App\Validador\FiltroResultados;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -76,10 +77,25 @@ class ValidadorController extends Controller
         // Cada usuario ve sus revisiones; el administrador, todas (RF-040.2).
         abort_unless($this->puedeVer($request, $ejecucion), 403);
 
+        $todos = $ejecucion->resultado['resultados'] ?? null;
+
+        // Ejecuciones anteriores a guardar el detalle completo solo tienen los
+        // hallazgos: la pantalla sigue funcionando con lo que haya.
+        if (! is_array($todos)) {
+            $todos = $ejecucion->listaHallazgos();
+        }
+
+        $filtro = FiltroResultados::desdeConsulta($request->query());
+        $visibles = $filtro->aplicar($todos);
+
         return view('validador.show', [
             'ejecucion'  => $ejecucion,
             'resultado'  => $ejecucion->resultado ?? [],
             'hallazgos'  => $ejecucion->listaHallazgos(),
+            'visibles'   => $visibles,
+            'total'      => count($todos),
+            'filtro'     => $filtro,
+            'hojas'      => FiltroResultados::conteoPorHoja($todos),
         ]);
     }
 
