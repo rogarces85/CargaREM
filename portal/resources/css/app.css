@@ -624,6 +624,48 @@ html.sidebar-collapsed {
     font-size: 0.8125rem;
   }
 
+  /* Variante para tablas de registros largos, como los resultados del
+     Validador: las celdas llevan mensajes de varias lineas y con el relleno
+     normal dos filas se leen como un solo bloque. */
+  .tabla-registros {
+    /* Ancho mínimo: por debajo de esto las seis columnas no caben y los
+       badges se montan sobre la comparación. La tarjeta desplaza en horizontal
+       en vez de apretujar el contenido. */
+    min-width: 44rem;
+  }
+
+  .tabla-registros td {
+    padding: 1rem 1rem 1.125rem;
+    vertical-align: top;
+    overflow-wrap: anywhere;
+  }
+
+  .tabla-registros th + th,
+  .tabla-registros td + td {
+    padding-inline-start: 1.25rem;
+  }
+
+  .tabla-registros .celda-mensaje {
+    max-width: 46rem;
+  }
+
+  .tabla-registros .mensaje-regla {
+    line-height: 1.65;
+  }
+
+  .tabla-registros .mensaje-regla > * + * {
+    margin-top: 0.375rem;
+  }
+
+  .tabla-registros .evidencia-regla {
+    margin-top: 0.75rem;
+    padding-top: 0.625rem;
+    border-top: 1px dashed var(--border);
+    font-size: 0.75rem;
+    line-height: 1.6;
+    color: var(--muted-foreground);
+  }
+
   /* =====================================================================
      Línea de tiempo
      El componente del hito no puede saber si es el último de la lista; el

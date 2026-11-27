@@ -22,7 +22,9 @@
         ];
     @endphp
 
-    <div class="mx-auto max-w-5xl space-y-6">
+    {{-- Con el detalle abierto la página necesita más ancho: el detalle ocupa
+         todo el ancho bajo la tabla. --}}
+    <div class="mx-auto space-y-6 {{ $seleccionado !== null ? 'max-w-6xl' : 'max-w-5xl' }}">
 
         <x-ui.page-header
             :titulo="$ejecucion->nombre_original"
@@ -231,17 +233,16 @@
                         @endif
                     </x-ui.alert>
                 @else
-                    <div class="grid gap-4 {{ $seleccionado !== null ? 'lg:grid-cols-[1fr_24rem]' : '' }}">
-                        <x-ui.card class="p-0">
+                    <div class="space-y-4">
+                        <x-ui.card class="min-w-0 p-0">
                             <div class="overflow-x-auto">
-                                <table class="tabla">
+                                <table class="tabla tabla-registros">
                                     <caption class="sr-only">Resultados del Validador. Cada fila abre su detalle.</caption>
                                     <thead>
                                         <tr>
                                             <th scope="col">Hoja</th>
                                             <th scope="col">Regla</th>
-                                            <th scope="col">Severidad</th>
-                                            <th scope="col">Estado</th>
+                                            <th scope="col">Resultado</th>
                                             <th scope="col">Comparación</th>
                                             <th scope="col">Mensaje</th>
                                         </tr>
@@ -257,48 +258,67 @@
                                                     @endif
                                                 </td>
 
-                                                <td>
+                                                <td class="whitespace-nowrap">
                                                     {{-- La regla es el enlace: es lo que identifica la fila. --}}
-                                                    <a href="{{ route('validador.show', array_merge([$ejecucion], $filtro->conDetalle($r['regla'] ?? null)->aConsulta())) }}"
+                                                    <a href="{{ route('validador.show', array_merge([$ejecucion], $filtro->conDetalle($r['regla'] ?? null)->aConsulta())) }}#detalle"
                                                        class="font-mono text-xs underline-offset-2 hover:underline"
                                                        @if ($abierto) aria-current="true" @endif>
                                                         {{ $r['regla'] ?? '—' }}
                                                     </a>
                                                 </td>
 
-                                                <td>
-                                                    @if (($r['estado'] ?? '') === 'HALLAZGO')
-                                                        <x-ui.badge :tono="($r['severidad'] ?? '') === 'ERROR' ? 'danger' : 'warn'">
-                                                            {{ ($r['severidad'] ?? '') === 'ERROR' ? 'Error' : 'Por revisar' }}
-                                                        </x-ui.badge>
-                                                    @else
-                                                        <span class="text-xs text-muted-foreground">{{ $r['severidad'] ?? '' }}</span>
-                                                    @endif
-                                                </td>
-
                                                 <td class="whitespace-nowrap">
+                                                    {{-- Una sola columna: la severidad solo
+                                                         significa algo cuando hay hallazgo; el
+                                                         resto de los casos se lee por su estado. --}}
                                                     @php
-                                                        $estados = [
-                                                            'CUMPLE' => ['Cumple', 'ok'],
-                                                            'HALLAZGO' => ['No cumple', 'danger'],
-                                                            'OMITIDA' => ['No aplica', 'idle'],
-                                                            'ERROR_TECNICO' => ['Fuera de rango', 'warn'],
-                                                        ];
-                                                        [$etiqueta, $tono] = $estados[$r['estado'] ?? ''] ?? [$r['estado'] ?? '—', 'idle'];
+                                                        $estadoFila = $r['estado'] ?? '';
+                                                        $esHallazgoFila = $estadoFila === 'HALLAZGO';
+
+                                                        if ($esHallazgoFila) {
+                                                            $etiqueta = ($r['severidad'] ?? '') === 'ERROR' ? 'Error' : 'Por revisar';
+                                                        } else {
+                                                            $etiqueta = [
+                                                                'CUMPLE' => 'Cumple',
+                                                                'OMITIDA' => 'No aplica',
+                                                                'ERROR_TECNICO' => 'Fuera de rango',
+                                                            ][$estadoFila] ?? $estadoFila;
+                                                        }
+
+                                                        $tono = match (true) {
+                                                            $esHallazgoFila && ($r['severidad'] ?? '') === 'ERROR' => 'danger',
+                                                            $esHallazgoFila => 'warn',
+                                                            $estadoFila === 'CUMPLE' => 'ok',
+                                                            $estadoFila === 'ERROR_TECNICO' => 'warn',
+                                                            default => 'idle',
+                                                        };
                                                     @endphp
                                                     <x-ui.badge :tono="$tono">{{ $etiqueta }}</x-ui.badge>
                                                 </td>
 
-                                                <td class="whitespace-nowrap font-mono text-xs text-muted-foreground">
-                                                    {{ $r['expresion1'] ?? '' }} {{ $r['operador'] ?? '' }} {{ $r['expresion2'] ?? '' }}
+                                                <td class="font-mono text-xs text-muted-foreground">
+                                                    <span class="block max-w-[26ch] break-words">{{ $r['expresion1'] ?? '' }} {{ $r['operador'] ?? '' }} {{ $r['expresion2'] ?? '' }}</span>
                                                 </td>
 
-                                                <td>
-                                                    <span class="block">{{ $r['mensaje'] ?? '' }}</span>
+                                                <td class="celda-mensaje">
+                                                    <div class="mensaje-regla">
+                                                        @foreach (\App\Validador\DetalleResultado::segmentar((string) ($r['mensaje'] ?? '')) as $parte)
+                                                            <div>
+                                                                @if ($parte['rem'] !== '')
+                                                                    <span class="mr-1.5 font-mono text-[11px] text-muted-foreground">{{ $parte['rem'] }}</span>
+                                                                @endif
+                                                                @if ($parte['secciones'] !== '')
+                                                                    <span class="text-[11px] text-muted-foreground">{{ $parte['secciones'] }}</span>
+                                                                @endif
+                                                                <span class="block">{{ $parte['detalle'] }}</span>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+
                                                     @if (! empty($r['evidencia']))
-                                                        <span class="mt-0.5 block text-xs text-muted-foreground">
+                                                        <p class="evidencia-regla font-mono break-words">
                                                             {{ $r['evidencia'] }}
-                                                        </span>
+                                                        </p>
                                                     @endif
                                                 </td>
                                             </tr>
@@ -308,9 +328,13 @@
                             </div>
                         </x-ui.card>
 
-                        {{-- Detalle del resultado abierto, al lado de la tabla. --}}
+                        {{-- El detalle va debajo, a todo el ancho: al lado la
+                             tabla se queda sin espacio para seis columnas y el
+                             mensaje deja de leerse. El enlace salta aquí. --}}
                         @if ($seleccionado !== null)
-                            <x-validador.detalle :seleccionado="$seleccionado" :ejecucion="$ejecucion" :filtro="$filtro" />
+                            <div id="detalle" class="scroll-mt-24">
+                                <x-validador.detalle :seleccionado="$seleccionado" :ejecucion="$ejecucion" :filtro="$filtro" />
+                            </div>
                         @endif
                     </div>
                 @endif
