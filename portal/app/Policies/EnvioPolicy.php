@@ -103,6 +103,20 @@ class EnvioPolicy
         return true;
     }
 
+    /**
+     * Reabrir un envío aprobado (RF-044.2, D-043).
+     *
+     * Solo se reabre lo aprobado y solo con el permiso `envios.reabrir`, que en
+     * la v3 tienen el Equipo REM y el administrador. El envío tiene que estar
+     * en el alcance de quien reabre: un revisor no reabre lo que no revisa.
+     */
+    public function reabrir(User $usuario, Envio $envio): bool
+    {
+        return $usuario->can('envios.reabrir')
+            && $envio->estado === Envio::APROBADO
+            && $this->view($usuario, $envio);
+    }
+
     public function delete(User $usuario, Envio $envio): bool
     {
         // Un envío no se borra: queda auditado.

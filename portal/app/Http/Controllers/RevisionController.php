@@ -2,26 +2,31 @@
 
 namespace App\Http\Controllers;
 
+use App\Dominio\Alcance;
 use App\Exceptions\EnvioInvalidoException;
 use App\Models\Envio;
-use App\Models\Establecimiento;
+use App\Models\Serie;
 use App\Services\EstadoEnvioService;
 use App\Services\ObservacionService;
+use App\Services\SolicitudReenvioService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
- * Bandeja de revisión del Servicio de Salud (T-F3-03).
+ * Bandeja de revisión del Equipo REM (T-F3-03).
  *
- * El revisor trabaja aquí: ve lo que espera revisión, observa o aprueba sin
- * entrar envío por envío. Cada acción pasa por la policy del envío.
+ * El revisor trabaja aquí: ve lo que espera revisión en **sus establecimientos
+ * asignados**, observa o aprueba sin entrar envío por envío, y pide una nueva
+ * subida cuando encuentra un error. Cada acción pasa por la policy del envío.
  */
 class RevisionController extends Controller
 {
     public function __construct(
         private readonly ObservacionService $observaciones,
         private readonly EstadoEnvioService $estados,
+        private readonly Alcance $alcance,
+        private readonly SolicitudReenvioService $reenvios,
     ) {
     }
 
@@ -69,6 +74,7 @@ class RevisionController extends Controller
         return view('revision.index', [
             'envios' => $consulta->paginate(25)->withQueryString(),
             'establecimientos' => $this->establecimientosDelAlcance($request),
+            'sinAsignacion' => $this->alcance->sinAsignacion($usuario),
             'estados' => [
                 Envio::EN_REVISION => 'En revisión',
                 Envio::OBSERVADO   => 'Observado',
@@ -141,18 +147,117 @@ class RevisionController extends Controller
     }
 
     /**
-     * Establecimientos que el revisor puede filtrar: los de su Servicio.
+     * Formulario para pedir una nueva subida (RF-044).
+     *
+     * Se apoya en un período para no ofrecer un desplegable con todos los
+     * envíos de todos los años: el revisor trabaja mes a mes.
+     */
+    public function formularioReenvio(Request $request): View
+    {
+        $this->authorize('viewAny', Envio::class);
+
+        $anio = $request->filled('anio') ? $request->integer('anio') : (int) now()->year;
+        $mes = $request->filled('mes') ? $request->integer('mes') : (int) now()->month;
+        $mes = max(1, min(12, $mes));
+
+        return view('revision.reenvio', [
+            'anio'   => $anio,
+            'mes'    => $mes,
+            'envios' => $this->reenvios->enviosDelPeriodo($request->user(), $anio, $mes),
+            'series' => Serie::where('activo', true)->orderBy('orden')->get(),
+        ]);
+    }
+
+    /**
+     * Reabre un envío aprobado para que el establecimiento vuelva a subir
+     * (RF-044.2).
+     */
+    public function reabrir(Request $request, Envio $envio): RedirectResponse
+    {
+        $this->authorize('reabrir', $envio);
+
+        $datos = $request->validate([
+            'motivo' => ['required', 'string', 'min:10', 'max:500'],
+        ], [
+            'motivo.required' => 'Explique por qué reabre el envío.',
+            'motivo.min'      => 'El motivo necesita al menos 10 caracteres.',
+        ]);
+
+        try {
+            $this->estados->reabrir($envio, $request->user(), $datos['motivo']);
+        } catch (EnvioInvalidoException $e) {
+            return back()->withErrors(['reabrir' => $e->getMessage()]);
+        }
+
+        return redirect()
+            ->route('envios.show', $envio)
+            ->with('ok', 'Envío reabierto. El establecimiento recibió el aviso.');
+    }
+
+    /**
+     * Pide al encargado que vuelva a subir la estadística (RF-044).
+     *
+     * Tres alcances en una sola acción: una serie, todas las series de un
+     * envío o todos los establecimientos asignados en un período.
+     */
+    public function solicitarReenvio(Request $request): RedirectResponse
+    {
+        $datos = $request->validate([
+            'alcance'    => ['required', 'in:serie,envio,asignados'],
+            'motivo'     => ['required', 'string', 'min:10', 'max:500'],
+            'envio_id'   => ['required_if:alcance,serie,envio', 'nullable', 'integer', 'exists:envios,id'],
+            'serie_id'   => ['required_if:alcance,serie', 'nullable', 'integer', 'exists:series,id'],
+            'anio'       => ['required_if:alcance,asignados', 'nullable', 'integer', 'min:2000', 'max:2100'],
+            'mes'        => ['required_if:alcance,asignados', 'nullable', 'integer', 'min:1', 'max:12'],
+        ], [
+            'motivo.required' => 'Escriba qué debe corregir el establecimiento.',
+            'motivo.min'      => 'El motivo necesita al menos 10 caracteres.',
+            'alcance.required' => 'Indique el alcance de la solicitud.',
+        ]);
+
+        $envio = $datos['envio_id'] ?? null ? Envio::findOrFail($datos['envio_id']) : null;
+
+        if ($envio !== null) {
+            // La solicitud es una acción de revisión y se apoya en observar,
+            // salvo sobre un envío ya aprobado: ahí lo que corresponde es
+            // reabrirlo (RF-044.2), y `observar` exige EN_REVISION. Sin esta
+            // rama, el reenvío por serie o por envío moría con 403 y solo la
+            // vía «asignados» reabría, que es otro alcance del que el revisor
+            // eligió.
+            $this->authorize(
+                $envio->estado === Envio::APROBADO ? 'reabrir' : 'observar',
+                $envio
+            );
+        }
+
+        try {
+            $resultado = $this->reenvios->solicitar(
+                $request->user(),
+                $datos['alcance'],
+                $datos['motivo'],
+                $envio,
+                ! empty($datos['serie_id']) ? Serie::findOrFail($datos['serie_id']) : null,
+                isset($datos['anio']) ? (int) $datos['anio'] : null,
+                isset($datos['mes']) ? (int) $datos['mes'] : null,
+            );
+        } catch (EnvioInvalidoException $e) {
+            return back()->withErrors(['reenvio' => $e->getMessage()]);
+        }
+
+        $mensaje = $resultado['envios'] === 0
+            ? 'No hubo envíos que corregir en el período seleccionado.'
+            : "Solicitud enviada: {$resultado['envios']} envío(s), {$resultado['observaciones']} observación(es).";
+
+        return redirect()
+            ->route('revision.index')
+            ->with('ok', $mensaje);
+    }
+
+    /**
+     * Establecimientos que el revisor puede filtrar: los que tiene asignados.
      */
     private function establecimientosDelAlcance(Request $request): \Illuminate\Database\Eloquent\Collection
     {
-        $usuario = $request->user();
-
-        $consulta = Establecimiento::query()->orderBy('nombre');
-
-        if ($usuario->hasRole('revisor') && $usuario->servicio_id !== null) {
-            $consulta->where('servicio_id', $usuario->servicio_id);
-        }
-
-        return $consulta->get();
+        return $this->alcance->establecimientos($request->user());
     }
 }

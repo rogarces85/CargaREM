@@ -48,6 +48,7 @@ class CargaTest extends TestCase
 
         $this->revisor = User::factory()->create(['activo' => true]);
         $this->revisor->assignRole('revisor');
+        $this->revisor->establecimientos()->attach($establecimiento->id);
 
         $this->admin = User::factory()->create(['activo' => true]);
         $this->admin->assignRole('admin');

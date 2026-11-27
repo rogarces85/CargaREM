@@ -29,7 +29,7 @@ class Envio extends Model
     protected $fillable = [
         'establecimiento_id', 'anio', 'mes', 'estado', 'enviado_por', 'revisor_id',
         'observacion_general', 'fecha_envio', 'fecha_revision', 'fecha_aprobacion',
-        'fecha_limite', 'fuera_de_plazo',
+        'fecha_limite', 'fuera_de_plazo', 'apertura_id',
     ];
 
     protected function casts(): array
@@ -46,29 +46,22 @@ class Envio extends Model
     }
 
     /**
-     * Aislamiento por usuario en la CONSULTA, no en la vista (RN-ENV-1,
+     * Aislamiento por usuario en la CONSULTA, no en la vista (R-ALC-01,
      * principio 18).
      *
      * - admin: todo.
-     * - revisor: su Servicio de Salud.
+     * - revisor (Equipo REM): solo los establecimientos que el administrador le
+     *   asignó. **Sin asignación no ve ninguno.**
      * - encargado: sus establecimientos asignados.
+     *
+     * Antes el revisor veía todo su Servicio y, si no tenía Servicio declarado,
+     * veía todo el portal. La v3 cambia el modelo: el alcance es la asignación
+     * explícita y la regla vive en `App\Dominio\Alcance`.
      */
     public function scopeForUser(Builder $query, User $usuario): Builder
     {
         if ($usuario->hasRole('admin')) {
             return $query;
-        }
-
-        if ($usuario->hasRole('revisor')) {
-            // Sin Servicio declarado (dato viejo) el revisor ve todo, igual que
-            // antes de recuperar el catálogo de servicios.
-            if ($usuario->servicio_id === null) {
-                return $query;
-            }
-
-            return $query->whereHas('establecimiento', function (Builder $establecimiento) use ($usuario) {
-                $establecimiento->where('servicio_id', $usuario->servicio_id);
-            });
         }
 
         return $query->whereIn(
@@ -116,6 +109,23 @@ class Envio extends Model
     public function revisor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'revisor_id');
+    }
+
+    /**
+     * Apertura que autorizó la carga, si la hubo (RF-043).
+     *
+     * Un envío cargado fuera de plazo con autorización conserva la marca
+     * `fuera_de_plazo` —es un hecho— y además dice con qué permiso entró.
+     */
+    public function apertura(): BelongsTo
+    {
+        return $this->belongsTo(Apertura::class);
+    }
+
+    /** ¿Se cargó al amparo de una apertura de plazo? */
+    public function conApertura(): bool
+    {
+        return $this->apertura_id !== null;
     }
 
     public function estaAbierto(): bool

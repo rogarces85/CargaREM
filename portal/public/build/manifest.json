@@ -27,6 +27,12 @@
     "file": "assets/inter-vietnamese-wght-normal-CBcvBZtf.woff2",
     "src": "node_modules/@fontsource-variable/inter/files/inter-vietnamese-wght-normal.woff2"
   },
+  "node_modules/apexcharts/dist/apexcharts.esm.js": {
+    "file": "assets/apexcharts.esm-B3aHTZ1m.js",
+    "name": "apexcharts.esm",
+    "src": "node_modules/apexcharts/dist/apexcharts.esm.js",
+    "isDynamicEntry": true
+  },
   "node_modules/notyf/notyf.es.js": {
     "file": "assets/notyf.es-D99u0-HC.js",
     "name": "notyf.es",
@@ -34,17 +40,18 @@
     "isDynamicEntry": true
   },
   "resources/css/app.css": {
-    "file": "assets/app-Du7OEcZ7.css",
+    "file": "assets/app-BMrtY-hB.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
   "resources/js/app.js": {
-    "file": "assets/app-DpwUIxer.js",
+    "file": "assets/app-DPaRgz7s.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
     "dynamicImports": [
-      "node_modules/notyf/notyf.es.js"
+      "node_modules/notyf/notyf.es.js",
+      "node_modules/apexcharts/dist/apexcharts.esm.js"
     ]
   }
 }

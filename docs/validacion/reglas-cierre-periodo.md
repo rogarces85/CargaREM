@@ -1,20 +1,23 @@
 ---
 type: reglas
-title: Reglas de cierre de período
-description: Plazo mensual (quinto día hábil del mes siguiente), calendario de feriados, estados del período (abierto / en_revision / cerrado) y qué puede hacer cada rol.
-tags: [validacion, periodo, cierre, plazos, d4, calendario]
-timestamp: 2026-11-14T15:30:00Z
+title: Reglas de cierre de período y aperturas de plazo
+description: Plazo mensual (quinto día hábil del mes siguiente), calendario de feriados, estados del período (abierto / en_revision / cerrado), aperturas de fuera de plazo y qué puede hacer cada rol.
+tags: [validacion, periodo, cierre, plazos, d4, calendario, aperturas]
+timestamp: 2026-11-26T12:00:00Z
 topic: validacion
 status: vigente
-source: 02-DOCS/wiki/sdd/decisions.md (D-029); specs/MVP_V2.md §5.2
+source: 02-DOCS/wiki/sdd/decisions.md (D-029, D-044 y D-046); specs/MVP_V3.md §8
 ---
 
-# Reglas de cierre de período
+# Reglas de cierre de período y aperturas de plazo
 
-> **Decisión que implementa:** **D-029** (hereda D4): plazo = **quinto día hábil
-> del mes siguiente**, con calendario de feriados de Chile.
+> **Decisiones que implementa:** **D-029** (hereda D4): plazo = **quinto día hábil
+> del mes siguiente**, con calendario de feriados de Chile; **D-046**: el
+> calendario se genera solo y se verifica; **D-044**: las excepciones son
+> aperturas con motivo y vencimiento.
 > **Para qué sirve:** define hasta cuándo se recibe un período, cuándo se marca
-> «fuera de plazo» y quién cierra o corrige el período.
+> «fuera de plazo», quién cierra o corrige el período y cómo se autoriza una
+> carga tardía.
 
 ---
 
@@ -59,6 +62,27 @@ en un período concreto, y esa decisión queda registrada.
 | **R-CIE-10** | La completitud se calcula con el estado **vigente** del período. | Evita que un cierre cambie cifras ya publicadas. |
 | **R-CIE-11** | Los recordatorios de plazo son opcionales y **nunca** bloquean ni cambian un estado. | Si no hay cron, el sistema funciona igual. |
 | **R-CIE-12** | Los feriados se cargan por año en la tabla `feriados` (nacionales, y regionales si aplican). Si un año no tiene feriados, el plazo se calcula solo con fines de semana y la pantalla de calendario lo advierte. | Pantalla **Calendario de plazos**; `php artisan rem:calendario <año>`. |
+
+### Generación automática (D-046)
+
+| ID | Regla | Verificación |
+|---|---|---|
+| **R-CIE-13** | El período que falta **se crea al pedirlo**, con su fecha calculada: el alta de un envío no depende de que el administrador haya creado el período. | `EnvioService::periodoDe()`; `test_crea_el_periodo_que_falta_con_su_fecha_calculada` |
+| **R-CIE-14** | Los doce períodos de un año se generan con `php artisan rem:periodos:generar` o desde el calendario del administrador. La operación es idempotente y **no toca estados**: crear no es cerrar. | `App\Support\Plazos::generar()`; `CalendarioAutomaticoTest` |
+| **R-CIE-15** | `php artisan rem:calendario --verificar` compara lo guardado con lo calculado y devuelve código ≠ 0 si hay diferencias. Una fecha manual no cuenta como diferencia. | `Plazos::diferencias()`; test del comando |
+| **R-CIE-16** | Los feriados se siembran por año desde una lista verificada (2026 y 2027) con `php artisan rem:feriados:cargar`. Un año nuevo se agrega al seeder o por la pantalla de Feriados. | `FeriadosSeeder::FERIADOS` |
+| **R-CIE-17** | Las tareas programadas (`routes/console.php`) mantienen el calendario al día **si hay cron**. Sin cron el portal funciona igual, porque la generación es perezosa. | Constitución, principio 3 |
+
+### Aperturas de fuera de plazo (D-044)
+
+| ID | Regla | Verificación |
+|---|---|---|
+| **R-CIE-18** | Un período `cerrado` o `en_revision` solo acepta cargas de un establecimiento con **apertura vigente**. La apertura no cambia el estado del período. | `AperturaService::permite()`; `AperturaFueraPlazoTest` |
+| **R-CIE-19** | Solo el **administrador** resuelve una solicitud, abre por su cuenta o anula una apertura. El encargado solo pide. | `AperturaPolicy`; test de «solo el administrador resuelve» |
+| **R-CIE-20** | El motivo de la solicitud (≥ 15 caracteres) y el de la resolución son obligatorios; todo queda auditado. | `apertura.solicitada`, `apertura.aprobada`, `apertura.rechazada`, `apertura.abierta`, `apertura.anulada` |
+| **R-CIE-21** | La ventana vale hasta su `vigente_hasta`. Vencida, el bloqueo vuelve sin intervención; `rem:aperturas:cerrar` solo deja el estado explícito. | `Apertura::estaVigente()` |
+| **R-CIE-22** | Una apertura para «todos» vale para los establecimientos activos del Servicio, no solo para el que pidió. | `AperturaService::vigentePara()` |
+| **R-CIE-23** | El envío cargado con una apertura guarda su `apertura_id`. La marca `fuera_de_plazo` **se conserva**: es un hecho, no una sanción. | `envios.apertura_id`; `Envio::conApertura()` |
 
 ---
 
@@ -110,10 +134,11 @@ crear o corregir los períodos del año.
 
 | # | Pregunta | Por qué importa |
 |---|---|---|
-| 1 | ¿El plazo de 5 días hábiles rige para todos los establecimientos o hay excepciones por convenio? | Si varía, se usa el override manual por período. |
+| 1 | ¿El plazo de 5 días hábiles rige para todos los establecimientos o hay excepciones por convenio? | ✅ **Resuelto (v3):** toda excepción pasa por una apertura de plazo con motivo (D-044). |
 | 2 | ¿Quién declara el cierre: la Unidad de Estadísticas central o cada referente? | Define el alcance de `periodos.gestionar`. |
-| 3 | ¿Un envío `observado` puede corregirse después del cierre? | Hoy la regla dice que sí (R-CIE-05). Si no, cambia el flujo de revisión. |
-| 4 | ¿Se cargan feriados regionales de Los Lagos además de los nacionales? | La tabla los admite; hoy se siembran solo los nacionales. |
+| 3 | ¿Un envío `observado` puede corregirse después del cierre? | Hoy la regla dice que sí (R-CIE-05) y la corrección de un observado no necesita apertura. |
+| 4 | ¿Se cargan feriados regionales de Los Lagos además de los nacionales? | La tabla los admite; hoy se siembran solo los nacionales (16 en 2026, 17 en 2027). |
+| 5 | ¿Cuánto dura una ventana de apertura típica? | El administrador la fija; el sistema no impone un máximo. |
 
 ---
 
@@ -122,6 +147,10 @@ crear o corregir los períodos del año.
 | Elemento | Origen |
 |---|---|
 | D-029 (D4 resuelta) | `02-DOCS/wiki/sdd/decisions.md` |
-| Regla del plazo | `specs/MVP_V2.md` §5.2 |
-| Feriados 2026 | `FeriadosSeeder` (Ley 19.973) |
+| D-044 (aperturas) y D-046 (generación) | `02-DOCS/wiki/sdd/decisions.md` |
+| Regla del plazo | `specs/MVP_V3.md` §8 |
+| Feriados 2026 y 2027 | `FeriadosSeeder` (Ley 19.973, 19.668 y 20.983), contrastados con [feriados.cl](https://www.feriados.cl/) |
 | Cálculo | `app/Services/CalendarioService.php` |
+| Generación | `app/Support/Plazos.php` |
+| Aperturas | `app/Services/AperturaService.php` |
+| Tests | `CalendarioAutomaticoTest`, `PlazoTest`, `AperturaFueraPlazoTest`, `AdminCalendarioTest` |

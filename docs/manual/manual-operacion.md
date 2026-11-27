@@ -128,23 +128,44 @@ texto de las observaciones**: solo identificadores y códigos.
 | Tarea | Frecuencia | Efecto |
 |---|---|---|
 | Respaldo | diaria | Copia base y archivos |
-| Feriados del año siguiente | anual, antes de enero | Cargarlos en **Feriados** y revisar **Calendario de plazos** |
+| Feriados del año siguiente | anual, antes de enero | `rem:feriados:cargar` y revisar **Calendario de plazos** |
 | `queue:work` | no aplica | El portal no usa colas |
+| Tareas programadas de `routes/console.php` | si hay cron | Mantienen el calendario y limpian el Validador; **el portal funciona sin ellas** |
 
 ### Calendario de plazos
 
-El plazo de cada período es el **quinto día hábil del mes siguiente** (D-029).
-Los días no hábiles son sábados, domingos y los feriados de la tabla `feriados`.
+El plazo de cada período es el **quinto día hábil del mes siguiente** (D-029,
+D-046). Los días no hábiles son sábados, domingos y los feriados de la tabla
+`feriados`.
 
 ```bash
 php artisan rem:calendario 2026              # muestra los doce plazos del año
-php artisan rem:calendario 2026 --actualizar # crea los períodos que faltan y corrige fechas
+php artisan rem:calendario 2026 --actualizar # crea los períodos y corrige fechas
+php artisan rem:calendario 2026 --verificar  # falla (código 1) si hay desfase
+php artisan rem:periodos:generar 2027        # crea los períodos del año
+php artisan rem:periodos:generar --siguiente # año en curso y el siguiente
+php artisan rem:feriados:cargar 2027         # carga los feriados verificados
 ```
+
+**El calendario se genera solo:** el alta de un envío crea el período que falta
+con su fecha calculada. Los comandos y las tareas programadas solo lo mantienen
+al día; si el servidor no tiene cron, el portal funciona igual.
 
 Si un año no tiene feriados cargados, el comando lo advierte y la pantalla
 **Calendario de plazos** muestra el aviso: el plazo se calcula solo con fines de
-semana y puede quedar 1 o 2 días más largo. Los feriados se cargan a mano
-(pantalla **Feriados**) porque la lista oficial cambia cada año.
+semana y puede quedar 1 o 2 días más largo. Los feriados se cargan con
+`rem:feriados:cargar` (2026 y 2027 verificados) o a mano en **Feriados**.
+
+### Aperturas y Validador
+
+```bash
+php artisan rem:aperturas:cerrar   # marca como anuladas las ventanas vencidas
+php artisan rem:validador:limpiar  # borra archivos del Validador con más de 90 días
+```
+
+Ninguno es necesario para que el sistema funcione: una apertura vencida ya no
+habilita nada porque la fecha se comprueba en cada carga, y el archivo del
+Validador solo ocupa disco.
 
 ## Problemas comunes
 

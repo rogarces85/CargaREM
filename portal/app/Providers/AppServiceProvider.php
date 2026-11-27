@@ -9,11 +9,13 @@ use App\Models\Serie;
 use App\Models\Servicio;
 use App\Models\User;
 use App\Observers\AuditoriaCatalogoObserver;
+use App\Policies\AperturaPolicy;
 use App\Services\AuditoriaService;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -25,6 +27,13 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // La policy de aperturas necesita el alcance por constructor. Laravel la
+        // resuelve por el contenedor solo si se registra a mano: el nombre
+        // `AperturaPolicy` no basta porque el modelo vive en `App\Models` y el
+        // descubrimiento por convención ya debería encontrarla, pero se declara
+        // explícita para que el lector no tenga que adivinarlo.
+        Gate::policy(\App\Models\Apertura::class, AperturaPolicy::class);
+
         /*
          * Auditoría de acceso (T-F1-27, principio 21).
          *

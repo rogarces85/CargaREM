@@ -6,22 +6,27 @@ use App\Http\Controllers\Controller;
 use App\Models\Feriado;
 use App\Models\Periodo;
 use App\Services\CalendarioService;
+use App\Support\Plazos;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 /**
- * Calendario anual de plazos (D-029).
+ * Calendario anual de plazos (D-029, RF-046).
  *
  * Muestra, para cada mes del año, la fecha límite calculada —fin del quinto
  * día hábil del mes siguiente— y permite crear o actualizar los períodos con
  * esa fecha. Los feriados del año se listan al lado para poder revisarlos.
+ *
+ * La generación la hace `App\Support\Plazos`, el mismo servicio que usan los
+ * comandos: antes esta lógica estaba copiada aquí y en la consola.
  */
 class CalendarioController extends Controller
 {
-    public function __construct(private readonly CalendarioService $calendario)
-    {
+    public function __construct(
+        private readonly CalendarioService $calendario,
+        private readonly Plazos $plazos,
+    ) {
     }
 
     public function index(Request $request): View
@@ -45,6 +50,7 @@ class CalendarioController extends Controller
             'feriados'           => Feriado::whereYear('fecha', $anio)->orderBy('fecha')->get(),
             'feriadosDelAnio'    => $this->calendario->hayFeriados($anio),
             'feriadosSiguiente'  => $this->calendario->hayFeriados($anio + 1),
+            'diferencias'        => $this->plazos->diferencias($anio),
         ]);
     }
 
@@ -59,34 +65,10 @@ class CalendarioController extends Controller
         ]);
 
         $anio = (int) $datos['anio'];
-        $creados = 0;
-        $actualizados = 0;
-
-        DB::transaction(function () use ($anio, &$creados, &$actualizados) {
-            for ($mes = 1; $mes <= 12; $mes++) {
-                $periodo = Periodo::firstOrNew(['anio' => $anio, 'mes' => $mes]);
-
-                if (! $periodo->exists) {
-                    $periodo->estado = Periodo::ABIERTO;
-                    $periodo->fecha_limite = $this->calendario->fechaLimite($anio, $mes)->toDateString();
-                    $periodo->save();
-                    $creados++;
-
-                    continue;
-                }
-
-                if ($periodo->fecha_limite_manual) {
-                    continue;
-                }
-
-                $periodo->fecha_limite = $this->calendario->fechaLimite($anio, $mes)->toDateString();
-                $periodo->save();
-                $actualizados++;
-            }
-        });
+        $resultado = $this->plazos->generar($anio);
 
         return redirect()
             ->route('admin.calendario.index', ['anio' => $anio])
-            ->with('ok', "Calendario aplicado: {$creados} período(s) creado(s) y {$actualizados} fecha(s) actualizada(s).");
+            ->with('ok', "Calendario aplicado: {$resultado['creados']} período(s) creado(s) y {$resultado['actualizados']} fecha(s) actualizada(s).");
     }
 }

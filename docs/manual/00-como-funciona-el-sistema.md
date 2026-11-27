@@ -35,17 +35,33 @@ Si alguien entiende que **el envío es el establecimiento-mes**, entiende el sis
 
 ## 2. Los tres roles y su alcance
 
-| Rol | Quién es en la demo | Qué ve | Qué hace |
-|---|---|---|---|
-| **encargado** | Encargado Hospital Base (`123100 123101 123102 123103`) y Encargado Postas (`123104 123105 123106`) | Solo sus establecimientos | Crea el envío, sube archivos, envía a revisión |
-| **revisor** | Revisor Unidad de Estadísticas | Todo el Servicio (1 servicio, 7 establecimientos) | Observa o aprueba |
-| **admin** | Administrador REM | Todo, incluida la administración | Catálogos, matriz, calendario, usuarios, y también puede operar |
+| Rol | Nombre en pantalla | Quién es en la demo | Qué ve | Qué hace |
+|---|---|---|---|---|
+| **encargado** | Encargado de establecimiento | Encargado Hospital Base (`123100 123101 123102 123103`) y Encargado Postas (`123104 123105 123106`) | Solo sus establecimientos | Crea el envío, sube archivos, envía a revisión, pide apertura de plazo |
+| **revisor** | **Equipo REM** | Los cuatro integrantes de la Unidad | Solo los establecimientos que el administrador le asigna | Observa, aprueba, reabre, pide nueva subida, usa el Validador |
+| **admin** | Administrador | Administrador REM | Todo, incluida la administración | Catálogos, matriz, calendario, usuarios, asignaciones, aperturas |
 
 El alcance se aplica **en la consulta a la base**, no escondiendo botones
-(`Envio::scopeForUser`). Un encargado no puede abrir el envío de otro ni escribiendo la URL.
+(`App\Dominio\Alcance`, `Envio::scopeForUser`). Un encargado no puede abrir el envío de
+otro ni escribiendo la URL, y **un revisor sin establecimientos no ve ninguno**: el
+sistema avisa en vez de mostrarle el Servicio completo.
 
 Hay **dos usuarios encargado** con el mismo rol y distinto alcance. Es a propósito: el
 Hospital Base y las Postas Rurales son dos personas.
+
+> **La clave interna del revisor sigue siendo `revisor`.** El nombre visible se resuelve
+> en `App\Support\RolUi`; migrar la clave obligaría a reescribir permisos y tests sin que
+> el usuario note la diferencia.
+
+### Lo que la v3 agrega al mapa
+
+| Módulo | Qué hace |
+|---|---|
+| **Aperturas de plazo** | El encargado pide cargar un período cerrado; el administrador la aprueba con fecha de término |
+| **Solicitud de nueva subida** | El Equipo REM pide volver a subir una serie, un envío completo o todos sus establecimientos de un período |
+| **Reapertura** | Un envío aprobado vuelve a «observado» con motivo para que el establecimiento corrija |
+| **Panel** | Cada rol ve sus cifras y sus gráficos, con respaldo en texto |
+| **Validador** | Cualquier usuario revisa un Excel con las reglas de calidad; no toca ningún envío |
 
 ---
 

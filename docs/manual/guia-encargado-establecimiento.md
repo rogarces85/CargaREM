@@ -27,18 +27,20 @@ pulsas «Enviar a revisión».
 Arriba, siempre: el logo, el botón de tema (claro/oscuro), la **campana** de avisos y tu
 cuenta.
 
-A la izquierda, tu menú tiene dos secciones:
+A la izquierda, tu menú tiene estas secciones:
 
 | Sección | Pantalla | Para qué |
 |---|---|---|
-| General | **Panel** | Punto de partida |
+| General | **Panel** | Tus cifras del mes y tus accesos |
 | Operación | **Envíos** | Tu trabajo del mes |
 | Operación | **Completitud** | Si quedaste al día, serie por serie |
+| Plazos | **Pedir apertura** | Cargar un período que ya cerró |
+| Calidad | **Validador** | Revisar tu Excel antes de subirlo |
 
-**No verás «Revisión».** Esa bandeja es del Servicio de Salud, no del establecimiento.
+**No verás «Equipo REM».** Esa bandeja es del equipo que revisa, no del establecimiento.
 
-Tu panel muestra dos accesos: Envíos y Completitud. Debajo, un recordatorio del flujo en
-cuatro pasos.
+Tu panel muestra tus cifras (envíos del año, aprobados, atrasos y subidas por mes),
+tus accesos y un recordatorio del flujo en cuatro pasos.
 
 ---
 
@@ -172,21 +174,63 @@ Servicio completo, no el tuyo.
 | «El período está en revisión» | El mes pasó a revisión global | Solo el admin puede cargar |
 | «Ya existe un envío para ese establecimiento y período» | Lo creaste antes | Abre el existente; no crees otro |
 | «Hay archivos sin validar» | Subiste algo que no terminó de validar | Entra al envío y vuelve a subir esa serie |
+| «El período está cerrado y no acepta cargas» | Ya cerró y no tienes apertura | Pide una apertura en **Pedir apertura** |
 
 ---
 
-## 4. Lo que no puedes hacer
+## 4. Cuando el período ya cerró: aperturas de plazo
+
+Cargar fuera de plazo requiere una **apertura** aprobada por el administrador.
+
+1. Abre **Pedir apertura** en el menú.
+2. Elige el establecimiento y el período.
+3. Escribe el motivo, con detalle: el administrador decide con esa información.
+   Mínimo 15 caracteres.
+4. Envía la solicitud. El administrador recibe el aviso.
+5. Cuando la apruebe, podrás crear el envío y subir archivos **mientras la
+   apertura esté vigente**. Si vence, el bloqueo vuelve.
+
+La apertura vale para tu establecimiento. Si el administrador abre una para
+todos, alcanza a los establecimientos del Servicio.
+
+Tu envío cargado así queda como **Fuera de plazo** —es un hecho— y con la marca
+**Con apertura**, que dice con qué autorización entró.
+
+## 5. La serie P no es mensual
+
+La serie **P** se informa dos veces al año:
+
+- la estadística de **junio**, con el plazo de julio;
+- la estadística de **diciembre**, con el plazo de enero.
+
+En los demás meses **no aparece como faltante**. Si la subes, se acepta, pero no
+cuenta para la completitud.
+
+## 6. El Validador: revisa tu archivo antes de subirlo
+
+**Calidad → Validador** te permite revisar un Excel con las reglas de la Unidad de
+Estadísticas antes de subirlo al envío.
+
+1. Sube el archivo.
+2. Revisa los hallazgos: te dice hoja, celda y qué está mal.
+3. Corrige el Excel y vuelve a subirlo al envío.
+
+El Validador **no cambia nada del envío**: no lo crea, no lo aprueba y no lo
+observa. Es una lupa.
+
+## 7. Lo que no puedes hacer
 
 - **Ver envíos de otro establecimiento.** Ni escribiendo la dirección a mano: el sistema
   filtra en la consulta.
-- **Aprobar tu propio envío.** Aprobar es del Servicio de Salud.
+- **Aprobar tu propio envío.** Aprobar es del Equipo REM.
 - **Editar los catálogos** (series, establecimientos, matriz, períodos). Eso es del admin.
 - **Borrar un envío o un archivo.** Nada se borra: queda el historial.
 - **Cambiar la fecha límite.** La fija el calendario del Servicio.
+- **Aprobarte una apertura.** Solo el administrador la resuelve.
 
 ---
 
-## 5. Tu cuenta
+## 8. Tu cuenta
 
 Arriba a la derecha, tu nombre abre el menú de cuenta. Ahí está **Mi cuenta**, donde puedes
 cambiar tu nombre y tu contraseña.

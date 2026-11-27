@@ -1,13 +1,18 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "description": "Matriz de permisos RBAC del MVP v2 (16 permisos × 3 roles). Fuente: specs/MVP_V2.md §7.",
-  "version": "2.0",
-  "timestamp": "2026-11-13T00:00:00Z",
+  "description": "Matriz de permisos RBAC del MVP v3 (20 permisos × 3 roles). Fuente: specs/MVP_V3.md §6.",
+  "version": "3.0",
+  "timestamp": "2026-11-26T00:00:00Z",
   "roles": [
     "encargado",
     "revisor",
     "admin"
   ],
+  "role_labels": {
+    "encargado": "Encargado de establecimiento",
+    "revisor": "Equipo REM",
+    "admin": "Administrador"
+  },
   "permissions": [
     {
       "name": "envios.crear",
@@ -29,7 +34,7 @@
     },
     {
       "name": "envios.ver.ss",
-      "description": "Ver todos los envíos del Servicio",
+      "description": "Ver los envíos de los establecimientos asignados al Equipo REM",
       "matrix": {
         "encargado": false,
         "revisor": true,
@@ -65,10 +70,10 @@
     },
     {
       "name": "envios.reabrir",
-      "description": "Reabrir un envío aprobado, con motivo",
+      "description": "Reabrir un envío aprobado para que el establecimiento vuelva a subir, con motivo",
       "matrix": {
         "encargado": false,
-        "revisor": false,
+        "revisor": true,
         "admin": true
       }
     },
@@ -109,8 +114,44 @@
       }
     },
     {
+      "name": "validador.usar",
+      "description": "Usar el módulo Validador sobre un Excel propio",
+      "matrix": {
+        "encargado": true,
+        "revisor": true,
+        "admin": true
+      }
+    },
+    {
+      "name": "validador.estadisticas",
+      "description": "Ver el registro de uso del Validador por usuario y mes",
+      "matrix": {
+        "encargado": false,
+        "revisor": false,
+        "admin": true
+      }
+    },
+    {
+      "name": "aperturas.solicitar",
+      "description": "Solicitar una apertura de plazo fuera de fecha",
+      "matrix": {
+        "encargado": true,
+        "revisor": false,
+        "admin": true
+      }
+    },
+    {
+      "name": "aperturas.resolver",
+      "description": "Aprobar, rechazar o abrir por cuenta propia una apertura de plazo",
+      "matrix": {
+        "encargado": false,
+        "revisor": false,
+        "admin": true
+      }
+    },
+    {
       "name": "catalogos.importar",
-      "description": "Importar y activar snapshots de catálogo",
+      "description": "Importar el catálogo de validación",
       "matrix": {
         "encargado": false,
         "revisor": false,
@@ -155,8 +196,8 @@
     }
   ],
   "summary": {
-    "total_permissions": 16,
+    "total_permissions": 20,
     "total_roles": 3,
-    "principio_8": "Cada permiso tiene comprobación positiva y negativa; incluye aislamiento por establecimiento (RN-ENV-1) y no autoaprobación (RN-ENV-7)"
+    "principio_8": "Cada permiso tiene comprobación positiva y negativa; incluye aislamiento por establecimiento (R-ALC-01) y no autoaprobación (RN-ENV-7)"
   }
 }

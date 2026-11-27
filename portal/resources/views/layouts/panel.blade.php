@@ -76,7 +76,7 @@
 
                     @can('envios.ver.ss')
                         <li>
-                            <x-ui.nav-link :href="route('revision.index')" icono="clipboard-check" :activo="request()->routeIs('revision.*')">Revisión</x-ui.nav-link>
+                            <x-ui.nav-link :href="route('revision.index')" icono="clipboard-check" :activo="request()->routeIs('revision.*')">Equipo REM</x-ui.nav-link>
                         </li>
                     @endcan
 
@@ -86,6 +86,32 @@
                 </ul>
             </div>
         @endcanany
+
+        {{-- Aperturas de plazo (RF-043): el encargado pide, el administrador resuelve. --}}
+        @canany(['aperturas.solicitar', 'aperturas.resolver'])
+            <div>
+                <p data-nav-group-label class="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/50">Plazos</p>
+                <ul class="space-y-0.5">
+                    <li>
+                        <x-ui.nav-link :href="route('aperturas.index')" icono="calendar-plus" :activo="request()->routeIs('aperturas.*')">
+                            {{ auth()->user()->can('aperturas.resolver') ? 'Aperturas de plazo' : 'Pedir apertura' }}
+                        </x-ui.nav-link>
+                    </li>
+                </ul>
+            </div>
+        @endcanany
+
+        {{-- Validador (RF-040): para todos los usuarios, aislado del flujo. --}}
+        @can('validador.usar')
+            <div>
+                <p data-nav-group-label class="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/50">Calidad</p>
+                <ul class="space-y-0.5">
+                    <li>
+                        <x-ui.nav-link :href="route('validador.index')" icono="shield-check" :activo="request()->routeIs('validador.*')">Validador</x-ui.nav-link>
+                    </li>
+                </ul>
+            </div>
+        @endcan
 
         @can('catalogos.gestionar')
             <div>
@@ -118,13 +144,15 @@
                 </ul>
             </div>
         @endcan
-
         @can('usuarios.gestionar')
             <div>
                 <p data-nav-group-label class="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/50">Usuarios</p>
                 <ul class="space-y-0.5">
                     <li>
                         <x-ui.nav-link :href="route('admin.usuarios.index')" icono="users" :activo="request()->routeIs('admin.usuarios.*')">Usuarios</x-ui.nav-link>
+                    </li>
+                    <li>
+                        <x-ui.nav-link :href="route('admin.asignaciones.index')" icono="user-check" :activo="request()->routeIs('admin.asignaciones.*')">Asignaciones</x-ui.nav-link>
                     </li>
                 </ul>
             </div>
@@ -172,7 +200,7 @@
                     <x-ui.avatar :texto="auth()->user()->name" tamano="md" />
                     <span data-user-meta class="hidden min-w-0 sm:block">
                         <span class="block max-w-[10rem] truncate text-sm font-medium leading-tight">{{ auth()->user()->name }}</span>
-                        <span class="block text-[11px] leading-tight text-muted-foreground">{{ auth()->user()->getRoleNames()->first() ?? 'sin rol' }}</span>
+                        <span class="block text-[11px] leading-tight text-muted-foreground">{{ \App\Support\RolUi::etiqueta(auth()->user()->getRoleNames()->first()) }}</span>
                     </span>
                     <x-ui.icon name="chevron-down" class="size-3.5 shrink-0 text-muted-foreground" />
                 </summary>

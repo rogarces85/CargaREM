@@ -1,6 +1,7 @@
-# Manual del revisor del Servicio de Salud
+# Guía del Equipo REM
 
 > Para quien revisa la estadística que entregan los establecimientos y la aprueba.
+> En el portal el rol se llama **Equipo REM**; la clave interna sigue siendo `revisor`.
 > Usuario de la demo: `revisor@ssosorno.cl`, clave `Portal2026!`.
 >
 > Antes de empezar: si el portal no te abre, mira
@@ -12,26 +13,33 @@
 
 ## 0. Tu trabajo en una frase
 
-**Decidir si la estadística de cada establecimiento se aprueba o se devuelve.**
+**Decidir si la estadística de cada establecimiento se aprueba, se devuelve o se
+vuelve a pedir.**
 
-Puedes aprobar o devolver, pero no cargar ni corregir: eso es del establecimiento.
+Puedes aprobar, observar, reabrir un envío ya aprobado y pedir una nueva
+subida. No puedes cargar ni corregir archivos: eso es del establecimiento.
 
 ---
 
 ## 1. Lo que ves al entrar
 
-Tu menú tiene **tres** pantallas de operación, una más que el encargado:
-
 | Sección | Pantalla | Para qué |
 |---|---|---|
-| General | **Panel** | Punto de partida |
-| Operación | **Envíos** | El detalle de cualquier envío del Servicio |
-| Operación | **Revisión** | **Tu bandeja de trabajo** |
-| Operación | **Completitud** | Quién ha entregado y quién no |
+| General | **Panel** | Tus cifras: pendientes, aprobados, atrasos y tiempo de revisión |
+| Operación | **Envíos** | El detalle de los envíos de tus establecimientos |
+| Operación | **Equipo REM** | **Tu bandeja de trabajo** |
+| Operación | **Completitud** | Quién ha entregado y quién no, en tus establecimientos |
+| Plazos | **Aperturas de plazo** | Las que pidieron tus establecimientos |
+| Calidad | **Validador** | Revisar un Excel con las reglas de la Unidad |
 
-Ves todo el Servicio de Salud Osorno: 7 establecimientos. No ves otros Servicios.
+**Ves solo los establecimientos que el administrador te asignó** (R-ALC-01). Si no
+tienes ninguno, la bandeja aparece vacía con un aviso: pídele al administrador
+que te asigne en **Administración → Asignaciones**.
 
-La **campana** de la cabecera te avisa cuando un establecimiento manda algo a revisión.
+La **campana** de la cabecera te avisa cuando un establecimiento sube un archivo o
+envía a revisión. El aviso distingue **serie suelta** de **envío completo**, y
+las subidas seguidas se agrupan en un solo aviso. En **Notificaciones** tienes el
+historial completo, con filtro por tipo.
 
 ---
 
@@ -39,161 +47,95 @@ La **campana** de la cabecera te avisa cuando un establecimiento manda algo a re
 
 ### Paso 1 — Abrir la bandeja
 
-Menú **Revisión**.
+**Equipo REM** muestra por defecto lo que está **en revisión**, del más antiguo al
+más nuevo. Puedes filtrar por estado, establecimiento, año, antigüedad y plazo.
 
-La bandeja abre **filtrada en «En revisión»**, que es tu trabajo pendiente. Ordenada por
-**los más antiguos primero**: lo que lleva más tiempo esperando aparece arriba.
+### Paso 2 — Revisar el envío
 
-| Columna | Cómo leerla |
+Abre el envío con **Ver**. Ahí están:
+
+- las series exigidas y el archivo vigente de cada una;
+- los hallazgos de la validación;
+- las observaciones anteriores y su estado.
+
+### Paso 3 — Decidir
+
+| Situación | Acción |
 |---|---|
-| Establecimiento | Código y nombre |
-| Período | `10/2026` |
-| Estado | Dónde está el envío |
-| **Series** | Cuántos archivos vigentes tiene |
-| **Observaciones** | Cuántas quedan sin resolver (en ámbar) |
-| Esperando desde | Hace cuánto llegó |
-| Acciones | Ver · Observar · Aprobar |
+| Todo está bien y no hay observaciones abiertas | **Aprobar** |
+| Una serie tiene un problema | **Observar** y elegir la serie |
+| El período completo está mal | **Observar** sin elegir serie |
+| Ya estaba aprobado y hay un error | **Reabrir** con motivo, y después observar |
 
-> Un envío con pocas series es la primera señal de que algo falta. Compáralo con lo que la
-> matriz exige: el Hospital Base debe entregar 5.
+**Observar** devuelve el envío al establecimiento. La observación se resuelve sola
+cuando el encargado sube la corrección.
 
-### Paso 2 — Abrir el envío
+### Paso 4 — Pedir una nueva subida
 
-Pulsa **Ver**. Es la pantalla más importante y conviene conocerla entera:
+**Equipo REM → Pedir nueva subida**. Sirve cuando no basta con una observación
+suelta o cuando el envío salió mal después de aprobado. Tres alcances:
 
-| Bloque | Qué trae |
-|---|---|
-| Cabecera | Establecimiento, período, código y **fecha límite** |
-| Estado | El del envío, más la marca **«Fuera de plazo»** si llegó tarde |
-| Indicadores | Bloqueantes, advertencias, series exigidas, series subidas |
-| **Series del período** | Una fila por serie: archivo, versión, estado, bloqueantes |
-| **Hallazgos** | Todo lo que la validación encontró, con hoja y celda |
-| **Historial** | Quién movió el envío, cuándo y por qué |
+1. **Una serie** de un envío.
+2. **Todas las series** de un envío.
+3. **Todos tus establecimientos** en un período (solo los que ya están en revisión,
+   observados o aprobados).
 
-El historial es tu respaldo. Si alguien pregunta «¿cuándo llegó esto?», está ahí.
-
-### Paso 3 — Revisar el contenido
-
-Mira, en este orden:
-
-1. **¿Están todas las series exigidas?** Compara «Series subidas» con «Series exigidas».
-2. **¿Hay bloqueantes?** Si los hay, el envío no debió llegar. No lo apruebes.
-3. **¿Llegó fuera de plazo?** La marca roja lo dice.
-4. **¿Las advertencias son aceptables?** Una advertencia no impide aprobar, pero **debes
-   verla**. Si se repite siempre y nadie la mira, hay que convertirla en bloqueante: eso se
-   decide con la Unidad de Estadísticas.
-
-Puedes descargar el archivo de cada serie desde la tabla de series, y el **reporte** completo
-desde el botón de la cabecera.
-
-### Paso 4 — Decidir: observar o aprobar
-
-Ambas acciones están en la bandeja, en la fila del envío. No hace falta entrar al detalle.
-
-#### Observar
-
-Pulsa **Observar**. Se abre un diálogo con dos campos:
-
-| Campo | Para qué |
-|---|---|
-| **¿Sobre qué serie?** | Si eliges una serie, la observación **se resuelve sola** cuando el encargado suba la corrección de esa serie. Si eliges «Todo el envío», la resuelve el revisor |
-| **¿Qué debe corregir?** | Obligatorio. Escríbelo como instrucción: qué está mal y qué se espera |
-
-Al confirmar, el envío pasa a **observado** y vuelve al establecimiento.
-
-> **Elige la serie siempre que puedas.** Ata la observación al archivo, y el sistema la cierra
-> cuando llega la corrección. Si observas «todo el envío», alguien tiene que acordarse de
-> cerrarla a mano.
-
-#### Aprobar
-
-Pulsa **Aprobar**. Se abre un diálogo con un comentario opcional.
-
-**El sistema no te deja aprobar si falta alguna de estas cuatro condiciones:**
-
-| # | Condición | Por qué |
-|---|---|---|
-| 1 | El envío está **en revisión** | No se aprueba lo que no llegó a revisión |
-| 2 | **No hay observaciones abiertas** | Aprobar con algo pendiente es contradecirse |
-| 3 | **No hay bloqueantes** | Un bloqueante es un dato que no sirve |
-| 4 | **Están todas las series exigidas** | Aprobar a medias deja el dato faltante en la consolidación |
-
-Si alguna falla, el sistema te dice cuál. El diálogo avisa antes de intentarlo: cuando hay
-observaciones abiertas, **desactiva el botón** y muestra el motivo.
-
-Al aprobar, el envío pasa a **aprobado**, que es el estado final. Sus archivos también quedan
-aprobados.
+La solicitud deja una observación por serie y, si el envío estaba aprobado, lo
+reabre antes. El encargado recibe el aviso con el motivo.
 
 ### Paso 5 — Cerrar el período
 
-Cuando ya no queda nada en la bandeja:
-
-1. Menú **Completitud**. Elige año y mes.
-2. Mira el bloque **Avance por serie**. Cada serie tiene una barra apilada con los cinco
-   estados del semáforo: verde aprobado, ámbar en proceso, rojo con errores, gris oscuro sin
-   archivo y gris claro sin envío. De un vistazo se ve qué serie está frenando el mes y en qué
-   punto está trabada.
-3. Revisa la matriz: una fila por establecimiento, una columna por serie.
-4. La columna **Avance** te dice `aprobadas / exigidas` por establecimiento.
-5. El porcentaje de arriba es el del Servicio completo.
-
-Ahí ves de un golpe quién no entregó y qué serie se está quedando atrás. Es el argumento para
-llamarlos.
-
-> Cada barra cuenta solo los establecimientos a los que esa serie les corresponde. Una serie
-> exigida a 4 establecimientos no se compara contra los 7 del Servicio.
-
-> **Sin envío** y **sin archivo** no son lo mismo: «sin envío» significa que ese
-> establecimiento no creó el envío del mes; «sin archivo» significa que el envío existe pero
-> le falta esa serie. El primero es un problema de gestión, el segundo de carga.
-
-> La pantalla de completitud **no exporta** en esta versión. Si necesitas el dato en otro
-> lado, es una conversación pendiente, no un botón escondido.
+Cuando ya no esperas nada, el administrador cierra el período. Tú no lo cierras.
 
 ---
 
-## 3. Filtros de la bandeja
+## 3. El Validador
 
-| Filtro | Para qué sirve |
-|---|---|
-| Estado | Cambiar de «En revisión» a «Observado» para ver qué está esperando al establecimiento |
-| Establecimiento | Un hospital concreto |
-| Año | Períodos de otro año |
-| Antigüedad | «Más de N días»: lo que se está enfriando |
-| Plazo | Solo los que llegaron fuera de plazo |
-| **Limpiar** | Vuelve al estado inicial |
+Es una **ayuda**, no una etapa del flujo. Sirve para revisar un Excel antes de
+aprobar o para chequear la calidad de lo que llegó:
 
-El estado **«Todos»** existe y es útil, pero cuidado: mezcla aprobados con pendientes.
+1. Abre **Validador** y sube el archivo.
+2. El sistema aplica las reglas de calidad de la Unidad y muestra los hallazgos
+   con hoja y celda.
+3. Cada revisión queda registrada en **Mis revisiones**.
+
+**No cambia el estado de ningún envío.** Si encuentras un problema real, se
+resuelve con una observación o con una nueva subida, no desde el Validador.
 
 ---
 
-## 4. Lo que el sistema te dice y qué hacer
+## 4. Atrasos y aperturas
 
-| Mensaje | Qué significa |
-|---|---|
-| «Este envío tiene observaciones sin resolver» | Aprobaste antes de cerrar lo que pediste. Resuélvelo o espera la corrección |
-| «No se puede aprobar: el envío tiene N bloqueante(s)» | Datos que no sirven. Observa y pide corrección |
-| «No se puede aprobar: faltan N serie(s)» | El envío está incompleto. Debió no haber llegado |
-| «Transición no permitida» | El envío cambió de estado mientras mirabas. Recarga |
+Un envío marcado **Fuera de plazo** llegó después de la fecha límite. Eso no se
+corrige desde el portal: es un hecho y queda registrado.
+
+Si un establecimiento necesita cargar un período cerrado, el encargado pide una
+**apertura de plazo**. Tú la ves en **Aperturas de plazo**, pero **solo el
+administrador la aprueba**.
 
 ---
 
 ## 5. Lo que no puedes hacer
 
-- **Ver otro Servicio de Salud.** Tu alcance es el tuyo.
-- **Aprobar un envío donde tú eres el encargado.** Es segregación de funciones: quien carga
-  no aprueba (RN-ENV-7).
-- **Reabrir un envío aprobado.** «Aprobado» es final en esta versión.
-- **Anular un envío.** Solo el admin tiene esos permisos.
-- **Editar catálogos ni usuarios.**
+| Acción | Quién |
+|---|---|
+| Cargar o corregir archivos | El encargado del establecimiento |
+| Aprobar un envío de un establecimiento donde además eres encargado | Nadie: la separación de funciones lo impide (RN-ENV-7) |
+| Aprobar con observaciones abiertas | Nadie: primero se resuelven |
+| Aprobar con series faltantes o bloqueantes | Nadie: primero se corrigen |
+| Aprobar una apertura de plazo | Solo el administrador |
+| Cerrar un período | Solo el administrador |
+| Ver establecimientos que no tienes asignados | Nadie: el alcance está en la consulta |
 
 ---
 
-## 6. Un aviso sobre las notificaciones
+## 6. Problemas frecuentes
 
-Los avisos llegan a la **campana del portal**, no por correo. En esta versión no se envía
-correo.
-
-Consecuencia práctica: **si un encargado no entra al portal, no se enteró de la
-observación.** Para el período de demostración conviene avisar también por teléfono o
-WhatsApp, como se hacía antes.
+| Qué ves | Qué significa |
+|---|---|
+| «No hay establecimientos asignados» | El administrador no te repartió ninguno. Pídelo |
+| «No hay envíos con ese filtro» | Prueba con otro estado o quita los filtros |
+| El botón **Aprobar** no aparece | El envío no está en revisión, o falta resolver algo |
+| «Falta(n) N serie(s) exigida(s)» | El envío está incompleto: obsérvalo |
+| La serie P no aparece | La P se informa solo en junio y diciembre (RF-045) |
+| El aviso no te llegó | Revisa que el establecimiento esté asignado a ti |

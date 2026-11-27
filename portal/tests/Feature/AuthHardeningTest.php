@@ -102,7 +102,7 @@ class AuthHardeningTest extends TestCase
         sort($nombresSeeder);
 
         $this->assertSame($nombresFixture, $nombresSeeder, 'El fixture y el seeder deben declarar los mismos permisos');
-        $this->assertCount(16, $nombresSeeder);
-        $this->assertSame(16, Permission::count());
+        $this->assertCount(20, $nombresSeeder);
+        $this->assertSame(20, Permission::count());
     }
 }

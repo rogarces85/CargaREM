@@ -161,9 +161,14 @@ class L1MinimumSeeder extends Seeder
 
         $revisor = User::updateOrCreate(
             ['email' => 'revisor@ssosorno.cl'],
-            ['name' => 'Revisor Unidad de Estadísticas', 'password' => Hash::make(self::CLAVE), 'activo' => true, 'servicio_id' => $servicio->id]
+            ['name' => 'Equipo REM (demo)', 'password' => Hash::make(self::CLAVE), 'activo' => true, 'servicio_id' => $servicio->id]
         );
         $revisor->syncRoles(['revisor']);
+
+        // R-ALC-01 (v3): sin asignación el revisor no ve ningún dato. En la
+        // demo se le asignan los siete establecimientos para que la bandeja
+        // tenga algo; en producción el reparto lo hace el administrador.
+        $revisor->establecimientos()->sync(collect($establecimientos)->pluck('id')->all());
 
         $encargado1 = User::updateOrCreate(
             ['email' => 'encargado.hospital@ssosorno.cl'],

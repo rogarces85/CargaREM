@@ -12,7 +12,7 @@ Documentación técnica de **Cargas REM** (el sistema que existe hoy) y especifi
 
 Hoy los establecimientos envían sus archivos por correo y la Unidad los revisa y carga a mano. El **Portal M7** propone un portal donde cada encargado sube sus archivos, recibe validación inmediata y sigue el estado de su envío, con revisión y aprobación por la Unidad.
 
-El portal **no reemplaza** a Cargas REM: recibe, valida, ordena la revisión y aprueba la estadística mensual. La generación del archivo MINSAL y la integración automática quedan fuera del MVP. La especificación vigente es [`specs/MVP_V2.md`](specs/MVP_V2.md).
+El portal **no reemplaza** a Cargas REM: recibe, valida, ordena la revisión y aprueba la estadística mensual. La generación del archivo MINSAL y la integración automática quedan fuera del MVP. La especificación vigente es [`specs/MVP_V3.md`](specs/MVP_V3.md).
 
 ---
 
@@ -21,14 +21,14 @@ El portal **no reemplaza** a Cargas REM: recibe, valida, ordena la revisión y a
 | Ruta | Qué contiene |
 |---|---|
 | [`portal/`](portal/) | **La aplicación.** Laravel **12.72.0** sobre PHP **8.2**, fijado en Composer. MySQL 8 en producción, MariaDB 10.4 en local. UI en **Tailwind CSS v4** con componentes Blade propios, compilada a `public/build/` (C-019) |
-| [`specs/`](specs/) | **La especificación vigente:** [`MVP_V2.md`](specs/MVP_V2.md) (alcance v2.0, 14-11-2026). El alcance anterior queda en [`specs/_historico/`](specs/_historico/) para trazabilidad |
-| [`02-DOCS/wiki/`](02-DOCS/wiki/) | Wiki del proyecto: [`sdd/constitution.md`](02-DOCS/wiki/sdd/constitution.md) (Constitución **v5.0.0**, 31 principios), [`sdd/decisions.md`](02-DOCS/wiki/sdd/decisions.md) (registro append-only de decisiones), `stack/` (entorno y decisión de stack), `dominio/` (pipeline V0–V11). Puerta de entrada: [`index.md`](02-DOCS/wiki/index.md) |
+| [`specs/`](specs/) | **La especificación vigente:** [`MVP_V3.md`](specs/MVP_V3.md) (alcance v3.0, 26-11-2026) y su checklist [`V3_TAREAS.md`](specs/V3_TAREAS.md). La v2 y los cortes anteriores quedan en [`specs/`](specs/) y [`specs/_historico/`](specs/_historico/) para trazabilidad |
+| [`02-DOCS/wiki/`](02-DOCS/wiki/) | Wiki del proyecto: [`sdd/constitution.md`](02-DOCS/wiki/sdd/constitution.md) (Constitución **v6.0.0**, 33 principios), [`sdd/decisions.md`](02-DOCS/wiki/sdd/decisions.md) (registro append-only de decisiones), `stack/` (entorno y decisión de stack), `dominio/` (pipeline V0–V11). Puerta de entrada: [`index.md`](02-DOCS/wiki/index.md) |
 | [`informe.md`](informe.md) | Informe técnico completo de Cargas REM: arquitectura, módulos M1–M6, reglas de negocio, flujos, §2.10 del módulo de envío, pendientes P1–P13 |
 | [`backup_documentacion/`](backup_documentacion/) | Documentación profundizada por módulo (M1–M7). El diseño funcional y técnico del portal está en [`MODULO_M7_PROFUNDIZADO.md`](backup_documentacion/MODULO_M7_PROFUNDIZADO.md) (81 KB) |
 | [`docs/`](docs/) | 7 diagramas SVG por módulo, [`FLUJO_DATOS_INTEGRAL_SISTEMA.md`](docs/FLUJO_DATOS_INTEGRAL_SISTEMA.md), `manual/` (guías por rol y mapa del sistema), `validacion/` (catálogo `ENV-###`, paridad de cabecera, política de severidad), [`datos/`](docs/datos/fuentes-datos-mdb.md) (inventario de las bases Access) y [`seguridad/`](docs/seguridad/dependencias-eol.md) (historial de los avisos del canon PHP 7.4, resuelto con C-015) |
 | [`Flujos/`](Flujos/) | 8 infografías PNG de los flujos principales |
 | [`REVIEW.md`](REVIEW.md) | Qué mira el revisor: 13 fallos graves, rutas que no se revisan, tope de nits y rutas que exigen decisión humana |
-| [`tests/Parity/fixtures/`](tests/Parity/fixtures/) | *Fixtures* de paridad. Hoy [`rbac-matrix.json`](tests/Parity/fixtures/rbac-matrix.json) (16 permisos × 3 roles) y la estructura para los *golden files* |
+| [`tests/Parity/fixtures/`](tests/Parity/fixtures/) | *Fixtures* de paridad. Hoy [`rbac-matrix.json`](tests/Parity/fixtures/rbac-matrix.json) (20 permisos × 3 roles) y la estructura para los *golden files* |
 | [`01-TOOLS/`](01-TOOLS/) | Herramientas de máquina. Incluye [`rem-export`](01-TOOLS/rem-export/README.md), el exportador de catálogos `.mdb → CSV`; y una plantilla para credenciales (`.env` local, fuera de git) |
 | [`AGENTS.md`](AGENTS.md) · `.rsc/` · `.dsh/` · `.opencode/` | Harness de trabajo del agente (rsc 4.1.9) |
 
@@ -62,7 +62,7 @@ El portal **no reemplaza** a Cargas REM: recibe, valida, ordena la revisión y a
 
 **Por qué esta versión y no una anterior:** Laravel 8 acumula 5 avisos de seguridad sin parche posible. La primera rama limpia es Laravel 12.68+, que exige PHP 8.2 — la versión que el servidor ya corre en el vhost de Observaciones. Decisión en [`sdd/decisions.md`](02-DOCS/wiki/sdd/decisions.md) (C-015). El despliegue espera a que TI habilite PHP 8.2.
 
-**Por qué Tailwind y no AdminLTE:** la Constitución v5.0.0 enmendó la capa de UI (C-019). El portal ya compilaba Tailwind v4 en cada build sin que ningún layout lo cargara, y arrastraba tres juegos de assets de AdminLTE y una dependencia de DataTables con cero usos. Los assets de AdminLTE se retiraron en la Fase 6 del rediseño.
+**Por qué Tailwind y no AdminLTE:** la Constitución enmendó la capa de UI (C-019). El portal ya compilaba Tailwind v4 en cada build sin que ningún layout lo cargara, y arrastraba tres juegos de assets de AdminLTE y una dependencia de DataTables con cero usos. Los assets de AdminLTE se retiraron en la Fase 6 del rediseño.
 
 Otras restricciones confirmadas: `upload_max_filesize=2M`, `post_max_size=8M`, sin `pdo_sqlite`/`opcache`/`bcmath` en el servidor, acceso por FTP, sin SSH confirmado. Detalle en [`stack/restricciones-servidor.md`](02-DOCS/wiki/stack/restricciones-servidor.md).
 
@@ -70,7 +70,7 @@ Otras restricciones confirmadas: `upload_max_filesize=2M`, `post_max_size=8M`, s
 
 ## Estado del proyecto
 
-El alcance está cerrado en [`specs/MVP_V2.md`](specs/MVP_V2.md) (v2.0, 14-11-2026) y el portal está construido sobre ese corte:
+El alcance está cerrado en [`specs/MVP_V3.md`](specs/MVP_V3.md) (v3.0, 26-11-2026) y el portal está construido sobre ese corte:
 
 | Módulo | Qué hay | Estado |
 |---|---|---|
@@ -115,7 +115,7 @@ Los límites y las diferencias entre ambos entornos —incluidas las cinco que r
 ## Cómo se trabaja aquí
 
 - **Ramas:** `main` está protegida y cerrada para el agente. El código entra por `feature/*` con pull request.
-- **Reglas de la casa:** [Constitución v5.0.0](02-DOCS/wiki/sdd/constitution.md), 31 principios. Manda sobre cualquier otro documento, incluido este README.
+- **Reglas de la casa:** [Constitución v6.0.0](02-DOCS/wiki/sdd/constitution.md), 33 principios. Manda sobre cualquier otro documento, incluido este README.
 - **Qué se aprueba:** [REVIEW.md](REVIEW.md).
 - **Decisiones:** toda decisión significativa se agrega a [`sdd/decisions.md`](02-DOCS/wiki/sdd/decisions.md). Es append-only: no se borra ni se reescribe una entrada.
 - **Documentos canónicos:** `informe.md` y `MODULO_M7_PROFUNDIZADO.md` son la fuente del sistema de escritorio y del diseño del portal. `stack_modulo_envio.md` es una **propuesta superada** (C-015). La wiki enlaza y sintetiza; no duplica. Qué documento manda para cada tema: [`02-DOCS/wiki/index.md`](02-DOCS/wiki/index.md).
@@ -226,7 +226,7 @@ clave `Portal2026!`.
 php artisan test
 ```
 
-Deben pasar **261 tests y 649 aserciones**. Usan su propia base (`cargas_rem_test`)
+Deben pasar **383 tests y 972 aserciones**. Usan su propia base (`cargas_rem_test`)
 y no tocan los datos de trabajo.
 
 ---

@@ -48,6 +48,9 @@ class NotificacionTest extends TestCase
 
         $this->revisor = User::factory()->create(['activo' => true]);
         $this->revisor->assignRole('revisor');
+        // R-ALC-01 (v3): el aviso llega a los revisores asignados al
+        // establecimiento, no a todos los del Servicio.
+        $this->revisor->establecimientos()->attach($establecimiento->id);
 
         $this->admin = User::factory()->create(['activo' => true]);
         $this->admin->assignRole('admin');
@@ -140,7 +143,7 @@ class NotificacionTest extends TestCase
         // Notificador que explota: el estado igual tiene que cambiar.
         $this->app->bind(Notificador::class, function () {
             return new class extends Notificador {
-                public function enviar(Envio $envio, string $evento, ?User $actor = null): array
+                public function enviar(Envio $envio, string $evento, ?User $actor = null, array $extra = []): array
                 {
                     throw new \RuntimeException('la notificación falló');
                 }

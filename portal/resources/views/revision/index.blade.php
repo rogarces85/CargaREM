@@ -6,10 +6,24 @@
     <div class="mx-auto max-w-6xl space-y-6">
 
         <x-ui.page-header
-            titulo="Bandeja de revisión"
-            subtitulo="Envíos de los establecimientos del Servicio de Salud. Los más antiguos primero."
+            titulo="Bandeja del Equipo REM"
+            subtitulo="Envíos de los establecimientos que tiene asignados. Los más antiguos primero."
             :migas="['Panel' => route('panel'), 'Revisión' => null]"
-        />
+        >
+            <x-slot:acciones>
+                <a href="{{ route('revision.reenvio.form') }}" class="btn btn-secondary">
+                    <x-ui.icon name="rotate-ccw" class="size-4" />
+                    Pedir nueva subida
+                </a>
+            </x-slot:acciones>
+        </x-ui.page-header>
+
+        @if ($sinAsignacion)
+            <x-ui.alert tono="warn">
+                No tiene establecimientos asignados, así que su bandeja está vacía.
+                Pídale al administrador que le asigne al menos uno en <strong>Administración → Asignaciones</strong>.
+            </x-ui.alert>
+        @endif
 
         {{-- Filtros --}}
         <x-ui.card class="p-5">

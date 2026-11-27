@@ -45,6 +45,8 @@ class RevisionTest extends TestCase
 
         $this->revisor = User::factory()->create(['activo' => true]);
         $this->revisor->assignRole('revisor');
+        // R-ALC-01: el Equipo REM solo ve lo asignado.
+        $this->revisor->establecimientos()->attach($this->establecimiento->id);
 
         $this->serie = Serie::create(['codigo' => 'A', 'nombre' => 'SERIE A']);
         $this->establecimiento->series()->attach($this->serie->id, ['obligatoria' => true]);
@@ -59,7 +61,7 @@ class RevisionTest extends TestCase
         $this->actingAs($this->revisor)
             ->get('/revision')
             ->assertOk()
-            ->assertSee('Bandeja de revisión')
+            ->assertSee('Bandeja del Equipo REM')
             ->assertSee('123100');
     }
 

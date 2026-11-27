@@ -93,7 +93,6 @@ class RendimientoTest extends TestCase
 
         $revisor = User::factory()->create(['activo' => true]);
         $revisor->assignRole('revisor');
-
         $encargado = User::factory()->create(['activo' => true]);
         $encargado->assignRole('encargado');
 
@@ -107,6 +106,11 @@ class RendimientoTest extends TestCase
             ]);
 
             $establecimiento->series()->attach($serie->id, ['obligatoria' => true]);
+
+            // R-ALC-01 (v3): la bandeja del Equipo REM mide su reparto real.
+            // Sin asignación, la pantalla devolvería cero filas y el
+            // presupuesto mediría una consulta vacía.
+            $revisor->establecimientos()->attach($establecimiento->id);
 
             $envio = Envio::create([
                 'establecimiento_id' => $establecimiento->id,

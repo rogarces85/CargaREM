@@ -168,7 +168,7 @@ No simula el ciclo completo: eso se recorre a mano desde el navegador
 php artisan test
 ```
 
-Deben pasar **261 tests**. Los tests usan su propia base (`cargas_rem_test`),
+Deben pasar **383 tests**. Los tests usan su propia base (`cargas_rem_test`),
 que se destruye y recrea en cada corrida: no tocan los datos de desarrollo.
 
 Si faltan tests por base inexistente:
@@ -238,5 +238,32 @@ Los pasos 1 a 4 de esta guía, con `REM_CATALOGO_DIR` apuntando al catálogo.
 php artisan test
 ```
 
-Deben pasar **261 tests**. El conteo no depende de los datos: los tests usan su
+Deben pasar **383 tests**. El conteo no depende de los datos: los tests usan su
 propia base.
+
+---
+
+## Comandos de la v3
+
+El calendario y las excepciones de plazo se mantienen con estos comandos. **Ninguno
+es obligatorio**: el portal genera el período que falta cuando alguien lo pide y
+controla las ventanas por fecha.
+
+```bat
+php artisan rem:periodos:generar 2027          Crea los doce períodos del año
+php artisan rem:periodos:generar --siguiente   Año en curso y el siguiente
+php artisan rem:calendario 2026 --verificar    Falla si el calendario se desfasó
+php artisan rem:feriados:cargar 2027           Carga los feriados verificados
+php artisan rem:aperturas:cerrar               Marca las ventanas vencidas
+php artisan rem:validador:limpiar              Borra archivos con más de 90 días
+```
+
+Para probar el panel y los gráficos necesita el artefacto compilado:
+
+```bat
+cd portal
+npm run build
+```
+
+Sin `npm run build`, el portal sirve el CSS y el JS anteriores: los gráficos no
+aparecen y la tabla de respaldo sigue mostrando las cifras.

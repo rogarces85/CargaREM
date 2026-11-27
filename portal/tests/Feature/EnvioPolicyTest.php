@@ -74,14 +74,33 @@ class EnvioPolicyTest extends TestCase
         $this->assertSame($propio->id, $visibles->first()->establecimiento_id);
     }
 
-    public function test_el_revisor_ve_todos_los_envios(): void
+    public function test_el_revisor_ve_los_envios_de_sus_establecimientos(): void
+    {
+        $propio = $this->establecimiento('A1');
+        $ajeno = $this->establecimiento('A2');
+        $this->envio($propio);
+        $this->envio($ajeno, 8);
+
+        $revisor = $this->usuario('revisor');
+        $revisor->establecimientos()->attach($propio->id);
+
+        $visibles = Envio::forUser($revisor)->get();
+
+        // R-ALC-01 (v3): antes el revisor veía todo el Servicio; ahora solo lo
+        // que el administrador le asigna.
+        $this->assertCount(1, $visibles);
+        $this->assertSame($propio->id, $visibles->first()->establecimiento_id);
+    }
+
+    public function test_el_revisor_sin_asignacion_no_ve_ningun_envio(): void
     {
         $this->envio($this->establecimiento('A1'));
         $this->envio($this->establecimiento('A2'), 8);
 
         $revisor = $this->usuario('revisor');
 
-        $this->assertSame(2, Envio::forUser($revisor)->count());
+        $this->assertCount(0, Envio::forUser($revisor)->get());
+        $this->assertSame(0, Envio::forUser($revisor)->count());
     }
 
     public function test_un_encargado_no_crea_envio_en_establecimiento_ajeno(): void
@@ -109,8 +128,9 @@ class EnvioPolicyTest extends TestCase
 
         $this->assertFalse($revisor->can('aprobar', $envio));
 
-        // Otro revisor sí puede.
+        // Otro revisor asignado al mismo establecimiento sí puede.
         $otro = $this->usuario('revisor');
+        $otro->establecimientos()->attach($establecimiento->id);
         $this->assertTrue($otro->can('aprobar', $envio));
     }
 
@@ -121,7 +141,6 @@ class EnvioPolicyTest extends TestCase
 
         $this->assertFalse($revisor->can('aprobar', $envio), 'recibido no se aprueba');
     }
-
     public function test_un_envio_no_se_borra(): void
     {
         $envio = $this->envio($this->establecimiento('A1'));

@@ -19,12 +19,14 @@ Cuando dos documentos se contradicen, gana el primero de esta lista. Es la regla
 
 | # | Documento | Manda sobre |
 |---|---|---|
-| 1 | [`sdd/constitution.md`](sdd/constitution.md) — v5.0.0 | Todo. Stack, calidad, convenciones, UI |
-| 2 | [`specs/MVP_V2.md`](../../specs/MVP_V2.md) | Alcance, requisitos, criterios de aceptación del portal |
+| 1 | [`sdd/constitution.md`](sdd/constitution.md) — v6.0.0 | Todo. Stack, calidad, convenciones, UI, módulos laterales |
+| 2 | [`specs/MVP_V3.md`](../../specs/MVP_V3.md) | Alcance, requisitos, criterios de aceptación del portal |
 | 3 | [`sdd/decisions.md`](sdd/decisions.md) | El registro de por qué se decidió cada cosa |
 | 4 | `portal/` | Lo que el sistema hace de verdad. Si el código contradice estos documentos, el código está mal |
 | 5 | `informe.md` y `backup_documentacion/MODULO_M*.md` | Cómo funciona el sistema de escritorio Cargas REM |
 | 6 | `docs/` y `02-DOCS/wiki/` | Guías, manuales y síntesis. Nunca mandan: enlazan |
+
+**Documento superado.** [`specs/MVP_V2.md`](../../specs/MVP_V2.md) queda como historia del corte v2 desde el 2026-11-26.
 
 **Documentos superados.** Se conservan por trazabilidad y **no se citan como fuente**: `stack/decision-stack.md` (C-010), `stack/opciones-stack.md` (investigación de C-009), `stack/restricciones-servidor.md` (diagnóstico previo a C-015), `stack_modulo_envio.md` (propuesta previa a C-015) y `docs/stack/prototipo-laravel-12.md` (prototipo ya promovido a C-015). Cada uno abre con su estado.
 
@@ -44,15 +46,17 @@ Cuando dos documentos se contradicen, gana el primero de esta lista. Es la regla
 
 | Documento | Qué contiene |
 |---|---|
-| [`MVP_V2.md`](../../specs/MVP_V2.md) | **Alcance vigente v2.0 (14-11-2026):** actores, requisitos, reglas, estados, permisos y criterios de aceptación |
+| [`MVP_V3.md`](../../specs/MVP_V3.md) | **Alcance vigente v3.0 (26-11-2026):** Equipo REM, alcance por asignación, aperturas de plazo, reapertura, serie P semestral, calendario automático, panel y Validador. 20 permisos |
+| [`MVP_V2.md`](../../specs/MVP_V2.md) | **Superado.** Corte v2 del 14-11-2026, conservado como historia |
+| [`V3_TAREAS.md`](../../specs/V3_TAREAS.md) | Checklist de la v3 con su evidencia |
 | [`_historico/`](../../specs/_historico/) | Especificaciones anteriores (v1 y el corte del 13-11). Trazabilidad, no fuente |
 
 ## sdd/ — reglas y decisiones
 
 | Artículo | Qué contiene |
 |---|---|
-| [`sdd/constitution.md`](sdd/constitution.md) | Constitución **v5.0.0**: canon Laravel **12.72** + PHP **8.2** + **Tailwind CSS v4** (C-019), 31 principios y Definition of Done. |
-| [`sdd/decisions.md`](sdd/decisions.md) | Registro append-only de decisiones: D-STACK (C-015), rediseño UI (C-019), alcance v2 (C-017), alineación v2.0 (C-018) y D5/D6 abiertas |
+| [`sdd/constitution.md`](sdd/constitution.md) | Constitución **v6.0.0**: canon Laravel **12.72** + PHP **8.2** + **Tailwind CSS v4** (C-019), 33 principios y Definition of Done. §10: módulos laterales y alcance por asignación |
+| [`sdd/decisions.md`](sdd/decisions.md) | Registro append-only de decisiones: alcance v3 (C-020), Equipo REM (D-041), alcance por asignación (D-042), reapertura (D-043), aperturas (D-044), serie P (D-045), calendario (D-046), Validador (D-047), panel (D-048), filtros (D-049) y avisos (D-050) |
 
 ## stack/ — entorno y decisión **cerrada (C-015)**
 
@@ -69,6 +73,11 @@ Cuando dos documentos se contradicen, gana el primero de esta lista. Es la regla
 | Artículo | Qué contiene |
 |---|---|
 | [`dominio/validacion-rem.md`](dominio/validacion-rem.md) | Pipeline V0–V11, severidad, códigos `ENV-###`, paridad con *golden files* y presupuesto de ejecución |
+| [`dominio/serie-p-semestral.md`](dominio/serie-p-semestral.md) | **v3:** por qué la P se informa solo en 06 y 12, cómo se modela y qué cuatro lectores dependen de la regla |
+| [`dominio/asignacion-revisores.md`](dominio/asignacion-revisores.md) | **v3:** el reparto Equipo REM, los tres roles, R-ALC-01 a R-ALC-05 y qué pantallas usan el alcance |
+| [`dominio/aperturas-fuera-plazo.md`](dominio/aperturas-fuera-plazo.md) | **v3:** cómo se pide, aprueba y vence una apertura; qué habilita y qué no |
+| [`dominio/modulo-validador.md`](dominio/modulo-validador.md) | **v3:** el módulo de calidad, el JSON de reglas, los tipos admitidos y por qué no toca el flujo |
+| [`dominio/panel-indicadores.md`](dominio/panel-indicadores.md) | **v3:** qué cifras ve cada rol, de dónde salen y cómo se garantiza la lectura sin JavaScript |
 | [`../../docs/validacion/inconsistencias-documentacion-codigo.md`](../../docs/validacion/inconsistencias-documentacion-codigo.md) | **Auditoría:** qué afirmaban los documentos y el código no cumplía. B y C corregidos el 25-11; A (derivar del histórico) sigue abierta |
 
 ## datos/ — fuentes maestras
@@ -103,6 +112,7 @@ Cuando dos documentos se contradicen, gana el primero de esta lista. Es la regla
 |---|---|
 | [`../feature-cierre-documentacion.md`](../feature-cierre-documentacion.md) | **Cerrada:** qué se corrigió para que los documentos coincidan con el código (2026-11-24) |
 | [`../feature-matriz-series-vigencia.md`](../feature-matriz-series-vigencia.md) | **Cerrada:** la matriz de series en un solo lugar, con la ventana de vigencia real (2026-11-25) |
+| [`../feature-mejoras-v3.md`](../feature-mejoras-v3.md) | **Cerrada:** las diez mejoras de la v3, con su checklist y su evidencia (2026-11-26) |
 
 ## Cómo crece esta wiki
 

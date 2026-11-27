@@ -47,6 +47,7 @@ class EstadoEnvioTest extends TestCase
 
         $this->revisor = User::factory()->create(['activo' => true]);
         $this->revisor->assignRole('revisor');
+        $this->revisor->establecimientos()->attach($establecimiento->id);
 
         $serie = Serie::create(['codigo' => 'A', 'nombre' => 'SERIE A']);
         $establecimiento->series()->attach($serie->id, ['obligatoria' => true]);

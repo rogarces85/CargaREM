@@ -1,21 +1,21 @@
 ---
 type: constitution
 title: Cargas — Constitution
-description: Los principios no negociables que toda fase rsc-sdd obedece. Stack canon: Laravel 12.72 + PHP 8.2 + MySQL 8 + Tailwind CSS v4 sobre componentes propios (C-019). Alcance vigente: MVP v2.
-tags: [sdd, constitution, cargas, rem, mvp-v2]
-timestamp: 2026-11-16T12:50:00Z
+description: Los principios no negociables que toda fase rsc-sdd obedece. Stack canon: Laravel 12.72 + PHP 8.2 + MySQL 8 + Tailwind CSS v4 sobre componentes propios (C-019). Alcance vigente: MVP v3.
+tags: [sdd, constitution, cargas, rem, mvp-v3]
+timestamp: 2026-11-26T12:00:00Z
 topic: sdd
-version: v5.0.0
+version: v6.0.0
 ---
 
 # Cargas — Constitution
 
-> Version: v5.0.0 · Ratified: 2026-11-06 · Last amended: 2026-11-16
+> Version: v6.0.0 · Ratified: 2026-11-06 · Last amended: 2026-11-26
 > Principios no negociables que toda fase rsc-sdd obedece. El detalle técnico vive en
 > `02-DOCS/wiki/stack/` y `02-DOCS/wiki/dominio/`; este archivo ratifica el principio y enlaza el detalle.
 >
-> **Alcance.** Rige el portal REM de envío por establecimiento en su MVP v2
-> (`specs/MVP_V2.md`) y la documentación técnica de Cargas REM. No rige el ejecutable WinForms
+> **Alcance.** Rige el portal REM de envío por establecimiento en su **v3.0**
+> (`specs/MVP_V3.md`) y la documentación técnica de Cargas REM. No rige el ejecutable WinForms
 > existente, que se documenta pero no se modifica aquí.
 
 ## 0. Decisión de stack — CERRADA (C-015: Laravel 12.72 + PHP 8.2 + MySQL 8; capa UI enmendada por C-019: Tailwind CSS v4)
@@ -145,8 +145,8 @@ Es una decisión deliberada. La alternativa —Laravel 8 con 5 avisos sin parche
     `01-TOOLS/<proveedor>/.env`. En producción `APP_DEBUG=false` y sin `phpinfo` ni páginas de
     diagnóstico: cualquier archivo de diagnóstico se borra en la misma sesión.
 21. **La auditoría es *append-only*.** Login, subida, descarga, validación, observación,
-    aprobación y el CRUD de usuarios, catálogos y períodos quedan registrados; no se edita ni se
-    borra desde la interfaz (RN-ENV-3). En v2.0 no hay reapertura ni anulación.
+    aprobación, reapertura, apertura de plazo y uso del Validador quedan registrados; no se edita ni se
+    borra desde la interfaz (RN-ENV-3). La reapertura existe desde la v3 y siempre lleva motivo.
 22. **Datos REM = confidenciales.** El repositorio no contiene archivos reales, `.mdb`, `.sql` con
     datos, credenciales ni `.env`. Los logs no guardan contenido de celdas ni observaciones
     completas. Antes de producción hay revisión legal de privacidad y retención (Ley 21.719).
@@ -191,6 +191,19 @@ Es una decisión deliberada. La alternativa —Laravel 8 con 5 avisos sin parche
     `decisions.md` antes de entrar. Los presupuestos del principio 25 aplican al peso que la
     librería agregue al cliente.
 
+## 10. Módulos laterales y alcance por asignación
+
+32. **El módulo Validador no interviene en el proceso estadístico.** Revisa un archivo suelto con
+    las reglas de calidad de la Unidad y registra su uso; no crea envíos, no cambia estados y no
+    escribe en `envios`, `envio_archivos`, `validaciones` ni `envio_transiciones`. Toda
+    funcionalidad de «ayuda» que alguien pida se evalúa primero contra esta regla: si necesita
+    cambiar el estado de un envío, no es un módulo lateral, es parte del flujo y se especifica como
+    tal.
+33. **El alcance es la asignación explícita.** Un revisor o un encargado alcanza exactamente los
+    establecimientos que el administrador le asignó; sin asignación no alcanza ninguno, y ese caso
+    se avisa en vez de caer a «todos». La regla vive en un solo lugar (`App\Dominio\Alcance`) y se
+    aplica en la consulta, nunca en la vista.
+
 ## Definition of Done (la barra que `verify` ejecuta)
 
 Un cambio se entrega solo si TODO se cumple:
@@ -205,6 +218,8 @@ Un cambio se entrega solo si TODO se cumple:
 - [ ] Aislamiento, archivos, secretos y auditoría cumplen (18–22).
 - [ ] Accesibilidad y presupuestos de rendimiento se cumplen donde apliquen (23–25).
 - [ ] Los estados usan tokens y se distinguen sin color; ninguna clase CSS se construye en Blade (29–31).
+- [ ] El módulo Validador sigue aislado del flujo y su uso queda registrado (32).
+- [ ] El alcance por asignación se aplica en la consulta y el revisor sin asignación no ve nada (33, 18).
 - [ ] La decisión quedó registrada (26–28).
 
 ## Amendment log (append-only)
@@ -222,6 +237,7 @@ Un cambio se entrega solo si TODO se cumple:
 | 2026-11-13 | **v4.1.0** | **MINOR.** Reduce el alcance al MVP v2: retira el contrato del puente y la confirmación de carga, deja un solo Servicio de Salud y actualiza el documento canónico a `specs/MVP_V2.md`. | Decisión C-017 y reunión interna: el sistema hacía más de lo necesario. |
 | 2026-11-14 | **v4.2.0** | **MINOR.** Alineación con `specs/MVP_V2.md` (14-11): principios 21 y 24 sin reapertura ni anulación; la auditoría incorpora el CRUD de usuarios, catálogos y períodos; la Definition of Done fija MySQL 8 como base de pruebas. | C-018: el documento del 14-11 recorta la superficie del MVP y retira las operaciones de excepción. |
 | 2026-11-16 | **v5.0.0** | **MAJOR.** **Enmienda la capa UI del canon (§0):** AdminLTE 3.2 (Bootstrap 4) → **Tailwind CSS v4 + componentes Blade propios**, con Lucide, ApexCharts diferido e Inter self-hosted. El backend no cambia. Agrega **§9 Capa de presentación** con los principios 29–31 (sin clases construidas en Blade, estado legible sin color, dependencias de cliente registradas) y una línea nueva en la Definition of Done. Actualiza el principio 23, que invocaba a AdminLTE por su nombre. Reemplaza v4.2.0. | C-019. `portal/resources/css/app.css` ya compilaba Tailwind v4 en cada build sin que ningún layout lo cargara; el portal arrastraba tres juegos de assets de AdminLTE, FontAwesome como fuente y una dependencia de DataTables con 0 usos. El plan está en `02-DOCS/feature-rediseno-ui-clinova.md`. |
+| 2026-11-26 | **v6.0.0** | **MAJOR.** Alcance a la **v3** (`specs/MVP_V3.md`). Agrega **§10 Módulos laterales y alcance por asignación** con los principios 32 (el Validador no interviene en el flujo) y 33 (el alcance es la asignación explícita, en la consulta y sin caer a «todos»). Amplía el 21: la reapertura existe y lleva motivo; la auditoría incorpora aperturas de plazo y uso del Validador. Agrega dos líneas a la Definition of Done. Reemplaza v5.0.0. | C-020. La Unidad pidió reparto de la revisión por establecimiento, excepciones de plazo, corrección posterior a la aprobación, serie P semestral, calendario automático, panel con indicadores y un módulo de calidad aislado. Todo eso cambia el alcance y el modelo de acceso, no el stack. |
 
 
 
